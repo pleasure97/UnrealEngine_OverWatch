@@ -7,7 +7,7 @@
 #include "GameLiftServerSDK.h"
 #include "ShooterGameMode.generated.h"
 
-DECLARE_LOG_CATERGORY_EXTERN(LogShooterGameMode, Log, All); 
+DECLARE_LOG_CATEGORY_EXTERN(LogShooterGameMode, Log, All); 
 
 /**
  * 
@@ -27,5 +27,8 @@ private:
 	// Process Parameters needs to remain in scope for the lifetime of the app 
 	FProcessParameters ProcessParameters;
 	
-	void InitGameLift(); 
+	void InitGameLift();
+	void ParseCommandLinePort(int32& OutPort);
+	void SetServerParameters(FServerParameters& OutServerParameters);
+
 };
