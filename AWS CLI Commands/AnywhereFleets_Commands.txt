@@ -1,0 +1,61 @@
+0. Set profile for command prompt session
+SET AWS_PROFILE=profileName*
+aws sso login --profile profileName*
+
+1. Register your device as a computer device 
+
+aws configure sso
+SSO session name (Recommended): sessionName*
+SSO start URL [None]: https://*.awsapps.com/start/#
+SSO region [None]: us-east-1
+SSO registration scopes [sso:account:access]: sso:account:access
+Attempting to automatically open the SSO authorization page in your default browser.
+If the browser does not open or you wish to use a different device to authorize this request, open the following URL:
+
+CLI default client Region [None]: ap-northeast-2
+CLI default output format [None]: json
+CLI profile name [AdministratorAccess-904197860153]: profileName*
+
+aws gamelift register-compute ^
+ --compute-name computeName* ^
+ --fleet-id fleetId* ^
+ --ip-address IPConfig* ^
+ --location custom-location* ^
+ --profile profileName*
+
+2. Get the auth token for your PC 
+aws gamelift get-compute-auth-token ^
+ --fleet-id fleeId* ^
+ --compute-name ComputeName*
+
+3. Run the game .exe from the command line  
+"C:\..\Build\Build_1\WindowsServer\FPSTemplate\Binaries\Win64\FPSTemplateServer.exe"  ^
+ -log ^
+ -authtoken=authToken* ^
+ -hostid=computeName* ^
+ -fleetid=fleetId* ^
+ -websocketurl=wss://ap-northeast-2.api.amazongamelift.com ^
+ -port=7777
+
+4. Run the client .exe and connect with the dedicated server
+- click "C:\..\Build\Build_1\Windows\FPSTemplate.exe"
+- press keyboard ` button 
+- fill in the blank 'open 127.0.0.1:7777'
+
+5. Create game session 
+aws gamelift create-game-session ^
+ --fleet-id fleetId* ^
+ --name DebugGameSession ^
+ --maximum-player-session-count 4 ^
+ --region ap-northeast-2 ^
+ --location custom-location*
+
+6. Find Game Session 
+aws gamelift describe-game-sessions ^
+ --fleet-id fleetId* ^
+ --status-filter ACTIVE
+
+7. Create Player Session
+aws gamelift create-player-session ^
+ --game-session-id gameSessionId(acquired by describe-game-sessions command) ^
+ --player-id playerName*

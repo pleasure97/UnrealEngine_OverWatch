@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{ED1343C7-4CD5-1501-DB4B-2DBB81A1947D}",
+	"EngineAssociation": "{0938EEF1-415F-2ECE-EE13-4B8D7B64EBC0}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -55,7 +55,7 @@
 			"Enabled": false
 		},
 		{
-			"Name": "GameLiftPlugin", 
+			"Name": "GameLiftPlugin",
 			"Enabled": true
 		}
 	]
