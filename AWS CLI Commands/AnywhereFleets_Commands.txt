@@ -59,3 +59,12 @@ aws gamelift describe-game-sessions ^
 aws gamelift create-player-session ^
  --game-session-id gameSessionId(acquired by describe-game-sessions command) ^
  --player-id playerName*
+
+8. Upload Build
+aws gamelift upload-build ^
+ --name FPSTemplateServerBuild ^
+ --operating-system WINDOWS_2016 ^
+ --server-sdk-version "5.1.3" ^
+ --build-root "C:\UnrealProjects\FPSTemplate\Build\Build_1\WindowsServer" ^
+ --build-version 1.0.0 ^
+ --region ap-northeast-2
