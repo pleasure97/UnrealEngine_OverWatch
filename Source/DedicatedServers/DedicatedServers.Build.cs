@@ -16,7 +16,9 @@ public class DedicatedServers : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] 
 		{ 
-			"Slate", "SlateCore"
+			"Slate", 
+			"SlateCore", 
+			"UMG"
 		});
 	}
 }
