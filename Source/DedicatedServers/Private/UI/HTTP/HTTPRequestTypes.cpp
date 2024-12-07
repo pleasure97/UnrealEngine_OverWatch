@@ -15,3 +15,16 @@ void FDSMetaData::Dump() const
 
 
 }
+
+void FDSListFleetsResponse::Dump() const
+{
+	UE_LOG(LogDedicatedServers, Log, TEXT("ListFleetsResponse"));
+	for (const FString& FleetId : FleetIds)
+	{
+		UE_LOG(LogDedicatedServers, Log, TEXT("FleetId : %s"), *FleetId); 
+	}
+	if (!NextToken.IsEmpty())
+	{
+		UE_LOG(LogDedicatedServers, Log, TEXT("NextToken : %s"), *NextToken); 
+	}
+}

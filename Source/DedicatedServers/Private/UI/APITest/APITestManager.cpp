@@ -11,7 +11,6 @@
 
 void UAPITestManager::ListFleetsButtonClicked()
 {
-
 	check(APIData); 
 
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest(); 
@@ -43,5 +42,9 @@ void UAPITestManager::ListFleets_Response(FHttpRequestPtr Request, FHttpResponse
 
 			DSMetaData.Dump(); 
 		}
+
+		FDSListFleetsResponse ListFleetsResponse;
+		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &ListFleetsResponse); 
+		ListFleetsResponse.Dump(); 
 	}
 }
