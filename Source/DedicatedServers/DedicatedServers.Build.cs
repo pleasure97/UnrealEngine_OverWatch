@@ -20,7 +20,9 @@ public class DedicatedServers : ModuleRules
 		{ 
 			"Slate", 
 			"SlateCore", 
-			"UMG"
+			"UMG", 
+			"Json", 
+			"JsonUtilities"	
 		});
 	}
 }
