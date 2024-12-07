@@ -6,6 +6,8 @@
 #include "Data/API/APIData.h"
 #include "GameplayTags/DedicatedServersTags.h"
 #include "Interfaces/IHttpResponse.h"
+#include "JsonObjectConverter.h"
+#include "UI/HTTP/HTTPRequestTypes.h"
 
 void UAPITestManager::ListFleetsButtonClicked()
 {
@@ -33,13 +35,13 @@ void UAPITestManager::ListFleets_Response(FHttpRequestPtr Request, FHttpResponse
 	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
 	if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
 	{
-		if (JsonObject->HasField(TEXT("FleetIds")))
+		if (JsonObject->HasField(TEXT("$metadata")))
 		{
-			for (TSharedPtr<FJsonValue> Fleet : JsonObject->GetArrayField(TEXT("FleetIds")))
-			{
-				FString FleetString = Fleet->AsString(); 
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FleetString);
-			}
+			TSharedPtr<FJsonObject> MetaDataJsonObject = JsonObject->GetObjectField(TEXT("$metadata")); 
+			FDSMetaData DSMetaData; 
+			FJsonObjectConverter::JsonObjectToUStruct(MetaDataJsonObject.ToSharedRef(), &DSMetaData); 
+
+			DSMetaData.Dump(); 
 		}
 	}
 }
