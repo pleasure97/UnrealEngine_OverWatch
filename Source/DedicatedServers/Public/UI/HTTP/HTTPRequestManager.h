@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "HTTPRequestManager.generated.h"
 
+class UAPIData; 
 /**
  * 
  */
@@ -14,7 +15,9 @@ class DEDICATEDSERVERS_API UHTTPRequestManager : public UObject
 {
 	GENERATED_BODY()
 	
-	
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAPIData> APIData; 
 	
 	
 };
