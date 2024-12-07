@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/HTTP/HTTPRequestManager.h"
+#include "Interfaces/IHttpRequest.h"
 #include "APITestManager.generated.h"
 
 /**
@@ -18,4 +19,5 @@ public:
 	UFUNCTION()
 	void ListFleetsButtonClicked(); 
 	
+	void ListFleets_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 };
