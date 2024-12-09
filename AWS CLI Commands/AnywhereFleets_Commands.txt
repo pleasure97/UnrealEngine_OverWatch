@@ -25,15 +25,15 @@ aws gamelift register-compute ^
 
 2. Get the auth token for your PC 
 aws gamelift get-compute-auth-token ^
- --fleet-id fleeId* ^
- --compute-name ComputeName*
+ --fleet-id fleet-51a5e70e-2ad6-49bd-ad47-16ade7a32b51 ^
+ --compute-name DesktopPC 
 
 3. Run the game .exe from the command line  
-"C:\..\Build\Build_1\WindowsServer\FPSTemplate\Binaries\Win64\FPSTemplateServer.exe"  ^
+"C:\UnrealProjects\FPSTemplate\Build\Build_1\WindowsServer\FPSTemplate\Binaries\Win64\FPSTemplateServer.exe"  ^
  -log ^
- -authtoken=authToken* ^
- -hostid=computeName* ^
- -fleetid=fleetId* ^
+ -authtoken=32a50b56-a1dd-488b-bd7e-72119096d31b ^
+ -hostid=DesktopPC  ^
+ -fleetid=fleet-51a5e70e-2ad6-49bd-ad47-16ade7a32b51 ^
  -websocketurl=wss://ap-northeast-2.api.amazongamelift.com ^
  -port=7777
 
@@ -42,13 +42,13 @@ aws gamelift get-compute-auth-token ^
 - press keyboard ` button 
 - fill in the blank 'open 127.0.0.1:7777'
 
-5. Create game session 
+5. Create Game Session 
 aws gamelift create-game-session ^
- --fleet-id fleetId* ^
- --name DebugGameSession ^
- --maximum-player-session-count 4 ^
+ --fleet-id fleet-51a5e70e-2ad6-49bd-ad47-16ade7a32b51 ^
+ --name GameLiftHostedSession ^
+ --maximum-player-session-count 2 ^
  --region ap-northeast-2 ^
- --location custom-location*
+ --location custom-home-desktop
 
 6. Find Game Session 
 aws gamelift describe-game-sessions ^
