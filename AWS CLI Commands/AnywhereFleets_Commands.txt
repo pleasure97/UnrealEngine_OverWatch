@@ -1,6 +1,6 @@
 0. Set profile for command prompt session
-SET AWS_PROFILE=profileName*
 aws sso login --profile profileName*
+SET AWS_PROFILE=profileName*
 
 1. Register your device as a computer device 
 
@@ -31,7 +31,7 @@ aws gamelift get-compute-auth-token ^
 3. Run the game .exe from the command line  
 "C:\UnrealProjects\FPSTemplate\Build\Build_1\WindowsServer\FPSTemplate\Binaries\Win64\FPSTemplateServer.exe"  ^
  -log ^
- -authtoken=32a50b56-a1dd-488b-bd7e-72119096d31b ^
+ -authtoken=dbb1b1f7-332e-4554-b56e-4f05e918bf33 ^
  -hostid=DesktopPC  ^
  -fleetid=fleet-51a5e70e-2ad6-49bd-ad47-16ade7a32b51 ^
  -websocketurl=wss://ap-northeast-2.api.amazongamelift.com ^

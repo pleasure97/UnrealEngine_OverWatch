@@ -1,6 +1,11 @@
 #include "UI/HTTP/HTTPRequestTypes.h"
 #include "DedicatedServers/DedicatedServers.h"
 
+namespace HTTPStatusMessages
+{
+	const FString SomethingWentWrong{ TEXT("Something Went Wrong!") }; 
+}
+
 void FDSMetaData::Dump() const
 {
 	UE_LOG(LogDedicatedServers, Log, TEXT("MetaData:"));
