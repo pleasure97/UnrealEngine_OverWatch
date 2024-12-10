@@ -8,6 +8,7 @@
 #include "UI/HTTP/HTTPRequestTypes.h"
 #include "Interfaces/IHttpResponse.h"
 #include "JsonObjectConverter.h"
+#include "GameFramework/PlayerState.h"
 
 void UPortalManager::JoinGameSession()
 {
@@ -25,8 +26,6 @@ void UPortalManager::JoinGameSession()
 
 void UPortalManager::FindOrCreateGameSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, "Print Find or Create Game Session Response Received"); 
-
 	if (!bWasSuccessful)
 	{
 		BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::SomethingWentWrong, true); 
@@ -40,12 +39,53 @@ void UPortalManager::FindOrCreateGameSession_Response(FHttpRequestPtr Request, F
 		{
 			BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::SomethingWentWrong, true);
 		}
-		DumpMetaData(JsonObject); 
-
 		FDSGameSession GameSession; 
 		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &GameSession); 
-		GameSession.Dump(); 
 
-		BroadcastJoinGameSessionMessage.Broadcast(TEXT("Found Game Session."), false);
+		const FString GameSessionStatus = GameSession.Status;
+		const FString GameSessionId = GameSession.GameSessionId; 
+		HandleGameSessionStatus(GameSessionStatus, GameSessionId);
 	}
+}
+
+FString UPortalManager::GetUniquePlayerId() const
+{
+	APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld());
+	if (IsValid(LocalPlayerController))
+	{
+		APlayerState* LocalPlayerState = LocalPlayerController->GetPlayerState<APlayerState>();
+		if (IsValid(LocalPlayerState) && LocalPlayerState->GetUniqueId().IsValid())
+		{
+			return TEXT("Player_") + FString::FromInt(LocalPlayerState->GetUniqueID());
+		}
+	}
+	return FString(); 
+}
+
+void UPortalManager::HandleGameSessionStatus(const FString& Status, const FString& SessionId)
+{
+	if (Status.Equals(TEXT("ACTIVE")))
+	{
+		BroadcastJoinGameSessionMessage.Broadcast(TEXT("Found Active Game Session. Creating a Player Session..."), false);
+		TryCreatePlayerSession(GetUniquePlayerId(), SessionId); 
+	}
+	else if (Status.Equals(TEXT("ACTIVATING")))
+	{
+		FTimerDelegate CreateSessionDelegate; 
+		CreateSessionDelegate.BindUObject(this, &ThisClass::JoinGameSession); 
+		APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld());
+		if (IsValid(LocalPlayerController))
+		{
+			LocalPlayerController->GetWorldTimerManager().SetTimer(CreateSessionTimer, CreateSessionDelegate, 0.5f, false); 
+		}
+	}
+	else
+	{
+		BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::SomethingWentWrong, true); 
+	}
+}
+
+void UPortalManager::TryCreatePlayerSession(const FString& PlayerId, const FString& GameSessionId)
+{
+
 }
