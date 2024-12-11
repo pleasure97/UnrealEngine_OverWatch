@@ -9,6 +9,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "JsonObjectConverter.h"
 #include "GameFramework/PlayerState.h"
+#include "Kismet/GameplayStatics.h"
 
 void UPortalManager::JoinGameSession()
 {
@@ -125,5 +126,8 @@ void UPortalManager::CreatePlayerSession_Response(FHttpRequestPtr Request, FHttp
 		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &PlayerSession); 
 
 		PlayerSession.Dump(); 
-	}
+
+		const FString IpAndPort = PlayerSession.IpAddress + TEXT(":") + FString::FromInt(PlayerSession.Port); 
+		const FName Address(*IpAndPort); 
+		UGameplayStatics::OpenLevel(this, Address); 
 }
