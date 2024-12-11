@@ -119,15 +119,23 @@ void UPortalManager::CreatePlayerSession_Response(FHttpRequestPtr Request, FHttp
 	{
 		if (ContainsErrors(JsonObject))
 		{
-			BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::SomethingWentWrong, true); 
+			BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::SomethingWentWrong, true);
 		}
 
-		FDSPlayerSession PlayerSession; 
-		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &PlayerSession); 
+		FDSPlayerSession PlayerSession;
+		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &PlayerSession);
+		PlayerSession.Dump();
 
-		PlayerSession.Dump(); 
+		APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld()); 
+		if (IsValid(LocalPlayerController))
+		{
+			FInputModeGameOnly InputModeData;
+			LocalPlayerController->SetInputMode(InputModeData); 
+			LocalPlayerController->SetShowMouseCursor(true); 
+		}
 
-		const FString IpAndPort = PlayerSession.IpAddress + TEXT(":") + FString::FromInt(PlayerSession.Port); 
-		const FName Address(*IpAndPort); 
-		UGameplayStatics::OpenLevel(this, Address); 
+		const FString IpAndPort = PlayerSession.IpAddress + TEXT(":") + FString::FromInt(PlayerSession.Port);
+		const FName Address(*IpAndPort);
+		UGameplayStatics::OpenLevel(this, Address);
+	}
 }

@@ -29,9 +29,9 @@ aws gamelift get-compute-auth-token ^
  --compute-name DesktopPC 
 
 3. Run the game .exe from the command line  
-"C:\UnrealProjects\FPSTemplate\Build\Build_1\WindowsServer\FPSTemplate\Binaries\Win64\FPSTemplateServer.exe"  ^
+"C:\UnrealProjects\FPSTemplate\Build\Build_2\WindowsServer\FPSTemplate\Binaries\Win64\FPSTemplateServer.exe"  ^
  -log ^
- -authtoken=5a35c27a-07a9-4653-a6c4-a45f7a787f27 ^
+ -authtoken=2e583701-1757-45fa-a17e-7136b2a37a07 ^
  -hostid=DesktopPC  ^
  -fleetid=fleet-51a5e70e-2ad6-49bd-ad47-16ade7a32b51 ^
  -websocketurl=wss://ap-northeast-2.api.amazongamelift.com ^
