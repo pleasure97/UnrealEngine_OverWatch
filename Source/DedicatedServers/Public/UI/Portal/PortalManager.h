@@ -27,6 +27,8 @@ public:
 private:
 	void FindOrCreateGameSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 
+	void CreatePlayerSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
+
 	FString GetUniquePlayerId() const; 
 
 	void HandleGameSessionStatus(const FString& Status, const FString& SessionId); 

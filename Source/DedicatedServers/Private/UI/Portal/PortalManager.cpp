@@ -87,5 +87,25 @@ void UPortalManager::HandleGameSessionStatus(const FString& Status, const FStrin
 
 void UPortalManager::TryCreatePlayerSession(const FString& PlayerId, const FString& GameSessionId)
 {
+	check(APIData); 
+	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest(); 
+	Request->OnProcessRequestComplete().BindUObject(this, &UPortalManager::CreatePlayerSession_Response); 
+	const FString APIUrl = APIData->GetAPIEndpoint(DedicatedServersTags::GameSessionsAPI::CreatePlayerSession); 
+	Request->SetURL(APIUrl); 
+	Request->SetVerb(TEXT("POST")); 
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json")); 
+
+	TMap<FString, FString> Params = {
+		{ TEXT("playerId"), PlayerId}, 
+		{ TEXT("gameSessionId"), GameSessionId}
+	};
+	const FString Content = SerializeJsonContent(Params); 
+
+	Request->SetContentAsString(Content); 
+	Request->ProcessRequest();
+}
+
+void UPortalManager::CreatePlayerSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
 
 }
