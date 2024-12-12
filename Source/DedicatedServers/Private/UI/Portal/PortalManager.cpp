@@ -18,7 +18,22 @@ void UPortalManager::SignIn(const FString& Username, const FString& Password)
 
 void UPortalManager::SignUp(const FString& Username, const FString& Password, const FString& Email)
 {
+	check(APIData); 
+	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest(); 
+	Request->OnProcessRequestComplete().BindUObject(this, &UPortalManager::SignUp_Response); 
+	const FString APIUrl = APIData->GetAPIEndpoint(DedicatedServersTags::PortalAPI::SignUp); 
+	Request->SetURL(APIUrl); 
+	Request->SetVerb(TEXT("POST")); 
+	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json")); 
 
+	TMap<FString, FString> Params = {
+		{ TEXT("username"), Username},
+		{ TEXT("password"), Password}, 
+		{ TEXT("email"), Email}
+	}; 
+	const FString Content = SerializeJsonContent(Params); 
+	Request->SetContentAsString(Content); 
+	Request->ProcessRequest(); 
 }
 
 void UPortalManager::Confirm(const FString& ConfirmationCode)
@@ -32,4 +47,8 @@ void UPortalManager::QuitGame()
 	{
 		UKismetSystemLibrary::QuitGame(this, LocalPlayerController, EQuitPreference::Quit, false); 
 	}
+}
+
+void UPortalManager::SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
 }
