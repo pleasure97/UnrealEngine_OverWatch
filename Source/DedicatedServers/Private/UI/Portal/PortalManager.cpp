@@ -18,6 +18,8 @@ void UPortalManager::SignIn(const FString& Username, const FString& Password)
 
 void UPortalManager::SignUp(const FString& Username, const FString& Password, const FString& Email)
 {
+	SignUpStatusMessageDelegate.Broadcast(TEXT("Creating a new account..."), false); 
+
 	check(APIData); 
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest(); 
 	Request->OnProcessRequestComplete().BindUObject(this, &UPortalManager::SignUp_Response); 
@@ -32,8 +34,30 @@ void UPortalManager::SignUp(const FString& Username, const FString& Password, co
 		{ TEXT("email"), Email}
 	}; 
 	const FString Content = SerializeJsonContent(Params); 
-	Request->SetContentAsString(Content); 
+	Request->SetContentAsString(Content);  
 	Request->ProcessRequest(); 
+}
+
+void UPortalManager::SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	if (!bWasSuccessful)
+	{
+		SignUpStatusMessageDelegate.Broadcast(HTTPStatusMessages::SomethingWentWrong, true); 
+	}
+	
+	TSharedPtr<FJsonObject> JsonObject;
+	TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
+	{
+		if (ContainsErrors(JsonObject))
+		{
+			SignUpStatusMessageDelegate.Broadcast(HTTPStatusMessages::SomethingWentWrong, true); 
+		}
+
+		FDSSignUpResponse SignUpResponse;
+		FJsonObjectConverter::JsonObjectToUStruct(JsonObject.ToSharedRef(), &SignUpResponse); 
+		SignUpResponse.Dump(); 
+	}
 }
 
 void UPortalManager::Confirm(const FString& ConfirmationCode)
@@ -47,8 +71,4 @@ void UPortalManager::QuitGame()
 	{
 		UKismetSystemLibrary::QuitGame(this, LocalPlayerController, EQuitPreference::Quit, false); 
 	}
-}
-
-void UPortalManager::SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
-{
 }

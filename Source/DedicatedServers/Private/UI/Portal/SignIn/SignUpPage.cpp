@@ -6,6 +6,16 @@
 #include "Components/TextBlock.h"
 #include "Components/Button.h"
 
+void USignUpPage::UpdateStatusMessage(const FString& Message, bool bShouldResetWidgets)
+{
+	TextBlock_StatusMessage->SetText(FText::FromString(Message)); 
+
+	if (bShouldResetWidgets)
+	{
+		Button_SignUp->SetIsEnabled(true); 
+	}
+}
+
 void USignUpPage::NativeConstruct()
 {
 	Super::NativeConstruct(); 

@@ -18,6 +18,8 @@ class DEDICATEDSERVERS_API UPortalManager : public UHTTPRequestManager
 	
 public:
 
+	UPROPERTY(BlueprintAssignable)
+	FAPIStatusMessage SignUpStatusMessageDelegate; 
 
 	void SignIn(const FString& Username, const FString& Password); 
 	void SignUp(const FString& Username, const FString& Password, const FString& Email); 
@@ -25,5 +27,8 @@ public:
 
 	UFUNCTION()
 	void QuitGame(); 
+
+private:
+	void SignUp_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 
 };

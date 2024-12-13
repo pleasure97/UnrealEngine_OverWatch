@@ -7,7 +7,6 @@
 #include "Interfaces/IHttpRequest.h"
 #include "GameSessionsManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FBroadcastJoinGameSessionMessage, const FString&, StatusMessage, bool, bShouldResetJoinGameButton);
 
 
 /**
@@ -21,7 +20,7 @@ class DEDICATEDSERVERS_API UGameSessionsManager : public UHTTPRequestManager
 public:
 
 	UPROPERTY(BlueprintAssignable)
-	FBroadcastJoinGameSessionMessage BroadcastJoinGameSessionMessage;
+	FAPIStatusMessage BroadcastJoinGameSessionMessage;
 	
 	void JoinGameSession();
 
