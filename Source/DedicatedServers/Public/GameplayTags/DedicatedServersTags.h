@@ -15,7 +15,7 @@ namespace DedicatedServersTags
 	namespace PortalAPI
 	{
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(SignUp); 
-		UE_DECLARE_GAMEPLAY_TAG_EXTERN(ConfigmSignUp); 
+		UE_DECLARE_GAMEPLAY_TAG_EXTERN(ConfirmSignUp); 
 		UE_DECLARE_GAMEPLAY_TAG_EXTERN(SignIn); 
 	}
 }
