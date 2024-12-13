@@ -28,7 +28,7 @@ private:
 	UPROPERTY()
 	TScriptInterface<IPortalManagement> PortalManagementInterface; 
 
-	float TokenRefreshInterval = 2700.f; 
+	float TokenRefreshInterval = 5.f; 
 
 	FTimerHandle RefreshTimer; 
 };
