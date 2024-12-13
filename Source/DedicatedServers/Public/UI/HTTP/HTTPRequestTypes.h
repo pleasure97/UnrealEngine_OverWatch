@@ -4,7 +4,7 @@
 
 namespace HTTPStatusMessages
 {
-	extern DEDICATEDSERVERS_API const FString SomethingWentWrong; 
+	extern DEDICATEDSERVERS_API const FString SomethingWentWrong;
 }
 
 USTRUCT()
@@ -22,9 +22,9 @@ struct FDSMetaData
 	int32 attempts{};
 
 	UPROPERTY()
-	double totalRetryDelay{}; 
+	double totalRetryDelay{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -33,13 +33,12 @@ struct FDSListFleetsResponse
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TArray<FString>	FleetIds{}; 
-
+	TArray<FString> FleetIds{};
 
 	UPROPERTY()
-	FString NextToken; 
+	FString NextToken{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -51,20 +50,20 @@ struct FDSGameSession
 	FString CreationTime{};
 
 	UPROPERTY()
-	FString CreatorId{}; 
+	FString CreatorId{};
 
 	UPROPERTY()
-	int32 CurrentPlayerSessionCount{}; 
+	int32 CurrentPlayerSessionCount{};
 
 	UPROPERTY()
-	FString DnsName{}; 
+	FString DnsName{};
 
 	UPROPERTY()
-	FString FleetArn{}; 
+	FString FleetArn{};
 
 	UPROPERTY()
-	FString FleetId{}; 
-	
+	FString FleetId{};
+
 	UPROPERTY()
 	TMap<FString, FString> GameProperties{};
 
@@ -72,25 +71,25 @@ struct FDSGameSession
 	FString GameSessionData{};
 
 	UPROPERTY()
-	FString GameSessionId{}; 
+	FString GameSessionId{};
 
 	UPROPERTY()
-	FString IpAddress{}; 
+	FString IpAddress{};
 
 	UPROPERTY()
-	FString Location{}; 
+	FString Location{};
 
 	UPROPERTY()
-	FString MatchmakerData{}; 
+	FString MatchmakerData{};
 
 	UPROPERTY()
-	int32 MaximumPlayerSessionCount{}; 
+	int32 MaximumPlayerSessionCount{};
 
 	UPROPERTY()
-	FString Name{}; 
+	FString Name{};
 
 	UPROPERTY()
-	FString PlayerSessionCreationPolicy{}; 
+	FString PlayerSessionCreationPolicy{};
 
 	UPROPERTY()
 	int32 Port{};
@@ -104,7 +103,7 @@ struct FDSGameSession
 	UPROPERTY()
 	FString TerminationTime{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -116,39 +115,41 @@ struct FDSPlayerSession
 	FString CreationTime{};
 
 	UPROPERTY()
-	FString DnsName{}; 
+	FString DnsName{};
 
 	UPROPERTY()
 	FString FleetArn{};
 
 	UPROPERTY()
-	FString FleetId{}; 
+	FString FleetId{};
 
 	UPROPERTY()
-	FString GameSessionId{}; 
+	FString GameSessionId{};
 
 	UPROPERTY()
-	FString IpAddress{}; 
+	FString IpAddress{};
 
 	UPROPERTY()
-	FString PlayerData{}; 
+	FString PlayerData{};
 
 	UPROPERTY()
-	FString PlayerId{}; 
+	FString PlayerId{};
 
 	UPROPERTY()
-	FString PlayerSessionId{}; 
+	FString PlayerSessionId{};
 
 	UPROPERTY()
-	int32 Port{}; 
+	int32 Port{};
 
 	UPROPERTY()
-	FString Status{}; 
+	FString Status{};
 
 	UPROPERTY()
 	FString TerminationTime{};
 
-	void Dump() const; 
+	// Method to log the property values
+	void Dump() const;
+
 };
 
 USTRUCT()
@@ -157,15 +158,15 @@ struct FDSCodeDeliveryDetails
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FString AttributeName; 
+	FString AttributeName{};
 
 	UPROPERTY()
-	FString DeliveryMedium; 
+	FString DeliveryMedium{};
 
 	UPROPERTY()
-	FString Destination; 
+	FString Destination{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -174,15 +175,15 @@ struct FDSSignUpResponse
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FDSCodeDeliveryDetails CodeDeliveryDetails; 
+	FDSCodeDeliveryDetails CodeDeliveryDetails{};
 
 	UPROPERTY()
-	bool UserConfirmed; 
+	bool UserConfirmed{};
 
 	UPROPERTY()
-	FString UserSub; 
+	FString UserSub{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -191,12 +192,12 @@ struct FDSNewDeviceMetaData
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FString DeviceGroupKey; 
+	FString DeviceGroupKey{};
 
 	UPROPERTY()
-	FString DeviceKey; 
+	FString DeviceKey{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -205,35 +206,36 @@ struct FDSAuthenticationResult
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FString AccessToken; 
+	FString AccessToken{};
 
 	UPROPERTY()
-	int32 ExpiresIn; 
+	int32 ExpiresIn{};
 
 	UPROPERTY()
-	FString IdToken; 
+	FString IdToken{};
 
 	UPROPERTY()
-	FDSNewDeviceMetaData NewDeviceMetaData; 
+	FDSNewDeviceMetaData NewDeviceMetadata{};
 
 	UPROPERTY()
-	FString RefreshToken; 
+	FString RefreshToken{};
 
 	UPROPERTY()
-	FString TokenType; 
+	FString TokenType{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
+// ChallengeParameters struct
 USTRUCT()
 struct FDSChallengeParameters
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	TMap<FString, FString> Parameters; 
+	TMap<FString, FString> Parameters{};
 
-	void Dump() const; 
+	void Dump() const;
 };
 
 USTRUCT()
@@ -242,16 +244,49 @@ struct FDSInitiateAuthResponse
 	GENERATED_BODY()
 
 	UPROPERTY()
-	FDSAuthenticationResult AuthenticationResult; 
+	FDSAuthenticationResult AuthenticationResult{};
 
 	UPROPERTY()
-	FString ChallengeName; 
+	FString ChallengeName{};
 
 	UPROPERTY()
-	FDSChallengeParameters ChallengeParameters; 
+	FDSChallengeParameters ChallengeParameters{};
 
 	UPROPERTY()
-	FString Session;
+	FString Session{};
 
-	void Dump() const; 
+	UPROPERTY()
+	FString email{};
+
+	void Dump() const;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
