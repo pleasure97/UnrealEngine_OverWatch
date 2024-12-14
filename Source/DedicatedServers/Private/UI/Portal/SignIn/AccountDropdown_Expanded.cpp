@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "UI/Portal/PortalManager.h"
+#include "Player/DSLocalPlayerSubsystem.h"
 
 void UAccountDropdown_Expanded::NativeConstruct()
 {
@@ -38,6 +39,18 @@ void UAccountDropdown_Expanded::SignOutButton_Unhover()
 void UAccountDropdown_Expanded::SignOutButton_OnClicked()
 {
 	Button_SignOut->SetIsEnabled(false); 
+
+	check(PortalManager); 
+	APlayerController* PlayerController = GetOwningPlayer(); 
+	if (IsValid(PlayerController) && IsValid(PlayerController->GetLocalPlayer()))
+	{
+		UDSLocalPlayerSubsystem* LocalPlayerSubsystem = PlayerController->GetLocalPlayer()->GetSubsystem<UDSLocalPlayerSubsystem>(); 
+		if (IsValid(LocalPlayerSubsystem))
+		{
+			FDSAuthenticationResult AuthResult = LocalPlayerSubsystem->GetAuthResult(); 
+			PortalManager->SignOut(AuthResult.AccessToken); 
+		}
+	}
 }
 
 void UAccountDropdown_Expanded::SetSignOutButtonStyleTransparent()
