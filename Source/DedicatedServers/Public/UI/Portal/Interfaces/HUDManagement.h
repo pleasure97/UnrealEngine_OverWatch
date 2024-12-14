@@ -25,5 +25,6 @@ class DEDICATEDSERVERS_API IHUDManagement
 public:
 	
 	virtual void OnSignIn() = 0; 
-	
+
+	virtual void OnSignOut() = 0;
 };

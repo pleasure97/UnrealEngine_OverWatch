@@ -28,6 +28,7 @@ public:
 
 	/* HUDManagement Interface */
 	virtual void OnSignIn() override; 
+	virtual void OnSignOut() override; 
 	/* HUDManagement Interface ends */
 
 

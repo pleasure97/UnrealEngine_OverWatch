@@ -9,7 +9,8 @@
 #include "JsonObjectConverter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/DSLocalPlayerSubsystem.h"
-#include "UI/Portal/PortalHUD.h"
+#include "UI/Portal/Interfaces/HUDManagement.h"
+#include "GameFramework/HUD.h"
 
 void UPortalManager::SignIn(const FString& Username, const FString& Password)
 {
@@ -65,10 +66,9 @@ void UPortalManager::SignIn_Response(FHttpRequestPtr Request, FHttpResponsePtr R
 		APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld()); 
 		if (IsValid(LocalPlayerController))
 		{
-			APortalHUD* PortalHUD = Cast<APortalHUD>(LocalPlayerController->GetHUD()); 
-			if (IsValid(PortalHUD))
+			if (IHUDManagement* HUDManagementInterface = Cast<IHUDManagement>(LocalPlayerController->GetHUD()))
 			{
-				PortalHUD->OnSignIn(); 
+				HUDManagementInterface->OnSignIn(); 
 			}
 		}
 	}
@@ -250,5 +250,11 @@ void UPortalManager::SignOut_Response(FHttpRequestPtr Request, FHttpResponsePtr 
 	if (FJsonSerializer::Deserialize(JsonReader, JsonObject))
 	{
 		if (ContainsErrors(JsonObject)) return; 
+	}
+
+	APlayerController* LocalPlayerController = GEngine->GetFirstLocalPlayerController(GetWorld()); 
+	if (IHUDManagement* HUDManagementInterface = Cast<IHUDManagement>(LocalPlayerController->GetHUD()))
+	{
+		HUDManagementInterface->OnSignOut(); 
 	}
 }
