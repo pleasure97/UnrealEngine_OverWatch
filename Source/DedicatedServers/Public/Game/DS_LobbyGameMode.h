@@ -5,26 +5,26 @@
 #include "CoreMinimal.h"
 #include "Game/DS_GameModeBase.h"
 #include "GameLiftServerSDK.h"
-#include "DS_GameMode.generated.h"
+#include "DS_LobbyGameMode.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogDS_GameMode, Log, All); 
+class UDS_GameInstanceSubsystem; 
+
 /**
  * 
  */
 UCLASS()
-class DEDICATEDSERVERS_API ADS_GameMode : public ADS_GameModeBase
+class DEDICATEDSERVERS_API ADS_LobbyGameMode : public ADS_GameModeBase
 {
 	GENERATED_BODY()
 	
-public:
-
-protected:
+protected: 
 	virtual void BeginPlay() override; 
-
+	
 private:
-	FProcessParameters ProcessParameters; 
 
-	void InitGameLift(); 
+	UPROPERTY()
+	TObjectPtr<UDS_GameInstanceSubsystem> DSGameInstanceSubsystem; 
+
+	void InitGameLift();
 	void SetServerParameters(FServerParameters& OutServerParameters); 
-	void ParseCommandLinePort(int32& OutPort); 	
 };
