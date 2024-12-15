@@ -8,7 +8,7 @@
 #include "DSPlayerController.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEAGTE_TwoParams(FOnTimerStateChangedDelegate, float, Time, ECountdownTimerType, Type); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTimerStateChangedDelegate, float, Time, ECountdownTimerType, Type); 
 
 /**
  * 

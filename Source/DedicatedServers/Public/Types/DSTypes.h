@@ -40,7 +40,7 @@ struct FCountdownTimerHandle
 	float CountdownUpdateInterval = 1.f; 
 
 	FTimerHandle TimerFinishedHandle{}; 
-	FTimerHandle TimerUpdateHnadle{}; 
+	FTimerHandle TimerUpdateHandle{}; 
 
 	FTimerDelegate TimerFinishedDelegate{}; 
 	FTimerDelegate TimerUpdateDelegate{}; 
