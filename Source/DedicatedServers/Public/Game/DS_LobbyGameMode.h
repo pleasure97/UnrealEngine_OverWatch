@@ -22,12 +22,18 @@ public:
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override; 
 
+	void CheckAndStartLobbyCountdown();
+
+	void CheckAndStopLobbyCountdown(); 
+
 protected: 
 	virtual void BeginPlay() override; 
 
 	virtual void OnCountdownTimerFinished(ECountdownTimerType Type) override; 
 
 	virtual void InitSeamlessTravelPlayer(AController* NewController) override; 
+
+	virtual void Logout(AController* Exiting) override; 
 
 	UPROPERTY()
 	ELobbyStatus LobbyStatus; 
@@ -49,5 +55,4 @@ private:
 	void InitGameLift();
 	void SetServerParameters(FServerParameters& OutServerParameters); 
 
-	void CheckAndStartLobbyCountdown(); 
 };
