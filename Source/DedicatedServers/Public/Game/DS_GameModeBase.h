@@ -18,7 +18,7 @@ class DEDICATEDSERVERS_API ADS_GameModeBase : public AGameMode
 protected:
 	void StartCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle); 
 	void StopCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle); 
-
+	void UpdateCountdownTimer(const FCountdownTimerHandle& CountdownTimerHandle); 
 	virtual void OnCountdownTimerFinished(ECountdownTimerType Type); 
 	
 	
