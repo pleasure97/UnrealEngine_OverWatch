@@ -11,6 +11,7 @@
 #include "JsonObjectConverter.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/DSLocalPlayerSubsystem.h"
 
 
 void UGameSessionsManager::JoinGameSession()
@@ -24,6 +25,12 @@ void UGameSessionsManager::JoinGameSession()
 	Request->SetURL(APIUrl);
 	Request->SetVerb(TEXT("POST"));
 	Request->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+
+	UDSLocalPlayerSubsystem* LocalPlayerSubsystem = GetDSLocalPlayerSubsystem();
+	if (IsValid(LocalPlayerSubsystem))
+	{
+		Request->SetHeader(TEXT("Authorization"), LocalPlayerSubsystem->GetAuthResult().AccessToken); 
+	}
 	Request->ProcessRequest();
 }
 
