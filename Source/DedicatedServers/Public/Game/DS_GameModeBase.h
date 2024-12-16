@@ -22,4 +22,6 @@ protected:
 	virtual void OnCountdownTimerFinished(ECountdownTimerType Type); 
 	
 	void TrySeamlessTravel(TSoftObjectPtr<UWorld> DestinationMap); 
+
+	void RemovePlayerSesion(AController* Exiting); 
 };
