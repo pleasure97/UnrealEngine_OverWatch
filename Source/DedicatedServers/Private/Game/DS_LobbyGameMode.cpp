@@ -60,7 +60,35 @@ void ADS_LobbyGameMode::PreLogin(const FString& Options, const FString& Address,
 
 	const FString PlayerSessionId = UGameplayStatics::ParseOption(Options, TEXT("PlayerSessionId")); 
 	const FString Username = UGameplayStatics::ParseOption(Options, TEXT("Username")); 
+
+	TryAcceptPlayerSession(PlayerSessionId, Username, ErrorMessage); 
 }
+
+void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, const FString& Username, FString& OutErrorMessage)
+{
+	if (PlayerSessionId.IsEmpty() || Username.IsEmpty())
+	{
+		OutErrorMessage = TEXT("Player Session ID or Username is invalid."); 
+		return;
+	}
+
+#if WITH_GAMELIFT
+	Aws::GameLift::Server::Model::DescribePlayerSessionsRequest DescribePlayerSessionRequest; 
+	DescribePlayerSessionRequest.SetPlayerSessionId(TCHAR_TO_ANSI(*PlayerSessionId)); 
+
+	const auto& DescribePlayerSessionsOutcome = Aws::GameLift::Server::DescribePlayerSessions(DescribePlayerSessionRequest); 
+	if (!DescribePlayerSessionsOutcome.IsSuccess())
+	{
+		OutErrorMessage = TEXT("DescribePlayerSession failed."); 
+		return; 
+	}
+
+	const auto& DescribePlayerSessionsResult = DescribePlayerSessionsOutcome.GetResult(); 
+	int32 Count = 0; 
+	const Aws::GameLift::Server::Model::PlayerSession* PlayerSessions = DescribePlayerSessionResult.GetPlayerSesions(Count); 
+#endif 
+}
+
 
 void ADS_LobbyGameMode::BeginPlay()
 {
@@ -125,5 +153,4 @@ void ADS_LobbyGameMode::SetServerParameters(FServerParameters& OutServerParamete
 	OutServerParameters.m_processId = FString::Printf(TEXT("%d"), GetCurrentProcessId());
 	UE_LOG(LogDedicatedServers, Log, TEXT("PID : %s"), *OutServerParameters.m_processId);
 }
-
 
