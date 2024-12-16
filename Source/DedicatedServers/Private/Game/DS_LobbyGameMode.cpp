@@ -86,6 +86,25 @@ void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, c
 	const auto& DescribePlayerSessionsResult = DescribePlayerSessionsOutcome.GetResult(); 
 	int32 Count = 0; 
 	const Aws::GameLift::Server::Model::PlayerSession* PlayerSessions = DescribePlayerSessionResult.GetPlayerSesions(Count); 
+	if (PlayerSessions == nullptr || Count == 0)
+	{
+		OutErrorMessage = TEXT("GetPlayerSessions failed."); 
+		return; 
+	}
+
+	for (int32 i = 0; i < Count; i++)
+	{
+		const Aws::GameLift::Server::Model::PlayerSession& PlayerSession = PlayerSessions[i]; 
+		if (!Username.Equals(PlayerSession.GetPlayerId())) continue; 
+		if (PlayerSession.GetStatus() != Aws::GameLift::Server::Model::PlayerSessionStatus::RESERVED)
+		{
+			OutErrorMessage = FString::Printf(TEXT("Session for %s not RESERVED; fail PreLogin."), *Username); 
+			return; 
+		}
+
+		const auto& AcceptPlayerSessionOutcome = Aws::GameLift::Server::AcceptPlayerSession(TCHAR_TO_ANSI(*PlayerSessionId)); 
+		OutErrorMessage = AcceptPlayerSessionOutcome.IsSuccess() ? "" : FString::Printf(TEXT("Failed to accept player session for %s"), *Username); 
+	}
 #endif 
 }
 
