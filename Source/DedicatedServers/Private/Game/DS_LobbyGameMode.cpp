@@ -30,6 +30,8 @@ void ADS_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 	Super::PostLogin(NewPlayer); 
 
 	CheckAndStartLobbyCountdown(); 
+
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::PostLogin for %s"), *NewPlayer->GetName()); 
 }
 
 void ADS_LobbyGameMode::InitSeamlessTravelPlayer(AController* NewController)
@@ -37,6 +39,8 @@ void ADS_LobbyGameMode::InitSeamlessTravelPlayer(AController* NewController)
 	Super::InitSeamlessTravelPlayer(NewController);
 
 	CheckAndStartLobbyCountdown(); 
+
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::InitSeamlessTravelPlayer for %s"), *NewController->GetName());
 }
 
 
@@ -56,6 +60,8 @@ void ADS_LobbyGameMode::Logout(AController* Exiting)
 	CheckAndStopLobbyCountdown(); 
 
 	RemovePlayerSesion(Exiting); 
+
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::Logout for %s"), *Exiting->GetName());
 }
 
 void ADS_LobbyGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -66,6 +72,8 @@ void ADS_LobbyGameMode::PreLogin(const FString& Options, const FString& Address,
 	const FString Username = UGameplayStatics::ParseOption(Options, TEXT("Username")); 
 
 	TryAcceptPlayerSession(PlayerSessionId, Username, ErrorMessage); 
+
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::PreLogin - PlayerSessionId : %s, Username : %s"), *PlayerSessionId, *Username);
 }
 
 FString ADS_LobbyGameMode::InitNewPlayer(APlayerController* NewPlayerController, const FUniqueNetIdRepl& UniqueId, const FString& Options, const FString& Portal)
@@ -80,6 +88,8 @@ FString ADS_LobbyGameMode::InitNewPlayer(APlayerController* NewPlayerController,
 		DSPlayerController->PlayerSessionId = PlayerSessionId;
 		DSPlayerController->Username = Username;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::InitNewPlayer - PlayerSessionId : %s, Username : %s"), *PlayerSessionId, *Username);
 
 	return InitializedString; 
 }
@@ -105,7 +115,7 @@ void ADS_LobbyGameMode::TryAcceptPlayerSession(const FString& PlayerSessionId, c
 
 	const auto& DescribePlayerSessionsResult = DescribePlayerSessionsOutcome.GetResult(); 
 	int32 Count = 0; 
-	const Aws::GameLift::Server::Model::PlayerSession* PlayerSessions = DescribePlayerSessionResult.GetPlayerSesions(Count); 
+	const Aws::GameLift::Server::Model::PlayerSession* PlayerSessions = DescribePlayerSessionsResult.GetPlayerSessions(Count); 
 	if (PlayerSessions == nullptr || Count == 0)
 	{
 		OutErrorMessage = TEXT("GetPlayerSessions failed."); 
@@ -142,6 +152,7 @@ void ADS_LobbyGameMode::OnCountdownTimerFinished(ECountdownTimerType Type)
 
 	if (Type == ECountdownTimerType::LobbyCountdown)
 	{
+		StopCountdownTimer(LobbyCountdownTimer); 
 		LobbyStatus = ELobbyStatus::SeamlessTravelling; 
 		TrySeamlessTravel(DestinationMap); 
 	}
