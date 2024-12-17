@@ -44,6 +44,8 @@ void ULobbyPlayerBox::OnLobbyStateInitialized(ALobbyState* LobbyState)
 
 void ULobbyPlayerBox::CreateAndAddPlayerLabel(const FLobbyPlayerInfo& PlayerInfo)
 {
+	if (FindPlayerLabel(PlayerInfo.Username)) return; 
+
 	UPlayerLabel* PlayerLabel = CreateWidget<UPlayerLabel>(this, PlayerLabelClass); 
 	if (!IsValid(PlayerLabel)) return; 
 
@@ -53,4 +55,21 @@ void ULobbyPlayerBox::CreateAndAddPlayerLabel(const FLobbyPlayerInfo& PlayerInfo
 
 void ULobbyPlayerBox::OnPlayerRemoved(const FLobbyPlayerInfo& PlayerInfo)
 {
+	if (UPlayerLabel* PlayerLabel = FindPlayerLabel(PlayerInfo.Username))
+	{
+		ScrollBox_PlayerInfo->RemoveChild(PlayerLabel); 
+	}
+}
+
+UPlayerLabel* ULobbyPlayerBox::FindPlayerLabel(const FString& Username)
+{
+	for (UWidget* Child : ScrollBox_PlayerInfo->GetAllChildren())
+	{
+		UPlayerLabel* PlayerLabel = Cast<UPlayerLabel>(Child); 
+		if (IsValid(PlayerLabel) && PlayerLabel->GetUsername() == Username)
+		{
+			return PlayerLabel; 
+		}
+	}
+	return nullptr; 
 }
