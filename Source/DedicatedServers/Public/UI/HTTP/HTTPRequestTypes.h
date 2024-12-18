@@ -267,7 +267,7 @@ struct FDSMatchStats
 	GENERATED_BODY()
 
 	UPROPERTY()
-	int32 ScoredElims{}; 
+	int32 scoredElims{}; 
 
 	UPROPERTY()
 	int32 defeats{}; 
@@ -285,10 +285,16 @@ struct FDSMatchStats
 	int32 highestStreak{}; 
 
 	UPROPERTY()
+	int32 revengeElims{}; 
+
+	UPROPERTY()
 	int32 dethroneElims{}; 
 
 	UPROPERTY()
 	int32 gotFirstBlood{}; 
+
+	UPROPERTY()
+	int32 showStopperElims{}; 
 
 	UPROPERTY()
 	int32 matchWins{}; 
