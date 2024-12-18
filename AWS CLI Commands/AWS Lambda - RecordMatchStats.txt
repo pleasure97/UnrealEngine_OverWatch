@@ -1,0 +1,73 @@
+import { CognitoIdentityProviderClient, AdminGetUserCommand } from "@aws-sdk/client-cognito-identity-provider";
+import { DynamoDBClient, GetItemCommand, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+
+export const handler = async (event) => {
+  if (!process.env.REGION || !process.env.USER_POOL_ID) {
+    throw new Error("Missing required environment variables: REGION or USER_POOL_ID");
+  }
+
+  const cognitoIdentityProviderClient = new CognitoIdentityProviderClient({ region: process.env.REGION });
+  const dynamoDBClient = new DynamoDBClient({ region: process.env.REGION });
+
+  try {
+    const adminGetUserInput = {
+      Username: event.username,
+      UserPoolId: process.env.USER_POOL_ID,
+    };
+    const adminGetUserCommand = new AdminGetUserCommand(adminGetUserInput);
+    const adminGetUserResponse = await cognitoIdentityProviderClient.send(adminGetUserCommand);
+
+    const subAttr = adminGetUserResponse.UserAttributes.find(attribute => attribute.Name === "sub");
+    const emailAttr = adminGetUserResponse.UserAttributes.find(attribute => attribute.Name === "email");
+
+    if (!subAttr || !emailAttr) {
+      throw new Error("UserAttributes missing required fields: sub or email");
+    }
+
+    const sub = subAttr.Value;
+    const email = emailAttr.Value;
+
+    const getItemInput = {
+      TableName: "Players",
+      Key: marshall({ databaseid: sub }),
+    };
+
+    const getItemCommand = new GetItemCommand(getItemInput);
+    let statsFromDB = await dynamoDBClient.send(getItemCommand);
+    statsFromDB = statsFromDB.Item ? unmarshall(statsFromDB.Item) : {};
+
+    const eventMatchStats = event.matchStats || {};
+    if (typeof eventMatchStats !== "object") {
+      throw new Error("Invalid matchStats format in event");
+    }
+
+    for (const key in eventMatchStats) {
+      if (statsFromDB[key] !== undefined) {
+        statsFromDB[key] += eventMatchStats[key];
+      } else {
+        statsFromDB[key] = eventMatchStats[key];
+      }
+    }
+
+    const putItemInput = {
+      TableName: "Players",
+      Item: marshall({ databaseid: sub, ...statsFromDB }),
+    };
+
+    const putItemCommand = new PutItemCommand(putItemInput);
+    await dynamoDBClient.send(putItemCommand);
+
+    return {
+      statusCode: 200,
+      body: `Updated match stats for ${event.username}`,
+    };
+
+  } catch (error) {
+    console.error(error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: "Internal Server Error", error: error.message }),
+    };
+  }
+};
