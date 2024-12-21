@@ -6,6 +6,11 @@
 #include "Blueprint/UserWidget.h"
 #include "CareerPage.generated.h"
 
+class UScrollBox; 
+class UCareerAchievement; 
+class UTextBlock; 
+struct FDSRetrieveMatchStatsResponse;
+
 /**
  * 
  */
@@ -14,7 +19,33 @@ class DEDICATEDSERVERS_API UCareerPage : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_Username; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_Wins; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_Losses; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessage;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UScrollBox> ScrollBox_Achievements; 
 	
-	
-	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UCareerAchievement> CareerAchievementClass;
+
+	UFUNCTION()
+	void OnRetrieveMatchStats(const FDSRetrieveMatchStatsResponse& RetrieveMatchStatsResponse);
+
+	UFUNCTION()
+	void SetStatusMessage(const FString& StatusMessage, bool bShouldResetWidgets); 
+
+protected:
+	virtual void NativeConstruct() override; 
+
 };

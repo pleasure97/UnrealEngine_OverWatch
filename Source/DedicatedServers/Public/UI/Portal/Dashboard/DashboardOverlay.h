@@ -11,6 +11,7 @@ class UGamePage;
 class UCareerPage; 
 class ULeaderboardPage; 
 class UButton; 
+class UGameStatsManager; 
 
 /**
  * 
@@ -42,10 +43,17 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_Leaderboard;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameStatsManager> GameStatsManagerClass; 
+
 protected:
 	virtual void NativeConstruct() override; 
 	
 private:
+
+	UPROPERTY()
+	TObjectPtr<UGameStatsManager> GameStatsManager; 
+
 	UFUNCTION()
 	void ShowGamePage(); 
 
@@ -54,4 +62,6 @@ private:
 
 	UFUNCTION()
 	void ShowLeaderboardPage(); 
+
+	void DisableButton(UButton* Button) const; 
 };
