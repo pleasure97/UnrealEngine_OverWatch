@@ -7,6 +7,9 @@
 #include "Interfaces/IHttpRequest.h"
 #include "GameStatsManager.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRetrieveStatsResponseReceived, const FDSRetrieveMatchStatsResponse&, RetrieveMatchStatsResponse); 
+
+
 struct FDSRecordMatchStatsInput; 
 /**
  * 
@@ -20,6 +23,9 @@ public:
 	void RecordMatchStats(const FDSRecordMatchStatsInput& RecordMatchStatsInput); 
 	void RetrieveMatchStats(); 
 	
+	UPROPERTY()
+	FOnRetrieveStatsResponseReceived OnRetrieveMatchStatsResponseReceived;
+
 private:
 	void RecordMatchStats_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 	void RetrieveMatchStats_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
