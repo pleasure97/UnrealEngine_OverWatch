@@ -8,6 +8,7 @@
 #include "Data/API/APIData.h"
 #include "GameplayTags/DedicatedServersTags.h"
 #include "Interfaces/IHttpResponse.h"
+#include "DedicatedServers/DedicatedServers.h"
 
 void UGameStatsManager::RecordMatchStats(const FDSRecordMatchStatsInput& RecordMatchStatsInput)
 {
