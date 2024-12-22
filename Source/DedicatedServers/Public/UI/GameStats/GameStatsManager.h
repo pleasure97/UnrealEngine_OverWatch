@@ -8,7 +8,7 @@
 #include "GameStatsManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRetrieveStatsResponseReceived, const FDSRetrieveMatchStatsResponse&, RetrieveMatchStatsResponse); 
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRetrieveLeaderboard, const TArray<FDSLeaderboardItem>&, Leaderboard); 
 
 struct FDSRecordMatchStatsInput; 
 /**
@@ -23,6 +23,7 @@ public:
 	void RecordMatchStats(const FDSRecordMatchStatsInput& RecordMatchStatsInput); 
 	void RetrieveMatchStats(); 
 	void UpdateLeaderboard(const TArray<FString>& WinnerUsernames); 
+	void RetrieveLeaderboard(); 
 
 	UPROPERTY(BlueprintAssignable)
 	FAPIStatusMessage RetrieveMatchStatsStatusMessage; 
@@ -33,8 +34,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAPIRequestSucceeded OnUpdateLeaderboardSucceeded; 
 
+	UPROPERTY()
+	FOnRetrieveLeaderboard OnRetrieveLeaderboard; 
+
 private:
 	void RecordMatchStats_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 	void RetrieveMatchStats_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 	void UpdateLeaderboard_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
+	void RetrieveLeaderboard_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful); 
 };
