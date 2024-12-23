@@ -4,6 +4,7 @@
 #include "Game/DS_MatchGameMode.h"
 #include "Player/DSPlayerController.h"
 #include "Player/DS_MatchPlayerState.h"
+#include "UI/GameStats/GameStatsManager.h"
 
 ADS_MatchGameMode::ADS_MatchGameMode()
 {
@@ -41,6 +42,14 @@ void ADS_MatchGameMode::InitSeamlessTravelPlayer(AController* NewController)
 		MatchStatus = EMatchStatus::PreMatch;
 		StartCountdownTimer(PreMatchTimer);
 	}
+}
+
+void ADS_MatchGameMode::BeginPlay()
+{
+	Super::BeginPlay(); 
+
+	GameStatsManager = NewObject<UGameStatsManager>(this, GameStatsManagerClass); 
+	GameStatsManager->OnUpdateLeaderboardSucceeded.AddDynamic(this, &ADS_MatchGameMode::OnLeaderboardUpdated); 
 }
 
 void ADS_MatchGameMode::OnCountdownTimerFinished(ECountdownTimerType Type)
@@ -84,15 +93,33 @@ void ADS_MatchGameMode::SetClientInputEnabled(bool bEnabled)
 
 void ADS_MatchGameMode::OnMatchEnded()
 {
+	EndMatchForPlayerStates();
+}
+
+void ADS_MatchGameMode::EndMatchForPlayerStates()
+{
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
 		if (ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Iterator->Get()); IsValid(DSPlayerController))
 		{
 			if (ADS_MatchPlayerState* MatchPlayerState = DSPlayerController->GetPlayerState<ADS_MatchPlayerState>(); IsValid(MatchPlayerState))
 			{
-				MatchPlayerState->OnMatchEnded(DSPlayerController->Username); 
+				MatchPlayerState->OnMatchEnded(DSPlayerController->Username);
 			}
 		}
-		
+
 	}
+}
+
+void ADS_MatchGameMode::UpdateLeaderboard(const TArray<FString>& LeaderboardNames)
+{
+	if (IsValid(GameStatsManager))
+	{
+		GameStatsManager->UpdateLeaderboard(LeaderboardNames); 
+	}
+}
+
+void ADS_MatchGameMode::OnLeaderboardUpdated()
+{
+	EndMatchForPlayerStates(); 
 }

@@ -6,6 +6,8 @@
 #include "Game/DS_GameModeBase.h"
 #include "DS_MatchGameMode.generated.h"
 
+class UGameStatsManager; 
+
 /**
  * 
  */
@@ -24,9 +26,14 @@ public:
 	virtual void InitSeamlessTravelPlayer(AController* NewController) override; 
 
 	UPROPERTY()
-	EMatchStatus MatchStatus; 
-	
+	EMatchStatus MatchStatus; 	
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameStatsManager> GameStatsManagerClass;
+
 protected:
+
+	virtual void BeginPlay() override; 
 
 	virtual void OnCountdownTimerFinished(ECountdownTimerType Type) override; 
 
@@ -44,5 +51,16 @@ protected:
 
 	void SetClientInputEnabled(bool bEnabled); 
 
-	void OnMatchEnded(); 
+	virtual void OnMatchEnded();
+
+	void EndMatchForPlayerStates();
+
+	void UpdateLeaderboard(const TArray<FString>& LeaderboardNames); 
+
+	UFUNCTION()
+	void OnLeaderboardUpdated(); 
+
+private:
+	UPROPERTY()
+	TObjectPtr<UGameStatsManager> GameStatsManager; 
 };
