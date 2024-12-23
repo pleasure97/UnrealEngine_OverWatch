@@ -6,6 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "LeaderboardPage.generated.h"
 
+class UScrollBox; 
+class UTextBlock; 
+class ULeaderboardCard; 
+struct FDSLeaderboardItem; 
 /**
  * 
  */
@@ -14,7 +18,19 @@ class DEDICATEDSERVERS_API ULeaderboardPage : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+
+	void PopulateLeaderboard(TArray<FDSLeaderboardItem>& Leaderboard); 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UScrollBox> ScrollBox_Leaderboard; 
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_StatusMessage; 
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ULeaderboardCard> LeaderboardCardClass; 
 	
-	
+private:
+	void CalculateLeaderboardPlaces(TArray<FDSLeaderboardItem>& OutLeaderboard); 
 };
