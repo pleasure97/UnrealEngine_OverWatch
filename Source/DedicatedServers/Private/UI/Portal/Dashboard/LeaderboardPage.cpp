@@ -5,6 +5,7 @@
 #include "UI/HTTP/HTTPRequestTypes.h"
 #include "Components/ScrollBox.h"
 #include "UI/Portal/Dashboard/LeaderboardCard.h"
+#include "Components/TextBlock.h"
 
 void ULeaderboardPage::PopulateLeaderboard(TArray<FDSLeaderboardItem>& Leaderboard)
 {
@@ -47,4 +48,9 @@ void ULeaderboardPage::CalculateLeaderboardPlaces(TArray<FDSLeaderboardItem>& Ou
 		// Increment rank for the next item 
 		CurrentRank++; 
 	}
+}
+
+void ULeaderboardPage::SetStatusMessage(const FString& StatusMessage, bool bShouldResetWidgets)
+{
+	TextBlock_StatusMessage->SetText(FText::FromString(StatusMessage)); 
 }

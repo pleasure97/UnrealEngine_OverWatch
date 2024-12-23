@@ -8,7 +8,7 @@
 #include "GameStatsManager.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRetrieveStatsResponseReceived, const FDSRetrieveMatchStatsResponse&, RetrieveMatchStatsResponse); 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRetrieveLeaderboard, const TArray<FDSLeaderboardItem>&, Leaderboard); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRetrieveLeaderboard, TArray<FDSLeaderboardItem>&, Leaderboard); 
 
 struct FDSRecordMatchStatsInput; 
 /**
@@ -25,8 +25,11 @@ public:
 	void UpdateLeaderboard(const TArray<FString>& WinnerUsernames); 
 	void RetrieveLeaderboard(); 
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FAPIStatusMessage RetrieveMatchStatsStatusMessage; 
+
+	UPROPERTY()
+	FAPIStatusMessage RetrieveLeaderboardStatusMessage; 
 	
 	UPROPERTY()
 	FOnRetrieveStatsResponseReceived OnRetrieveMatchStatsResponseReceived;
