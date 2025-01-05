@@ -10,7 +10,7 @@ public class FPSTemplate : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", "DedicatedServers" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "Slate", "SlateCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "Slate", "SlateCore", "GameplayAbilities", "GameplayTasks" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
