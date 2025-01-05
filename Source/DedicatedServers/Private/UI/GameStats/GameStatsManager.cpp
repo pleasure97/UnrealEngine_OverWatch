@@ -66,10 +66,12 @@ void UGameStatsManager::RetrieveMatchStats()
 
 	Request->SetContentAsString(Content); 
 	Request->ProcessRequest(); 
+	UE_LOG(LogDedicatedServers, Error, TEXT("JsonObject: %s"), *Content);
 }
 
 void UGameStatsManager::RetrieveMatchStats_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
+
 	if (!bWasSuccessful)
 	{
 		OnRetrieveMatchStatsResponseReceived.Broadcast(FDSRetrieveMatchStatsResponse()); 
