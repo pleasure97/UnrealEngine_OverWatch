@@ -9,6 +9,7 @@ AOWPlayerState::AOWPlayerState()
 {
 	AbilitySystemComponent = CreateDefaultSubobject<UOWAbilitySystemComponent>("AbilitySystemComponent"); 
 	AbilitySystemComponent->SetIsReplicated(true); 
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); 
 
 	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
 
