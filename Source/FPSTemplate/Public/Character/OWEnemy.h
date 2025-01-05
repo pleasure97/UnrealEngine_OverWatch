@@ -14,6 +14,8 @@ class FPSTEMPLATE_API AOWEnemy : public AOWCharacterBase
 {
 	GENERATED_BODY()
 	
+public:
+	AOWEnemy(); 
 	
 	
 	

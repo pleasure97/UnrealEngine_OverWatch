@@ -8,9 +8,11 @@ public class FPSTemplate : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", "DedicatedServers" });
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", "DedicatedServers", "GameplayAbilities" 
+		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "Slate", "SlateCore", "GameplayAbilities", "GameplayTasks" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "Slate", "SlateCore",  "GameplayTasks" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
