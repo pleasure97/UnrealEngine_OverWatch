@@ -2,11 +2,12 @@
 
 
 #include "AbilitySystem/OWAttributeSet.h"
-#include "AbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UOWAttributeSet::UOWAttributeSet()
 {
+	InitHealth(200.f); 
+	InitMaxHealth(200.f); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
