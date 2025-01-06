@@ -14,7 +14,12 @@ class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	AOWCharacter(); 
+
+	virtual void PossessedBy(AController* NewController) override; 
+	virtual void OnRep_PlayerState() override; 
+
+private:
+	void InitAbilityActorInfo(); 
 };

@@ -13,3 +13,10 @@ AOWEnemy::AOWEnemy()
 
 	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
 }
+
+void AOWEnemy::BeginPlay()
+{
+	Super::BeginPlay(); 
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this); 
+}

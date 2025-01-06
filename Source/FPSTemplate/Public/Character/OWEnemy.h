@@ -17,6 +17,7 @@ class FPSTEMPLATE_API AOWEnemy : public AOWCharacterBase
 public:
 	AOWEnemy(); 
 	
-	
+protected:
+	virtual void BeginPlay() override; 
 	
 };
