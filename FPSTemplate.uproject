@@ -11,8 +11,9 @@
 			"AdditionalDependencies": [
 				"Engine",
 				"UMG",
-				"DedicatedServers", 
-				"GameplayAbilities"
+				"DedicatedServers",
+				"GameplayAbilities",
+				"CoreUObject"
 			]
 		},
 		{
@@ -69,9 +70,9 @@
 		{
 			"Name": "GameLiftPlugin",
 			"Enabled": true
-		}, 
+		},
 		{
-			"Name": "GameplayAbilities", 
+			"Name": "GameplayAbilities",
 			"Enabled": true
 		}
 	]
