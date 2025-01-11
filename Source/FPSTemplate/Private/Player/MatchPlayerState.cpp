@@ -3,8 +3,6 @@
 
 #include "Player/MatchPlayerState.h"
 
-#include "Data/SpecialElimData.h"
-#include "ShooterTypes/ShooterTypes.h"
 #include "UI/Elims/SpecialElimWidget.h"
 
 #include "UI/HTTP/HTTPRequestTypes.h"

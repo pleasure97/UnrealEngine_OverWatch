@@ -4,11 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Player/DS_MatchPlayerState.h"
+#include "Data/SpecialElimData.h"
+#include "ShooterTypes/ShooterTypes.h"
 #include "MatchPlayerState.generated.h"
-
-enum class ESpecialElimType : uint16;
-class USpecialElimData;
-struct FSpecialElimInfo;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, int32, NewScore);
 
