@@ -4,9 +4,24 @@
 #include "Character/OWCharacter.h"
 #include "Player/OWPlayerState.h"
 #include "AbilitySystemComponent.h"
+#include "Player/OWPlayerController.h"
+#include "UI/HUD/OWHUD.h"
 
 AOWCharacter::AOWCharacter()
 {
+	/*AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	OWPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(OWPlayerState, this);
+	AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent();
+	AttributeSet = OWPlayerState->GetAttributeSet();
+
+	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
+	{
+		if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
+		{
+			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
+		}
+	}*/
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)
