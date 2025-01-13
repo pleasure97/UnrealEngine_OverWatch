@@ -53,9 +53,6 @@ AOWCharacter::AOWCharacter()
 	GetMesh()->bOnlyOwnerSee = false; 
 	GetMesh()->bOwnerNoSee = true; 
 	GetMesh()->bReceivesDecals = false; 
-
-
-
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)
@@ -85,6 +82,20 @@ void AOWCharacter::BeginPlay()
 {
 	Super::BeginPlay(); 
 
+	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
+	{
+		OWPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(OWPlayerState, this);
+		AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent();
+		AttributeSet = OWPlayerState->GetAttributeSet();
+
+		if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
+		{
+			if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
+			{
+				OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet);
+			}
+		}
+	}
 }
 
 void AOWCharacter::InitAbilityActorInfo()
