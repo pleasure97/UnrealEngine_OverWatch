@@ -6,8 +6,10 @@
 
 UOWAttributeSet::UOWAttributeSet()
 {
-	InitHealth(200.f); 
+	InitHealth(50.f); 
 	InitMaxHealth(200.f); 
+	InitArmor(100.f);
+	InitShield(100.f); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

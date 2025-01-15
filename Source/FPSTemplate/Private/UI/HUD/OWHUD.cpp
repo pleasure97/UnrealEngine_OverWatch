@@ -11,6 +11,7 @@ UOverlayWidgetController* AOWHUD::GetOverlayWidgetController(const FWidgetContro
 	{
 		OverlayWidgetController = NewObject<UOverlayWidgetController>(this, OverlayWidgetControllerClass); 
 		OverlayWidgetController->SetWidgetControllerParams(WCParams); 
+		OverlayWidgetController->BindCallbacksToDependencies(); 
 
 		return OverlayWidgetController; 
 	}
@@ -30,5 +31,6 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 
 	OverlayWidget->SetWidgetController(WidgetController); 
 
+	WidgetController->BroadcastInitialValues(); 
 	Widget->AddToViewport(); 
 }
