@@ -8,8 +8,8 @@ UOWAttributeSet::UOWAttributeSet()
 {
 	InitHealth(50.f); 
 	InitMaxHealth(200.f); 
-	InitArmor(100.f);
-	InitShield(100.f); 
+	InitArmor(200.f);
+	InitShield(200.f); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -19,9 +19,10 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Health, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Armor, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxArmor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempArmor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Shield, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxShield, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempShield, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, OverHealth, COND_None, REPNOTIFY_Always);
 }
 
 void UOWAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -39,9 +40,9 @@ void UOWAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor) const
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, Armor, OldArmor);
 }
 
-void UOWAttributeSet::OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor) const
+void UOWAttributeSet::OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, MaxArmor, OldMaxArmor);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TempArmor, OldTempArmor);
 }
 
 void UOWAttributeSet::OnRep_Shield(const FGameplayAttributeData& OldShield) const
@@ -49,7 +50,12 @@ void UOWAttributeSet::OnRep_Shield(const FGameplayAttributeData& OldShield) cons
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, Shield, OldShield);
 }
 
-void UOWAttributeSet::OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield) const
+void UOWAttributeSet::OnRep_TempShield(const FGameplayAttributeData& OldTempShield) const
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, MaxShield, OldMaxShield);
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TempShield, OldTempShield);
+}
+
+void UOWAttributeSet::OnRep_OverHealth(const FGameplayAttributeData& OldOverHealth) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, OverHealth, OldOverHealth);
 }

@@ -38,17 +38,21 @@ public:
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Armor);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxArmor, Category = "Vital Attributes")
-	FGameplayAttributeData MaxArmor;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxArmor);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempArmor, Category = "Vital Attributes")
+	FGameplayAttributeData TempArmor;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempArmor);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Shield, Category = "Vital Attributes")
 	FGameplayAttributeData Shield;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Shield);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxShield, Category = "Vital Attributes")
-	FGameplayAttributeData MaxShield;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxShield);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempShield, Category = "Vital Attributes")
+	FGameplayAttributeData TempShield;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempShield);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_OverHealth, Category = "Vital Attributes")
+	FGameplayAttributeData OverHealth;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, OverHealth);
 
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const; 
@@ -60,11 +64,14 @@ public:
 	void OnRep_Armor(const FGameplayAttributeData& OldArmor) const;
 
 	UFUNCTION()
-	void OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor) const;
+	void OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor) const;
 
 	UFUNCTION()
 	void OnRep_Shield(const FGameplayAttributeData& OldShield) const;
 
 	UFUNCTION()
-	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield) const;
+	void OnRep_TempShield(const FGameplayAttributeData& OldTempShield) const;
+
+	UFUNCTION()
+	void OnRep_OverHealth(const FGameplayAttributeData& OldOverHealth) const;
 };
