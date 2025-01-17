@@ -6,5 +6,4 @@
 void UOWUserWidget::SetWidgetController(UObject* InWidgetController)
 {
 	WidgetController = InWidgetController; 
-	WidgetControllerSet(); 
 }

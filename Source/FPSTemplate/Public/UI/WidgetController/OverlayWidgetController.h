@@ -28,6 +28,7 @@ public:
 	virtual void BroadcastInitialValues() override; 
 	virtual void BindCallbacksToDependencies() override; 
 
+	/* Attribute Changed Callbacks */
 	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
 	FOnHealthChangedSignature OnHealthChanged; 
 
@@ -48,13 +49,4 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
 	FOnOverHealthChangedSignature OnOverHealthChanged;
-	
-protected:
-	void HealthChanged(const FOnAttributeChangeData& Data) const; 
-	void MaxHealthChanged(const FOnAttributeChangeData& Data) const; 
-	void ArmorChanged(const FOnAttributeChangeData& Data) const;
-	void TempArmorChanged(const FOnAttributeChangeData& Data) const;
-	void ShieldChanged(const FOnAttributeChangeData& Data) const;
-	void TempShieldChanged(const FOnAttributeChangeData& Data) const;
-	void OverHealthChanged(const FOnAttributeChangeData& Data) const;
 };

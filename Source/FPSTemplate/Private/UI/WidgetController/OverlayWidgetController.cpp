@@ -21,59 +21,62 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	const UOWAttributeSet* OWAttributeSet = CastChecked<UOWAttributeSet>(AttributeSet); 
 
+	/* Bind Callbacks of Attributes Changed - Health */
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetHealthAttribute()).AddUObject(this, &UOverlayWidgetController::HealthChanged);
-	
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetMaxHealthAttribute()).AddUObject(this, &UOverlayWidgetController::MaxHealthChanged); 
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetArmorAttribute()).AddUObject(this, &UOverlayWidgetController::ArmorChanged); 
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetTempArmorAttribute()).AddUObject(this, &UOverlayWidgetController::TempArmorChanged);
-	
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetShieldAttribute()).AddUObject(this, &UOverlayWidgetController::ShieldChanged);
+		OWAttributeSet->GetHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnHealthChanged.Broadcast(Data.NewValue); 
+			}
+		);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetTempShieldAttribute()).AddUObject(this, &UOverlayWidgetController::TempShieldChanged);
+		OWAttributeSet->GetMaxHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxHealthChanged.Broadcast(Data.NewValue);
+			}
+		);
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetOverHealthAttribute()).AddUObject(this, &UOverlayWidgetController::OverHealthChanged);
-}
+		OWAttributeSet->GetOverHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnOverHealthChanged.Broadcast(Data.NewValue);
+			}
+		);
 
-void UOverlayWidgetController::HealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnHealthChanged.Broadcast(Data.NewValue); 
-}
+	/* Bind Callbacks of Attributes Changed - Armor */
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		OWAttributeSet->GetArmorAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnArmorChanged.Broadcast(Data.NewValue);
+			}
+		);
 
-void UOverlayWidgetController::MaxHealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxHealthChanged.Broadcast(Data.NewValue); 
-}
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		OWAttributeSet->GetTempArmorAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnTempArmorChanged.Broadcast(Data.NewValue);
+			}
+		);
 
-void UOverlayWidgetController::ArmorChanged(const FOnAttributeChangeData& Data) const
-{
-	OnArmorChanged.Broadcast(Data.NewValue); 
-}
+	/* Bind Callbacks of Attributes Changed - Shield */
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		OWAttributeSet->GetShieldAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnShieldChanged.Broadcast(Data.NewValue);
+			}
+		);
 
-void UOverlayWidgetController::TempArmorChanged(const FOnAttributeChangeData& Data) const
-{
-	OnTempArmorChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::ShieldChanged(const FOnAttributeChangeData& Data) const
-{
-	OnShieldChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::TempShieldChanged(const FOnAttributeChangeData& Data) const
-{
-	OnTempShieldChanged.Broadcast(Data.NewValue);
-}
-
-void UOverlayWidgetController::OverHealthChanged(const FOnAttributeChangeData& Data) const
-{
-	OnOverHealthChanged.Broadcast(Data.NewValue); 
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		OWAttributeSet->GetTempShieldAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnTempShieldChanged.Broadcast(Data.NewValue);
+			}
+		);
 }
