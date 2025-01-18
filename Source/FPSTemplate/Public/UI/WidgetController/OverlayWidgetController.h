@@ -6,15 +6,14 @@
 #include "UI/WidgetController/OWWidgetController.h"
 #include "OverlayWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth); 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature, float, NewMaxHealth); 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnArmorChangedSignature, float, NewArmor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTempArmorChangedSignature, float, NewTempArmor);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnShieldChangedSignature, float, NewShield);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTempShieldChangedSignature, float, NewTempShield);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOverHealthChangedSignature, float, NewOverHealth);
-
 struct FOnAttributeChangeData;
+struct FAttributeDefensiveInfo; 
+class UDefensiveAttributeInfo;
+struct FGameplayTag; 
+struct FGameplayAttribute; 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FAttributeDefensiveInfo&, Info); 
+
 
 /**
  * 
@@ -28,25 +27,13 @@ public:
 	virtual void BroadcastInitialValues() override; 
 	virtual void BindCallbacksToDependencies() override; 
 
-	/* Attribute Changed Callbacks */
-	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnHealthChangedSignature OnHealthChanged; 
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")	
+	FAttributeInfoSignature AttributeInfoDelegate; 
 
-	UPROPERTY(BlueprintAssignable, Category="GAS|Attributes")
-	FOnMaxHealthChangedSignature OnMaxHealthChanged; 
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDefensiveAttributeInfo> DefensiveAttributeInfo; 
 
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnArmorChangedSignature OnArmorChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnTempArmorChangedSignature OnTempArmorChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnShieldChangedSignature OnShieldChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnTempShieldChangedSignature OnTempShieldChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnOverHealthChangedSignature OnOverHealthChanged;
+private:
+	void BroadcastDefensiveAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const; 
 };

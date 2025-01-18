@@ -3,80 +3,35 @@
 
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "AbilitySystem/OWAttributeSet.h"
+#include "AbilitySystem/Data/DefensiveAttributeInfo.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
-	const UOWAttributeSet* OWAttributeSet = CastChecked<UOWAttributeSet>(AttributeSet); 
+	check(DefensiveAttributeInfo); 
 
-	OnHealthChanged.Broadcast(OWAttributeSet->GetHealth()); 
-	OnMaxHealthChanged.Broadcast(OWAttributeSet->GetMaxHealth()); 
-	OnArmorChanged.Broadcast(OWAttributeSet->GetArmor()); 
-	OnTempArmorChanged.Broadcast(OWAttributeSet->GetTempArmor()); 
-	OnShieldChanged.Broadcast(OWAttributeSet->GetShield()); 
-	OnTempShieldChanged.Broadcast(OWAttributeSet->GetTempShield()); 
-	OnOverHealthChanged.Broadcast(OWAttributeSet->GetOverHealth()); 
+	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
+	{
+		BroadcastDefensiveAttributeInfo(Pair.Key, Pair.Value()); 
+	}
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	const UOWAttributeSet* OWAttributeSet = CastChecked<UOWAttributeSet>(AttributeSet); 
-
-	/* Bind Callbacks of Attributes Changed - Health */
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetHealthAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
+	check(DefensiveAttributeInfo); 
+	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
+			[this, Pair](const FOnAttributeChangeData& Data)
 			{
-				OnHealthChanged.Broadcast(Data.NewValue); 
+				BroadcastDefensiveAttributeInfo(Pair.Key, Pair.Value());
 			}
 		);
+	}
+}
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetMaxHealthAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
-			{
-				OnMaxHealthChanged.Broadcast(Data.NewValue);
-			}
-		);
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetOverHealthAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
-			{
-				OnOverHealthChanged.Broadcast(Data.NewValue);
-			}
-		);
-
-	/* Bind Callbacks of Attributes Changed - Armor */
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetArmorAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
-			{
-				OnArmorChanged.Broadcast(Data.NewValue);
-			}
-		);
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetTempArmorAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
-			{
-				OnTempArmorChanged.Broadcast(Data.NewValue);
-			}
-		);
-
-	/* Bind Callbacks of Attributes Changed - Shield */
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetShieldAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
-			{
-				OnShieldChanged.Broadcast(Data.NewValue);
-			}
-		);
-
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		OWAttributeSet->GetTempShieldAttribute()).AddLambda(
-			[this](const FOnAttributeChangeData& Data)
-			{
-				OnTempShieldChanged.Broadcast(Data.NewValue);
-			}
-		);
+void UOverlayWidgetController::BroadcastDefensiveAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
+{
+	FAttributeDefensiveInfo Info = DefensiveAttributeInfo->FindDefensiveAttributeInfoForTag(AttributeTag); 
+	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet); 
+	AttributeInfoDelegate.Broadcast(Info); 
 }
