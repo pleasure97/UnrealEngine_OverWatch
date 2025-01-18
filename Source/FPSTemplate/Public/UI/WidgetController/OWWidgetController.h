@@ -8,6 +8,11 @@
 
 class UAbilitySystemComponent; 
 class UAttributeSet; 
+class AOWPlayerController; 
+class AOWPlayerState; 
+class UOWAbilitySystemComponent; 
+class UOWAttributeSet; 
+class UDefensiveAttributeInfo; 
 
 /**
  * 
@@ -61,4 +66,20 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UAttributeSet> AttributeSet;
 
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<AOWPlayerController> OWPlayerController;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<AOWPlayerState> OWPlayerState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<UOWAbilitySystemComponent> OWAbilitySystemComponent;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<UOWAttributeSet> OWAttributeSet;
+
+	AOWPlayerController* GetOW_PC(); 
+	AOWPlayerState* GetOW_PS(); 
+	UOWAbilitySystemComponent* GetOW_ASC(); 
+	UOWAttributeSet* GetOW_AS(); 
 };
