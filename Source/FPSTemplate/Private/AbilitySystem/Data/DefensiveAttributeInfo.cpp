@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Data/DefensiveAttributeInfo.h"
+#include "AbilitySystem/Data/DefensiveAttributeInfo.h"
 
 FAttributeDefensiveInfo UDefensiveAttributeInfo::FindDefensiveAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound) const
 {
