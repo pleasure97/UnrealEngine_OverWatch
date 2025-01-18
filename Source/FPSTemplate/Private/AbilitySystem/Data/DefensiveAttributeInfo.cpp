@@ -5,7 +5,7 @@
 
 FAttributeDefensiveInfo UDefensiveAttributeInfo::FindDefensiveAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound) const
 {
-	for (const FAttributeDefensiveInfo& Info : DefensiveAttributeInfo)
+	for (const FAttributeDefensiveInfo& Info : DefensiveAttributeInformation)
 	{
 		if (Info.DefensiveAttributeTag == AttributeTag)
 		{

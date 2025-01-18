@@ -19,6 +19,9 @@ struct FAttributeDefensiveInfo
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FLinearColor Tint_Fill = FLinearColor(0.f, 0.f, 0.f, 1.f);
+
+	UPROPERTY(BlueprintReadOnly)
+	float AttributeValue = 0.f; 
 };
 
 UCLASS()
@@ -28,7 +31,7 @@ class FPSTEMPLATE_API UDefensiveAttributeInfo : public UDataAsset
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Information")
-	TArray<FAttributeDefensiveInfo> DefensiveAttributeInfo; 
+	TArray<FAttributeDefensiveInfo> DefensiveAttributeInformation; 
 
 	FAttributeDefensiveInfo FindDefensiveAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound = false) const; 	
 };
