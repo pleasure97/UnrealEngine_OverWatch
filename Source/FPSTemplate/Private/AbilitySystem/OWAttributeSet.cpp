@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/OWAttributeSet.h"
 #include "Net/UnrealNetwork.h"
+#include "OWGameplayTags.h"
 
 UOWAttributeSet::UOWAttributeSet()
 {
@@ -10,6 +11,17 @@ UOWAttributeSet::UOWAttributeSet()
 	InitMaxHealth(200.f); 
 	InitArmor(200.f);
 	InitShield(200.f); 
+
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+
+	/* Defensive Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Health, GetHealthAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxHealth, GetMaxHealthAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Armor, GetArmorAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Shield, GetShieldAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
