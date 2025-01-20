@@ -4,12 +4,10 @@
 #include "UI/Widget/HealthBarPool.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Components/HorizontalBox.h"
+#include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
-
-void UHealthBarPool::NativePreConstruct()
-{
-	Super::NativePreConstruct();
-}
+#include "AbilitySystem/Data/DefensiveAttributeInfo.h"
+#include "Components/SizeBox.h"
 
 void UHealthBarPool::NativeConstruct()
 {
@@ -19,52 +17,65 @@ void UHealthBarPool::NativeConstruct()
 
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
-		OverlayWidgetController->OnHealthChanged.AddDynamic(this, &UHealthBarPool::OnHealthChanged);
-		OverlayWidgetController->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::OnMaxHealthChanged); 
-		OverlayWidgetController->OnArmorChanged.AddDynamic(this, &UHealthBarPool::OnArmorChanged); 
-		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::OnTempArmorChanged); 
-		OverlayWidgetController->OnShieldChanged.AddDynamic(this, &UHealthBarPool::OnShieldChanged); 
-		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::OnTempShieldChanged); 
-		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::OnOverHealthChanged); 
+		SetWidgetController(OverlayWidgetController); 
+		OverlayWidgetController->AttributeInfoDelegate.AddDynamic(this, &UHealthBarPool::UpdateProgressBars);
 	}
 
-	//int RequiredBars = FMath::CeilToInt(CurrentHealth / HealthPerBar);
-
-	//for (int i = 0; i < RequiredBars; ++i)
-	//{
-
-	//}
+	TagsToHorizontalBoxes.Add(FOWGameplayTags::Get().Attributes_Defense_MaxHealth, HorizontalBox_Health); 
+	TagsToHorizontalBoxes.Add(FOWGameplayTags::Get().Attributes_Defense_Armor, HorizontalBox_Armor);
+	TagsToHorizontalBoxes.Add(FOWGameplayTags::Get().Attributes_Defense_Shield, HorizontalBox_Shield);
 }
 
-void UHealthBarPool::OnHealthChanged(float NewValue)
+void UHealthBarPool::UpdateProgressBars(const FAttributeDefensiveInfo& Info)
 {
-	
+	if (bNotInitialized)
+	{
+		InitializePool(Info); 
+		bNotInitialized = false; 
+	}
+
+	if (TObjectPtr<UHorizontalBox>* HorizontalBoxPtr = TagsToHorizontalBoxes.Find(Info.DefensiveAttributeTag))
+	{
+		UHorizontalBox* HorizontalBoxToUpdate = *HorizontalBoxPtr; 
+
+		for (UWidget* ChildWidget : HorizontalBoxToUpdate->GetAllChildren())
+		{
+			if (UHealthBar* HealthBar = Cast<UHealthBar>(ChildWidget))
+			{
+				HealthBar->UpdateProgressBar(Info.Tint_Fill, Info.AttributeValue); 
+			}
+		}
+	}
 }
 
-void UHealthBarPool::OnMaxHealthChanged(float NewValue)
+void UHealthBarPool::InitializePool(const FAttributeDefensiveInfo& Info)
 {
+	const FGameplayTag& DefensiveAttributeTag = Info.DefensiveAttributeTag; 
+	const float AttributeValue = Info.AttributeValue; 
+
+	if (DefensiveAttributeTag.MatchesTagExact(FOWGameplayTags::Get().Attributes_Defense_Health)) return; 
+
+	const int32 NumHealthBars = FMath::CeilToInt(AttributeValue / HealthPerBar); 
+
+	if (TObjectPtr<UHorizontalBox>* HorizontalBoxPtr = TagsToHorizontalBoxes.Find(Info.DefensiveAttributeTag))
+	{
+		UHorizontalBox* HorizontalBoxToUpdate = *HorizontalBoxPtr;
+
+		for (int32 i = 0; i < NumHealthBars; ++i)
+		{
+			UHealthBar* NewHealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
+			HorizontalBoxToUpdate->AddChildToHorizontalBox(NewHealthBar);
+		}
+
+		UpdateHorizontalBoxSize(); 
+
+		
+		HorizontalBoxToUpdate->getchild
+
+	}
 }
 
-void UHealthBarPool::OnArmorChanged(float NewValue)
+void UHealthBarPool::UpdateHorizontalBoxSize()
 {
-}
-
-void UHealthBarPool::OnTempArmorChanged(float NewValue)
-{
-}
-
-void UHealthBarPool::OnShieldChanged(float NewValue)
-{
-}
-
-void UHealthBarPool::OnTempShieldChanged(float NewValue)
-{
-}
-
-void UHealthBarPool::OnOverHealthChanged(float NewValue)
-{
-}
-
-void UHealthBarPool::UpdateProgressBars(float NewValue)
-{
+	TotalNumBars = HorizontalBox_Health->GetChildrenCount() + HorizontalBox_Armor->GetChildrenCount() + HorizontalBox_Shield->GetChildrenCount();
 }

@@ -7,10 +7,10 @@
 
 UOWAttributeSet::UOWAttributeSet()
 {
-	InitHealth(50.f); 
-	InitMaxHealth(200.f); 
+	InitMaxHealth(250.f); 
 	InitArmor(200.f);
 	InitShield(200.f); 
+	InitHealth(250.f);
 
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 

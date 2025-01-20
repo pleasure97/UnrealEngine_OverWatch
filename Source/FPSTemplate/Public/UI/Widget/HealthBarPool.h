@@ -7,7 +7,9 @@
 #include "HealthBarPool.generated.h"
 
 class UHealthBar;
+class USizeBox; 
 class UHorizontalBox;
+struct FAttributeDefensiveInfo; 
 
 /**
  * 
@@ -16,43 +18,44 @@ UCLASS()
 class FPSTEMPLATE_API UHealthBarPool : public UOWUserWidget
 {
 	GENERATED_BODY()
-	
-protected:
-	virtual void NativePreConstruct() override;
 
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UHealthBar> HealthBarClass;
+
+	UPROPERTY(BlueprintReadOnly)
+	float HealthPerBar = 25.f;
+
+protected:
 	virtual void NativeConstruct() override;
 
 private:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UHealthBar> HealthBar;
+	TObjectPtr<USizeBox> SizeBox_Root; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HorizontalBox_Health;
 
-	UPROPERTY(EditDefaultsOnly)
-	float HealthPerBar = 25.f;
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UHorizontalBox> HorizontalBox_Armor;
 
-	UFUNCTION()
-	void OnHealthChanged(float NewValue);
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UHorizontalBox> HorizontalBox_Shield;
 
-	UFUNCTION()
-	void OnMaxHealthChanged(float NewValue); 
+	UPROPERTY()
+	TMap<FGameplayTag, TObjectPtr<UHorizontalBox>> TagsToHorizontalBoxes; 
 
+private:
 	UFUNCTION()
-	void OnArmorChanged(float NewValue);
+	void UpdateProgressBars(const FAttributeDefensiveInfo& Info);
 
-	UFUNCTION()
-	void OnTempArmorChanged(float NewValue);
+	void InitializePool(const FAttributeDefensiveInfo& Info); 
 
-	UFUNCTION()
-	void OnShieldChanged(float NewValue);
+	void UpdateHorizontalBoxSize(); 
 
-	UFUNCTION()
-	void OnTempShieldChanged(float NewValue);
+	UPROPERTY()
+	bool bNotInitialized = true; 
 
-	UFUNCTION()
-	void OnOverHealthChanged(float NewValue);
-
-	UFUNCTION()
-	void UpdateProgressBars(float NewValue);
+	UPROPERTY()
+	int32 TotalNumBars = 0; 
 };

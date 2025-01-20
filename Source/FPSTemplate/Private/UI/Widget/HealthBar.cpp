@@ -4,31 +4,33 @@
 #include "UI/Widget/HealthBar.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
+#include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "UI/WidgetController/OverlayWidgetController.h"
 
-void UHealthBar::NativePreConstruct()
+void UHealthBar::NativeConstruct()
 {
-	Super::NativePreConstruct(); 
+	Super::NativeConstruct(); 
 
-	if (ProgressBar && Image_Background  && Image_Fill)
+	if (ProgressBar && Image_ProgressBar)
 	{
-		FProgressBarStyle ProgressBarStyle = ProgressBar->WidgetStyle; 
+		FProgressBarStyle ProgressBarStyle = ProgressBar->WidgetStyle;
 
-		FSlateBrush BackgroundBrush; 
-		BackgroundBrush.SetResourceObject(Image_Background); 
-		BackgroundBrush.TintColor = FSlateColor(Tint_Background); 
-		ProgressBarStyle.BackgroundImage = BackgroundBrush; 
+		FSlateBrush BackgroundBrush;
+		BackgroundBrush.SetResourceObject(Image_ProgressBar);
+		BackgroundBrush.TintColor = FSlateColor(Tint_Background);
+		ProgressBarStyle.BackgroundImage = BackgroundBrush;
 
-		FSlateBrush FillBrush; 
-		FillBrush.SetResourceObject(Image_Fill); 
-		FillBrush.TintColor = FSlateColor(Tint_Fill); 
-		ProgressBarStyle.FillImage = FillBrush; 
+		FSlateBrush FillBrush;
+		FillBrush.SetResourceObject(Image_ProgressBar);
+		FillBrush.TintColor = FSlateColor(Tint_Fill);
+		ProgressBarStyle.FillImage = FillBrush;
 
 		ProgressBar->SetWidgetStyle(ProgressBarStyle);
 	}
 }
 
-void UHealthBar::NativeConstruct()
+void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue)
 {
-	Super::NativeConstruct(); 
+
 }
 
