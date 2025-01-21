@@ -87,7 +87,7 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("InputTag of Reload"));
 
 	GameplayTags.InputTag_DefaultFire = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("InputTag.DeafultFire"),
+		FName("InputTag.DefaultFire"),
 		FString("InputTag of DefaultFire"));
 
 	GameplayTags.InputTag_SecondaryFire = UGameplayTagsManager::Get().AddNativeGameplayTag(
