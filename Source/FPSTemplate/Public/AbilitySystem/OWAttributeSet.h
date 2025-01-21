@@ -62,6 +62,17 @@ public:
 	FGameplayAttributeData OverHealth;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, OverHealth);
 
+	/*
+	 * Skill Attributes
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SkillGauge, Category = "Vital Attributes")
+	FGameplayAttributeData SkillGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SkillGauge);
+
+
+	/*
+	 * Defensive Attributes
+	 */
 	UFUNCTION()
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const; 
 
@@ -82,4 +93,10 @@ public:
 
 	UFUNCTION()
 	void OnRep_OverHealth(const FGameplayAttributeData& OldOverHealth) const;
+
+	/*
+	 * Skill Attributes
+	 */
+	UFUNCTION()
+	void OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const;
 };

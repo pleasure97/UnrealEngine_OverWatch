@@ -11,6 +11,7 @@ UOWAttributeSet::UOWAttributeSet()
 	InitArmor(200.f);
 	InitShield(200.f); 
 	InitHealth(250.f);
+	InitSkillGauge(100.f); 
 
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
@@ -22,12 +23,16 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Shield, GetShieldAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute); 
+
+	/* Skill Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 
+	/* Defensive Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Health, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Armor, COND_None, REPNOTIFY_Always);
@@ -35,6 +40,9 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Shield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempShield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, OverHealth, COND_None, REPNOTIFY_Always);
+
+	/* Skill Attributes */
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
 }
 
 void UOWAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -70,4 +78,9 @@ void UOWAttributeSet::OnRep_TempShield(const FGameplayAttributeData& OldTempShie
 void UOWAttributeSet::OnRep_OverHealth(const FGameplayAttributeData& OldOverHealth) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, OverHealth, OldOverHealth);
+}
+
+void UOWAttributeSet::OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SkillGauge, OldSkillGauge); 
 }
