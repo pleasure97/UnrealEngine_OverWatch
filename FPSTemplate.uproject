@@ -13,7 +13,8 @@
 				"UMG",
 				"DedicatedServers",
 				"GameplayAbilities",
-				"CoreUObject"
+				"CoreUObject",
+				"EnhancedInput"
 			]
 		},
 		{
