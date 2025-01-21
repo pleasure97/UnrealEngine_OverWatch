@@ -107,4 +107,9 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Player_Input_Released = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Player.Input.Released"),
 		FString("Player Input Released"));
+
+	/* Skill Attributes */
+	GameplayTags.Attributes_Skill_SkillGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.SkillGauge"),
+		FString("Skill Gauge")); 
 }

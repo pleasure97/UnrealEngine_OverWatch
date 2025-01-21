@@ -48,6 +48,9 @@ public:
 	FGameplayTag Player_Input_Held; 
 	FGameplayTag Player_Input_Released; 
 
+	/* Skill Attributes */
+	FGameplayTag Attributes_Skill_SkillGauge; 
+
 private:
 	static FOWGameplayTags GameplayTags; 
 };
