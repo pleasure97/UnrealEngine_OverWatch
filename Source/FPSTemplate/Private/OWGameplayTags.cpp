@@ -37,4 +37,17 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Defense_OverHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Defense.OverHealth"),
 		FString("Over Health"));
+
+	/* Player Input Attributes */
+	GameplayTags.Player_Input_Pressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Input.Pressed"),
+		FString("Player Input Pressed")); 
+
+	GameplayTags.Player_Input_Held = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Input.Held"),
+		FString("Player Input Held"));
+
+	GameplayTags.Player_Input_Released = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Input.Released"),
+		FString("Player Input Released"));
 }

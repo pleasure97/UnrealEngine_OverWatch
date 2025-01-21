@@ -17,6 +17,7 @@ public:
 	static const FOWGameplayTags& Get() { return GameplayTags; }
 	static void InitializeNativeGameplayTags(); 
 
+	/* Defense Attributes */
 	FGameplayTag Attributes_Defense_Health; 
 	FGameplayTag Attributes_Defense_MaxHealth;
 	FGameplayTag Attributes_Defense_Armor;
@@ -25,6 +26,10 @@ public:
 	FGameplayTag Attributes_Defense_TempShield;
 	FGameplayTag Attributes_Defense_OverHealth;
 
+	/* Player Input Attributes */
+	FGameplayTag Player_Input_Pressed; 
+	FGameplayTag Player_Input_Held; 
+	FGameplayTag Player_Input_Released; 
 
 private:
 	static FOWGameplayTags GameplayTags; 
