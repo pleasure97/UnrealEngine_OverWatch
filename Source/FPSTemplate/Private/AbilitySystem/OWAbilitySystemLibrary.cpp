@@ -6,6 +6,9 @@
 #include "UI/HUD/OWHUD.h"
 #include "Player/OWPlayerState.h"
 #include "UI/WidgetController/OWWidgetController.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/Data/HeroInfo.h"
+#include "Game/OWGameModeBase.h"
 
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
 {
@@ -39,4 +42,47 @@ UOverlayWidgetController* UOWAbilitySystemLibrary::GetOverlayWidgetController(co
 	}
 
 	return nullptr;
+}
+
+void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC, float Level)
+{
+	AActor* AvatarActor = ASC->GetAvatarActor(); 
+
+	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject); 
+	const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroDefaultInfo(HeroName);
+
+	FGameplayEffectContextHandle DefensiveAttributesContextHandle = ASC->MakeEffectContext(); 
+	DefensiveAttributesContextHandle.AddSourceObject(AvatarActor);
+	const FGameplayEffectSpecHandle DefensiveAttributeSpecHandle = ASC->MakeOutgoingSpec(OWHeroInfo.DefensiveAttributes, Level, DefensiveAttributesContextHandle); 
+	ASC->ApplyGameplayEffectSpecToSelf(*DefensiveAttributeSpecHandle.Data.Get()); 
+}
+
+void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC)
+{
+	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject); 
+	if (!HeroInfo) return; 
+
+	for (TSubclassOf<UGameplayAbility> AbilityClass : HeroInfo->CommonAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1); 
+		ASC->GiveAbility(AbilitySpec); 
+	}
+
+	const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroDefaultInfo(HeroName);
+	for (FOWAbilityInfo AbilityInfo : OWHeroInfo.Abilities)
+	{
+		TSubclassOf<UGameplayAbility> AbilityClass = AbilityInfo.Ability; 
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1); 
+		ASC->GiveAbility(AbilitySpec); 
+	}
+}
+
+UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObject)
+{
+	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject)); 
+	if (OWGameMode == nullptr)
+	{
+		return nullptr; 
+	}
+	return OWGameMode->HeroInfo;
 }

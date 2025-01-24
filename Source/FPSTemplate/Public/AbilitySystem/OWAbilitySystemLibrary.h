@@ -9,6 +9,7 @@
 struct FWidgetControllerParams; 
 class AOWHUD; 
 class UOverlayWidgetController; 
+class UHeroInfo; 
 
 /**
  * 
@@ -29,4 +30,16 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
 	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject); 
+
+	/*
+	 * Hero Info Defaults 
+	 */
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static void InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC, float Level=1.f); 
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static void GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC); 
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static UHeroInfo* GetHeroInfo(const UObject* WorldContextObject); 
 };
