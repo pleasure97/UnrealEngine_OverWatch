@@ -21,8 +21,10 @@ public:
 	FGameplayTag Attributes_Defense_Health; 
 	FGameplayTag Attributes_Defense_MaxHealth;
 	FGameplayTag Attributes_Defense_Armor;
+	FGameplayTag Attributes_Defense_MaxArmor;
 	FGameplayTag Attributes_Defense_TempArmor;
 	FGameplayTag Attributes_Defense_Shield;
+	FGameplayTag Attributes_Defense_MaxShield;
 	FGameplayTag Attributes_Defense_TempShield;
 	FGameplayTag Attributes_Defense_OverHealth;
 
@@ -51,6 +53,7 @@ public:
 
 	/* Skill Attributes */
 	FGameplayTag Attributes_Skill_SkillGauge; 
+	FGameplayTag Attributes_Skill_UltimateGauge; 
 
 	/* Status Types */
 	FGameplayTag Status_Knockback; 

@@ -22,6 +22,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Defense.Armor"),
 		FString("Armor"));
 
+	GameplayTags.Attributes_Defense_MaxArmor = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Defense.MaxArmor"),
+		FString("Max Armor"));
+
 	GameplayTags.Attributes_Defense_TempArmor = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Defense.TempArmor"),
 		FString("Temp Armor"));
@@ -30,6 +34,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Defense.Shield"),
 		FString("Shield"));
 
+	GameplayTags.Attributes_Defense_MaxShield = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Defense.MaxShield"),
+		FString("Max Shield"));
+
 	GameplayTags.Attributes_Defense_TempShield = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Defense.TempShield"),
 		FString("Temp Shield"));
@@ -37,6 +45,15 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Defense_OverHealth = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Defense.OverHealth"),
 		FString("Over Health"));
+
+	/* Skill Attributes */
+	GameplayTags.Attributes_Skill_SkillGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.SkillGauge"),
+		FString("Skill Gauge"));
+
+	GameplayTags.Attributes_Skill_UltimateGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.UltimateGauge"),
+		FString("Ultimate Gauge"));
 
 	/* Input Attributes - Move */
 
