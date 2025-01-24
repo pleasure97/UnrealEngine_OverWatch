@@ -37,6 +37,7 @@ public:
 	/* Input Attributes - Weapon & Skill */
 	FGameplayTag InputTag_Skill_1; 
 	FGameplayTag InputTag_Skill_2; 
+	FGameplayTag InputTag_Skill_3; 
 	FGameplayTag InputTag_Ultimate; 
 	FGameplayTag InputTag_QuickAttack; 
 	FGameplayTag InputTag_Reload; 
@@ -50,6 +51,22 @@ public:
 
 	/* Skill Attributes */
 	FGameplayTag Attributes_Skill_SkillGauge; 
+
+	/* Status Types */
+	FGameplayTag Status_Knockback; 
+	FGameplayTag Status_Stun; 
+	FGameplayTag Status_Airborne; 
+	FGameplayTag Status_HitReact; 
+
+	/* Cooldown Types */
+	FGameplayTag Cooldown_Illiari_Outburst;
+	FGameplayTag Cooldown_Illiari_HealingPylon;
+
+	/* Hero GameplayTags - Illiari */
+	FGameplayTag Abilities_Illiari_Outburst; 
+	FGameplayTag Abilities_Illiari_HealingPylon; 
+	FGameplayTag Abilities_Illiari_DemolishPylon; 
+	FGameplayTag Abilities_Illiari_CaptiveSun; 
 
 private:
 	static FOWGameplayTags GameplayTags; 

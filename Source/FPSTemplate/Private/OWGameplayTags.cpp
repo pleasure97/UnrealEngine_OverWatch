@@ -74,6 +74,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("InputTag.Skill.2"),
 		FString("InputTag of Skill 2"));
 
+	GameplayTags.InputTag_Skill_3 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Skill.3"),
+		FString("InputTag of Skill 3"));
+
 	GameplayTags.InputTag_Ultimate = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("InputTag.Ultimate"),
 		FString("InputTag of Ultimate"));
@@ -112,4 +116,48 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Attributes_Skill_SkillGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Skill.SkillGauge"),
 		FString("Skill Gauge")); 
+
+	/* Status Types */
+	GameplayTags.Status_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.Knockback"),
+		FString("Knockback"));
+
+	GameplayTags.Status_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.Stun"),
+		FString("Stun"));
+
+	GameplayTags.Status_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.Airborne"),
+		FString("Airborne"));
+
+	GameplayTags.Status_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.HitReact"),
+		FString("HitReact"));
+
+	/* Cooldown Types */
+	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.Outburst"),
+		FString("Outburst"));
+
+	GameplayTags.Cooldown_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.HealingPylon"),
+		FString("HealingPylon"));
+
+	/* Hero GameplayTags - Illiari */
+
+	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Illiari.Outburst"),
+		FString("Outburst Ability of Illiari"));
+
+	GameplayTags.Abilities_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Illiari.HealingPylon"),
+		FString("Healing Pylon Ability of Illiari"));
+
+	GameplayTags.Abilities_Illiari_DemolishPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Illiari.Outburst"),
+		FString("Demolishing Pylon Ability of Illiari"));
+
+	GameplayTags.Abilities_Illiari_CaptiveSun = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Illiari.CaptiveSun"),
+		FString("CaptiveSun Ability of Illiari"));
 }
