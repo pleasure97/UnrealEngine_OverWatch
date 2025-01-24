@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Data/HeroInfo.h"
 
-
-
-
+FOWHeroInfo UHeroInfo::GetHeroDefaultInfo(EHeroName HeroName)
+{
+    return HeroInformation.FindChecked(HeroName); 
+}
