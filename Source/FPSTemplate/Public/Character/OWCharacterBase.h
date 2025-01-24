@@ -5,13 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "Interfaces/CombatInterface.h"
 #include "OWCharacterBase.generated.h"
 
 class UAbilitySystemComponent;
 class UAttributeSet;
+class UAnimMontage; 
 
 UCLASS(ABSTRACT)
-class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface
+class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
 {
 	GENERATED_BODY()
 
@@ -20,6 +22,9 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
 	UAttributeSet* GetAttributeSet() const { return AttributeSet;  }
+
+	/** Combat Interface **/
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override; 
 
 protected:
 	virtual void BeginPlay() override;
@@ -32,4 +37,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet; 
+
+private:
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 };

@@ -19,6 +19,11 @@ UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage; 
+}
+
 void AOWCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
