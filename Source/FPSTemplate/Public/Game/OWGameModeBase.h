@@ -6,6 +6,7 @@
 #include "Game/DS_GameModeBase.h"
 #include "OWGameModeBase.generated.h"
 
+class UHeroInfo; 
 /**
  * 
  */
@@ -14,7 +15,8 @@ class FPSTEMPLATE_API AOWGameModeBase : public ADS_GameModeBase
 {
 	GENERATED_BODY()
 	
-	
-	
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
+	TObjectPtr<UHeroInfo> HeroInfo;
 	
 };
