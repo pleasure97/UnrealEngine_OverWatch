@@ -46,6 +46,10 @@ public:
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Armor);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxArmor, Category = "Vital Attributes")
+	FGameplayAttributeData MaxArmor;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxArmor);
+
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempArmor, Category = "Vital Attributes")
 	FGameplayAttributeData TempArmor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempArmor);
@@ -53,6 +57,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Shield, Category = "Vital Attributes")
 	FGameplayAttributeData Shield;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Shield);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxShield, Category = "Vital Attributes")
+	FGameplayAttributeData MaxShield;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxShield);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempShield, Category = "Vital Attributes")
 	FGameplayAttributeData TempShield;
@@ -69,6 +77,10 @@ public:
 	FGameplayAttributeData SkillGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SkillGauge);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_UltimateGauge, Category = "Vital Attributes")
+	FGameplayAttributeData UltimateGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, UltimateGauge);
+
 
 	/*
 	 * Defensive Attributes
@@ -83,10 +95,16 @@ public:
 	void OnRep_Armor(const FGameplayAttributeData& OldArmor) const;
 
 	UFUNCTION()
+	void OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor) const;
+
+	UFUNCTION()
 	void OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor) const;
 
 	UFUNCTION()
 	void OnRep_Shield(const FGameplayAttributeData& OldShield) const;
+
+	UFUNCTION()
+	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield) const;
 
 	UFUNCTION()
 	void OnRep_TempShield(const FGameplayAttributeData& OldTempShield) const;
@@ -99,4 +117,7 @@ public:
 	 */
 	UFUNCTION()
 	void OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const;
+
+	UFUNCTION()
+	void OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const;
 };

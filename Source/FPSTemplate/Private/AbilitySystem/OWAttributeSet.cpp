@@ -8,10 +8,10 @@
 UOWAttributeSet::UOWAttributeSet()
 {
 	InitMaxHealth(250.f); 
-	InitArmor(200.f);
-	InitShield(200.f); 
-	InitHealth(250.f);
+	InitMaxArmor(200.f); 
+	InitMaxShield(200.f); 
 	InitSkillGauge(100.f); 
+	InitUltimateGauge(0.f); 
 
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
@@ -20,12 +20,15 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxHealth, GetMaxHealthAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Armor, GetArmorAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxArmor, GetMaxArmorAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Shield, GetShieldAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxShield, GetMaxShieldAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute); 
 
 	/* Skill Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Skill_UltimateGauge, GetUltimateGaugeAttribute); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -36,13 +39,16 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Health, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxArmor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempArmor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Shield, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxShield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempShield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, OverHealth, COND_None, REPNOTIFY_Always);
 
 	/* Skill Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, UltimateGauge, COND_None, REPNOTIFY_Always); 
 }
 
 void UOWAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -60,6 +66,11 @@ void UOWAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor) const
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, Armor, OldArmor);
 }
 
+void UOWAttributeSet::OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, MaxArmor, OldMaxArmor);
+}
+
 void UOWAttributeSet::OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TempArmor, OldTempArmor);
@@ -68,6 +79,11 @@ void UOWAttributeSet::OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor
 void UOWAttributeSet::OnRep_Shield(const FGameplayAttributeData& OldShield) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, Shield, OldShield);
+}
+
+void UOWAttributeSet::OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, MaxShield, OldMaxShield);
 }
 
 void UOWAttributeSet::OnRep_TempShield(const FGameplayAttributeData& OldTempShield) const
@@ -83,4 +99,9 @@ void UOWAttributeSet::OnRep_OverHealth(const FGameplayAttributeData& OldOverHeal
 void UOWAttributeSet::OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SkillGauge, OldSkillGauge); 
+}
+
+void UOWAttributeSet::OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, UltimateGauge, OldUltimateGauge);
 }
