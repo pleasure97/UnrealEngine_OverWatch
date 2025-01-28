@@ -68,14 +68,14 @@ void UHealthBarPool::InitializePool(const FAttributeDefensiveInfo& Info)
 		}
 
 		UpdateHorizontalBoxSize(); 
-
-		
-		HorizontalBoxToUpdate->getchild
-
 	}
 }
 
 void UHealthBarPool::UpdateHorizontalBoxSize()
 {
 	TotalNumBars = HorizontalBox_Health->GetChildrenCount() + HorizontalBox_Armor->GetChildrenCount() + HorizontalBox_Shield->GetChildrenCount();
+
+	const int32 HealthNumBars = HorizontalBox_Health->GetChildrenCount() / TotalNumBars;
+	const int32 ArmorNumBars = HorizontalBox_Health->GetChildrenCount() / TotalNumBars;
+	const int32 SheildNumBars = HorizontalBox_Health->GetChildrenCount() / TotalNumBars;
 }

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "GameplayTagContainer.h"
 #include "HealthBarPool.generated.h"
 
 class UHealthBar;

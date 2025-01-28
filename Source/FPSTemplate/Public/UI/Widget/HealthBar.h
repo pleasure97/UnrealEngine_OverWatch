@@ -6,6 +6,7 @@
 #include "UI/Widget/OWUserWidget.h"
 #include "HealthBar.generated.h"
 
+class UHorizontalBox; 
 class UProgressBar; 
 class UImage; 
 
@@ -21,20 +22,23 @@ protected:
 	virtual void NativeConstruct() override; 
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> ProgressBar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
-	TObjectPtr<UImage> Image_ProgressBar;
+	TObjectPtr<UTexture2D> Texture2D_ProgressBar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
-	FLinearColor Tint_Background;
+	FLinearColor Tint_Background = FLinearColor(0.3058f, 0.3058f, 0.3058f, 1.f);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
 	FLinearColor Tint_Fill;
 
-	UFUNCTION()
-	void InitializeProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* ProgressZeroAnimation;
+
+	/*UFUNCTION()
+	void InitializeProgressBar(const FLinearColor& FillColor, const float& AttributeValue); */
 
 	UFUNCTION()
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 

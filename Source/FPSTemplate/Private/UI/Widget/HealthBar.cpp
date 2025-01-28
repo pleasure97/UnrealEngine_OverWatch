@@ -11,17 +11,17 @@ void UHealthBar::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
-	if (ProgressBar && Image_ProgressBar)
+	if (ProgressBar && Texture2D_ProgressBar)
 	{
 		FProgressBarStyle ProgressBarStyle = ProgressBar->WidgetStyle;
 
 		FSlateBrush BackgroundBrush;
-		BackgroundBrush.SetResourceObject(Image_ProgressBar);
+		BackgroundBrush.SetResourceObject(Texture2D_ProgressBar);
 		BackgroundBrush.TintColor = FSlateColor(Tint_Background);
 		ProgressBarStyle.BackgroundImage = BackgroundBrush;
 
 		FSlateBrush FillBrush;
-		FillBrush.SetResourceObject(Image_ProgressBar);
+		FillBrush.SetResourceObject(Texture2D_ProgressBar);
 		FillBrush.TintColor = FSlateColor(Tint_Fill);
 		ProgressBarStyle.FillImage = FillBrush;
 
