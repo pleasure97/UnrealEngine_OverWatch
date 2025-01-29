@@ -42,4 +42,7 @@ public:
 
 	UFUNCTION()
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 
+
+	UFUNCTION()
+	void PlayProgressZeroAnimation();
 };

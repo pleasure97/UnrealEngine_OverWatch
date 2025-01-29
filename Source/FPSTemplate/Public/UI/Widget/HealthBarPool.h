@@ -27,13 +27,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	float HealthPerBar = 25.f;
 
-protected:
-	virtual void NativeConstruct() override;
-
-private:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<USizeBox> SizeBox_Root; 
-
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HorizontalBox_Health;
 
@@ -44,7 +37,13 @@ private:
 	TObjectPtr<UHorizontalBox> HorizontalBox_Shield;
 
 	UPROPERTY()
-	TMap<FGameplayTag, TObjectPtr<UHorizontalBox>> TagsToHorizontalBoxes; 
+	TMap<FGameplayTag, TObjectPtr<UHorizontalBox>> TagsToHorizontalBoxes;
+
+protected:
+	virtual void NativeConstruct() override;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<USizeBox> SizeBox_Root; 
 
 private:
 	UFUNCTION()
