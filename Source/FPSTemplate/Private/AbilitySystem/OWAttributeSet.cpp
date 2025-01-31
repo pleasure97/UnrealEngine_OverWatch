@@ -7,6 +7,7 @@
 
 UOWAttributeSet::UOWAttributeSet()
 {
+	InitHealth(200.f); 
 	InitMaxHealth(250.f); 
 	InitMaxArmor(200.f); 
 	InitMaxShield(200.f); 

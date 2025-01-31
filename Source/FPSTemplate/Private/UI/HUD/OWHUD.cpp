@@ -31,6 +31,6 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 
 	OverlayWidget->SetWidgetController(WidgetController); 
 
-	WidgetController->BroadcastInitialValues(); 
 	Widget->AddToViewport(); 
+	WidgetController->BroadcastInitialValues();
 }
