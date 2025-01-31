@@ -3,11 +3,87 @@
 
 #include "UI/Widget/HealthBarPool.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
+#include "Components/SizeBox.h"
+#include "Components/Border.h"
 #include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
 #include "AbilitySystem/Data/DefensiveAttributeInfo.h"
-#include "Components/SizeBox.h"
+
+
+void UHealthBarPool::NativePreConstruct()
+{
+	Super::NativePreConstruct(); 
+
+	TagsToBorderAndHorizontalBox.Add(FOWGameplayTags::Get().Attributes_Defense_MaxHealth, FBorderAndHorizontalBox(Border_Health, HorizontalBox_Health));
+	TagsToBorderAndHorizontalBox.Add(FOWGameplayTags::Get().Attributes_Defense_Armor, FBorderAndHorizontalBox(Border_Armor, HorizontalBox_Armor));
+	TagsToBorderAndHorizontalBox.Add(FOWGameplayTags::Get().Attributes_Defense_TempArmor, FBorderAndHorizontalBox(Border_TempArmor, HorizontalBox_TempArmor));
+	TagsToBorderAndHorizontalBox.Add(FOWGameplayTags::Get().Attributes_Defense_Shield, FBorderAndHorizontalBox(Border_Shield, HorizontalBox_Shield));
+	TagsToBorderAndHorizontalBox.Add(FOWGameplayTags::Get().Attributes_Defense_TempShield, FBorderAndHorizontalBox(Border_TempShield, HorizontalBox_TempShield));
+	TagsToBorderAndHorizontalBox.Add(FOWGameplayTags::Get().Attributes_Defense_OverHealth, FBorderAndHorizontalBox(Border_OverHealth, HorizontalBox_OverHealth));
+
+	UpdateBorderVisibility();
+
+	DistributeFillSize(); 
+}
+
+void UHealthBarPool::UpdateBorderVisibility()
+{
+	TArray<FBorderAndHorizontalBox> BorderAndHorziontalBox;
+	TagsToBorderAndHorizontalBox.GenerateValueArray(BorderAndHorziontalBox);
+
+	for (FBorderAndHorizontalBox& Pair : BorderAndHorziontalBox)
+	{
+		UHorizontalBox* HorizontalBox = Pair.HorizontalBox;
+		UBorder* Border = Pair.Border;
+
+		if (HorizontalBox->GetChildrenCount() > 0)
+		{
+			Border->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+		else
+		{
+			Border->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+}
+
+void UHealthBarPool::DistributeFillSize()
+{
+	TArray<FBorderAndHorizontalBox> BorderAndHorziontalBox;
+	TagsToBorderAndHorizontalBox.GenerateValueArray(BorderAndHorziontalBox);
+
+	int32 NumAllChildrens = 0; 
+
+	for (const FBorderAndHorizontalBox& Pair : BorderAndHorziontalBox)
+	{
+		UHorizontalBox* HorizontalBox = Pair.HorizontalBox;
+		NumAllChildrens += HorizontalBox->GetChildrenCount(); 
+	}
+
+	if (NumAllChildrens > 0)
+	{
+		FSlateChildSize ChildSize;
+		ChildSize.SizeRule = ESlateSizeRule::Fill;
+
+		for (const FBorderAndHorizontalBox& Pair : BorderAndHorziontalBox)
+		{
+			UHorizontalBox* HorizontalBox = Pair.HorizontalBox; 
+			UBorder* Border = Pair.Border; 
+
+			int32 NumChildrens = HorizontalBox->GetChildrenCount(); 
+			float SlotSize = NumChildrens / (float)NumAllChildrens; 
+
+			ChildSize.Value = SlotSize;
+
+			if (UHorizontalBoxSlot* HorizontalBoxSlot = Cast<UHorizontalBoxSlot>(Border->Slot))
+			{
+				HorizontalBoxSlot->SetSize(ChildSize); 
+			}
+		}
+	}
+}
 
 void UHealthBarPool::NativeConstruct()
 {
@@ -21,9 +97,25 @@ void UHealthBarPool::NativeConstruct()
 		OverlayWidgetController->AttributeInfoDelegate.AddDynamic(this, &UHealthBarPool::UpdateProgressBars);
 	}
 
-	TagsToHorizontalBoxes.Add(FOWGameplayTags::Get().Attributes_Defense_MaxHealth, HorizontalBox_Health); 
-	TagsToHorizontalBoxes.Add(FOWGameplayTags::Get().Attributes_Defense_Armor, HorizontalBox_Armor);
-	TagsToHorizontalBoxes.Add(FOWGameplayTags::Get().Attributes_Defense_Shield, HorizontalBox_Shield);
+	TArray<FBorderAndHorizontalBox> BorderAndHorziontalBox; 
+	TagsToBorderAndHorizontalBox.GenerateValueArray(BorderAndHorziontalBox); 
+
+	for (FBorderAndHorizontalBox& Pair: BorderAndHorziontalBox)
+	{
+		UHorizontalBox* HorizontalBox = Pair.HorizontalBox; 
+		UBorder* Border = Pair.Border; 
+
+		if (HorizontalBox->GetChildrenCount() > 0)
+		{
+			Border->SetVisibility(ESlateVisibility::HitTestInvisible); 
+		}
+		else
+		{
+			Border->SetVisibility(ESlateVisibility::Collapsed); 
+		}
+	}
+
+
 }
 
 void UHealthBarPool::UpdateProgressBars(const FAttributeDefensiveInfo& Info)
@@ -64,7 +156,7 @@ void UHealthBarPool::InitializePool(const FAttributeDefensiveInfo& Info)
 		for (int32 i = 0; i < NumHealthBars; ++i)
 		{
 			UHealthBar* NewHealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-			HorizontalBoxToUpdate->AddChildToHorizontalBox(NewHealthBar);
+			HorizontalBoxToUpdate->AddChild(NewHealthBar);
 		}
 
 		UpdateHorizontalBoxSize(); 
