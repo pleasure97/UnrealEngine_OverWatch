@@ -14,7 +14,17 @@ class FPSTEMPLATE_API UExecCalc_Damage : public UGameplayEffectExecutionCalculat
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	UExecCalc_Damage(); 
+
+	virtual void Execute_Implementation(
+		const FGameplayEffectCustomExecutionParameters& ExecutionParams,
+		FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override; 
+
+	void DetermineDebuff(
+		const FGameplayEffectCustomExecutionParameters& ExecutionParams,
+		const FGameplayEffectSpec& Spec,
+		FAggregatorEvaluateParameters EvaluationParameters,
+		const TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition>& InTagsToDefs) const; 
+
 };
