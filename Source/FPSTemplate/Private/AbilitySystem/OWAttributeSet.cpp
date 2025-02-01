@@ -9,8 +9,12 @@ UOWAttributeSet::UOWAttributeSet()
 {
 	InitHealth(200.f); 
 	InitMaxHealth(250.f); 
+	InitArmor(200.f); 
 	InitMaxArmor(200.f); 
+	InitTempArmor(0.f); 
+	InitShield(200.f); 
 	InitMaxShield(200.f); 
+	InitTempShield(0.f); 
 	InitSkillGauge(100.f); 
 	InitUltimateGauge(0.f); 
 
