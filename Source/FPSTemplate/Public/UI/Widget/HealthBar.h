@@ -40,9 +40,11 @@ public:
 	/*UFUNCTION()
 	void InitializeProgressBar(const FLinearColor& FillColor, const float& AttributeValue); */
 
-	UFUNCTION()
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 
 
 	UFUNCTION()
 	void PlayProgressZeroAnimation();
+
+	UPROPERTY()
+	float AttributeMaximum = 25.f; 
 };

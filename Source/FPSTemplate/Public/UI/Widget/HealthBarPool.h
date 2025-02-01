@@ -99,17 +99,7 @@ private:
 	UFUNCTION()
 	void UpdateProgressBars(const FAttributeDefensiveInfo& Info);
 
-	void InitializePool(const FAttributeDefensiveInfo& Info); 
-
 	void UpdateBorderVisibility();
 
 	void DistributeFillSize(); 
-
-	void UpdateHorizontalBoxSize(); 
-
-	UPROPERTY()
-	bool bNotInitialized = true; 
-
-	UPROPERTY()
-	int32 TotalNumBars = 0; 
 };
