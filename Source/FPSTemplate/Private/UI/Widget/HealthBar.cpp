@@ -10,6 +10,8 @@
 void UHealthBar::NativeConstruct()
 {
 	Super::NativeConstruct(); 
+
+	GetWorld()->GetTimerManager().SetTimer(AnimationTimerHandle, this, &UHealthBar::PlayProgressZeroAnimation, 1.f, true, 1.f); 
 }
 
 void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& PercentValue)

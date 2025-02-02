@@ -47,4 +47,7 @@ public:
 
 	UPROPERTY()
 	float AttributeMaximum = 25.f; 
+
+private:
+	FTimerHandle AnimationTimerHandle;
 };
