@@ -119,16 +119,6 @@ void UHealthBarPool::UpdateProgressBars(const FAttributeDefensiveInfo& Info)
 {
 	if (!Info.DefensiveAttributeTag.IsValid() || Info.DefensiveAttributeTag == FOWGameplayTags::Get().Attributes_Defense_Health) return;
 
-	// Clear All Children of Horizontal Boxes 
-	/*TArray<FBorderAndHorizontalBox> BordersAndHorziontalBoxes;
-	TagsToBorderAndHorizontalBox.GenerateValueArray(BordersAndHorziontalBoxes);
-
-	for (FBorderAndHorizontalBox& BorderAndHorizontalBox : BordersAndHorziontalBoxes)
-	{
-		UHorizontalBox* HorizontalBox = BorderAndHorizontalBox.HorizontalBox; 
-		HorizontalBox->ClearChildren(); 
-	}*/
-
 	// Find the Horizontal Box related to received AttributeDefensiveInfo 
 	const FBorderAndHorizontalBox& BorderAndHorizontalBox = TagsToBorderAndHorizontalBox[Info.DefensiveAttributeTag];
 	UHorizontalBox* HorizontalBox = BorderAndHorizontalBox.HorizontalBox; 

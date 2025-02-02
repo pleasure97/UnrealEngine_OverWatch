@@ -37,9 +37,6 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ProgressZeroAnimation;
 
-	/*UFUNCTION()
-	void InitializeProgressBar(const FLinearColor& FillColor, const float& AttributeValue); */
-
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 
 
 	UFUNCTION()
@@ -47,7 +44,4 @@ public:
 
 	UPROPERTY()
 	float AttributeMaximum = 25.f; 
-
-private:
-	FTimerHandle AnimationTimerHandle;
 };
