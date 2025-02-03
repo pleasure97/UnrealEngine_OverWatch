@@ -7,13 +7,13 @@
 
 UOWAttributeSet::UOWAttributeSet()
 {
+	InitMaxHealth(250.f);
+	InitMaxArmor(200.f);
+	InitMaxShield(200.f);
 	InitHealth(250.f); 
-	InitMaxHealth(250.f); 
 	InitArmor(200.f); 
-	InitMaxArmor(200.f); 
 	InitTempArmor(0.f); 
-	InitShield(200.f); 
-	InitMaxShield(200.f); 
+	InitShield(180.f); 
 	InitTempShield(0.f); 
 	InitSkillGauge(100.f); 
 	InitUltimateGauge(0.f); 
@@ -21,15 +21,15 @@ UOWAttributeSet::UOWAttributeSet()
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
 	/* Defensive Attributes */
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Health, GetHealthAttribute); 
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxHealth, GetMaxHealthAttribute); 
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute); 
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Armor, GetArmorAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxHealth, GetMaxHealthAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxArmor, GetMaxArmorAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxShield, GetMaxShieldAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Health, GetHealthAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Armor, GetArmorAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Shield, GetShieldAttribute); 
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxShield, GetMaxShieldAttribute); 
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute); 
 
 	/* Skill Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
@@ -41,16 +41,16 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 
 	/* Defensive Attributes */
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Health, COND_None, REPNOTIFY_Always); 
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always); 
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxArmor, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempArmor, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Shield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxShield, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempShield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, OverHealth, COND_None, REPNOTIFY_Always);
-
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempArmor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempShield, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Health, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Armor, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, Shield, COND_None, REPNOTIFY_Always);
+	
 	/* Skill Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, UltimateGauge, COND_None, REPNOTIFY_Always); 

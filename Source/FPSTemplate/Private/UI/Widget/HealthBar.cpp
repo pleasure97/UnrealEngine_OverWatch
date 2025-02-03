@@ -16,9 +16,11 @@ void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& P
 {
 	if (PercentValue == 0.f) PlayProgressZeroAnimation(); 
 
-	ProgressBar->WidgetStyle.FillImage.TintColor = FillColor; 
-
-	ProgressBar->SetPercent(PercentValue); 
+	if (ProgressBar)
+	{
+		ProgressBar->SetFillColorAndOpacity(FillColor); 
+		ProgressBar->SetPercent(PercentValue);
+	}
 }
 
 void UHealthBar::PlayProgressZeroAnimation()

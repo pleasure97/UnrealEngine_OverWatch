@@ -31,7 +31,8 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 void UOverlayWidgetController::BroadcastDefensiveAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
 {
-	FAttributeDefensiveInfo Info = DefensiveAttributeInfo->FindDefensiveAttributeInfoForTag(AttributeTag); 
-	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet); 
+	FAttributeDefensiveInfo Info = DefensiveAttributeInfo->FindDefensiveAttributeInfoForTag(AttributeTag);
+	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);
 	AttributeInfoDelegate.Broadcast(Info); 
 }
+

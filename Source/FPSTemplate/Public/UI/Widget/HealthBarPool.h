@@ -15,20 +15,23 @@ struct FAttributeDefensiveInfo;
 
 
 USTRUCT()
-struct FBorderAndHorizontalBox
+struct FHealthBarInfo
 {
 	GENERATED_BODY()
 
-	FBorderAndHorizontalBox() {}
+	FHealthBarInfo() {}
 	
-	FBorderAndHorizontalBox(UBorder* InBorder, UHorizontalBox* InHorizontalBox)
-		: Border(InBorder), HorizontalBox(InHorizontalBox) {}
+	FHealthBarInfo(UBorder* InBorder, UHorizontalBox* InHorizontalBox, bool InCanAddOrRemoveHealthBar)
+		: Border(InBorder), HorizontalBox(InHorizontalBox), CanAddOrRemoveHealthBar(InCanAddOrRemoveHealthBar) {}
 
 	UPROPERTY()
 	TObjectPtr<UBorder> Border; 
 
 	UPROPERTY()
 	TObjectPtr<UHorizontalBox> HorizontalBox; 
+
+	UPROPERTY()
+	bool CanAddOrRemoveHealthBar;
 };
 /**
  * 
@@ -89,8 +92,9 @@ public:
 	TObjectPtr<UHorizontalBox> HorizontalBox_OverHealth; 
 
 	UPROPERTY()
-	TMap<FGameplayTag, FBorderAndHorizontalBox> TagsToBorderAndHorizontalBox;
+	TMap<FGameplayTag, FHealthBarInfo> TagsToHealthBarInfos;
 
+	TArray<FHealthBarInfo> GetValidHealthBarInfos(); 
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
