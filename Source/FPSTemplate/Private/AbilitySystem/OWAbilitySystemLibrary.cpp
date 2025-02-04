@@ -86,3 +86,13 @@ UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObjec
 	}
 	return OWGameMode->HeroInfo;
 }
+
+EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject)
+{
+	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (OWGameMode == nullptr)
+	{
+		return EHeroName::None;
+	}
+	return OWGameMode->SelectedHeroName; 
+}

@@ -13,7 +13,9 @@ class UGameplayEffect;
 UENUM(BlueprintType)
 enum class EHeroName : uint8
 {
-	ILLIARI
+	None,
+	ILLIARI,
+	SIGMA, 
 };
 
 UENUM(BlueprintType)
@@ -79,4 +81,6 @@ public:
 	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
 
 	FOWHeroInfo GetHeroDefaultInfo(EHeroName HeroName); 
+
+	FOWAbilityInfo FindAbilityInfoForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag, bool bLogNotFound = false) const;
 };

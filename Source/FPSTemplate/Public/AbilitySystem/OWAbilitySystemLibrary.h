@@ -42,4 +42,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static UHeroInfo* GetHeroInfo(const UObject* WorldContextObject); 
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static EHeroName GetHeroName(const UObject* WorldContextObject);
 };

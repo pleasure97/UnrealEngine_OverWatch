@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Game/DS_GameModeBase.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "OWGameModeBase.generated.h"
 
-class UHeroInfo; 
 /**
  * 
  */
@@ -19,4 +19,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
 	TObjectPtr<UHeroInfo> HeroInfo;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
+	EHeroName SelectedHeroName;
 };
