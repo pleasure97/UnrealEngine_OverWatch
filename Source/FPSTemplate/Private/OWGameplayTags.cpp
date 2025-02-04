@@ -154,11 +154,15 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	/* Cooldown Types */
 	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Illiari.Outburst"),
-		FString("Outburst"));
+		FString("Cooldown of Outburst"));
 
 	GameplayTags.Cooldown_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Illiari.HealingPylon"),
-		FString("HealingPylon"));
+		FString("Cooldown of HealingPylon"));
+
+	GameplayTags.Cooldown_Illiari_DemolishPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.DemolishPylon"),
+		FString("Cooldonw of Demolishing Pylon"));
 
 	/* Hero GameplayTags - Illiari */
 
@@ -171,7 +175,7 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Healing Pylon Ability of Illiari"));
 
 	GameplayTags.Abilities_Illiari_DemolishPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Abilities.Illiari.Outburst"),
+		FName("Abilities.Illiari.DemolishPylon"),
 		FString("Demolishing Pylon Ability of Illiari"));
 
 	GameplayTags.Abilities_Illiari_CaptiveSun = UGameplayTagsManager::Get().AddNativeGameplayTag(
