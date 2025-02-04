@@ -6,6 +6,8 @@
 #include "UI/Widget/OWUserWidget.h"
 #include "PlayerSkill.generated.h"
 
+class UImage; 
+class UTextBlock; 
 /**
  * 
  */
@@ -14,7 +16,10 @@ class FPSTEMPLATE_API UPlayerSkill : public UOWUserWidget
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_SkillIcon; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_InputTag;
 };

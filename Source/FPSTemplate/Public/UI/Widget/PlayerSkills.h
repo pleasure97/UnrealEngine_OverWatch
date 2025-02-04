@@ -7,6 +7,7 @@
 #include "PlayerSkills.generated.h"
 
 class UPlayerSkill; 
+class UHorizontalBox; 
 
 /**
  * 
@@ -20,5 +21,7 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UPlayerSkill> PlayerSkillClass; 
 	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UHorizontalBox> HorizontalBox_PlayerSkills; 
 	
 };
