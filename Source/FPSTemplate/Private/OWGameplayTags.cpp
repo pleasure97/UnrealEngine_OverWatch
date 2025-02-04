@@ -160,10 +160,6 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Cooldown.Illiari.HealingPylon"),
 		FString("Cooldown of HealingPylon"));
 
-	GameplayTags.Cooldown_Illiari_DemolishPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Illiari.DemolishPylon"),
-		FString("Cooldonw of Demolishing Pylon"));
-
 	/* Hero GameplayTags - Illiari */
 
 	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(

@@ -64,7 +64,6 @@ public:
 	/* Cooldown Types */
 	FGameplayTag Cooldown_Illiari_Outburst;
 	FGameplayTag Cooldown_Illiari_HealingPylon;
-	FGameplayTag Cooldown_Illiari_DemolishPylon;
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 
