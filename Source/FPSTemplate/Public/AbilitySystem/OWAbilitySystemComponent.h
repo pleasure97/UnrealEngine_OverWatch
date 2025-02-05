@@ -6,6 +6,9 @@
 #include "AbilitySystemComponent.h"
 #include "OWAbilitySystemComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /* Asset Tags */);
+DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven); 
+DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&); 
 /**
  * 
  */
@@ -14,7 +17,15 @@ class FPSTEMPLATE_API UOWAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	FEffectAssetTags EffectAssetTags;
+	FAbilitiesGiven AbilitiesGivenDelegate; 
+
+	void AbilityActorInfoSet(); 
+	void AddHeroAbilities(const TArray<TSubclassOf<UGameplayAbility>>& DefaultAbilities); 
+
+	bool bDefaultAbilitiesGiven = false;
+protected:
+	UFUNCTION(Client, Reliable)
+	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle); 
 };

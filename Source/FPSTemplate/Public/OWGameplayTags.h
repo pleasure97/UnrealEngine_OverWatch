@@ -65,6 +65,12 @@ public:
 	FGameplayTag Cooldown_Illiari_Outburst;
 	FGameplayTag Cooldown_Illiari_HealingPylon;
 
+	/* Ability Status Types */
+	FGameplayTag Abilities_Status_Locked; 
+	FGameplayTag Abilities_Status_Eligible; 
+	FGameplayTag Abilities_Status_Unlocked; 
+	FGameplayTag Abilities_Status_Equipped; 
+
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 
 	FGameplayTag Abilities_Illiari_HealingPylon; 
