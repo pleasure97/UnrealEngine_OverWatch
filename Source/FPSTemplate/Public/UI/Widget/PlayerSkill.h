@@ -7,6 +7,7 @@
 #include "PlayerSkill.generated.h"
 
 class UImage; 
+class UProgressBar; 
 class UTextBlock; 
 /**
  * 
@@ -18,8 +19,20 @@ class FPSTEMPLATE_API UPlayerSkill : public UOWUserWidget
 	
 public:
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Background; 
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_SkillIcon; 
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> ProgressBar_Cooltime; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_Cooltime; 
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_InputTag;
+
+protected:
+	virtual void NativePreConstruct() override; 
 };
