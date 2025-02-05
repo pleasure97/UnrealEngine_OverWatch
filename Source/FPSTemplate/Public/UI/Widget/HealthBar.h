@@ -17,9 +17,6 @@ UCLASS()
 class FPSTEMPLATE_API UHealthBar : public UOWUserWidget
 {
 	GENERATED_BODY()
-	
-protected:
-	virtual void NativeConstruct() override; 
 
 public:
 	UPROPERTY(meta = (BindWidget))
@@ -40,8 +37,4 @@ public:
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 
 
 	UFUNCTION()
-	void PlayProgressZeroAnimation();
-
-	UPROPERTY()
-	float AttributeMaximum = 25.f; 
-};
+	void PlayProgressZeroAnimation();};

@@ -16,7 +16,7 @@ class FPSTEMPLATE_API UOWGameplayAbility : public UGameplayAbility
 	
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	FGameplayTag StartupInputTag; 
+	FGameplayTag DefaultInputTag; 
 
 protected:
 	float GetSkillCost(float InLevel = 1.f) const; 
