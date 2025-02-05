@@ -78,7 +78,82 @@ void UOWAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
     }
 }
 
+void UOWAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
+{
+    FScopedAbilityListLock ActiveScopeLock(*this); 
 
+    for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+    {
+        if (!Delegate.ExecuteIfBound(AbilitySpec))
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to execute deleagte in %hs"), __FUNCTION__); 
+        }
+    }
+}
+
+FGameplayTag UOWAbilitySystemComponent::GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+    if (AbilitySpec.Ability)
+    {
+        for (FGameplayTag AbilityTag : AbilitySpec.Ability.Get()->AbilityTags)
+        {
+            if (AbilityTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities"))))
+            {
+                return AbilityTag; 
+            }
+        }
+    }
+    return FGameplayTag(); 
+}
+
+FGameplayTag UOWAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+    for (FGameplayTag InputTag : AbilitySpec.DynamicAbilityTags)
+    {
+        if (InputTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("InputTag"))))
+        {
+            return InputTag; 
+        }
+    }
+    return FGameplayTag(); 
+}
+
+FGameplayTag UOWAbilitySystemComponent::GetStatusTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+    for (FGameplayTag StatusTag : AbilitySpec.DynamicAbilityTags)
+    {
+        if (StatusTag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities.Status"))))
+        {
+            return StatusTag; 
+        }
+    }
+    return FGameplayTag(); 
+}
+
+FGameplayTag UOWAbilitySystemComponent::GetStatusFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+    if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+    {
+        return GetStatusTagFromSpec(*Spec); 
+    }
+    return FGameplayTag(); 
+}
+
+FGameplayAbilitySpec* UOWAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+    FScopedAbilityListLock ActiveScopeLock(*this); 
+    for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+    {
+        for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+        {
+            if (Tag.MatchesTag(AbilityTag))
+            {
+                return &AbilitySpec; 
+            }
+        }
+    }
+    return nullptr; 
+}
 
 void UOWAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
