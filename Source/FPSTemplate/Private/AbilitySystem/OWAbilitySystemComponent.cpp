@@ -163,3 +163,19 @@ void UOWAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySyste
     EffectAssetTags.Broadcast(GameplayTagContainer); 
 }
 
+void UOWAbilitySystemComponent::OnRep_ActivateAbilities()
+{
+    Super::OnRep_ActivateAbilities(); 
+
+    if (!bDefaultAbilitiesGiven)
+    {
+        bDefaultAbilitiesGiven = true; 
+        AbilitiesGivenDelegate.Broadcast(); 
+    }
+}
+
+void UOWAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel)
+{
+    AbilityStatusChanged.Broadcast(AbilityTag, StatusTag, AbilityLevel); 
+}
+

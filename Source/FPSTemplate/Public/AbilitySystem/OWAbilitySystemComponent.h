@@ -9,6 +9,8 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /* Asset Tags */);
 DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven); 
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&); 
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /* Ability Tag */, const FGameplayTag& /* Status Tag */, int32 /* Ability Level */);
+
 /**
  * 
  */
@@ -20,6 +22,7 @@ class FPSTEMPLATE_API UOWAbilitySystemComponent : public UAbilitySystemComponent
 public:
 	FEffectAssetTags EffectAssetTags;
 	FAbilitiesGiven AbilitiesGivenDelegate; 
+	FAbilityStatusChanged AbilityStatusChanged; 
 
 	void AbilityActorInfoSet(); 
 	void AddHeroAbilities(const TArray<TSubclassOf<UGameplayAbility>>& DefaultAbilities); 
@@ -43,4 +46,9 @@ public:
 protected:
 	UFUNCTION(Client, Reliable)
 	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle); 
+
+	virtual void OnRep_ActivateAbilities() override;
+
+	UFUNCTION(Client, Reliable)
+	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
 };
