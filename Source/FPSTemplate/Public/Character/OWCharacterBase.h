@@ -28,6 +28,8 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
+	void AddHeroAbilities(); 
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TObjectPtr<USkeletalMeshComponent> Weapon; 
@@ -41,4 +43,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities; 
 };

@@ -2,7 +2,7 @@
 
 
 #include "Character/OWCharacterBase.h"
-#include "AbilitySystemComponent.h"
+#include "AbilitySystem/OWAbilitySystemComponent.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
@@ -27,5 +27,14 @@ UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
 void AOWCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AOWCharacterBase::AddHeroAbilities()
+{
+	UOWAbilitySystemComponent* OWASC = CastChecked<UOWAbilitySystemComponent>(AbilitySystemComponent); 
+
+	if (!HasAuthority()) return; 
+
+	OWASC->AddHeroAbilities(DefaultAbilities); 
 }
 

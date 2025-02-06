@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/OWCharacterBase.h"
+#include "Interfaces/PlayerInterface.h"
 #include "OWCharacter.generated.h"
 
 class USpringArmComponent; 
@@ -13,7 +14,7 @@ class UInputComponent;
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase
+class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase, public IPlayerInterface
 {
 	GENERATED_BODY()
 	
@@ -23,9 +24,6 @@ public:
 	virtual void PossessedBy(AController* NewController) override; 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void OnRep_PlayerState() override; 
-
-protected:
-	virtual void BeginPlay() override; 
 
 private:
 	void InitAbilityActorInfo(); 

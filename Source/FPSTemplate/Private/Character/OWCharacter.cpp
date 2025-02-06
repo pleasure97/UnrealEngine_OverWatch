@@ -6,26 +6,12 @@
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Player/OWPlayerState.h"
-#include "AbilitySystemComponent.h"
 #include "Player/OWPlayerController.h"
 #include "UI/HUD/OWHUD.h"
+#include "AbilitySystem/OWAbilitySystemComponent.h"
 
 AOWCharacter::AOWCharacter()
 {
-	/*AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
-	check(OWPlayerState);
-	OWPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(OWPlayerState, this);
-	AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent();
-	AttributeSet = OWPlayerState->GetAttributeSet();
-
-	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
-	{
-		if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
-		{
-			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
-		}
-	}*/
-
 	PrimaryActorTick.bCanEverTick = true; 
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArm"); 
@@ -78,31 +64,20 @@ void AOWCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo(); 
 }
 
-void AOWCharacter::BeginPlay()
-{
-	Super::BeginPlay(); 
-
-	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
-	{
-		OWPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(OWPlayerState, this);
-		AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent();
-		AttributeSet = OWPlayerState->GetAttributeSet();
-
-		if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
-		{
-			if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
-			{
-				OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet);
-			}
-		}
-	}
-}
-
 void AOWCharacter::InitAbilityActorInfo()
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>(); 
 	check(OWPlayerState); 
 	OWPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(OWPlayerState, this); 
+	Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet(); 
 	AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent(); 
 	AttributeSet = OWPlayerState->GetAttributeSet(); 
+
+	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
+	{
+		if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
+		{
+			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
+		}
+	}
 }
