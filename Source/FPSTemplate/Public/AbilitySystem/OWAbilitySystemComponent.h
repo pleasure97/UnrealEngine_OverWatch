@@ -10,6 +10,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContaine
 DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven); 
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&); 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /* Ability Tag */, const FGameplayTag& /* Status Tag */, int32 /* Ability Level */);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityEquipped, const FGameplayTag& /* Ability Tag */, const FGameplayTag& /* Status Tag*/); 
 
 /**
  * 
@@ -23,6 +24,7 @@ public:
 	FEffectAssetTags EffectAssetTags;
 	FAbilitiesGiven AbilitiesGivenDelegate; 
 	FAbilityStatusChanged AbilityStatusChanged; 
+	FAbilityEquipped AbilityEquipped; 
 
 	void AbilityActorInfoSet(); 
 	void AddHeroAbilities(const TArray<TSubclassOf<UGameplayAbility>>& DefaultAbilities); 
@@ -30,7 +32,7 @@ public:
 	bool bDefaultAbilitiesGiven = false;
 
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);
-	void AbilityInuptTagHeld(const FGameplayTag& InputTag);
+	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
 
 	void ForEachAbility(const FForEachAbility& Delegate);
@@ -43,6 +45,12 @@ public:
 	/* Getter From Ability Tag*/
 	FGameplayTag GetStatusFromAbilityTag(const FGameplayTag& AbilityTag);
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+
+	UFUNCTION(Server, Reliable)
+	void ServerEquipAbility(const FGameplayTag& AbilityTag); 
+
+	UFUNCTION(Client, Reliable)
+	void ClientEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag); 
 protected:
 	UFUNCTION(Client, Reliable)
 	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle); 

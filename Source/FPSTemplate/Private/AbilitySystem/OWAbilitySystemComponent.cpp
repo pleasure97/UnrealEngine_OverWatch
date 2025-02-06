@@ -46,7 +46,7 @@ void UOWAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
     }
 }
 
-void UOWAbilitySystemComponent::AbilityInuptTagHeld(const FGameplayTag& InputTag)
+void UOWAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
     if (!InputTag.IsValid()) return; 
 
@@ -153,6 +153,29 @@ FGameplayAbilitySpec* UOWAbilitySystemComponent::GetSpecFromAbilityTag(const FGa
         }
     }
     return nullptr; 
+}
+
+void UOWAbilitySystemComponent::ServerEquipAbility_Implementation(const FGameplayTag& AbilityTag)
+{
+    if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+    {
+        const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+        const FGameplayTag& Status = GetStatusTagFromSpec(*AbilitySpec); 
+
+        const bool bStatusValid = (Status == FOWGameplayTags::Get().Abilities_Status_Equipped); 
+        if (bStatusValid)
+        {
+            AbilitySpec->DynamicAbilityTags.RemoveTag(GetStatusTagFromSpec(*AbilitySpec)); 
+            AbilitySpec->DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped); 
+            MarkAbilitySpecDirty(*AbilitySpec); 
+        }
+        ClientEquipAbility(AbilityTag, GameplayTags.Abilities_Status_Equipped); 
+    }
+}
+
+void UOWAbilitySystemComponent::ClientEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+{
+    AbilityEquipped.Broadcast(AbilityTag, StatusTag); 
 }
 
 void UOWAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
