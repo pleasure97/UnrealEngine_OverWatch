@@ -14,7 +14,6 @@ struct FGameplayAttribute;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FAttributeDefensiveInfo&, Info); 
 
-
 /**
  * 
  */
@@ -34,6 +33,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UDefensiveAttributeInfo> DefensiveAttributeInfo; 
 
+	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag) const; 
 private:
 	void BroadcastDefensiveAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const; 
 };
