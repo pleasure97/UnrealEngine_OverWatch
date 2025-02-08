@@ -4,6 +4,7 @@
 #include "UI/HUD/OWHUD.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
+#include "UI/Widget/PlayerOverlay.h"
 
 UOverlayWidgetController* AOWHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
@@ -24,12 +25,13 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class Uninitialized, please fill out BP_OWHUD")); 
 
 	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), OverlayWidgetClass);
-	OverlayWidget = Cast<UOWUserWidget>(Widget); 
+	PlayerOverlay = Cast<UPlayerOverlay>(Widget); 
 
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS); 
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams); 
 
-	OverlayWidget->SetWidgetController(WidgetController); 
+	PlayerOverlay->SetWidgetController(WidgetController); 
+	PlayerOverlay->SetChildWidgetControllers(); 
 
 	Widget->AddToViewport(); 
 	WidgetController->BroadcastInitialValues();

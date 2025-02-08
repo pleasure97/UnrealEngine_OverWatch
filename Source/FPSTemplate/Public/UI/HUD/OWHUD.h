@@ -22,7 +22,7 @@ class FPSTEMPLATE_API AOWHUD : public AHUD
 	
 public:
 	UPROPERTY()
-	TObjectPtr<UOWUserWidget> OverlayWidget; 
+	TObjectPtr<UOWUserWidget> PlayerOverlay; 
 
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams); 
 
