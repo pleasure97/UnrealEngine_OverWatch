@@ -11,6 +11,7 @@
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UAnimMontage; 
+class UGameplayAbility; 
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface

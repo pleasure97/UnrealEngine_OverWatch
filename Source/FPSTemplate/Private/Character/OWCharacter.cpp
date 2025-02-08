@@ -46,6 +46,7 @@ void AOWCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController); 
 
 	InitAbilityActorInfo(); 
+	AddHeroAbilities(); 
 }
 
 void AOWCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

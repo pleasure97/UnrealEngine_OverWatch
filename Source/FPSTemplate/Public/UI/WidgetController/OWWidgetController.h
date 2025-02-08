@@ -60,12 +60,8 @@ public:
 
 	void BroadcastHeroInfo(); 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable, Category = "GAS|Abilities")
 	FAbilityInfoSignature AbilityInfoDelegate; 
-
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
-	TObjectPtr<UHeroInfo> HeroInfo; 
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
@@ -79,6 +75,15 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UAttributeSet> AttributeSet;
 
+	AOWPlayerController* GetOW_PC();
+	AOWPlayerState* GetOW_PS();
+	UOWAbilitySystemComponent* GetOW_ASC();
+	UOWAttributeSet* GetOW_AS();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
+	TObjectPtr<UHeroInfo> HeroInfo; 
+
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<AOWPlayerController> OWPlayerController;
 
@@ -90,9 +95,4 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UOWAttributeSet> OWAttributeSet;
-
-	AOWPlayerController* GetOW_PC(); 
-	AOWPlayerState* GetOW_PS(); 
-	UOWAbilitySystemComponent* GetOW_ASC(); 
-	UOWAttributeSet* GetOW_AS(); 
 };
