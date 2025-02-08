@@ -7,11 +7,6 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
-void UHealthBar::NativeConstruct()
-{
-	Super::NativeConstruct(); 
-}
-
 void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& PercentValue)
 {
 	if (PercentValue == 0.f) PlayProgressZeroAnimation(); 
