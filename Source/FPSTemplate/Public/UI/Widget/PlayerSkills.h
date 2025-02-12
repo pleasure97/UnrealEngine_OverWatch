@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "GameplayTagContainer.h"
 #include "PlayerSkills.generated.h"
 
 class UPlayerSkill; 
 class UHorizontalBox; 
+class UBorder; 
+struct FOWAbilityInfo; 
 
 /**
  * 
@@ -23,5 +26,24 @@ public:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HorizontalBox_PlayerSkills; 
-	
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> Border_LShift;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> Border_E;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> Border_F;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TMap<FGameplayTag, TObjectPtr<UBorder>> TagsToBorders; 
+
+	UFUNCTION()
+	void SetChildToBorder(const FOWAbilityInfo& Info); 
+
+protected:
+	virtual void NativePreConstruct() override; 
+	virtual void NativeConstruct() override; 
+
 };
