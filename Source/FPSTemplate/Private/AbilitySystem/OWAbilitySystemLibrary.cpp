@@ -69,7 +69,7 @@ void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextOb
 	}
 
 	const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroDefaultInfo(HeroName);
-	for (FOWAbilityInfo AbilityInfo : OWHeroInfo.Abilities)
+	for (const FOWAbilityInfo& AbilityInfo : OWHeroInfo.Abilities)
 	{
 		TSubclassOf<UGameplayAbility> AbilityClass = AbilityInfo.Ability; 
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1); 
