@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "GameplayTagContainer.h"
 #include "PlayerSkill.generated.h"
 
 class UImage; 
 class UProgressBar; 
 class UTextBlock; 
+struct FOWAbilityInfo; 
+class UWaitCooldownChange; 
+
 /**
  * 
  */
@@ -33,6 +37,41 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_InputTag;
 
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayTag InputTag;
+
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayTag CooldownTag; 
+
+	UPROPERTY(BlueprintReadOnly)
+	TObjectPtr<UWaitCooldownChange> WaitCooldownChangeTask; 
+
+
+	UFUNCTION()
+	void ReceiveAbilityInfo(const FOWAbilityInfo& Info); 
+
+	void SetWidgetInfo(const FOWAbilityInfo& WidgetInfo); 
+
+	void SetInputTag(const FGameplayTag& InInputTag); 
+
+	void BindToAbilityInfoDelegate(); 
+
+	UFUNCTION()
+	void HandleCooldownTimer(float TimeRemaining); 
+
+	UFUNCTION()
+	void UpdateCooldownTimer(); 
+
+	float RemainedTime = 0.f; 
+
+	float ElapsedTime = 0.f; 
+
+	float TimerFrequency = 1.f; 
+
 protected:
 	virtual void NativePreConstruct() override; 
+	virtual void NativeDestruct() override; 
+
+private:
+	FTimerHandle CooldownTimerHandle; 
 };
