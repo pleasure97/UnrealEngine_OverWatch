@@ -117,17 +117,17 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	/* Player Input Attributes */
 
-	GameplayTags.Player_Input_Pressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Player.Input.Pressed"),
-		FString("Player Input Pressed")); 
+	GameplayTags.Player_Block_InputPressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputPressed"),
+		FString("Player Input Pressed Blocked")); 
 
-	GameplayTags.Player_Input_Held = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Player.Input.Held"),
-		FString("Player Input Held"));
+	GameplayTags.Player_Block_InputHeld = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputHeld"),
+		FString("Player Input Held Blocked"));
 
-	GameplayTags.Player_Input_Released = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Player.Input.Released"),
-		FString("Player Input Released"));
+	GameplayTags.Player_Block_InputReleased = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Player.Block.InputReleased"),
+		FString("Player Input Released Blocked"));
 
 	/* Skill Attributes */
 	GameplayTags.Attributes_Skill_SkillGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(

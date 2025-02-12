@@ -47,9 +47,9 @@ public:
 	FGameplayTag InputTag_SecondaryFire; 
 
 	/* Player Input Attributes */
-	FGameplayTag Player_Input_Pressed; 
-	FGameplayTag Player_Input_Held; 
-	FGameplayTag Player_Input_Released; 
+	FGameplayTag Player_Block_InputPressed; 
+	FGameplayTag Player_Block_InputHeld; 
+	FGameplayTag Player_Block_InputReleased; 
 
 	/* Skill Attributes */
 	FGameplayTag Attributes_Skill_SkillGauge; 

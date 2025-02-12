@@ -29,22 +29,24 @@ void AOWPlayerController::BeginPlay()
 	check(OWContext); 
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()); 
-	check(Subsystem); 
-	Subsystem->AddMappingContext(OWContext, 0); 	
+	if (Subsystem)
+	{
+		Subsystem->AddMappingContext(OWContext, 0);
+	}
 }
 
 void AOWPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent(); 
 
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent); 
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
-	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
-	EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Crouch);
-	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Jump);
+	UOWInputComponent* OWInputComponent = CastChecked<UOWInputComponent>(InputComponent); 
+	OWInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
+	OWInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
+	OWInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Crouch);
+	OWInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Jump);
 
-	//OWInputComponent->BindAbilityActions(InputConfig, this, 
-	//	&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagReleased);
+	OWInputComponent->BindAbilityActions(InputConfig, this, 
+		&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagHeld);
 }
 
 UOWAbilitySystemComponent* AOWPlayerController::GetAbilitySystemComponent()
@@ -61,7 +63,7 @@ void AOWPlayerController::Input_Move(const FInputActionValue& InputActionValue)
 {
 	if (!bPlayerAlive) return;
 
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Input_Pressed)) return;
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputPressed)) return;
 
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();
 	const FRotator Rotation = GetControlRotation();
@@ -100,16 +102,22 @@ void AOWPlayerController::Input_Jump()
 
 void AOWPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Input_Pressed)) return; 
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputPressed)) return; 
+
+	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag); 
 }
 
 void AOWPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Input_Released)) return;
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputReleased)) return;
+
+	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
 }
 
 void AOWPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Input_Held)) return;
+	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputHeld)) return;
+
+	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
 }
 
