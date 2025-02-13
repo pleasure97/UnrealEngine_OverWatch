@@ -62,6 +62,9 @@ struct FOWHeroInfo
 	EHeroClass HeroClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float UltimateChargeAmount; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DefensiveAttributes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
