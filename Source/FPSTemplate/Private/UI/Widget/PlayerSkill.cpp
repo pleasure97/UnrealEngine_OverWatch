@@ -9,6 +9,7 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/AsyncTasks/WaitCooldownChange.h"
 #include "TimerManager.h"
+#include "OWGameplayTags.h"
 
 void UPlayerSkill::NativePreConstruct()
 {
@@ -56,7 +57,20 @@ void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 	SlateBrush.SetImageSize(FVector2D(76.8f, 76.8f)); 
 	Image_SkillIcon->SetBrush(SlateBrush);
 
-	// TextBlock_InputTag->SetText(); 
+	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_1))
+	{
+		TextBlock_InputTag->SetText(FText::FromString("LSHIFT"));
+	}
+
+	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_2))
+	{
+		TextBlock_InputTag->SetText(FText::FromString("E"));
+	}
+
+	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_3))
+	{
+		TextBlock_InputTag->SetText(FText::FromString("F"));
+	}
 
 	BindToAbilityInfoDelegate(); 
 }
