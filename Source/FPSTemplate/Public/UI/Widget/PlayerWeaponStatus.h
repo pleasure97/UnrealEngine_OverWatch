@@ -22,7 +22,7 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_NumCurrentBullets; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_NumTotalBullets;
+	TObjectPtr<UTextBlock> TextBlock_NumMaxBullets;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Weapon; 
