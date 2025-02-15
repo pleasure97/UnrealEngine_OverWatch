@@ -26,6 +26,17 @@ public:
 
 	/** Combat Interface **/
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; 
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override; 
+	virtual FOnDeath& GetOnDeathDelegate() override; 
+	virtual void Die(const FVector& DeathImpulse) override; 
+	virtual bool IsDead_Implementation() const override; 
+
+	FOnASCRegistered OnASCRegistered; 
+	FOnDeath OnDeath; 
+	/** Combat Interface End **/
+
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void MulticastHandleDeath(const FVector& DeathImpulse); 
 
 protected:
 	virtual void BeginPlay() override;
@@ -40,6 +51,9 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet; 
+
+	UPROPERTY()
+	bool bDead = false; 
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")

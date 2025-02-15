@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-
 #include "CombatInterface.generated.h"
 
 class UAnimMontage; 
+class UAbilitySystemComponent; 
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor); 
 
 
 // This class does not need to be modified.
@@ -26,7 +29,18 @@ class FPSTEMPLATE_API ICombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	/* Hit React */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimMontage* GetHitReactMontage(); 
+
+	/* Ability System */
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0; 
 	
+	/* Death */
+	virtual void Die(const FVector& DeathImpulse) = 0; 
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsDead() const; 
+
+	virtual FOnDeath& GetOnDeathDelegate() = 0; 
 };
