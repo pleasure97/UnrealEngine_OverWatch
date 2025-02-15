@@ -14,7 +14,8 @@
 				"DedicatedServers",
 				"GameplayAbilities",
 				"CoreUObject",
-				"EnhancedInput"
+				"EnhancedInput",
+				"Niagara"
 			]
 		},
 		{
