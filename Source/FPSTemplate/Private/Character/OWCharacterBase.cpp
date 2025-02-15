@@ -2,22 +2,39 @@
 
 
 #include "Character/OWCharacterBase.h"
+#include "OWGameplayTags.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get();
 
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon"); 
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket")); 
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
+
+	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>(TEXT("StunDebuffComponent")); 
+	StunDebuffComponent->SetupAttachment(GetRootComponent()); 
+	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
+
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void AOWCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
+
+	DOREPLIFETIME(AOWCharacterBase, bIsStunned);
 }
 
 UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
@@ -46,7 +63,7 @@ bool AOWCharacterBase::IsDead_Implementation() const
 	return bDead; 
 }
 
-void AOWCharacterBase::MulticastHandleDeath(const FVector& DeathImpulse)
+void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	Weapon->SetSimulatePhysics(true); 
 	Weapon->SetEnableGravity(true); 
@@ -76,5 +93,11 @@ void AOWCharacterBase::AddHeroAbilities()
 	if (!HasAuthority()) return; 
 
 	OWASC->AddHeroAbilities(DefaultAbilities); 
+}
+
+void AOWCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bIsStunned = NewCount > 0; 
+	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
 }
 

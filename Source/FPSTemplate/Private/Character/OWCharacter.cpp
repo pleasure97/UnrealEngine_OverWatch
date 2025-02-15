@@ -9,6 +9,7 @@
 #include "Player/OWPlayerController.h"
 #include "UI/HUD/OWHUD.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "OWGameplayTags.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -73,6 +74,10 @@ void AOWCharacter::InitAbilityActorInfo()
 	Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet(); 
 	AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent(); 
 	AttributeSet = OWPlayerState->GetAttributeSet(); 
+
+	OnASCRegistered.Broadcast(AbilitySystemComponent); 
+	AbilitySystemComponent->RegisterGameplayTagEvent(
+		FOWGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AOWCharacter::StunTagChanged); 
 
 	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
 	{

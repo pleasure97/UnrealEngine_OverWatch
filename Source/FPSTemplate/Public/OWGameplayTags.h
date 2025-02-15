@@ -71,6 +71,9 @@ public:
 	FGameplayTag Abilities_Status_Unlocked; 
 	FGameplayTag Abilities_Status_Equipped; 
 
+	/* Debuff Types */
+	FGameplayTag Debuff_Stun; 
+
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 
 	FGameplayTag Abilities_Illiari_HealingPylon; 

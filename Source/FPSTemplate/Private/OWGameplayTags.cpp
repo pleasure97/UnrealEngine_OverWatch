@@ -177,6 +177,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Status.Unlocked"),
 		FString("Unlocked Status"));
 
+	/* Debuff Types */
+	GameplayTags.Debuff_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Stun"),
+		FString("Debuff Stun"));
+
 	/* Hero GameplayTags - Illiari */
 
 	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(

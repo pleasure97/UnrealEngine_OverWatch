@@ -6,12 +6,14 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "Interfaces/CombatInterface.h"
+#include "GameplayTagContainer.h"
 #include "OWCharacterBase.generated.h"
 
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UAnimMontage; 
 class UGameplayAbility; 
+class UDebuffNiagaraComponent; 
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -23,6 +25,8 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
 	UAttributeSet* GetAttributeSet() const { return AttributeSet;  }
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; 
 
 	/** Combat Interface **/
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; 
@@ -37,6 +41,9 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse); 
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsStunned = false;
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,6 +61,14 @@ protected:
 
 	UPROPERTY()
 	bool bDead = false; 
+
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount); 
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float BaseWalkSpeed = 550.f; 
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
