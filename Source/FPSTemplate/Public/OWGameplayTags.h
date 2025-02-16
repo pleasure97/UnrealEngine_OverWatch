@@ -43,8 +43,8 @@ public:
 	FGameplayTag InputTag_Ultimate; 
 	FGameplayTag InputTag_QuickAttack; 
 	FGameplayTag InputTag_Reload; 
-	FGameplayTag InputTag_DefaultFire; 
-	FGameplayTag InputTag_SecondaryFire; 
+	FGameplayTag InputTag_LMB; 
+	FGameplayTag InputTag_RMB; 
 
 	/* Player Input Attributes */
 	FGameplayTag Player_Block_InputPressed; 
@@ -64,6 +64,13 @@ public:
 	/* Cooldown Types */
 	FGameplayTag Cooldown_Illiari_Outburst;
 	FGameplayTag Cooldown_Illiari_HealingPylon;
+	FGameplayTag Cooldown_Illiari_SolarRifle; 
+	FGameplayTag Cooldown_Illiari_HealingRay; 
+	FGameplayTag Cooldown_Reinhardt_RocketHammer; 
+
+	/* Cost Types */
+	FGameplayTag Cost_Illiari_SolarRifle; 
+	FGameplayTag Cost_Illiari_HealingRay; 
 
 	/* Ability Status Types */
 	FGameplayTag Abilities_Status_Locked; 
@@ -79,6 +86,15 @@ public:
 	FGameplayTag Abilities_Illiari_HealingPylon; 
 	FGameplayTag Abilities_Illiari_DemolishPylon; 
 	FGameplayTag Abilities_Illiari_CaptiveSun; 
+	FGameplayTag Abilities_Illiari_SolarRifle; 
+	FGameplayTag Abilities_Illiari_HealingRay; 
+
+	/* Hero GameplayTags - Reinhardt */
+	FGameplayTag Abilities_Reinhardt_Charge; 
+	FGameplayTag Abilities_Reinhardt_FireStrike;
+	FGameplayTag Abilities_Reinhardt_EarthShatter;
+	FGameplayTag Abilities_Reinhardt_BarrierField;
+	FGameplayTag Abilities_Reinhardt_RocketHammer; 
 
 private:
 	static FOWGameplayTags GameplayTags; 

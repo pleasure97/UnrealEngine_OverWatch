@@ -107,13 +107,13 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("InputTag.Reload"),
 		FString("InputTag of Reload"));
 
-	GameplayTags.InputTag_DefaultFire = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("InputTag.DefaultFire"),
-		FString("InputTag of DefaultFire"));
+	GameplayTags.InputTag_LMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.LMB"),
+		FString("InputTag of Left Mouse Button"));
 
-	GameplayTags.InputTag_SecondaryFire = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("InputTag.SecondaryFire"),
-		FString("InputTag of SecondaryFire"));
+	GameplayTags.InputTag_RMB = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.RMB"),
+		FString("InputTag of Right Mouse Button"));
 
 	/* Player Input Attributes */
 
@@ -159,6 +159,27 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Cooldown_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Illiari.HealingPylon"),
 		FString("Cooldown of HealingPylon"));
+
+	GameplayTags.Cooldown_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.SolarRifle"),
+		FString("Cooldown of SolarRifle"));
+
+	GameplayTags.Cooldown_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.HealingRay"),
+		FString("Cooldown of HealingRay"));
+
+	GameplayTags.Cooldown_Reinhardt_RocketHammer = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.RocketHammer"),
+		FString("Cooldown of RocketHammer"));
+
+	/* Cost Types */
+	GameplayTags.Cost_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cost.Illiari.SolarRifle"),
+		FString("Cost of SolarRifle"));
+
+	GameplayTags.Cost_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cost.Illiari.HealingRay"),
+		FString("Cost of HealingRay"));
 	
 	/* Ability Status Types */
 	GameplayTags.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -186,17 +207,47 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Illiari.Outburst"),
-		FString("Outburst Ability of Illiari"));
+		FString("Illiari's Outburst Ability"));
 
 	GameplayTags.Abilities_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Illiari.HealingPylon"),
-		FString("Healing Pylon Ability of Illiari"));
+		FString("Illiari's Healing Pylon Ability"));
 
 	GameplayTags.Abilities_Illiari_DemolishPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Illiari.DemolishPylon"),
-		FString("Demolishing Pylon Ability of Illiari"));
+		FString("Illiari's Demolishing Pylon Ability"));
 
 	GameplayTags.Abilities_Illiari_CaptiveSun = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Illiari.CaptiveSun"),
-		FString("CaptiveSun Ability of Illiari"));
+		FString("Illiari's CaptiveSun Ability"));
+
+	GameplayTags.Abilities_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Illiari.SolarRifle"),
+		FString("Illiari's SolarRifle Ability"));
+
+	GameplayTags.Abilities_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Illiari.HealingRay"),
+		FString("Illiari's HealingRay Ability"));
+
+	/* Hero GameplayTags - Reinhardt */
+	GameplayTags.Abilities_Reinhardt_Charge= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Reinhardt.Charge"),
+		FString("Reinhardt's Charge Ability"));
+
+	GameplayTags.Abilities_Reinhardt_FireStrike = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Reinhardt.FireStrike"),
+		FString("Reinhardt's Fire Strike Ability"));
+
+	GameplayTags.Abilities_Reinhardt_EarthShatter = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Reinhardt.EarthShatter"),
+		FString("Reinhardt's EarthShatter Ability"));
+
+	GameplayTags.Abilities_Reinhardt_BarrierField= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Reinhardt.BarrierField"),
+		FString("Reinhardt's BarrierField Ability"));
+
+	GameplayTags.Abilities_Reinhardt_RocketHammer = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Reinhardt.RocketHammer"),
+		FString("Reinhardt's RocketHammer Ability"));
+
 }

@@ -15,7 +15,7 @@ enum class EHeroName : uint8
 {
 	None,
 	ILLIARI,
-	SIGMA, 
+	REINHARDT, 
 };
 
 UENUM(BlueprintType)
