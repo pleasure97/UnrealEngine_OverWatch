@@ -54,6 +54,8 @@ public:
 	/* Skill Attributes */
 	FGameplayTag Attributes_Skill_SkillGauge; 
 	FGameplayTag Attributes_Skill_UltimateGauge; 
+	FGameplayTag Attributes_Skill_NumCurrentBullets; 
+	FGameplayTag Attributes_Skill_NumMaxBullets; 
 
 	/* Status Types */
 	FGameplayTag Status_Knockback; 
@@ -66,7 +68,11 @@ public:
 	FGameplayTag Cooldown_Illiari_HealingPylon;
 	FGameplayTag Cooldown_Illiari_SolarRifle; 
 	FGameplayTag Cooldown_Illiari_HealingRay; 
+
 	FGameplayTag Cooldown_Reinhardt_RocketHammer; 
+	FGameplayTag Cooldown_Reinhardt_BarrierField; 
+	FGameplayTag Cooldown_Reinhardt_Charge; 
+	FGameplayTag Cooldown_Reinhardt_FireStrike; 
 
 	/* Cost Types */
 	FGameplayTag Cost_Illiari_SolarRifle; 

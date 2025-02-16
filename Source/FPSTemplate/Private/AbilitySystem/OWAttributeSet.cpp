@@ -34,6 +34,8 @@ UOWAttributeSet::UOWAttributeSet()
 	/* Skill Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_UltimateGauge, GetUltimateGaugeAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Skill_NumCurrentBullets, GetNumCurrentBulletsAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Skill_NumMaxBullets, GetNumMaxBulletsAttribute); 
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -54,6 +56,8 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	/* Skill Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, UltimateGauge, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumCurrentBullets, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumMaxBullets, COND_None, REPNOTIFY_Always); 
 }
 
 void UOWAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth) const
@@ -109,4 +113,14 @@ void UOWAttributeSet::OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGau
 void UOWAttributeSet::OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, UltimateGauge, OldUltimateGauge);
+}
+
+void UOWAttributeSet::OnRep_NumCurrentBullets(const FGameplayAttributeData& OldNumCurrentBullets) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumCurrentBullets, OldNumCurrentBullets);
+}
+
+void UOWAttributeSet::OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMaxBullets) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumMaxBullets, OldNumMaxBullets);
 }

@@ -73,13 +73,21 @@ public:
 	/*
 	 * Skill Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SkillGauge, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SkillGauge, Category = "Skill Attributes")
 	FGameplayAttributeData SkillGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SkillGauge);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_UltimateGauge, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_UltimateGauge, Category = "Skill Attributes")
 	FGameplayAttributeData UltimateGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, UltimateGauge);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumCurrentBullets, Category = "Skill Attributes")
+	FGameplayAttributeData NumCurrentBullets;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumCurrentBullets);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumMaxBullets, Category = "Skill Attributes")
+	FGameplayAttributeData NumMaxBullets;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumMaxBullets);
 
 
 	/*
@@ -120,4 +128,10 @@ public:
 
 	UFUNCTION()
 	void OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const;
+
+	UFUNCTION()
+	void OnRep_NumCurrentBullets(const FGameplayAttributeData& OldNumCurrentBullets) const; 
+
+	UFUNCTION()
+	void OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMaxBullets) const;
 };

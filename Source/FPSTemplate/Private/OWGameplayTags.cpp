@@ -55,6 +55,14 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Skill.UltimateGauge"),
 		FString("Ultimate Gauge"));
 
+	GameplayTags.Attributes_Skill_NumCurrentBullets = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.NumCurrentBullets"),
+		FString("The Number of Current Bullets"));
+
+	GameplayTags.Attributes_Skill_NumMaxBullets = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.NumMaxBullets"),
+		FString("The Number of Maximum Bullets"));
+
 	/* Input Attributes - Move */
 
 	GameplayTags.InputTag_Move_Forward = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -151,7 +159,7 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Status.HitReact"),
 		FString("HitReact"));
 
-	/* Cooldown Types */
+	/* Cooldown Types - Illiari */
 	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Illiari.Outburst"),
 		FString("Cooldown of Outburst"));
@@ -168,9 +176,23 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Cooldown.Illiari.HealingRay"),
 		FString("Cooldown of HealingRay"));
 
+	/* Cooldown Types - Reinhardt */
+
 	GameplayTags.Cooldown_Reinhardt_RocketHammer = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Reinhardt.RocketHammer"),
 		FString("Cooldown of RocketHammer"));
+
+	GameplayTags.Cooldown_Reinhardt_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.BarrierField"),
+		FString("Cooldown of BarrierField"));
+
+	GameplayTags.Cooldown_Reinhardt_Charge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.Charge"),
+		FString("Cooldown of Charge"));
+
+	GameplayTags.Cooldown_Reinhardt_FireStrike = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.FireStrike"),
+		FString("Cooldown of FireStrike"));
 
 	/* Cost Types */
 	GameplayTags.Cost_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
