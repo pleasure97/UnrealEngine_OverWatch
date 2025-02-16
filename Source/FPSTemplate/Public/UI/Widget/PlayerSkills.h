@@ -36,6 +36,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> Border_F;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> Border_LMB; 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TMap<FGameplayTag, TObjectPtr<UBorder>> TagsToBorders; 
 

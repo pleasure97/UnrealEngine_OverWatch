@@ -57,19 +57,25 @@ void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 	SlateBrush.SetImageSize(FVector2D(76.8f, 76.8f)); 
 	Image_SkillIcon->SetBrush(SlateBrush);
 
+	/* TODO - Change to Map */
 	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_1))
 	{
-		TextBlock_InputTag->SetText(FText::FromString("LSHIFT"));
+		TextBlock_InputKey->SetText(FText::FromString("LSHIFT"));
 	}
 
 	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_2))
 	{
-		TextBlock_InputTag->SetText(FText::FromString("E"));
+		TextBlock_InputKey->SetText(FText::FromString("E"));
 	}
 
 	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_3))
 	{
-		TextBlock_InputTag->SetText(FText::FromString("F"));
+		TextBlock_InputKey->SetText(FText::FromString("F"));
+	}
+
+	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_LMB))
+	{
+		TextBlock_InputKey->SetText(FText::FromString(""));
 	}
 
 	BindToAbilityInfoDelegate(); 
