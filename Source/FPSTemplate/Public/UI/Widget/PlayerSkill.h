@@ -35,7 +35,10 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_Cooltime; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_InputTag;
+	TObjectPtr<UImage> Image_InputKey;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_InputKey;
 
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag InputTag;
