@@ -21,4 +21,6 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
 	EHeroName SelectedHeroName;
+
+	virtual void BeginPlay() override; 
 };

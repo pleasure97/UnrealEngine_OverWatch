@@ -9,6 +9,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "Game/OWGameModeBase.h"
+#include "Game/OWGameState.h"
 
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
 {
@@ -89,10 +90,17 @@ UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObjec
 
 EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject)
 {
-	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (OWGameMode == nullptr)
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!World) return EHeroName::None;
+
+	if (World->GetNetMode() != NM_Client)
 	{
-		return EHeroName::None;
+		const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+		return OWGameMode ? OWGameMode->SelectedHeroName : EHeroName::None; 
 	}
-	return OWGameMode->SelectedHeroName; 
+	else
+	{
+		const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject));
+		return OWGameState ? OWGameState->SelectedHeroName : EHeroName::None;
+	}
 }
