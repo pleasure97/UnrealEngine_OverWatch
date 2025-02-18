@@ -11,17 +11,17 @@ class UHealthBar;
 class USizeBox; 
 class UBorder;
 class UHorizontalBox;
-struct FAttributeDefensiveInfo; 
+struct FBarInfo; 
 
 
 USTRUCT()
-struct FHealthBarInfo
+struct FHealthBarPoolInfo
 {
 	GENERATED_BODY()
 
-	FHealthBarInfo() {}
+	FHealthBarPoolInfo() {}
 	
-	FHealthBarInfo(UBorder* InBorder, UHorizontalBox* InHorizontalBox, bool InCanAddOrRemoveHealthBar)
+	FHealthBarPoolInfo(UBorder* InBorder, UHorizontalBox* InHorizontalBox, bool InCanAddOrRemoveHealthBar)
 		: Border(InBorder), HorizontalBox(InHorizontalBox), CanAddOrRemoveHealthBar(InCanAddOrRemoveHealthBar) {}
 
 	UPROPERTY()
@@ -92,16 +92,16 @@ public:
 	TObjectPtr<UHorizontalBox> HorizontalBox_OverHealth; 
 
 	UPROPERTY()
-	TMap<FGameplayTag, FHealthBarInfo> TagsToHealthBarInfos;
+	TMap<FGameplayTag, FHealthBarPoolInfo> TagsToHealthBarInfos;
 
-	TArray<FHealthBarInfo> GetValidHealthBarInfos(); 
+	TArray<FHealthBarPoolInfo> GetValidHealthBarInfos(); 
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 
 private:
 	UFUNCTION()
-	void UpdateProgressBars(const FAttributeDefensiveInfo& Info);
+	void UpdateProgressBars(const FBarInfo& Info);
 
 	void UpdateBorderVisibility();
 

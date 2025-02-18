@@ -5,12 +5,12 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameplayTagContainer.h"
-#include "DefensiveAttributeInfo.generated.h"
+#include "HealthBarInfo.generated.h"
 
 class UTexture2D; 
 
 USTRUCT(BlueprintType)
-struct FAttributeDefensiveInfo
+struct FBarInfo
 {
 	GENERATED_BODY()
 
@@ -25,13 +25,13 @@ struct FAttributeDefensiveInfo
 };
 
 UCLASS()
-class FPSTEMPLATE_API UDefensiveAttributeInfo : public UDataAsset
+class FPSTEMPLATE_API UHealthBarInfo : public UDataAsset
 {
 	GENERATED_BODY()
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Attribute Information")
-	TArray<FAttributeDefensiveInfo> DefensiveAttributeInformation; 
+	TArray<FBarInfo> HealthBarInformation; 
 
-	FAttributeDefensiveInfo FindDefensiveAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound = false) const; 	
+	FBarInfo FindHealthBarInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound = false) const; 	
 };

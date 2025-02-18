@@ -7,12 +7,15 @@
 #include "OverlayWidgetController.generated.h"
 
 struct FOnAttributeChangeData;
-struct FAttributeDefensiveInfo; 
-class UDefensiveAttributeInfo;
+struct FBarInfo; 
+class UHealthBarInfo;
 struct FGameplayTag; 
 struct FGameplayAttribute; 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FAttributeDefensiveInfo&, Info); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateHealthBars, const FBarInfo&, Info); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatePlayerSkills, const TArray<FOWAbilityInfo>&, NewPlayerSkills); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdatePlayerWeaponStatus, const FOWAbilityInfo&, NewWeaponStatus); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateUltimateGauge, float, NewUltimateGauge); 
 
 /**
  * 
@@ -26,14 +29,23 @@ public:
 	virtual void BroadcastInitialValues() override; 
 	virtual void BindCallbacksToDependencies() override; 
 
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")	
-	FAttributeInfoSignature AttributeInfoDelegate; 
+	UPROPERTY(BlueprintAssignable, Category = "UI|Health Bar Pool")	
+	FOnUpdateHealthBars OnUpdateHealthBars; 
+
+	UPROPERTY(BlueprintAssignable, Category = "UI|Skills")
+	FOnUpdatePlayerSkills OnUpdatePlayerSkills; 
+
+	UPROPERTY(BlueprintAssignable, Category = "UI|Weapon Status")
+	FOnUpdatePlayerWeaponStatus OnPlayerWeaponStatus;
+
+	UPROPERTY(BlueprintAssignable, Category = "UI|Ultimate Gauge")
+	FOnUpdateUltimateGauge OnUpdateUltimateGauge; 
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UDefensiveAttributeInfo> DefensiveAttributeInfo; 
+	TObjectPtr<UHealthBarInfo> HealthBarInfo; 
 
 	void OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag) const; 
 private:
-	void BroadcastDefensiveAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const; 
+	void BroadcastHealthBarInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const; 
 };

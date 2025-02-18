@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/Data/DefensiveAttributeInfo.h"
+#include "AbilitySystem/Data/HealthBarInfo.h"
 
-FAttributeDefensiveInfo UDefensiveAttributeInfo::FindDefensiveAttributeInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound) const
+FBarInfo UHealthBarInfo::FindHealthBarInfoForTag(const FGameplayTag& AttributeTag, bool bLogNotFound) const
 {
-	for (const FAttributeDefensiveInfo& Info : DefensiveAttributeInformation)
+	for (const FBarInfo& Info : HealthBarInformation)
 	{
 		if (Info.DefensiveAttributeTag == AttributeTag)
 		{
@@ -18,5 +18,5 @@ FAttributeDefensiveInfo UDefensiveAttributeInfo::FindDefensiveAttributeInfoForTa
 		UE_LOG(LogTemp, Error, TEXT("Can't find info for Ability Tag [%s] on AbilityInfo [%s]"), *AttributeTag.ToString(), *GetNameSafe(this));
 	}
 
-	return FAttributeDefensiveInfo();
+	return FBarInfo();
 }

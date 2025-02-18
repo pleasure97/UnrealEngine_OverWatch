@@ -8,7 +8,7 @@
 #include "PlayerHealthStatus.generated.h"
 
 class UTextBlock; 
-struct FAttributeDefensiveInfo; 
+struct FBarInfo; 
 
 /**
  * 
@@ -40,5 +40,5 @@ protected:
 	
 private:
 	UFUNCTION()
-	void UpdatePlayerStatus(const FAttributeDefensiveInfo& Info);
+	void UpdatePlayerStatus(const FBarInfo& Info);
 };

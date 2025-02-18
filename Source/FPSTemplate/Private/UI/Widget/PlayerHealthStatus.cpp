@@ -4,7 +4,7 @@
 #include "UI/Widget/PlayerHealthStatus.h"
 #include "OWGameplayTags.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
-#include "AbilitySystem/Data/DefensiveAttributeInfo.h"
+#include "AbilitySystem/Data/HealthBarInfo.h"
 #include "Components/TextBlock.h"
 
 void UPlayerHealthStatus::NativePreConstruct()
@@ -31,11 +31,11 @@ void UPlayerHealthStatus::NativeConstruct()
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
 		SetWidgetController(WidgetController); 
-		OverlayWidgetController->AttributeInfoDelegate.AddDynamic(this, &UPlayerHealthStatus::UpdatePlayerStatus); 
+		OverlayWidgetController->OnUpdateHealthBars.AddDynamic(this, &UPlayerHealthStatus::UpdatePlayerStatus); 
 	}
 }
 
-void UPlayerHealthStatus::UpdatePlayerStatus(const FAttributeDefensiveInfo& Info)
+void UPlayerHealthStatus::UpdatePlayerStatus(const FBarInfo& Info)
 {
 	if (!TagsToTextBlocks.Contains(Info.DefensiveAttributeTag)) return; 
 

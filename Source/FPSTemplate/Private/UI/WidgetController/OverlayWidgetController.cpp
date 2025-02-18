@@ -3,7 +3,7 @@
 
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "AbilitySystem/OWAttributeSet.h"
-#include "AbilitySystem/Data/DefensiveAttributeInfo.h"
+#include "AbilitySystem/Data/HealthBarInfo.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
@@ -11,23 +11,24 @@
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
-	check(DefensiveAttributeInfo); 
+	check(HealthBarInfo);
+	check(HeroInfo); 
 
 	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
 	{
-		BroadcastDefensiveAttributeInfo(Pair.Key, Pair.Value()); 
+		BroadcastHealthBarInfo(Pair.Key, Pair.Value()); 
 	}
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	check(DefensiveAttributeInfo); 
+	check(HealthBarInfo); 
 	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
 	{
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
 			[this, Pair](const FOnAttributeChangeData& Data)
 			{
-				BroadcastDefensiveAttributeInfo(Pair.Key, Pair.Value());			
+				BroadcastHealthBarInfo(Pair.Key, Pair.Value());			
 			}
 		);
 	}
@@ -56,9 +57,9 @@ void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag,
 	AbilityInfoDelegate.Broadcast(OWAbilityInfo); 
 }
 
-void UOverlayWidgetController::BroadcastDefensiveAttributeInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
+void UOverlayWidgetController::BroadcastHealthBarInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
 {
-	FAttributeDefensiveInfo Info = DefensiveAttributeInfo->FindDefensiveAttributeInfoForTag(AttributeTag);
+	FBarInfo Info = HealthBarInfo->FindHealthBarInfoForTag(AttributeTag);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);
-	AttributeInfoDelegate.Broadcast(Info); 
+	OnUpdateHealthBars.Broadcast(Info); 
 }
