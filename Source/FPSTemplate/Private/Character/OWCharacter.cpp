@@ -10,6 +10,7 @@
 #include "UI/HUD/OWHUD.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "OWGameplayTags.h"
+#include "AbilitySystem/OWAbilitySystemLibrary.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -48,6 +49,8 @@ void AOWCharacter::PossessedBy(AController* NewController)
 
 	InitAbilityActorInfo(); 
 	AddHeroAbilities(); 
+
+	InitializeVitalAttributes();
 }
 
 void AOWCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -87,3 +90,10 @@ void AOWCharacter::InitAbilityActorInfo()
 		}
 	}
 }
+
+void AOWCharacter::InitializeVitalAttributes()
+{
+	EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this);
+	UOWAbilitySystemLibrary::InitializeDefaultAttributes(this, HeroName, AbilitySystemComponent);
+}
+

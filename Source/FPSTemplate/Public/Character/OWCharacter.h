@@ -21,12 +21,14 @@ class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase, public IPlayerInte
 public:
 	AOWCharacter(); 
 
-	virtual void PossessedBy(AController* NewController) override; 
+	virtual void PossessedBy(AController* NewController) override;
+
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void OnRep_PlayerState() override; 
 
 private:
 	void InitAbilityActorInfo(); 
+	void InitializeVitalAttributes();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> SpringArm; 

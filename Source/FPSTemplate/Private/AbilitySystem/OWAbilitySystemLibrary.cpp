@@ -52,10 +52,11 @@ void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject); 
 	const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroDefaultInfo(HeroName);
 
-	/*FGameplayEffectContextHandle DefensiveAttributesContextHandle = ASC->MakeEffectContext(); 
-	DefensiveAttributesContextHandle.AddSourceObject(AvatarActor);
-	const FGameplayEffectSpecHandle DefensiveAttributeSpecHandle = ASC->MakeOutgoingSpec(OWHeroInfo.DefensiveAttributes, Level, DefensiveAttributesContextHandle); 
-	ASC->ApplyGameplayEffectSpecToSelf(*DefensiveAttributeSpecHandle.Data.Get()); */
+	FGameplayEffectContextHandle VitalAttributesContextHandle = ASC->MakeEffectContext(); 
+	VitalAttributesContextHandle.AddSourceObject(AvatarActor); 
+	const FGameplayEffectSpecHandle VitalAttributeSpecHandle = ASC->MakeOutgoingSpec(
+		HeroInfo->HeroInformation[HeroName].VitalAttributes, Level, VitalAttributesContextHandle); 
+	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get()); 
 }
 
 void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC)
