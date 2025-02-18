@@ -43,14 +43,18 @@ void UPlayerHealthStatus::UpdatePlayerStatus(const FBarInfo& Info)
 	{
 		CurrentHealth += Info.AttributeValue; 
 		int32 FlooredCurrentHealth = FMath::FloorToInt(CurrentHealth); 
-		TextBlock_CurrentHealth->SetText(FText::AsNumber(FlooredCurrentHealth)); 
+
+		FString CurrentHealthString = FString::Printf(TEXT("%d"), FlooredCurrentHealth);
+		TextBlock_CurrentHealth->SetText(FText::FromString(CurrentHealthString));
 	}
 	
 	if (TagsToTextBlocks[Info.DefensiveAttributeTag] == TextBlock_MaxHealth)
 	{
 		MaxHealth += Info.AttributeValue;
 		int32 FlooredMaxHealth = FMath::FloorToInt(MaxHealth);
-		TextBlock_MaxHealth->SetText(FText::AsNumber(FlooredMaxHealth));
+
+		FString MaxHealthString = FString::Printf(TEXT("%d"), FlooredMaxHealth);
+		TextBlock_MaxHealth->SetText(FText::FromString(MaxHealthString));
 	}
 }
 
