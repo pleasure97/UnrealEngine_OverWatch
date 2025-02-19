@@ -16,45 +16,80 @@ void UOverlayWidgetController::BroadcastInitialValues()
 
 	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
 	{
-		BroadcastHealthBarInfo(Pair.Key, Pair.Value()); 
+		if (Pair.Key.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities.Defense"))))
+		{
+			BroadcastHealthBarInfo(Pair.Key, Pair.Value());
+		}
 	}
+
+	/* Attribute Delgate - Defensive Attribute */
+	OnHealthChanged.Broadcast(GetOW_AS()->GetHealth()); 
+	OnMaxHealthChanged.Broadcast(GetOW_AS()->GetMaxHealth()); 
+	OnArmorChanged.Broadcast(GetOW_AS()->GetArmor()); 
+	OnMaxArmorChanged.Broadcast(GetOW_AS()->GetMaxArmor()); 
+	OnShieldChanged.Broadcast(GetOW_AS()->GetShield()); 
+	OnMaxShieldChanged.Broadcast(GetOW_AS()->GetMaxShield()); 
+	OnTempArmorChanged.Broadcast(GetOW_AS()->GetTempArmor()); 
+	OnTempShieldChanged.Broadcast(GetOW_AS()->GetTempShield()); 
+	OnOverHealthChanged.Broadcast(GetOW_AS()->GetOverHealth()); 
+
+	/* Attribute Delegate - Skills */
+	OnUltimateGaugeChanged.Broadcast(GetOW_AS()->GetUltimateGauge()); 
+	OnMaxUltimateGaugeChanged.Broadcast(GetOW_AS()->GetMaxUltimateGauge()); 
+	OnNumCurrentBulletsChanged.Broadcast(GetOW_AS()->GetNumCurrentBullets()); 
+	OnNumMaxBulletsChanged.Broadcast(GetOW_AS()->GetNumMaxBullets()); 
 }
 
 void UOverlayWidgetController::BindCallbacksToDependencies()
 {
-	check(HealthBarInfo); 
-	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
+	/* Ability Delegate */
+	if (GetOW_ASC() && GetOW_ASC()->bDefaultAbilitiesGiven)
 	{
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Pair.Value()).AddLambda(
-			[this, Pair](const FOnAttributeChangeData& Data)
-			{
-				BroadcastHealthBarInfo(Pair.Key, Pair.Value());			
-			}
-		);
+		BroadcastHeroInfo(); 
 	}
 
-	if (GetOW_ASC())
-	{
-		GetOW_ASC()->AbilityEquipped.AddUObject(this, &UOverlayWidgetController::OnAbilityEquipped); 
-		if (GetOW_ASC()->bDefaultAbilitiesGiven)
-		{
-			BroadcastHeroInfo(); 
-		}
-		else
-		{
-			GetOW_ASC()->AbilitiesGivenDelegate.AddUObject(this, &UOverlayWidgetController::BroadcastHeroInfo); 
-		}
-	}
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetHealthAttribute(), OnHealthChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetMaxHealthAttribute(), OnMaxHealthChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetArmorAttribute(), OnArmorChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetMaxArmorAttribute(), OnMaxArmorChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetShieldAttribute(), OnShieldChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetMaxShieldAttribute(), OnMaxShieldChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetTempArmorAttribute(), OnTempArmorChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetTempShieldAttribute(), OnTempShieldChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetOverHealthAttribute(), OnOverHealthChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetUltimateGaugeAttribute(), OnUltimateGaugeChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetMaxUltimateGaugeAttribute(), OnMaxUltimateGaugeChanged); 
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetNumCurrentBulletsAttribute(), OnNumCurrentBulletsChanged);
+	BindAttributeChange(AbilitySystemComponent, GetOW_AS()->GetNumMaxBulletsAttribute(), OnNumMaxBulletsChanged);
+
+
 }
 
-void UOverlayWidgetController::OnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag) const
+FOnAttributeChangedSignature& UOverlayWidgetController::GetDelegateForTag(const FGameplayTag& Tag)
 {
-	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get(); 
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_Health) return OnHealthChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_MaxHealth) return OnMaxHealthChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_Armor) return OnArmorChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_MaxArmor) return OnMaxArmorChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_Shield) return OnShieldChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_MaxShield) return OnMaxShieldChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_TempArmor) return OnTempArmorChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_TempShield) return OnTempShieldChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Defense_OverHealth) return OnOverHealthChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Skill_UltimateGauge) return OnUltimateGaugeChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Skill_MaxUltimateGauge) return OnUltimateGaugeChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Skill_NumCurrentBullets) return OnNumCurrentBulletsChanged;
+	if (Tag == FOWGameplayTags::Get().Attributes_Skill_NumMaxBullets) return OnNumMaxBulletsChanged;
+}
 
-	EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
-	FOWAbilityInfo OWAbilityInfo = HeroInfo->FindAbilityInfoForTag(HeroName, AbilityTag); 
-	OWAbilityInfo.StatusTag = StatusTag; 
-	AbilityInfoDelegate.Broadcast(OWAbilityInfo); 
+void UOverlayWidgetController::BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate)
+{
+	ASC->GetGameplayAttributeValueChangeDelegate(Attribute).AddLambda(
+		[&Delegate](const FOnAttributeChangeData& Data)
+		{
+			Delegate.Broadcast(Data.NewValue);
+		}
+	);
 }
 
 void UOverlayWidgetController::BroadcastHealthBarInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const
@@ -62,4 +97,14 @@ void UOverlayWidgetController::BroadcastHealthBarInfo(const FGameplayTag& Attrib
 	FBarInfo Info = HealthBarInfo->FindHealthBarInfoForTag(AttributeTag);
 	Info.AttributeValue = Attribute.GetNumericValue(AttributeSet);
 	OnUpdateHealthBars.Broadcast(Info); 
+}
+
+void UOverlayWidgetController::BroadcastHeroInfo() const
+{
+	EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
+	const FOWHeroInfo& OWHeroInfo = HeroInfo->HeroInformation[HeroName]; 
+	for (const FOWAbilityInfo& OWAbilityInfo : OWHeroInfo.Abilities)
+	{
+		AbilityInfoDelegate.Broadcast(OWAbilityInfo);
+	}
 }
