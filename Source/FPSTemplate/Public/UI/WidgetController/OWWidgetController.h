@@ -6,8 +6,6 @@
 #include "UObject/NoExportTypes.h"
 #include "OWWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FOWAbilityInfo&, Info);
-
 class UAbilitySystemComponent; 
 class UAttributeSet; 
 class AOWPlayerController; 
@@ -58,11 +56,6 @@ public:
 
 	virtual void BindCallbacksToDependencies(); 
 
-	void BroadcastHeroInfo(); 
-
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Abilities")
-	FAbilityInfoSignature AbilityInfoDelegate; 
-
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
 
@@ -81,8 +74,7 @@ public:
 	UOWAttributeSet* GetOW_AS();
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
-	TObjectPtr<UHeroInfo> HeroInfo; 
+	
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<AOWPlayerController> OWPlayerController;

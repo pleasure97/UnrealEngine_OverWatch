@@ -25,22 +25,6 @@ void UOWWidgetController::BindCallbacksToDependencies()
 {
 }
 
-void UOWWidgetController::BroadcastHeroInfo()
-{
-	if (!GetOW_ASC()->bDefaultAbilitiesGiven) return; 
-
-	FForEachAbility AbilityBroadcastDelegate; 
-	AbilityBroadcastDelegate.BindLambda([this](const FGameplayAbilitySpec& AbilitySpec)
-		{
-			EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
-			FOWAbilityInfo OWAbilityInfo = HeroInfo->FindAbilityInfoForTag(HeroName, OWAbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec)); 
-			OWAbilityInfo.InputTag = OWAbilitySystemComponent->GetInputTagFromSpec(AbilitySpec); 
-			OWAbilityInfo.StatusTag = OWAbilitySystemComponent->GetStatusTagFromSpec(AbilitySpec); 
-			AbilityInfoDelegate.Broadcast(OWAbilityInfo); 
-		}); 
-	OWAbilitySystemComponent->ForEachAbility(AbilityBroadcastDelegate); 
-}
-
 AOWPlayerController* UOWWidgetController::GetOW_PC()
 {
 	if (OWPlayerController == nullptr)
