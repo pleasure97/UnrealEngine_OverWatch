@@ -55,6 +55,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Skill.UltimateGauge"),
 		FString("Ultimate Gauge"));
 
+	GameplayTags.Attributes_Skill_MaxUltimateGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.MaxUltimateGauge"),
+		FString("Max Ultimate Gauge"));
+
 	GameplayTags.Attributes_Skill_NumCurrentBullets = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Skill.NumCurrentBullets"),
 		FString("The Number of Current Bullets"));

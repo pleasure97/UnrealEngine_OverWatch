@@ -81,6 +81,10 @@ public:
 	FGameplayAttributeData UltimateGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, UltimateGauge);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxUltimateGauge, Category = "Skill Attributes")
+	FGameplayAttributeData MaxUltimateGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxUltimateGauge);
+
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumCurrentBullets, Category = "Skill Attributes")
 	FGameplayAttributeData NumCurrentBullets;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumCurrentBullets);
@@ -128,6 +132,9 @@ public:
 
 	UFUNCTION()
 	void OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const;
+
+	UFUNCTION()
+	void OnRep_MaxUltimateGauge(const FGameplayAttributeData& OldMaxUltimateGauge) const;
 
 	UFUNCTION()
 	void OnRep_NumCurrentBullets(const FGameplayAttributeData& OldNumCurrentBullets) const; 
