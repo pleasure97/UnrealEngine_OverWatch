@@ -34,62 +34,62 @@ public:
 	/* 
 	 * Defensive Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Health, Category="Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Health, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.Health"))
 	FGameplayAttributeData Health; 
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Health); 
 	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxHealth, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.MaxHealth"))
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxHealth);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Armor, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Armor, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.Armor"))
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Armor);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxArmor, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxArmor, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.MaxArmor"))
 	FGameplayAttributeData MaxArmor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxArmor);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempArmor, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_TempArmor, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.TempArmor"))
 	FGameplayAttributeData TempArmor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempArmor);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Shield, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Shield, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.Shield"))
 	FGameplayAttributeData Shield;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Shield);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxShield, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxShield, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.MaxShield"))
 	FGameplayAttributeData MaxShield;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxShield);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempShield, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_TempShield, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.TempShield"))
 	FGameplayAttributeData TempShield;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempShield);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_OverHealth, Category = "Vital Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_OverHealth, Category="Defensive Attributes", Meta=(GameplayTag="Attributes.Defense.OverHealth"))
 	FGameplayAttributeData OverHealth;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, OverHealth);
 
 	/*
 	 * Skill Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SkillGauge, Category = "Skill Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_SkillGauge, Category="Skill Attributes", Meta=(GameplayTag="Attributes.Skill.SkillGauge"))
 	FGameplayAttributeData SkillGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SkillGauge);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_UltimateGauge, Category = "Skill Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_UltimateGauge, Category="Skill Attributes", Meta=(GameplayTag="Attributes.Skill.UltimateGauge"))
 	FGameplayAttributeData UltimateGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, UltimateGauge);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxUltimateGauge, Category = "Skill Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxUltimateGauge, Category="Skill Attributes", Meta=(GameplayTag="Attributes.Skill.MaxUltimateGauge"))
 	FGameplayAttributeData MaxUltimateGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxUltimateGauge);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumCurrentBullets, Category = "Skill Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_NumCurrentBullets, Category="Skill Attributes", Meta=(GameplayTag = "Attributes.Skill.NumCurrentBullets"))
 	FGameplayAttributeData NumCurrentBullets;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumCurrentBullets);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumMaxBullets, Category = "Skill Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_NumMaxBullets, Category="Skill Attributes", Meta=(GameplayTag="Attributes.Skill.NumMaxBullets"))
 	FGameplayAttributeData NumMaxBullets;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumMaxBullets);
 
