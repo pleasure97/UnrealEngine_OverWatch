@@ -7,17 +7,6 @@
 
 UOWAttributeSet::UOWAttributeSet()
 {
-	/*InitMaxHealth(250.f);
-	InitMaxArmor(200.f);
-	InitMaxShield(200.f);
-	InitHealth(250.f); 
-	InitArmor(200.f); 
-	InitTempArmor(0.f); 
-	InitShield(180.f); 
-	InitTempShield(0.f); 
-	InitSkillGauge(100.f); 
-	InitUltimateGauge(0.f); */
-
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
 	/* Defensive Attributes */
