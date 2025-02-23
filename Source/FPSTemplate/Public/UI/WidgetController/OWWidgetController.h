@@ -12,9 +12,6 @@ class AOWPlayerController;
 class AOWPlayerState; 
 class UOWAbilitySystemComponent; 
 class UOWAttributeSet; 
-class UHealthBarInfo; 
-class UHeroInfo; 
-struct FOWHeroInfo; 
 
 
 /**

@@ -121,7 +121,7 @@ protected:
 	bool bIsSuccessfulDebuff = false; 
 
 	UPROPERTY()
-	bool DebuffDamage = 0.f; 
+	float DebuffDamage = 0.f; 
 	
 	TSharedPtr<FGameplayTag> DamageType; 
 
