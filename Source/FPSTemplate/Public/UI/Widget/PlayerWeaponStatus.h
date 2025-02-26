@@ -8,6 +8,7 @@
 
 class UTextBlock; 
 class UImage; 
+struct FOWAbilityInfo; 
 
 /**
  * 
@@ -25,5 +26,20 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_NumMaxBullets;
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_Slash;
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Weapon; 
+
+	UFUNCTION()
+	void UpdateWeaponStatus(const FOWAbilityInfo& Info); 
+
+	UFUNCTION()
+	void UpdateNumCurrentBullets(const FGameplayTag& Tag, float NewValue);
+
+	UFUNCTION()
+	void UpdateNumMaxBullets(const FGameplayTag& Tag, float NewValue);
+
+protected:
+	virtual void NativeConstruct() override; 
 };
