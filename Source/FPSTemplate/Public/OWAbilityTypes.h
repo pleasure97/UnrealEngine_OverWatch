@@ -111,7 +111,7 @@ public:
 	}
 
 	/* Custom Serialization, subclasses must override this. */
-	virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool bOutSuccess); 
+	virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess); 
 
 protected:
 	UPROPERTY()

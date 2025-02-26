@@ -3,7 +3,7 @@
 
 #include "OWAbilityTypes.h"
 
-bool FOWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool bOutSuccess)
+bool FOWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
     uint32 RepBits = 0; 
 
