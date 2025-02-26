@@ -3,11 +3,6 @@
 
 #include "AbilitySystem/Data/HeroInfo.h"
 
-FOWHeroInfo UHeroInfo::GetHeroDefaultInfo(EHeroName HeroName)
-{
-    return HeroInformation.FindChecked(HeroName); 
-}
-
 FOWAbilityInfo UHeroInfo::FindAbilityInfoForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag, bool bLogNotFound) const
 {
     const FOWHeroInfo& OWHeroInfo = HeroInformation[HeroName]; 
