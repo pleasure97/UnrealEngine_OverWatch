@@ -15,7 +15,7 @@ void UPlayerSkills::NativePreConstruct()
 	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_Skill_1, Border_LShift); 
 	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_Skill_2, Border_E); 
 	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_Skill_3, Border_F); 
-	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_LMB, Border_LMB); 
+	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_RMB, Border_RMB); 
 }
 
 void UPlayerSkills::NativeConstruct()
@@ -33,7 +33,7 @@ void UPlayerSkills::NativeConstruct()
 
 void UPlayerSkills::SetChildToBorder(const FOWAbilityInfo& Info)
 {
-	if (!TagsToBorders.Contains(Info.InputTag)) return; 
+	if (!TagsToBorders.Contains(Info.InputTag) || !Info.Icon) return; 
 
 	UBorder* Border = TagsToBorders[Info.InputTag]; 
 	Border->SetVisibility(ESlateVisibility::Visible); 
