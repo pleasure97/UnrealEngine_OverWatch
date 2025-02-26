@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Player/DS_MatchPlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "OWPlayerState.generated.h"
 
 class UAbilitySystemComponent; 
@@ -23,6 +24,16 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet;  }
 
+	UPROPERTY(ReplicatedUsing = OnRep_SelectedHeroName, BlueprintReadOnly)
+	EHeroName SelectedHeroName;
+
+	UFUNCTION()
+	void SetSelectedHeroName(EHeroName NewHeroName);
+
+	UFUNCTION()
+	void OnRep_SelectedHeroName();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;

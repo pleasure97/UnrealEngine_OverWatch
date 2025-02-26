@@ -9,7 +9,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "Game/OWGameModeBase.h"
-#include "Game/OWGameState.h"
+#include "Player/OWPlayerState.h"
 
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
 {
@@ -50,7 +50,6 @@ void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 	AActor* AvatarActor = ASC->GetAvatarActor(); 
 
 	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject); 
-	const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroDefaultInfo(HeroName);
 
 	FGameplayEffectContextHandle VitalAttributesContextHandle = ASC->MakeEffectContext(); 
 	VitalAttributesContextHandle.AddSourceObject(AvatarActor); 
@@ -70,13 +69,14 @@ void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextOb
 		ASC->GiveAbility(AbilitySpec); 
 	}
 
-	const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroDefaultInfo(HeroName);
+	// TODO 
+	/*const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroAbilityInfo(HeroName);
 	for (const FOWAbilityInfo& AbilityInfo : OWHeroInfo.Abilities)
 	{
 		TSubclassOf<UGameplayAbility> AbilityClass = AbilityInfo.Ability; 
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1); 
 		ASC->GiveAbility(AbilitySpec); 
-	}
+	}*/
 }
 
 UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObject)
@@ -94,14 +94,6 @@ EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject
 	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
 	if (!World) return EHeroName::None;
 
-	if (World->GetNetMode() != NM_Client)
-	{
-		const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-		return OWGameMode ? OWGameMode->SelectedHeroName : EHeroName::None; 
-	}
-	else
-	{
-		const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject));
-		return OWGameState ? OWGameState->SelectedHeroName : EHeroName::None;
-	}
+	const AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(UGameplayStatics::GetPlayerState(WorldContextObject, 0));
+	return OWPlayerState ? OWPlayerState->SelectedHeroName : EHeroName::None;
 }
