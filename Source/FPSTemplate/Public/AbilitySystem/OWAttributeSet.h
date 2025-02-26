@@ -34,33 +34,34 @@ public:
 	/* 
 	 * Defensive Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Health, Category="Defensive Attributes")
-	FGameplayAttributeData Health; 
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Health); 
-	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxHealth, Category="Defensive Attributes")
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth, Category = "Defensive Attributes")
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxHealth);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxArmor, Category = "Defensive Attributes")
+	FGameplayAttributeData MaxArmor;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxArmor);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxShield, Category = "Defensive Attributes")
+	FGameplayAttributeData MaxShield;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxShield);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Health, Category = "Defensive Attributes")
+	FGameplayAttributeData Health;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Health);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Armor, Category="Defensive Attributes")
 	FGameplayAttributeData Armor;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Armor);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxArmor, Category="Defensive Attributes")
-	FGameplayAttributeData MaxArmor;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxArmor);
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_TempArmor, Category="Defensive Attributes")
-	FGameplayAttributeData TempArmor;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempArmor);
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Shield, Category="Defensive Attributes")
 	FGameplayAttributeData Shield;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, Shield);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_MaxShield, Category="Defensive Attributes")
-	FGameplayAttributeData MaxShield;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxShield);
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TempArmor, Category = "Defensive Attributes")
+	FGameplayAttributeData TempArmor;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TempArmor);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_TempShield, Category="Defensive Attributes")
 	FGameplayAttributeData TempShield;
@@ -97,26 +98,26 @@ public:
 	/*
 	 * Defensive Attributes
 	 */
-	UFUNCTION()
-	void OnRep_Health(const FGameplayAttributeData& OldHealth) const; 
 
 	UFUNCTION()
-	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const; 
-
-	UFUNCTION()
-	void OnRep_Armor(const FGameplayAttributeData& OldArmor) const;
+	void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth) const;
 
 	UFUNCTION()
 	void OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor) const;
 
 	UFUNCTION()
-	void OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor) const;
+	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield) const;
+	UFUNCTION()
+	void OnRep_Health(const FGameplayAttributeData& OldHealth) const; 
+
+	UFUNCTION()
+	void OnRep_Armor(const FGameplayAttributeData& OldArmor) const;
 
 	UFUNCTION()
 	void OnRep_Shield(const FGameplayAttributeData& OldShield) const;
-
+	
 	UFUNCTION()
-	void OnRep_MaxShield(const FGameplayAttributeData& OldMaxShield) const;
+	void OnRep_TempArmor(const FGameplayAttributeData& OldTempArmor) const;
 
 	UFUNCTION()
 	void OnRep_TempShield(const FGameplayAttributeData& OldTempShield) const;
