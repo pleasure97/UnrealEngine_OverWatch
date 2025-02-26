@@ -4,18 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "UI/WidgetController/OWWidgetController.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "OverlayWidgetController.generated.h"
 
 struct FOnAttributeChangeData;
-struct FBarInfo; 
-class UHealthBarInfo;
 struct FGameplayTag; 
 struct FGameplayAttribute; 
 class UAbilitySystemComponent; 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FOWAbilityInfo&, Info);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUpdateHealthBars, const FBarInfo&, Info); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, const FGameplayTag&, Tag, float, NewValue);
 
 /**
  * 
@@ -75,18 +73,11 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
 	FOnAttributeChangedSignature OnNumMaxBulletsChanged;
-
-	UPROPERTY(BlueprintAssignable, Category = "UI|Health Bar Pool")	
-	FOnUpdateHealthBars OnUpdateHealthBars; 
 protected:
-	UPROPERTY(EditDefaultsOnly)
-	TObjectPtr<UHealthBarInfo> HealthBarInfo;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UHeroInfo> HeroInfo;
 
 private:
-	void BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate); 
-	void BroadcastHealthBarInfo(const FGameplayTag& AttributeTag, const FGameplayAttribute& Attribute) const; 
+	void BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate); 
 	void BroadcastHeroInfo() const; 
 };
