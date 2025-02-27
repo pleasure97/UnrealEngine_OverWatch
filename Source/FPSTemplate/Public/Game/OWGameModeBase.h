@@ -7,6 +7,8 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "OWGameModeBase.generated.h"
 
+class AOWCharacter; 
+
 /**
  * 
  */
@@ -20,7 +22,9 @@ public:
 	TObjectPtr<UHeroInfo> HeroInfo;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
-	EHeroName SelectedHeroName;
+	TMap<EHeroName, TSubclassOf<AOWCharacter>> HeroMap; 
 
 	virtual void BeginPlay() override; 
+
+	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName); 
 };
