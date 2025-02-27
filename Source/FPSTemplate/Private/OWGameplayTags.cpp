@@ -163,6 +163,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Status.HitReact"),
 		FString("HitReact"));
 
+	GameplayTags.Status_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.ForcedMovement"),
+		FString("ForcedMovement"));
+
 	/* Cooldown Types - Illiari */
 	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Illiari.Outburst"),

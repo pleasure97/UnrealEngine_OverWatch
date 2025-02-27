@@ -63,6 +63,7 @@ public:
 	FGameplayTag Status_Stun; 
 	FGameplayTag Status_Airborne; 
 	FGameplayTag Status_HitReact; 
+	FGameplayTag Status_ForcedMovement; 
 
 	/* Cooldown Types */
 	FGameplayTag Cooldown_Illiari_Outburst;
