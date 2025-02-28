@@ -34,7 +34,10 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ProgressZeroAnimation;
 
-	void UpdateProgressBar(const FLinearColor& FillColor, const float& AttributeValue); 
+	UPROPERTY()
+	float CurrentPercentValue = 1.f; 
+
+	void UpdateProgressBar(const FLinearColor& FillColor, const float& NewPercentValue); 
 
 	UFUNCTION()
 	void PlayProgressZeroAnimation();};

@@ -7,15 +7,17 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
-void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& PercentValue)
+void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& NewPercentValue)
 {
-	if (PercentValue == 0.f) PlayProgressZeroAnimation(); 
+	if (CurrentPercentValue > 0.f && NewPercentValue == 0.f) PlayProgressZeroAnimation(); 
 
 	if (ProgressBar)
 	{
 		ProgressBar->SetFillColorAndOpacity(FillColor); 
-		ProgressBar->SetPercent(PercentValue);
+		ProgressBar->SetPercent(NewPercentValue);
 	}
+
+	CurrentPercentValue = NewPercentValue; 
 }
 
 void UHealthBar::PlayProgressZeroAnimation()

@@ -64,6 +64,8 @@ void UUltimateGauge::SetMaxUltimateGauge(float NewValue)
 
 void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 {
+	if (MaxUltimateGauge == 0) return; 
+
 	if (NewValue >= MaxUltimateGauge)
 	{
 		if (bAlreadyUpdated) return;
@@ -77,9 +79,12 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 	}
 	else
 	{
+		// TODO - Fix redundant function call 
+		DynamicMaterialInstance->SetVectorParameterValue(TEXT("BaseColor"), UltimateGaugeColor::Orange);
+		DynamicMaterialInstance->SetScalarParameterValue(TEXT("NumSections"), 40.f);
+		Image_UltimateIcon->SetRenderOpacity(0.f); 
 		CurrentUltimateGauge = NewValue / MaxUltimateGauge;
 		DynamicMaterialInstance->SetScalarParameterValue(TEXT("Percent"), Percent);
-		// TODO - Fix redundant function call 
 		TextBlock_NumGauge->SetVisibility(ESlateVisibility::Visible);
 		TextBlock_Percent->SetVisibility(ESlateVisibility::Visible);
 		TextBlock_NumGauge->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(CurrentUltimateGauge))); 
