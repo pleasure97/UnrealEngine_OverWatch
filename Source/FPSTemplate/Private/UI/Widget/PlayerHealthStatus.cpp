@@ -4,23 +4,8 @@
 #include "UI/Widget/PlayerHealthStatus.h"
 #include "OWGameplayTags.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
-#include "AbilitySystem/Data/HealthBarInfo.h"
 #include "Components/TextBlock.h"
-
-void UPlayerHealthStatus::NativePreConstruct()
-{
-	Super::NativePreConstruct(); 
-
-	/* Current Health */
-	TagsToTextBlocks.Add(FOWGameplayTags::Get().Attributes_Defense_Health, TextBlock_CurrentHealth );
-	TagsToTextBlocks.Add(FOWGameplayTags::Get().Attributes_Defense_Armor, TextBlock_CurrentHealth);
-	TagsToTextBlocks.Add(FOWGameplayTags::Get().Attributes_Defense_Shield, TextBlock_CurrentHealth);
-
-	/* Max Health */
-	TagsToTextBlocks.Add(FOWGameplayTags::Get().Attributes_Defense_MaxHealth, TextBlock_MaxHealth);
-	TagsToTextBlocks.Add(FOWGameplayTags::Get().Attributes_Defense_MaxArmor, TextBlock_MaxHealth); 
-	TagsToTextBlocks.Add(FOWGameplayTags::Get().Attributes_Defense_MaxShield, TextBlock_MaxHealth); 
-}
+#include "Kismet/KismetMathLibrary.h"
 
 void UPlayerHealthStatus::NativeConstruct()
 {
@@ -31,30 +16,32 @@ void UPlayerHealthStatus::NativeConstruct()
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
 		SetWidgetController(WidgetController); 
-		OverlayWidgetController->OnUpdateHealthBars.AddDynamic(this, &UPlayerHealthStatus::UpdatePlayerStatus); 
+		
+		OverlayWidgetController->OnHealthChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus); 
+		OverlayWidgetController->OnMaxHealthChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus); 
+		OverlayWidgetController->OnArmorChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus); 
+		OverlayWidgetController->OnMaxArmorChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus);
+		OverlayWidgetController->OnShieldChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus);
+		OverlayWidgetController->OnMaxShieldChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus);
+		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus);
+		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus);
+		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus);
+		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus);
+		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus);
+		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus);
 	}
 }
 
-void UPlayerHealthStatus::UpdatePlayerStatus(const FBarInfo& Info)
+void UPlayerHealthStatus::UpdateCurrentHealthStatus(float NewValue)
 {
-	if (!TagsToTextBlocks.Contains(Info.DefensiveAttributeTag)) return; 
-
-	if (TagsToTextBlocks[Info.DefensiveAttributeTag] == TextBlock_CurrentHealth)
-	{
-		CurrentHealth += Info.AttributeValue; 
-		int32 FlooredCurrentHealth = FMath::FloorToInt(CurrentHealth); 
-
-		FString CurrentHealthString = FString::Printf(TEXT("%d"), FlooredCurrentHealth);
-		TextBlock_CurrentHealth->SetText(FText::FromString(CurrentHealthString));
-	}
-	
-	if (TagsToTextBlocks[Info.DefensiveAttributeTag] == TextBlock_MaxHealth)
-	{
-		MaxHealth += Info.AttributeValue;
-		int32 FlooredMaxHealth = FMath::FloorToInt(MaxHealth);
-
-		FString MaxHealthString = FString::Printf(TEXT("%d"), FlooredMaxHealth);
-		TextBlock_MaxHealth->SetText(FText::FromString(MaxHealthString));
-	}
+	CurrentHealth += NewValue; 
+	TextBlock_CurrentHealth->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(CurrentHealth))); 
 }
+
+void UPlayerHealthStatus::UpdateMaxHealthStatus(float NewValue)
+{
+	MaxHealth += NewValue; 
+	TextBlock_MaxHealth->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(MaxHealth)));
+}
+
 

@@ -8,7 +8,6 @@
 #include "PlayerHealthStatus.generated.h"
 
 class UTextBlock; 
-struct FBarInfo; 
 
 /**
  * 
@@ -26,7 +25,7 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_MaxHealth; 
 
 	UPROPERTY()
-	TMap<FGameplayTag, TObjectPtr<UTextBlock>> TagsToTextBlocks; 
+	TMap<TObjectPtr<UTextBlock>, FGameplayTagContainer> TextBlockToTags; 
 
 	UPROPERTY()
 	float CurrentHealth = 0.f; 
@@ -35,10 +34,13 @@ public:
 	float MaxHealth = 0.f; 
 
 protected:
-	virtual void NativePreConstruct() override; 
+	//virtual void NativePreConstruct() override; 
 	virtual void NativeConstruct() override; 
 	
 private:
 	UFUNCTION()
-	void UpdatePlayerStatus(const FBarInfo& Info);
+	void UpdateCurrentHealthStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateMaxHealthStatus(float NewValue);
 };

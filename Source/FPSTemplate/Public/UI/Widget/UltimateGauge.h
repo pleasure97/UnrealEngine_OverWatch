@@ -46,10 +46,10 @@ public:
 	void ReceiveAbilityInfo(const FOWAbilityInfo& Info);
 
 	UFUNCTION()
-	void SetMaxUltimateGauge(const FGameplayTag& Tag, float NewValue); 
+	void SetMaxUltimateGauge(float NewValue); 
 
 	UFUNCTION()
-	void UpdateUltimateGauge(const FGameplayTag& Tag, float NewValue); 
+	void UpdateUltimateGauge(float NewValue); 
 
 	float Percent = 0.f; 
 

@@ -13,7 +13,7 @@ struct FGameplayAttribute;
 class UAbilitySystemComponent; 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FOWAbilityInfo&, Info);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAttributeChangedSignature, const FGameplayTag&, Tag, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
 
 /**
  * 
@@ -26,7 +26,7 @@ class FPSTEMPLATE_API UOverlayWidgetController : public UOWWidgetController
 public:
 	virtual void BroadcastInitialValues() override; 
 	virtual void BindCallbacksToDependencies() override; 
-	FOnAttributeChangedSignature& GetDelegateForTag(const FGameplayTag& Tag); 
+	FOnAttributeChangedSignature* GetDelegateForTag(const FGameplayTag& Tag); 
 
 	/* Ability Delegate */
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Abilities")

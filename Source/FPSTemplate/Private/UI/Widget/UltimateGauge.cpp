@@ -57,12 +57,12 @@ void UUltimateGauge::ReceiveAbilityInfo(const FOWAbilityInfo& Info)
 	Image_UltimateIcon->SetBrush(SlateBrush); 
 }
 
-void UUltimateGauge::SetMaxUltimateGauge(const FGameplayTag& Tag, float NewValue)
+void UUltimateGauge::SetMaxUltimateGauge(float NewValue)
 {
 	MaxUltimateGauge = NewValue; 
 }
 
-void UUltimateGauge::UpdateUltimateGauge(const FGameplayTag& Tag, float NewValue)
+void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 {
 	if (NewValue >= MaxUltimateGauge)
 	{

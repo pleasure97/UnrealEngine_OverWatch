@@ -18,7 +18,7 @@ void UPlayerWeaponStatus::NativeConstruct()
 		SetWidgetController(OverlayWidgetController); 
 		OverlayWidgetController->AbilityInfoDelegate.AddDynamic(this, &UPlayerWeaponStatus::UpdateWeaponStatus); 
 		OverlayWidgetController->OnNumCurrentBulletsChanged.AddDynamic(this, &UPlayerWeaponStatus::UpdateNumCurrentBullets);
-		OverlayWidgetController->OnNumCurrentBulletsChanged.AddDynamic(this, &UPlayerWeaponStatus::UpdateNumMaxBullets);
+		OverlayWidgetController->OnNumMaxBulletsChanged.AddDynamic(this, &UPlayerWeaponStatus::UpdateNumMaxBullets);
 
 	}
 }
@@ -33,12 +33,12 @@ void UPlayerWeaponStatus::UpdateWeaponStatus(const FOWAbilityInfo& Info)
 	Image_Weapon->SetBrush(SlateBrush); 
 }
 
-void UPlayerWeaponStatus::UpdateNumCurrentBullets(const FGameplayTag& Tag, float NewValue)
+void UPlayerWeaponStatus::UpdateNumCurrentBullets(float NewValue)
 {
 	TextBlock_NumCurrentBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue)));
 }
 
-void UPlayerWeaponStatus::UpdateNumMaxBullets(const FGameplayTag& Tag, float NewValue)
+void UPlayerWeaponStatus::UpdateNumMaxBullets(float NewValue)
 {
 	TextBlock_NumMaxBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue))); 
 }

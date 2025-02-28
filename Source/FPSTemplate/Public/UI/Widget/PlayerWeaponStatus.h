@@ -35,10 +35,10 @@ public:
 	void UpdateWeaponStatus(const FOWAbilityInfo& Info); 
 
 	UFUNCTION()
-	void UpdateNumCurrentBullets(const FGameplayTag& Tag, float NewValue);
+	void UpdateNumCurrentBullets(float NewValue);
 
 	UFUNCTION()
-	void UpdateNumMaxBullets(const FGameplayTag& Tag, float NewValue);
+	void UpdateNumMaxBullets(float NewValue);
 
 protected:
 	virtual void NativeConstruct() override; 
