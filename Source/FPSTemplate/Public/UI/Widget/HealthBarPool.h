@@ -11,8 +11,17 @@ class UHealthBar;
 class USizeBox; 
 class UBorder;
 class UHorizontalBox;
-struct FBarInfo; 
 
+namespace HealthBarColors
+{
+	constexpr FLinearColor None(0.f, 0.f, 0.f, 0.f); 
+	constexpr FLinearColor White(1.f, 1.f, 1.f, 1.f);
+	constexpr FLinearColor Yellow(1.f, 0.8588f, 0.1804f, 1.f);
+	constexpr FLinearColor Sky(0.1765f, 0.6706f, 0.9608f, 1.f);
+	constexpr FLinearColor Orange(0.9843f, 0.6f, 0.0039f, 1.f);
+	constexpr FLinearColor Blue(0.f, 0.1647f, 0.7843f, 1.f);
+	constexpr FLinearColor Green(0.2392f, 0.8941f, 0.2392f, 1.f);
+}
 
 USTRUCT()
 struct FHealthBarPoolInfo
@@ -21,8 +30,10 @@ struct FHealthBarPoolInfo
 
 	FHealthBarPoolInfo() {}
 	
-	FHealthBarPoolInfo(UBorder* InBorder, UHorizontalBox* InHorizontalBox, bool InCanAddOrRemoveHealthBar)
-		: Border(InBorder), HorizontalBox(InHorizontalBox), CanAddOrRemoveHealthBar(InCanAddOrRemoveHealthBar) {}
+	FHealthBarPoolInfo(UBorder* InBorder, UHorizontalBox* InHorizontalBox, FLinearColor InHealthBarColor)
+		: Border(InBorder)
+		, HorizontalBox(InHorizontalBox)
+		, HealthBarColor(InHealthBarColor){}
 
 	UPROPERTY()
 	TObjectPtr<UBorder> Border; 
@@ -31,7 +42,7 @@ struct FHealthBarPoolInfo
 	TObjectPtr<UHorizontalBox> HorizontalBox; 
 
 	UPROPERTY()
-	bool CanAddOrRemoveHealthBar;
+	FLinearColor HealthBarColor; 
 };
 /**
  * 
@@ -94,16 +105,45 @@ public:
 	UPROPERTY()
 	TMap<FGameplayTag, FHealthBarPoolInfo> TagsToHealthBarInfos;
 
-	TArray<FHealthBarPoolInfo> GetValidHealthBarInfos(); 
+	UPROPERTY()
+	TArray<FHealthBarPoolInfo> HealthBarInfos; 
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 
 private:
+	/* Update Attributes */
 	UFUNCTION()
-	void UpdateProgressBars(const FBarInfo& Info);
+	void UpdateHealthBars(float NewValue);
 
+	UFUNCTION()
+	void UpdateMaxHealthBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateArmorBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateMaxArmorBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateShieldBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateMaxShieldBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateTempArmorBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateTempShieldBars(float NewValue);
+
+	UFUNCTION()
+	void UpdateOverHealthBars(float NewValue);
+
+	/* End Update Attributes */
+
+	void InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo);
+	void UpdateProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo);
 	void UpdateBorderVisibility();
-
 	void DistributeFillSize(); 
 };

@@ -2,31 +2,34 @@
 
 
 #include "UI/Widget/HealthBarPool.h"
-#include "Algo/Copy.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
-#include "Components/SizeBox.h"
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
-#include "AbilitySystem/Data/HealthBarInfo.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void UHealthBarPool::NativePreConstruct()
 {
 	Super::NativePreConstruct(); 
 
-	// In FHealthBarInfo Constructor, CanAddOrRemoveHealthBar - true or false
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, true));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, true));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, true));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, true));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, true));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, true));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_Health, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, false));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, false));
-	TagsToHealthBarInfos.Add(FOWGameplayTags::Get().Attributes_Defense_Shield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, false));
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::None));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::None));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::None));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Yellow));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Shield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Sky));
+
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::None));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::None));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::None));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
 }
 
 void UHealthBarPool::NativeConstruct()
@@ -38,29 +41,161 @@ void UHealthBarPool::NativeConstruct()
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
 		SetWidgetController(OverlayWidgetController);
-		OverlayWidgetController->OnUpdateHealthBars.AddDynamic(this, &UHealthBarPool::UpdateProgressBars);
+
+		OverlayWidgetController->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
+		OverlayWidgetController->OnMaxArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxArmorBars);
+		OverlayWidgetController->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
+		OverlayWidgetController->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars); 
+		OverlayWidgetController->OnArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateArmorBars); 
+		OverlayWidgetController->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars); 
+		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars); 
+		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars); 
+		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars); 
 	}
 }
 
-TArray<FHealthBarPoolInfo> UHealthBarPool::GetValidHealthBarInfos()
+void UHealthBarPool::InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo)
 {
-	TArray<FHealthBarPoolInfo> HealthBarInfos;
-	for (const TPair<FGameplayTag, FHealthBarPoolInfo>& TagToHealthBarInfo: TagsToHealthBarInfos)
-	{
-		if (TagToHealthBarInfo.Value.CanAddOrRemoveHealthBar)
-		{
-			HealthBarInfos.Add(TagToHealthBarInfo.Value); 
-		}
-	}
+	UHorizontalBox* HorizontalBox = HealthBarInfo.HorizontalBox;
 
-	return HealthBarInfos; 
+	// Calculate how many health bars should be added to the horizontal box 
+	int32 NumHealthBars = FMath::CeilToInt(NewValue / HealthPerBar);
+
+	// Preset the size of the health bar 
+	FSlateChildSize SlateChildSize;
+	SlateChildSize.SizeRule = ESlateSizeRule::Fill;
+
+	// Create the health bars and fill them in the horizontal box. 
+	for (int i = 0; i < NumHealthBars; ++i)
+	{
+		UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
+
+		HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 1.f);
+
+		UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
+		HorizontalBoxSlot->SetSize(SlateChildSize);
+	}
+}
+
+void UHealthBarPool::UpdateProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo)
+{
+	const int32 NumBarsToFill = FMath::FloorToInt(NewValue / HealthPerBar);
+	const float Remainder = FMath::Fmod(NewValue, HealthPerBar);
+	const int32 NumChildren = HealthBarInfo.HorizontalBox->GetChildrenCount();
+
+	for (int i = 0; i < NumChildren; ++i)
+	{
+		UHealthBar* HealthBar = Cast<UHealthBar>(HealthBarInfo.HorizontalBox->GetChildAt(i));
+
+		if (i < NumBarsToFill)
+		{
+			HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 1.f);
+		}
+		else if (i == NumBarsToFill)
+		{
+			HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, Remainder / HealthPerBar);
+		}
+		else
+		{
+			HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 0.f);
+		}
+
+	}
+}
+
+void UHealthBarPool::UpdateMaxHealthBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxHealth];
+
+	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	UpdateBorderVisibility(); 
+
+	DistributeFillSize(); 
+}
+
+void UHealthBarPool::UpdateMaxArmorBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
+
+	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	UpdateBorderVisibility();
+
+	DistributeFillSize();
+}
+
+void UHealthBarPool::UpdateMaxShieldBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxShield];
+
+	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	UpdateBorderVisibility();
+
+	DistributeFillSize();
+}
+
+void UHealthBarPool::UpdateHealthBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health]; 
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return; 
+
+	UpdateProgressBars(NewValue, HealthBarPoolInfo); 
+}
+
+void UHealthBarPool::UpdateArmorBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+
+	UpdateProgressBars(NewValue, HealthBarPoolInfo);
+}
+
+void UHealthBarPool::UpdateShieldBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+
+	UpdateProgressBars(NewValue, HealthBarPoolInfo);
+}
+
+void UHealthBarPool::UpdateTempArmorBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempArmor];
+
+	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	UpdateBorderVisibility();
+
+	DistributeFillSize();
+}
+
+void UHealthBarPool::UpdateTempShieldBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempShield];
+
+	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	UpdateBorderVisibility();
+
+	DistributeFillSize();
+}
+
+void UHealthBarPool::UpdateOverHealthBars(float NewValue)
+{
+	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_OverHealth];
+
+	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	UpdateBorderVisibility();
+
+	DistributeFillSize();
 }
 
 
 void UHealthBarPool::UpdateBorderVisibility()
 {
-	TArray<FHealthBarPoolInfo> HealthBarInfos = GetValidHealthBarInfos(); 
-
 	for (FHealthBarPoolInfo& HealthBarInfo : HealthBarInfos)
 	{
 		UHorizontalBox* HorizontalBox = HealthBarInfo.HorizontalBox;
@@ -79,8 +214,6 @@ void UHealthBarPool::UpdateBorderVisibility()
 
 void UHealthBarPool::DistributeFillSize()
 {
-	TArray<FHealthBarPoolInfo> HealthBarInfos = GetValidHealthBarInfos();
-
 	int32 NumAllChildren = 0; 
 
 	for (const FHealthBarPoolInfo& HealthBarInfo : HealthBarInfos)
@@ -105,65 +238,6 @@ void UHealthBarPool::DistributeFillSize()
 		if (UHorizontalBoxSlot* HorizontalBoxSlot = Cast<UHorizontalBoxSlot>(Border->Slot))
 		{
 			HorizontalBoxSlot->SetSize(ChildSize);
-		}
-	}
-}
-
-void UHealthBarPool::UpdateProgressBars(const FBarInfo& Info)
-{
-	// Find the Horizontal Box related to received AttributeDefensiveInfo 
-	if (!TagsToHealthBarInfos.Contains(Info.DefensiveAttributeTag)) return; 
-
-	const FHealthBarPoolInfo& HealthBarInfo = TagsToHealthBarInfos[Info.DefensiveAttributeTag];
-	if (HealthBarInfo.CanAddOrRemoveHealthBar)
-	{
-		UHorizontalBox* HorizontalBox = HealthBarInfo.HorizontalBox;
-
-		// Calculate how many health bars should be added to the horizontal box 
-		int32 NumHealthBars = FMath::CeilToInt(Info.AttributeValue / HealthPerBar);
-
-		// Preset the size of the health bar 
-		FSlateChildSize SlateChildSize;
-		SlateChildSize.SizeRule = ESlateSizeRule::Fill;
-
-		// Create the health bars and fill them in the horizontal box. 
-		for (int i = 0; i < NumHealthBars; ++i)
-		{
-			UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-
-			HealthBar->UpdateProgressBar(Info.Tint_Fill, 1.f);
-
-			UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
-			HorizontalBoxSlot->SetSize(SlateChildSize);
-		}
-
-		UpdateBorderVisibility();
-
-		DistributeFillSize();
-	}
-	else
-	{
-		float Remainder = 0;
-		const int32 NumBarsToFill = UKismetMathLibrary::FMod(Info.AttributeValue, HealthPerBar, Remainder);
-		const int32 NumChildren = HealthBarInfo.HorizontalBox->GetChildrenCount(); 
-
-		for (int i = 0; i < NumChildren; ++i)
-		{
-			UHealthBar* HealthBar = Cast<UHealthBar>(HealthBarInfo.HorizontalBox->GetChildAt(i)); 
-			
-			if (i < NumBarsToFill)
-			{
-				HealthBar->UpdateProgressBar(Info.Tint_Fill, 1.f);
-			}
-			else if (i == NumBarsToFill)
-			{
-				HealthBar->UpdateProgressBar(Info.Tint_Fill, Remainder / HealthPerBar);
-			}
-			else
-			{
-				HealthBar->UpdateProgressBar(Info.Tint_Fill, 0.f); 
-			}
-			
 		}
 	}
 }
