@@ -23,13 +23,7 @@ public:
 	TObjectPtr<UProgressBar> ProgressBar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
-	TObjectPtr<UTexture2D> Texture2D_ProgressBar;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
-	FLinearColor Tint_Background = FLinearColor(0.3058f, 0.3058f, 0.3058f, 1.f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
-	FLinearColor Tint_Fill;
+	FLinearColor PendingFillColor;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ProgressZeroAnimation;
@@ -40,4 +34,8 @@ public:
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& NewPercentValue); 
 
 	UFUNCTION()
-	void PlayProgressZeroAnimation();};
+	void PlayProgressZeroAnimation();
+
+	UFUNCTION()
+	void OnProgressZeroAnimationFinished(); 
+};
