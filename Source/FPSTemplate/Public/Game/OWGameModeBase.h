@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Game/DS_GameModeBase.h"
+#include "Game/DS_MatchGameMode.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "OWGameModeBase.generated.h"
 
@@ -13,7 +13,7 @@ class AOWCharacter;
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOWGameModeBase : public ADS_GameModeBase
+class FPSTEMPLATE_API AOWGameModeBase : public ADS_MatchGameMode
 {
 	GENERATED_BODY()
 	
