@@ -66,7 +66,7 @@ void ADS_LobbyGameMode::Logout(AController* Exiting)
 
 	CheckAndStopLobbyCountdown(); 
 
-	RemovePlayerSesion(Exiting); 
+	RemovePlayerSession(Exiting); 
 
 	if (LobbyStatus != ELobbyStatus::SeamlessTravelling)
 	{

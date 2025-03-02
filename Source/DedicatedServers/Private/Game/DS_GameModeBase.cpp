@@ -88,7 +88,7 @@ void ADS_GameModeBase::TrySeamlessTravel(TSoftObjectPtr<UWorld> DestinationMap)
 	}
 }
 
-void ADS_GameModeBase::RemovePlayerSesion(AController* Exiting)
+void ADS_GameModeBase::RemovePlayerSession(AController* Exiting)
 {
 	ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Exiting);
 	if (!IsValid(DSPlayerController)) return;

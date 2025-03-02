@@ -30,7 +30,7 @@ void ADS_MatchGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting); 
 
-	RemovePlayerSesion(Exiting); 
+	RemovePlayerSession(Exiting); 
 }
 
 void ADS_MatchGameMode::InitSeamlessTravelPlayer(AController* NewController)
