@@ -69,49 +69,42 @@ void UPlayerHealthStatus::SetMaxHealth()
 
 void UPlayerHealthStatus::UpdateCurrentHealthStatus(float NewValue)
 {
-	if (NewValue == 0.f) return; 
 	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_Health] = NewValue; 
 	SetCurrentHealth(); 
 }
 
 void UPlayerHealthStatus::UpdateMaxHealthStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_MaxHealth] = NewValue;
 	SetMaxHealth(); 
 }
 
 void UPlayerHealthStatus::UpdateCurrentArmorStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_Armor] = NewValue;
 	SetCurrentHealth();
 }
 
 void UPlayerHealthStatus::UpdateMaxArmorStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_MaxArmor] = NewValue;
 	SetMaxHealth();
 }
 
 void UPlayerHealthStatus::UpdateCurrentShieldStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_Shield] = NewValue;
 	SetCurrentHealth();
 }
 
 void UPlayerHealthStatus::UpdateMaxShieldStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_MaxShield] = NewValue;
 	SetMaxHealth();
 }
 
 void UPlayerHealthStatus::UpdateTempArmorStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempArmor] = NewValue;
 	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempArmor] = NewValue;
 	SetCurrentHealth();
@@ -120,7 +113,6 @@ void UPlayerHealthStatus::UpdateTempArmorStatus(float NewValue)
 
 void UPlayerHealthStatus::UpdateTempShieldStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempShield] = NewValue;
 	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempShield] = NewValue;
 	SetCurrentHealth();
@@ -129,7 +121,6 @@ void UPlayerHealthStatus::UpdateTempShieldStatus(float NewValue)
 
 void UPlayerHealthStatus::UpdateOverHealthStatus(float NewValue)
 {
-	if (NewValue == 0.f) return;
 	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_OverHealth] = NewValue;
 	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_OverHealth] = NewValue;
 	SetCurrentHealth();
