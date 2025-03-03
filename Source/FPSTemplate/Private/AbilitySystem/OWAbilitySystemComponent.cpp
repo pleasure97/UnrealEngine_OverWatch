@@ -4,6 +4,8 @@
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "OWGameplayTags.h"
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
+#include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 
 void UOWAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -12,10 +14,14 @@ void UOWAbilitySystemComponent::AbilityActorInfoSet()
     const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 }
 
-void UOWAbilitySystemComponent::AddHeroAbilities(const TArray<TSubclassOf<UGameplayAbility>>& DefaultAbilities)
+void UOWAbilitySystemComponent::AddHeroAbilities()
 {
-    for (const TSubclassOf<UGameplayAbility> AbilityClass : DefaultAbilities)
+    UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this); 
+    EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
+    const TArray<FOWAbilityInfo>& DefaultAbilities = HeroInfo->HeroInformation[HeroName].Abilities; 
+    for (const FOWAbilityInfo& DefaultAbility : DefaultAbilities)
     {
+        const TSubclassOf<UGameplayAbility>& AbilityClass = DefaultAbility.Ability;
         FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1 /*int32 InLevel*/);
         if (const UOWGameplayAbility* OWAbility = Cast<UOWGameplayAbility>(AbilitySpec.Ability))
         {

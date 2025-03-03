@@ -3,6 +3,7 @@
 
 #include "Character/OWCharacterBase.h"
 #include "OWGameplayTags.h"
+#include "AbilitySystemComponent.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
@@ -92,7 +93,28 @@ void AOWCharacterBase::AddHeroAbilities()
 
 	if (!HasAuthority()) return; 
 
-	OWASC->AddHeroAbilities(DefaultAbilities); 
+	OWASC->AddHeroAbilities(); 
+}
+
+void AOWCharacterBase::InitializeDefaultAttributes() const
+{
+	if (!DefaultVitalAttributes)
+	{
+		UE_LOG(LogTemp, Log, TEXT("DefaultVitalAttributes is null, skipping attribute initialization."));
+		return;
+	}
+	ApplyEffectToSelf(DefaultVitalAttributes, 1.f); 
+}
+
+void AOWCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
+{
+	check(IsValid(GetAbilitySystemComponent())); 
+	check(GameplayEffectClass); 
+
+	FGameplayEffectContextHandle GameplayEffectContextHandle = GetAbilitySystemComponent()->MakeEffectContext(); 
+	GameplayEffectContextHandle.AddSourceObject(this); 
+	const FGameplayEffectSpecHandle GameplayEffectSpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, GameplayEffectContextHandle); 
+	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*GameplayEffectSpecHandle.Data.Get(), GetAbilitySystemComponent()); 
 }
 
 void AOWCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)

@@ -14,6 +14,7 @@ class UAttributeSet;
 class UAnimMontage; 
 class UGameplayAbility; 
 class UDebuffNiagaraComponent; 
+class UGameplayEffect; 
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -59,9 +60,19 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet; 
 
+	/* Attributes */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultVitalAttributes; 
+
+	virtual void InitializeDefaultAttributes() const; 
+
+	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const; 
+
+	/* State - Death */
 	UPROPERTY()
 	bool bDead = false; 
 
+	/* State - Stun */
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount); 
 
 	UPROPERTY(VisibleAnywhere)
@@ -73,7 +84,4 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
-
-	UPROPERTY(EditAnywhere, Category = "Abilities")
-	TArray<TSubclassOf<UGameplayAbility>> DefaultAbilities; 
 };

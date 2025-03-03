@@ -27,7 +27,7 @@ public:
 	FAbilityEquipped AbilityEquipped; 
 
 	void AbilityActorInfoSet(); 
-	void AddHeroAbilities(const TArray<TSubclassOf<UGameplayAbility>>& DefaultAbilities); 
+	void AddHeroAbilities(); 
 
 	bool bDefaultAbilitiesGiven = false;
 

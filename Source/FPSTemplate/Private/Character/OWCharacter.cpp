@@ -47,10 +47,15 @@ void AOWCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); 
 
+	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
+	{
+		OWPlayerState->OnRep_SelectedHeroName(); 
+	}
+
 	InitAbilityActorInfo(); 
 	AddHeroAbilities(); 
 
-	InitializeVitalAttributes();
+	InitializeDefaultAttributes();
 }
 
 void AOWCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -90,10 +95,3 @@ void AOWCharacter::InitAbilityActorInfo()
 		}
 	}
 }
-
-void AOWCharacter::InitializeVitalAttributes()
-{
-	EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this);
-	UOWAbilitySystemLibrary::InitializeDefaultAttributes(this, HeroName, AbilitySystemComponent);
-}
-

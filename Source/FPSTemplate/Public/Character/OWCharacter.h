@@ -28,7 +28,6 @@ public:
 
 private:
 	void InitAbilityActorInfo(); 
-	void InitializeVitalAttributes();
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> SpringArm; 
