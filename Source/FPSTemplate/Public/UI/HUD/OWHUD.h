@@ -37,4 +37,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UOverlayWidgetController> OverlayWidgetControllerClass; 
+
+	bool bInitialized = false; 
 };

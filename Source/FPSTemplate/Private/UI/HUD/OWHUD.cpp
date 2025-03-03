@@ -24,15 +24,18 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class Uninitialized, please fill out BP_OWHUD"));
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class Uninitialized, please fill out BP_OWHUD")); 
 
-	UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), OverlayWidgetClass);
-	PlayerOverlay = Cast<UPlayerOverlay>(Widget); 
+	PlayerOverlay = CreateWidget<UPlayerOverlay>(GetWorld(), OverlayWidgetClass);
 
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS); 
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams); 
 
 	PlayerOverlay->SetWidgetController(WidgetController); 
-	PlayerOverlay->SetChildWidgetControllers(); 
+	// PlayerOverlay->SetChildWidgetControllers(); 
 
-	Widget->AddToViewport(); 
-	WidgetController->BroadcastInitialValues();
+	if (!bInitialized)
+	{
+		bInitialized = true; 
+		PlayerOverlay->AddToViewport();
+		WidgetController->BroadcastInitialValues();
+	}
 }
