@@ -25,22 +25,51 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_MaxHealth; 
 
 	UPROPERTY()
-	TMap<TObjectPtr<UTextBlock>, FGameplayTagContainer> TextBlockToTags; 
+	TMap<FGameplayTag, float> CurrentHealthStatusMap;
+
+	UPROPERTY()
+	TMap<FGameplayTag, float> MaxHealthStatusMap;
 
 	UPROPERTY()
 	float CurrentHealth = 0.f; 
 	
 	UPROPERTY()
 	float MaxHealth = 0.f; 
-
 protected:
 	//virtual void NativePreConstruct() override; 
 	virtual void NativeConstruct() override; 
 	
 private:
+
+	void SetCurrentHealth(); 
+
+	void SetMaxHealth(); 
+
+	/* Callback Functions for Delegates of Overlay Widget Controller*/
 	UFUNCTION()
 	void UpdateCurrentHealthStatus(float NewValue);
 
 	UFUNCTION()
 	void UpdateMaxHealthStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateCurrentArmorStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateMaxArmorStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateCurrentShieldStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateMaxShieldStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateTempArmorStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateTempShieldStatus(float NewValue);
+
+	UFUNCTION()
+	void UpdateOverHealthStatus(float NewValue);
 };
