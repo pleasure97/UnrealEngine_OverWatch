@@ -14,18 +14,18 @@ void UHealthBarPool::NativePreConstruct()
 	Super::NativePreConstruct(); 
 
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::None));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::None));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::None));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Blue));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Yellow));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Shield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Sky));
 
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::None));
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::None));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::None));
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
@@ -54,9 +54,9 @@ void UHealthBarPool::NativeConstruct()
 	}
 }
 
-void UHealthBarPool::InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo)
+void UHealthBarPool::InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarPoolInfo)
 {
-	UHorizontalBox* HorizontalBox = HealthBarInfo.HorizontalBox;
+	UHorizontalBox* HorizontalBox = HealthBarPoolInfo.HorizontalBox;
 
 	// Calculate how many health bars should be added to the horizontal box 
 	int32 NumHealthBars = FMath::CeilToInt(NewValue / HealthPerBar);
@@ -69,8 +69,7 @@ void UHealthBarPool::InitializeProgressBars(const float& NewValue, const FHealth
 	for (int i = 0; i < NumHealthBars; ++i)
 	{
 		UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-
-		HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 1.f);
+		HealthBar->UpdateProgressBar(HealthBarPoolInfo.HealthBarColor, 1.f);
 
 		UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
 		HorizontalBoxSlot->SetSize(SlateChildSize);

@@ -18,7 +18,7 @@ namespace HealthBarColors
 	constexpr FLinearColor White(1.f, 1.f, 1.f, 1.f);
 	constexpr FLinearColor Yellow(1.f, 0.8588f, 0.1804f, 1.f);
 	constexpr FLinearColor Sky(0.1765f, 0.6706f, 0.9608f, 1.f);
-	constexpr FLinearColor Orange(0.9843f, 0.6f, 0.0039f, 1.f);
+	constexpr FLinearColor Orange(0.9568f, 0.2067f, 0.0439f, 1.f);
 	constexpr FLinearColor Blue(0.f, 0.1647f, 0.7843f, 1.f);
 	constexpr FLinearColor Green(0.2392f, 0.8941f, 0.2392f, 1.f);
 }
@@ -142,8 +142,8 @@ private:
 
 	/* End Update Attributes */
 
-	void InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo);
-	void UpdateProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarInfo);
+	void InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarPoolInfo);
+	void UpdateProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarPoolInfo);
 	void UpdateBorderVisibility();
 	void DistributeFillSize(); 
 };
