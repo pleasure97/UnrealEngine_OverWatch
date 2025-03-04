@@ -15,36 +15,13 @@ void UPlayerSkill::NativePreConstruct()
 {
 	Super::NativePreConstruct(); 
 
-	ProgressBar_Cooltime->SetPercent(0.f); 
-	TextBlock_Cooltime->SetRenderOpacity(0.f); 
-}
-
-void UPlayerSkill::NativeDestruct()
-{
-	Super::NativeDestruct(); 
-
-	UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController);
-
-	OverlayWidgetController->AbilityInfoDelegate.RemoveDynamic(this, &UPlayerSkill::ReceiveAbilityInfo);
-}
-
-
-void UPlayerSkill::ReceiveAbilityInfo(const FOWAbilityInfo& Info)
-{
-	if (InputTag.MatchesTagExact(Info.InputTag))
+	if (ProgressBar_Cooltime)
 	{
-		CooldownTag = Info.CooldownTag; 
-
-		if (WaitCooldownChangeTask)
-		{
-			WaitCooldownChangeTask->EndTask();
-		}
-
-		if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
-		{
-			WaitCooldownChangeTask = UWaitCooldownChange::WaitForCooldownChange(OverlayWidgetController->AbilitySystemComponent, CooldownTag);
-			WaitCooldownChangeTask->CooldownStart.AddDynamic(this, &UPlayerSkill::HandleCooldownTimer);
-		}
+		ProgressBar_Cooltime->SetPercent(0.f);
+	}
+	if (TextBlock_Cooltime)
+	{
+		TextBlock_Cooltime->SetRenderOpacity(0.f); 
 	}
 }
 
@@ -77,35 +54,65 @@ void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 	{
 		TextBlock_InputKey->SetText(FText::FromString(""));
 	}
-
-	BindToAbilityInfoDelegate(); 
 }
 
-void UPlayerSkill::BindToAbilityInfoDelegate()
+void UPlayerSkill::SetCooldownInfo(const FOWAbilityInfo& Info)
 {
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	if (InputTag.MatchesTagExact(Info.InputTag))
 	{
-		OverlayWidgetController->AbilityInfoDelegate.AddDynamic(this, &UPlayerSkill::ReceiveAbilityInfo); 
+		CooldownTag = Info.CooldownTag;
+
+		if (WaitCooldownChangeTask)
+		{
+			WaitCooldownChangeTask->EndTask();
+		}
+
+		if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+		{
+			WaitCooldownChangeTask = UWaitCooldownChange::WaitForCooldownChange(OverlayWidgetController->AbilitySystemComponent, CooldownTag);
+			WaitCooldownChangeTask->CooldownStart.AddDynamic(this, &UPlayerSkill::HandleCooldownTimer);
+		}
 	}
 }
 
 void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
 {
-	ProgressBar_Cooltime->SetPercent(FMath::FInterpConstantTo(1.f, 0.f, GetWorld()->GetDeltaSeconds(), TimeRemaining)); 
-	TextBlock_Cooltime->SetRenderOpacity(1.f);
+	if (ProgressBar_Cooltime)
+	{
+		ProgressBar_Cooltime->SetPercent(1.f);
+	}
+	if (TextBlock_Cooltime)
+	{
+		TextBlock_Cooltime->SetRenderOpacity(1.f); 
+	}
 
-	RemainedTime = TimeRemaining; 
+	CooldownDuration = CurrentRemainedTime = TimeRemaining; 
 
-	GetWorld()->GetTimerManager().SetTimer(CooldownTimerHandle, this, &UPlayerSkill::UpdateCooldownTimer, TimerFrequency, true); 
+	TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
+
+	GetWorld()->GetTimerManager().SetTimer(CooldownTimerHandle, this, &UPlayerSkill::UpdateCooldownTimer, GetWorld()->GetDeltaSeconds(), true);
 }
 
 void UPlayerSkill::UpdateCooldownTimer()
 {
-	RemainedTime -= TimerFrequency; 
-
-	if (RemainedTime <= 0.f && CooldownTimerHandle.IsValid())
+	if (CurrentRemainedTime <= 0.f && CooldownTimerHandle.IsValid())
 	{
+		TextBlock_Cooltime->SetRenderOpacity(0.f); 
 		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
 	}
-	TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(RemainedTime)));
+
+	CurrentRemainedTime -= GetWorld()->GetDeltaSeconds(); 
+
+	if (ProgressBar_Cooltime)
+	{
+		ProgressBar_Cooltime->SetPercent(CurrentRemainedTime / CooldownDuration);
+	}
+
+	if (TextBlock_Cooltime)
+	{
+		if (FMath::FloorToInt(CurrentRemainedTime + GetWorld()->GetDeltaSeconds()) != FMath::FloorToInt(CurrentRemainedTime))
+		{
+			TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
+		}
+	}
 }

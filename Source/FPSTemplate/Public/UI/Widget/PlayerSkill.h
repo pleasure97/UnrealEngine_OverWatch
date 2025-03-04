@@ -49,15 +49,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UWaitCooldownChange> WaitCooldownChangeTask; 
 
-
-	UFUNCTION()
-	void ReceiveAbilityInfo(const FOWAbilityInfo& Info); 
-
 	void SetWidgetInfo(const FOWAbilityInfo& WidgetInfo); 
 
-	void SetInputTag(const FGameplayTag& InInputTag); 
-
-	void BindToAbilityInfoDelegate(); 
+	void SetCooldownInfo(const FOWAbilityInfo& Info); 
 
 	UFUNCTION()
 	void HandleCooldownTimer(float TimeRemaining); 
@@ -65,15 +59,14 @@ public:
 	UFUNCTION()
 	void UpdateCooldownTimer(); 
 
-	float RemainedTime = 0.f; 
+	float CurrentRemainedTime = 0.f; 
 
-	float ElapsedTime = 0.f; 
+	float CooldownDuration = 0.f; 
 
 	float TimerFrequency = 1.f; 
 
 protected:
 	virtual void NativePreConstruct() override; 
-	virtual void NativeDestruct() override; 
 
 private:
 	FTimerHandle CooldownTimerHandle; 

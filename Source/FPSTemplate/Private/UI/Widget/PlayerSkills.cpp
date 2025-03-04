@@ -12,10 +12,12 @@ void UPlayerSkills::NativePreConstruct()
 {
 	Super::NativePreConstruct(); 
 
-	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_Skill_1, Border_LShift); 
-	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_Skill_2, Border_E); 
-	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_Skill_3, Border_F); 
-	TagsToBorders.Add(FOWGameplayTags::Get().InputTag_RMB, Border_RMB); 
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+
+	TagsToBorders.Add(GameplayTags.InputTag_Skill_1, Border_LShift); 
+	TagsToBorders.Add(GameplayTags.InputTag_Skill_2, Border_E); 
+	TagsToBorders.Add(GameplayTags.InputTag_Skill_3, Border_F);
+	TagsToBorders.Add(GameplayTags.InputTag_RMB, Border_RMB); 
 }
 
 void UPlayerSkills::NativeConstruct()
@@ -37,8 +39,14 @@ void UPlayerSkills::SetChildToBorder(const FOWAbilityInfo& Info)
 
 	UBorder* Border = TagsToBorders[Info.InputTag]; 
 	Border->SetVisibility(ESlateVisibility::Visible); 
-	UPlayerSkill* PlayerSkill = CreateWidget<UPlayerSkill>(this, PlayerSkillClass); 
-	PlayerSkill->SetWidgetController(WidgetController);
-	PlayerSkill->SetWidgetInfo(Info); 
+
+	UPlayerSkill* PlayerSkill = CreateWidget<UPlayerSkill>(this, PlayerSkillClass);
+	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	{
+		PlayerSkill->SetWidgetController(OverlayWidgetController);
+	}
+	PlayerSkill->SetWidgetInfo(Info);
+	PlayerSkill->SetCooldownInfo(Info); 
+
 	Border->AddChild(PlayerSkill); 
 }
