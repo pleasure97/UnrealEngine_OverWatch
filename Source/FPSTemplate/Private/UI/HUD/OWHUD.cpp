@@ -30,7 +30,6 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams); 
 
 	PlayerOverlay->SetWidgetController(WidgetController); 
-	// PlayerOverlay->SetChildWidgetControllers(); 
 
 	if (!bInitialized)
 	{
