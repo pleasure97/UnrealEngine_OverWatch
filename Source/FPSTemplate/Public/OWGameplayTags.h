@@ -80,6 +80,9 @@ public:
 	FGameplayTag Cost_Illiari_SolarRifle; 
 	FGameplayTag Cost_Illiari_HealingRay; 
 
+	/* Hit React */
+	FGameplayTag Abilities_HitReact;
+
 	/* Ability Status Types */
 	FGameplayTag Abilities_Status_Locked; 
 	FGameplayTag Abilities_Status_Eligible; 
@@ -87,7 +90,15 @@ public:
 	FGameplayTag Abilities_Status_Equipped; 
 
 	/* Debuff Types */
-	FGameplayTag Debuff_Stun; 
+	FGameplayTag Debuff_Chance; 
+	FGameplayTag Debuff_Damage; 
+	FGameplayTag Debuff_Duration; 
+	FGameplayTag Debuff_Frequency;
+
+	FGameplayTag Debuff_Stun;
+	FGameplayTag Debuff_Knockback;
+	FGameplayTag Debuff_Airborne;
+	FGameplayTag Debuff_ForcedMovement;
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

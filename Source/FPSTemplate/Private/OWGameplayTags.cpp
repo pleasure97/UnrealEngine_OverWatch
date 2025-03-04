@@ -211,6 +211,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Cost.Illiari.HealingRay"),
 		FString("Cost of HealingRay"));
 	
+	/* Hit React */
+	GameplayTags.Abilities_HitReact= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.HitReact"),
+		FString("Hit React Ability"));
+
 	/* Ability Status Types */
 	GameplayTags.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Eligible"),
@@ -229,9 +234,37 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Unlocked Status"));
 
 	/* Debuff Types */
+	GameplayTags.Debuff_Chance = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Chance"),
+		FString("Debuff Chance"));
+
+	GameplayTags.Debuff_Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Damage"),
+		FString("Debuff Damage"));
+
+	GameplayTags.Debuff_Frequency = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Frequency"),
+		FString("Debuff Frequency"));
+
+	GameplayTags.Debuff_Duration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Duration"),
+		FString("Debuff Duration"));
+
 	GameplayTags.Debuff_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Stun"),
 		FString("Debuff Stun"));
+
+	GameplayTags.Debuff_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Knockback"),
+		FString("Debuff Knockback"));
+
+	GameplayTags.Debuff_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Airborne"),
+		FString("Debuff Airborne"));
+
+	GameplayTags.Debuff_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.ForcedMovement"),
+		FString("Debuff ForcedMovement"));
 
 	/* Hero GameplayTags - Illiari */
 
