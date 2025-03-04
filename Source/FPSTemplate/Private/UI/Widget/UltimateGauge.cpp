@@ -34,7 +34,7 @@ void UUltimateGauge::NativeConstruct()
 
 	if (Image_UltimateGauge)
 	{
-		UMaterialInterface* Material = Cast<UMaterialInterface>(Image_UltimateGauge->Brush.GetResourceObject()); 
+		UMaterialInterface* Material = Cast<UMaterialInterface>(Image_UltimateGauge->GetBrush().GetResourceObject());
 		if (Material)
 		{
 			DynamicMaterialInstance = UMaterialInstanceDynamic::Create(Material, this); 
