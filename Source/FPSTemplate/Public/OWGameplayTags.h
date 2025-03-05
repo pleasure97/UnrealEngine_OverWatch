@@ -28,6 +28,18 @@ public:
 	FGameplayTag Attributes_Defense_TempShield;
 	FGameplayTag Attributes_Defense_OverHealth;
 
+	/* Secondary Attributes */
+	FGameplayTag Attributes_Secondary_CriticalHitDamage;
+	FGameplayTag Attributes_Secondary_ShieldRegeneration; 
+
+	/* Damage Attributes */
+	FGameplayTag Damage; 
+	FGameplayTag Damage_Physical; 
+	FGameplayTag Damage_Laser; 
+
+	/* Resistance Attributes */
+	FGameplayTag Attributes_Resistance_Laser; 
+
 	/* Input Attributes - Move */
 	FGameplayTag InputTag_Move_Forward;
 	FGameplayTag InputTag_Move_Left; 
@@ -58,12 +70,8 @@ public:
 	FGameplayTag Attributes_Skill_NumCurrentBullets; 
 	FGameplayTag Attributes_Skill_NumMaxBullets; 
 
-	/* Status Types */
-	FGameplayTag Status_Knockback; 
-	FGameplayTag Status_Stun; 
-	FGameplayTag Status_Airborne; 
-	FGameplayTag Status_HitReact; 
-	FGameplayTag Status_ForcedMovement; 
+	/* Meta Types */
+	FGameplayTag Attributes_Meta_IncomingXP;
 
 	/* Cooldown Types */
 	FGameplayTag Cooldown_Illiari_Outburst;

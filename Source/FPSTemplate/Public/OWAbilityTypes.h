@@ -20,7 +20,7 @@ struct FDamageEffectParams
 	TObjectPtr<UObject> WorldContextObject = nullptr; 
 
 	UPROPERTY(BlueprintReadWrite)
-	TSubclassOf<UGameplayEffect> DamageGamePlayEffectClass = nullptr; 
+	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr; 
 
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent; 

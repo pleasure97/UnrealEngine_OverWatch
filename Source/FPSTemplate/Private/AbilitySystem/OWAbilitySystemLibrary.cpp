@@ -311,7 +311,7 @@ FGameplayEffectContextHandle UOWAbilitySystemLibrary::ApplyDamageEffect(const FD
 	SetRadialDamageOrigin(EffectContextHandle, DamageEffectParams.RadialDamageOrigin); 
 
 	const FGameplayEffectSpecHandle SpecHandle = DamageEffectParams.SourceAbilitySystemComponent->MakeOutgoingSpec(
-		DamageEffectParams.DamageGamePlayEffectClass,
+		DamageEffectParams.DamageGameplayEffectClass,
 		DamageEffectParams.AbilityLevel,
 		EffectContextHandle); 
 

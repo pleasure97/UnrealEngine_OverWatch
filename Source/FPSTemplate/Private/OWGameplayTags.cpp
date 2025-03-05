@@ -46,7 +46,38 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Defense.OverHealth"),
 		FString("Over Health"));
 
+	/* Secondary Attributes */
+
+	GameplayTags.Attributes_Secondary_CriticalHitDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Secondary.CriticalHitDamage"),
+		FString("Critical Hit Damage"));
+
+	GameplayTags.Attributes_Secondary_ShieldRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Secondary.ShieldRegeneration"),
+		FString("Shield Regeneration"));
+
+	/* Damage Attributes */
+
+	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage"),
+		FString("Damage")); 
+
+	GameplayTags.Damage_Physical= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Physical"),
+		FString("Physical Damage"));
+
+	GameplayTags.Damage_Laser = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Laser"),
+		FString("Laser Damage"));
+
+	/* Resistance Attributes */
+
+	GameplayTags.Attributes_Resistance_Laser = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Resistance.Laser"),
+		FString("Resistance of Laser Damage"));
+
 	/* Skill Attributes */
+
 	GameplayTags.Attributes_Skill_SkillGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Skill.SkillGauge"),
 		FString("Skill Gauge"));
@@ -146,26 +177,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Skill.SkillGauge"),
 		FString("Skill Gauge")); 
 
-	/* Status Types */
-	GameplayTags.Status_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Status.Knockback"),
-		FString("Knockback"));
-
-	GameplayTags.Status_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Status.Stun"),
-		FString("Stun"));
-
-	GameplayTags.Status_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Status.Airborne"),
-		FString("Airborne"));
-
-	GameplayTags.Status_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Status.HitReact"),
-		FString("HitReact"));
-
-	GameplayTags.Status_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Status.ForcedMovement"),
-		FString("ForcedMovement"));
+	/* Meta Types */
+	GameplayTags.Attributes_Meta_IncomingXP = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Meta.IncomingXP"),
+		FString("Incoming XP")); 
 
 	/* Cooldown Types - Illiari */
 	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
