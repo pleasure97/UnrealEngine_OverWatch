@@ -8,6 +8,7 @@
 #include "Interfaces/CombatInterface.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystem/OWAbilitySystemLibrary.h"
 
 UOWAttributeSet::UOWAttributeSet()
 {
@@ -107,6 +108,10 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 	{
 		SetShield(FMath::Clamp(GetShield(), 0.f, GetMaxShield())); 
+	}
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		HandleIncomingDamage(EffectProperties); 
 	}
 }
 
@@ -248,5 +253,107 @@ void UOWAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 		EffectProperties.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get(); 
 		EffectProperties.TargetCharacter = Cast<ACharacter>(EffectProperties.TargetAvatarActor); 
 		EffectProperties.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(EffectProperties.TargetAvatarActor); 
+	}
+}
+
+void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProperties)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f); 
+
+	// Process Positive Incoming Damage 
+	if (LocalIncomingDamage > 0.f)
+	{
+		// Damage Shield, Armor, and Health in that order.
+		float RemainingDamage = LocalIncomingDamage; 
+		// Should Damage Shield
+		bool ShouldDamageShield = (GetShield() > 0.f) && (RemainingDamage > 0.f); 
+		if (ShouldDamageShield)
+		{
+			float ShieldDamage = FMath::Min(RemainingDamage, GetShield()); 
+			SetShield(GetShield() - ShieldDamage); 
+			RemainingDamage -= ShieldDamage; 
+		}
+		// Should Damage Armor
+		bool ShouldDamageArmor = (GetArmor() > 0.f) && (RemainingDamage > 0.f); 
+		if (ShouldDamageArmor)
+		{
+			// TODO - if Attack Type is Laser or Not,
+			// Using Effect Properties and Make OWAbilitySystemLibrary Getter Function 
+			if (RemainingDamage >= 10.f)
+			{
+				RemainingDamage -= 5.f; 
+			}
+			else
+			{
+				RemainingDamage /= 2.f; 
+			}
+			float ArmorDamage = FMath::Min(RemainingDamage, GetArmor()); 
+			SetArmor(GetArmor() - ArmorDamage); 
+			RemainingDamage -= ArmorDamage; 
+		}
+		// Should Damage Health 
+		bool ShouldDamageHealth = (GetHealth() > 0.f) && (RemainingDamage > 0.f); 
+		if (ShouldDamageHealth)
+		{
+			float NewHealth = GetHealth() - RemainingDamage; 
+			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth())); 
+		}
+
+		// Check if Actor related to Attribute Set is Fatal 
+		const bool bFatal = GetHealth() <= 0.f; 
+		if (bFatal)
+		{
+			ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor); 
+			if (CombatInterface)
+			{
+				CombatInterface->Die(UOWAbilitySystemLibrary::GetDeathImpulse(EffectProperties.EffectContextHandle));
+			}
+		}
+		else
+		{
+			// Try Activate Hit React Effect 
+			if (EffectProperties.TargetCharacter->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsBeingShocked(EffectProperties.TargetCharacter))
+			{
+				FGameplayTagContainer TagContainer; 
+				TagContainer.AddTag(FOWGameplayTags::Get().Effects_HitReact);
+				EffectProperties.TargetASC->TryActivateAbilitiesByTag(TagContainer); 
+			}
+			const FVector& KnockbackForce = UOWAbilitySystemLibrary::GetKnockbackForce(EffectProperties.EffectContextHandle); 
+			if (!KnockbackForce.IsNearlyZero(1.f))
+			{
+				EffectProperties.TargetCharacter->LaunchCharacter(KnockbackForce, true, true); 
+			}
+		}
+	}
+	// Process Negative Incoming Damage as Healing 
+	else if (LocalIncomingDamage < 0.f)
+	{
+		// Heal Health, Armor, and Shield in that order.
+		float HealAmount = -LocalIncomingDamage;
+		// Should Heal Health 
+		bool ShouldHealHealth = GetHealth() < GetMaxHealth();
+		if (ShouldHealHealth)
+		{
+			float HealthHeal = FMath::Min(HealAmount, GetMaxHealth() - GetHealth());
+			SetHealth(GetHealth() + HealthHeal);
+			HealAmount -= HealthHeal;
+		}
+		// Should Heal Armor
+		bool ShouldHealArmor = (GetMaxArmor() > 0.f) && (HealAmount > 0.f) && (GetHealth() >= GetMaxHealth()) && (GetMaxArmor() > GetArmor());
+		if (ShouldHealArmor)
+		{
+			float ArmorHeal = FMath::Min(HealAmount, GetMaxArmor() - GetArmor());
+			SetArmor(GetArmor() + ArmorHeal);
+			HealAmount -= ArmorHeal;
+		}
+		// Should Heal Shield
+		bool ShouldHealShield = (GetMaxShield() > 0.f) && (HealAmount > 0.f)
+			&& (GetHealth() >= GetMaxHealth()) && (GetArmor() >= GetMaxArmor()) && (GetMaxShield() >= GetShield());
+		if (ShouldHealShield)
+		{
+			float ShieldHeal = FMath::Min(HealAmount, GetMaxShield() - GetShield());
+			SetShield(GetShield() + ShieldHeal);
+		}
 	}
 }
