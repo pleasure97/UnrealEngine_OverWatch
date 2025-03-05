@@ -90,6 +90,7 @@ public:
 
 	/* Hit React */
 	FGameplayTag Abilities_HitReact;
+	FGameplayTag Effects_HitReact; 
 
 	/* Ability Status Types */
 	FGameplayTag Abilities_Status_Locked; 

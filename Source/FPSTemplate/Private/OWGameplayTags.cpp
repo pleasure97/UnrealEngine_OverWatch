@@ -231,6 +231,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.HitReact"),
 		FString("Hit React Ability"));
 
+	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.HitReact"),
+		FString("Hit React Effects"));
+
 	/* Ability Status Types */
 	GameplayTags.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Eligible"),
