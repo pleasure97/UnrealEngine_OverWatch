@@ -109,6 +109,25 @@ public:
 	FGameplayAttributeData OverHealth;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, OverHealth);
 
+	/* 
+	 * Secondary Attributes 
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitDamage, Category = "Secondary Attributes")
+	FGameplayAttributeData CriticalHitDamage; 
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, CriticalHitDamage); 
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ShieldRegeneration, Category = "Secondary Attributes")
+	FGameplayAttributeData ShieldRegeneration;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, ShieldRegeneration);
+
+	/* 
+	 * Resistance Attributes 
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LaserResistance, Category = "Resistance Attributes")
+	FGameplayAttributeData LaserResistance; 
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, LaserResistance); 
+
+
 	/*
 	 * Skill Attributes
 	 */
@@ -132,6 +151,18 @@ public:
 	FGameplayAttributeData NumMaxBullets;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumMaxBullets);
 
+	/* 
+	 * Meta Attributes 
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingDamage;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, IncomingDamage); 
+
+	UPROPERTY(BlueprintReadOnly, Category = "Meta Attributes")
+	FGameplayAttributeData IncomingXP;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, IncomingXP); 
+
+	/*------------------------------- Replicating Functions -------------------------------*/ 
 
 	/*
 	 * Defensive Attributes
@@ -162,6 +193,21 @@ public:
 
 	UFUNCTION()
 	void OnRep_OverHealth(const FGameplayAttributeData& OldOverHealth) const;
+
+	/* 
+	 * Secondary Attributes
+	 */
+	UFUNCTION()
+	void OnRep_CriticalHitDamage(const FGameplayAttributeData& OldCriticalHitDamage) const; 
+
+	UFUNCTION()
+	void OnRep_ShieldRegeneration(const FGameplayAttributeData& OldShieldRegeneration) const; 
+
+	/*
+	 * Resistance Attributes
+	 */
+	UFUNCTION()
+	void OnRep_LaserResistance(const FGameplayAttributeData& OldLaserResistance) const; 
 
 	/*
 	 * Skill Attributes

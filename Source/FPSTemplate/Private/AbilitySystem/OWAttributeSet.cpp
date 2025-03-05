@@ -24,6 +24,13 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute);
 
+	/* Secondary Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ShieldRegeneration, GetShieldRegenerationAttribute);
+
+	/* Resistance Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Laser, GetLaserResistanceAttribute); 
+
 	/* Skill Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_UltimateGauge, GetUltimateGaugeAttribute); 
@@ -46,7 +53,14 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempArmor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TempShield, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, OverHealth, COND_None, REPNOTIFY_Always);
-	
+
+	/* Secondary Attributes */
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, ShieldRegeneration, COND_None, REPNOTIFY_Always); 
+
+	/* Resistance Attributes */
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, LaserResistance, COND_None, REPNOTIFY_Always); 
+
 	/* Skill Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, UltimateGauge, COND_None, REPNOTIFY_Always); 
@@ -159,6 +173,21 @@ void UOWAttributeSet::OnRep_TempShield(const FGameplayAttributeData& OldTempShie
 void UOWAttributeSet::OnRep_OverHealth(const FGameplayAttributeData& OldOverHealth) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, OverHealth, OldOverHealth);
+}
+
+void UOWAttributeSet::OnRep_CriticalHitDamage(const FGameplayAttributeData& OldCriticalHitDamage) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, CriticalHitDamage, OldCriticalHitDamage);
+}
+
+void UOWAttributeSet::OnRep_ShieldRegeneration(const FGameplayAttributeData& OldShieldRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, ShieldRegeneration, OldShieldRegeneration);
+}
+
+void UOWAttributeSet::OnRep_LaserResistance(const FGameplayAttributeData& OldLaserResistance) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, LaserResistance, OldLaserResistance);
 }
 
 void UOWAttributeSet::OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const
