@@ -35,6 +35,8 @@ public:
 	virtual FOnDeath& GetOnDeathDelegate() override; 
 	virtual void Die(const FVector& DeathImpulse) override; 
 	virtual bool IsDead_Implementation() const override; 
+	virtual bool IsBeingShocked_Implementation() const override;
+	virtual void SetIsBeingShocked_Implementation(bool bInShock) override; 
 
 	FOnASCRegistered OnASCRegistered; 
 	FOnDeath OnDeath; 
@@ -80,6 +82,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float BaseWalkSpeed = 550.f; 
+
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsBeingShocked = false;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")

@@ -36,6 +36,7 @@ void AOWCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 
 	DOREPLIFETIME(AOWCharacterBase, bIsStunned);
+	DOREPLIFETIME(AOWCharacterBase, bIsBeingShocked); 
 }
 
 UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
@@ -62,6 +63,16 @@ void AOWCharacterBase::Die(const FVector& DeathImpulse)
 bool AOWCharacterBase::IsDead_Implementation() const
 {
 	return bDead; 
+}
+
+bool AOWCharacterBase::IsBeingShocked_Implementation() const
+{
+	return bIsBeingShocked; 
+}
+
+void AOWCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
+{
+	bIsBeingShocked = bInShock; 
 }
 
 void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)

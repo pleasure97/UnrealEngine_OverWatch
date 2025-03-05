@@ -43,4 +43,11 @@ public:
 	bool IsDead() const; 
 
 	virtual FOnDeath& GetOnDeathDelegate() = 0; 
+
+	/* Shocked */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsBeingShocked() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetIsBeingShocked(bool bInShock);
 };
