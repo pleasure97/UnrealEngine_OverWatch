@@ -2,7 +2,6 @@
 
 
 #include "AbilitySystem/Data/LevelUpInfo.h"
-#include "LevelUpInfo.h"
 
 int32 ULevelUpInfo::FindLevelForXP(int32 XP) const
 {
