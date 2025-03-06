@@ -74,6 +74,70 @@ void AOWCharacter::OnRep_PlayerState()
 	InitAbilityActorInfo(); 
 }
 
+int32 AOWCharacter::FindLevelForXP_Implementation(int32 InXP) const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState); 
+	return OWPlayerState->LevelUpInfo->FindLevelForXP(InXP); 
+}
+
+int32 AOWCharacter::GetXP_Implementation() const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	return OWPlayerState->GetXP(); 
+}
+
+void AOWCharacter::AddToXP_Implementation(int32 InXP)
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	OWPlayerState->AddToXP(InXP); 
+}
+
+void AOWCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	OWPlayerState->AddToLevel(InPlayerLevel); 
+
+	// TODO - Update Eligible Ability if Level is Valid 
+	/*if (UOWAbilitySystemComponent* OWAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponent())) */
+}
+
+void AOWCharacter::AddToAttributePoints_Implementation(int32 InAttributePoints)
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	OWPlayerState->AddToAttributePoints(InAttributePoints); 
+}
+
+int32 AOWCharacter::GetAttributePoints_Implementation() const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	return OWPlayerState->GetAttributePoints(); 
+}
+
+void AOWCharacter::AddToSpellPoints_Implementation(int32 InSpellPoints)
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	OWPlayerState->AddToSpellPoints(InSpellPoints); 
+}
+
+int32 AOWCharacter::GetSpellPoints_Implementation() const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	return OWPlayerState->GetSpellPoints(); 
+}
+
+void AOWCharacter::LevelUp_Implementation()
+{
+	MulticastLevelUp(); 
+}
+
 void AOWCharacter::InitAbilityActorInfo()
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>(); 
@@ -94,4 +158,9 @@ void AOWCharacter::InitAbilityActorInfo()
 			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
 		}
 	}
+}
+
+void AOWCharacter::MulticastLevelUp_Implementation() const
+{
+	// TODO - Activate Level Up Niagara Component
 }
