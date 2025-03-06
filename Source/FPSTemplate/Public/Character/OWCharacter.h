@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/OWCharacterBase.h"
-#include "Interfaces/PlayerInterface.h"
+#include "Interfaces/LevelUpInterface.h"
 #include "OWCharacter.generated.h"
 
 class USpringArmComponent; 
@@ -14,7 +14,7 @@ class UInputComponent;
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase, public IPlayerInterface
+class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase, public ILevelUpInterface 
 {
 	GENERATED_BODY()
 	
