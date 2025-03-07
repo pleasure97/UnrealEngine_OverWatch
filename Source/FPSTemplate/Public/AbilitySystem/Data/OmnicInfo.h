@@ -13,6 +13,7 @@ class UGameplayAbility;
 UENUM(BlueprintType)
 enum class EOmnicClass : uint8
 {
+	None,
 	Training, 
 	Sentry, 
 	Tank 

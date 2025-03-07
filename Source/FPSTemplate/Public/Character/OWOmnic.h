@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Character/OWCharacterBase.h"
-#include "OWEnemy.generated.h"
+#include "OWOmnic.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOWEnemy : public AOWCharacterBase
+class FPSTEMPLATE_API AOWOmnic : public AOWCharacterBase
 {
 	GENERATED_BODY()
 	
 public:
-	AOWEnemy(); 
+	AOWOmnic(); 
 	
 protected:
 	virtual void BeginPlay() override; 
