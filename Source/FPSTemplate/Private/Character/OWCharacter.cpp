@@ -88,6 +88,20 @@ int32 AOWCharacter::GetXP_Implementation() const
 	return OWPlayerState->GetXP(); 
 }
 
+int32 AOWCharacter::GetAttributePointsReward_Implementation(int32 Level) const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	return OWPlayerState->LevelUpInfo->LevelUpInformation[Level].AttributePointReward;
+}
+
+int32 AOWCharacter::GetSpellPointsReward_Implementation(int32 Level) const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	return OWPlayerState->LevelUpInfo->LevelUpInformation[Level].SpellPointReward;
+}
+
 void AOWCharacter::AddToXP_Implementation(int32 InXP)
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
@@ -136,6 +150,13 @@ int32 AOWCharacter::GetSpellPoints_Implementation() const
 void AOWCharacter::LevelUp_Implementation()
 {
 	MulticastLevelUp(); 
+}
+
+int32 AOWCharacter::GetCharacterLevel_Implementation() const
+{
+	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>();
+	check(OWPlayerState);
+	return OWPlayerState->GetPlayerLevel();
 }
 
 void AOWCharacter::InitAbilityActorInfo()

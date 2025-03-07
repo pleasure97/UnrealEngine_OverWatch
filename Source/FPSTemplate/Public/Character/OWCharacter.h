@@ -29,6 +29,8 @@ public:
 	/* LevelUp Interface */
 	virtual int32 FindLevelForXP_Implementation(int32 InXP) const override; 
 	virtual int32 GetXP_Implementation() const override; 
+	virtual int32 GetAttributePointsReward_Implementation(int32 Level) const override; 
+	virtual int32 GetSpellPointsReward_Implementation(int32 Level) const override; 
 	virtual void AddToXP_Implementation(int32 InXP) override; 
 	virtual void AddToPlayerLevel_Implementation(int32 InPlayerLevel) override; 
 	virtual void AddToAttributePoints_Implementation(int32 InAttributePoints) override; 
@@ -37,6 +39,10 @@ public:
 	virtual int32 GetSpellPoints_Implementation() const override; 
 	virtual void LevelUp_Implementation() override; 
 	/* End LevelUp Interface*/
+
+	/* Combat Interface */
+	virtual int32 GetCharacterLevel_Implementation() const override; 
+	/* End Combat Interface */
 private:
 	void InitAbilityActorInfo(); 
 

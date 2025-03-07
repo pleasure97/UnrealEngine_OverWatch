@@ -35,6 +35,10 @@ public:
 
 	/* Ability System */
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0; 
+
+	/* Character Defaults */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	int32 GetCharacterLevel() const;
 	
 	/* Death */
 	virtual void Die(const FVector& DeathImpulse) = 0; 
