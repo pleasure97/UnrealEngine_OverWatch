@@ -14,6 +14,20 @@ AOWOmnic::AOWOmnic()
 	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
 }
 
+int32 AOWOmnic::GetCharacterLevel_Implementation() const
+{
+	return Level; 
+}
+
+void AOWOmnic::Die(const FVector& DeathImpulse)
+{
+}
+
+EOmnicClass AOWOmnic::GetOmnicClass_Implementation()
+{
+	return OmnicClass;
+}
+
 void AOWOmnic::BeginPlay()
 {
 	Super::BeginPlay(); 

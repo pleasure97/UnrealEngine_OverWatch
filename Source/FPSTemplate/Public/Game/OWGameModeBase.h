@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Game/DS_MatchGameMode.h"
 #include "AbilitySystem/Data/HeroInfo.h"
+#include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWGameModeBase.generated.h"
 
 class AOWCharacter; 
@@ -23,6 +24,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
 	TMap<EHeroName, TSubclassOf<AOWCharacter>> HeroMap; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
+	TObjectPtr<UOmnicInfo> OmnicInfo;
 
 	virtual void BeginPlay() override; 
 
