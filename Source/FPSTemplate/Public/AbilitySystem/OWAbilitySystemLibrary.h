@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWAbilitySystemLibrary.generated.h"
 
 struct FWidgetControllerParams; 
@@ -46,6 +47,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static EHeroName GetHeroName(const UObject* WorldContextObject);
+
+	/*
+	 * Omnic Info Defaults
+	 */
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static UOmnicInfo* GetOmnicInfo(const UObject* WorldContextObject); 
 
 	/*
 	 * Effect Context Getter
@@ -125,6 +132,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayMechanics")
 	static FGameplayEffectContextHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams); 
 
+	static int32 GetXPRewardFromClassAndLevel(const UObject* WorldContextObject, EOmnicClass OmnicClass, int32 OmnicLevel); 
+
+	/*
+	 * Damage Effect Parameters 
+	 */
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|DamageEffect")
 	static void SetKnockbackDirection(UPARAM(ref)FDamageEffectParams& DamageEffectParams, FVector KnockbackDirection, float Magnitude = 0.f);
 

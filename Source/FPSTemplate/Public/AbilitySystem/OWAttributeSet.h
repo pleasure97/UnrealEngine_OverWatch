@@ -231,4 +231,6 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const; 
 
 	void HandleIncomingDamage(const FEffectProperties& EffectProperties);
+	void HandleIncomingXP(const FEffectProperties& EffectProperties);
+	void SendXPEvent(const FEffectProperties& EffectProperties);
 };

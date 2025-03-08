@@ -9,6 +9,8 @@
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "Interfaces/LevelUpInterface.h"
+#include "Interfaces/OmnicInterface.h"
 
 UOWAttributeSet::UOWAttributeSet()
 {
@@ -112,6 +114,10 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
 		HandleIncomingDamage(EffectProperties); 
+	}
+	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
+	{
+		HandleIncomingXP(EffectProperties); 
 	}
 }
 
@@ -309,6 +315,7 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			{
 				CombatInterface->Die(UOWAbilitySystemLibrary::GetDeathImpulse(EffectProperties.EffectContextHandle));
 			}
+			SendXPEvent(EffectProperties); 
 		}
 		else
 		{
@@ -355,5 +362,54 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			float ShieldHeal = FMath::Min(HealAmount, GetMaxShield() - GetShield());
 			SetShield(GetShield() + ShieldHeal);
 		}
+	}
+}
+
+void UOWAttributeSet::HandleIncomingXP(const FEffectProperties& EffectProperties)
+{
+	const float LocalIncomingXP = GetIncomingXP(); 
+	SetIncomingXP(0.f); 
+
+	// Source Character is the owner. 
+	if (EffectProperties.SourceCharacter->Implements<ULevelUpInterface>() && EffectProperties.SourceCharacter->Implements<UCombatInterface>())
+	{
+		const int32 CurrentLevel = ICombatInterface::Execute_GetCharacterLevel(EffectProperties.SourceCharacter); 
+		const int32 CurrentXP = ILevelUpInterface::Execute_GetXP(EffectProperties.SourceCharacter); 
+
+		const int32 NewLevel = ILevelUpInterface::Execute_FindLevelForXP(EffectProperties.SourceCharacter, CurrentXP + LocalIncomingXP); 
+		const int32 NumLevelUps = NewLevel - CurrentLevel; 
+		if (NumLevelUps > 0)
+		{
+			ILevelUpInterface::Execute_AddToPlayerLevel(EffectProperties.SourceCharacter, NumLevelUps); 
+
+			int32 AttributePointsReward = 0; 
+			int32 SpellPointsReward = 0;
+
+			for (int32 i = 0; i < NumLevelUps; ++i)
+			{
+				AttributePointsReward += ILevelUpInterface::Execute_GetAttributePointsReward(EffectProperties.SourceCharacter, CurrentLevel + i);
+				SpellPointsReward += ILevelUpInterface::Execute_GetSpellPointsReward(EffectProperties.SourceCharacter, CurrentLevel + i); 
+			}
+			ILevelUpInterface::Execute_AddToAttributePoints(EffectProperties.SourceCharacter, AttributePointsReward); 
+			ILevelUpInterface::Execute_AddToSpellPoints(EffectProperties.SourceCharacter, SpellPointsReward); 
+			ILevelUpInterface::Execute_LevelUp(EffectProperties.SourceCharacter); 
+		}
+		ILevelUpInterface::Execute_AddToXP(EffectProperties.SourceCharacter, LocalIncomingXP); 
+	}
+}
+
+void UOWAttributeSet::SendXPEvent(const FEffectProperties& EffectProperties)
+{
+	if (EffectProperties.TargetCharacter->Implements<UCombatInterface>() && EffectProperties.TargetCharacter->Implements<UOmnicInterface>())
+	{
+		const int32 TargetLevel = ICombatInterface::Execute_GetCharacterLevel(EffectProperties.TargetCharacter); 
+		const EOmnicClass TargetClass = IOmnicInterface::Execute_GetOmnicClass(EffectProperties.TargetCharacter); 
+		const int32 XPReward = UOWAbilitySystemLibrary::GetXPRewardFromClassAndLevel(EffectProperties.TargetCharacter, TargetClass, TargetLevel); 
+
+		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+		FGameplayEventData Payload; 
+		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP; 
+		Payload.EventMagnitude = XPReward; 
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(EffectProperties.SourceCharacter, GameplayTags.Attributes_Meta_IncomingXP, Payload); 	
 	}
 }

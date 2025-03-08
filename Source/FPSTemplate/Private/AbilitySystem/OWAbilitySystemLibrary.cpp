@@ -102,6 +102,17 @@ EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject
 	return OWPlayerState ? OWPlayerState->SelectedHeroName : EHeroName::None;
 }
 
+UOmnicInfo* UOWAbilitySystemLibrary::GetOmnicInfo(const UObject* WorldContextObject)
+{
+	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject)); 
+	if (OWGameMode == nullptr)
+	{
+		return nullptr; 
+	}
+
+	return OWGameMode->OmnicInfo;
+}
+
 /* Effect Context Getter */
 bool UOWAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
@@ -324,6 +335,19 @@ FGameplayEffectContextHandle UOWAbilitySystemLibrary::ApplyDamageEffect(const FD
 	DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data); 
 
 	return EffectContextHandle; 
+}
+
+int32 UOWAbilitySystemLibrary::GetXPRewardFromClassAndLevel(const UObject* WorldContextObject, EOmnicClass OmnicClass, int32 OmnicLevel)
+{
+	UOmnicInfo* OmnicInfo = GetOmnicInfo(WorldContextObject); 
+	if (!OmnicInfo)
+	{
+		return 0; 
+	}
+	const FOmnicClassDefaultInfo& Info = OmnicInfo->GetOmnicDefaultInfo(OmnicClass); 
+	const float XPReward = Info.XPReward.GetValueAtLevel(OmnicLevel); 
+
+	return static_cast<int32>(XPReward); 
 }
 
 void UOWAbilitySystemLibrary::SetKnockbackDirection(FDamageEffectParams& DamageEffectParams, FVector KnockbackDirection, float Magnitude)
