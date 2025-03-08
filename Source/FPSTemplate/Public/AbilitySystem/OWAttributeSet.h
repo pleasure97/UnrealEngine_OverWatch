@@ -233,4 +233,5 @@ private:
 	void HandleIncomingDamage(const FEffectProperties& EffectProperties);
 	void HandleIncomingXP(const FEffectProperties& EffectProperties);
 	void SendXPEvent(const FEffectProperties& EffectProperties);
+	void Debuff(const FEffectProperties& EffectProperties); 
 };

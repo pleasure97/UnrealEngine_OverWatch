@@ -36,7 +36,10 @@ public:
 	FGameplayTag Damage; 
 	FGameplayTag Damage_Physical; 
 	FGameplayTag Damage_Laser; 
-
+	FGameplayTag Damage_Stun; 
+	FGameplayTag Damage_Airborne; 
+	FGameplayTag Damage_ForcedMovement; 
+	
 	/* Resistance Attributes */
 	FGameplayTag Attributes_Resistance_Laser; 
 
@@ -105,9 +108,11 @@ public:
 	FGameplayTag Debuff_Frequency;
 
 	FGameplayTag Debuff_Stun;
-	FGameplayTag Debuff_Knockback;
 	FGameplayTag Debuff_Airborne;
 	FGameplayTag Debuff_ForcedMovement;
+
+	/* Map of Damage Types to Debuffs */
+	TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs; 
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

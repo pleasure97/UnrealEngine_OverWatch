@@ -70,6 +70,18 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Damage.Laser"),
 		FString("Laser Damage"));
 
+	GameplayTags.Damage_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Stun"),
+		FString("Stunned Damage"));
+
+	GameplayTags.Damage_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Airborne"),
+		FString("Airborne Damage"));
+
+	GameplayTags.Damage_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.ForcedMovement"),
+		FString("Forced Movement Damage"));
+
 	/* Resistance Attributes */
 
 	GameplayTags.Attributes_Resistance_Laser = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -273,10 +285,6 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Stun"),
 		FString("Debuff Stun"));
 
-	GameplayTags.Debuff_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Debuff.Knockback"),
-		FString("Debuff Knockback"));
-
 	GameplayTags.Debuff_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Airborne"),
 		FString("Debuff Airborne"));
@@ -284,6 +292,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Debuff_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.ForcedMovement"),
 		FString("Debuff ForcedMovement"));
+
+	/* Map of Damage Types to Debuffs */
+	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Stun, GameplayTags.Debuff_Stun); 
+	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Airborne, GameplayTags.Debuff_Airborne); 
+	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_ForcedMovement, GameplayTags.Debuff_ForcedMovement); 
 
 	/* Hero GameplayTags - Illiari */
 

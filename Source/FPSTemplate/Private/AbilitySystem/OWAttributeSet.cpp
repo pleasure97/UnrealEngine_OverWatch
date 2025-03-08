@@ -11,6 +11,7 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Interfaces/LevelUpInterface.h"
 #include "Interfaces/OmnicInterface.h"
+#include "OWAbilityTypes.h"
 
 UOWAttributeSet::UOWAttributeSet()
 {
@@ -411,5 +412,57 @@ void UOWAttributeSet::SendXPEvent(const FEffectProperties& EffectProperties)
 		Payload.EventTag = GameplayTags.Attributes_Meta_IncomingXP; 
 		Payload.EventMagnitude = XPReward; 
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(EffectProperties.SourceCharacter, GameplayTags.Attributes_Meta_IncomingXP, Payload); 	
+	}
+}
+
+void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
+{
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	FGameplayEffectContextHandle EffectContextHandle = EffectProperties.SourceASC->MakeEffectContext(); 
+	EffectContextHandle.AddSourceObject(EffectProperties.SourceCharacter); 
+
+	const FGameplayTag DamageType = UOWAbilitySystemLibrary::GetDamageType(EffectProperties.EffectContextHandle); 
+	const float DebuffDamage = UOWAbilitySystemLibrary::GetDebuffDamage(EffectProperties.EffectContextHandle); 
+	const float DebuffDuration = UOWAbilitySystemLibrary::GetDebuffDuration(EffectProperties.EffectContextHandle); 
+	const float DebuffFrequency = UOWAbilitySystemLibrary::GetDebuffFrequency(EffectProperties.EffectContextHandle); 
+
+	// Make Temporary GameplayEffect Object
+	FString DebuffName = FString::Printf(TEXT("DynamicDebuff_%s"), *DamageType.ToString()); 
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName)); 
+
+	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration; 
+	Effect->Period = DebuffFrequency; 
+	Effect->DurationMagnitude = FScalableFloat(DebuffDuration); 
+
+	const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType]; 
+	Effect->InheritableOwnedTagsContainer.AddTag(DebuffTag); 
+	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun) || DebuffTag.MatchesTagExact(GameplayTags.Debuff_ForcedMovement))
+	{
+		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_InputHeld);
+		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_InputPressed);
+		Effect->InheritableOwnedTagsContainer.AddTag(GameplayTags.Player_Block_InputReleased);
+	}
+	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource; 
+	Effect->StackLimitCount = 1; 
+
+	// Add new Modifier to Modifiers' Last Index
+	int32 Index = Effect->Modifiers.Num(); 
+	Effect->Modifiers.Add(FGameplayModifierInfo()); 
+	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index]; 
+
+	// Add Debuff Damage to Incoming Damage 
+	ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage); 
+	ModifierInfo.ModifierOp = EGameplayModOp::Additive; 
+	ModifierInfo.Attribute = GetIncomingDamageAttribute(); 
+
+	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContextHandle, 1.f))
+	{
+		// Cast to Custom Gameplay Effect Context
+		FOWGameplayEffectContext* OWGameplayEffectContext = static_cast<FOWGameplayEffectContext*>(MutableSpec->GetContext().Get()); 
+		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType)); 
+		// Set Damage Type of Custom Gameplay Effect Context 
+		OWGameplayEffectContext->SetDamageType(DebuffDamageType); 
+
+		EffectProperties.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec); 
 	}
 }
