@@ -75,6 +75,11 @@ void AOWCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
 	bIsBeingShocked = bInShock; 
 }
 
+USkeletalMeshComponent* AOWCharacterBase::GetWeapon_Implementation()
+{
+	return Weapon;
+}
+
 void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	Weapon->SetSimulatePhysics(true); 

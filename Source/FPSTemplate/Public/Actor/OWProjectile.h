@@ -26,6 +26,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true))
 	FDamageEffectParams DamageEffectParams; 
 
+	UNiagaraSystem* GetImpactEffect() const { return ImpactEffect; }
 
 protected:
 	virtual void BeginPlay() override;

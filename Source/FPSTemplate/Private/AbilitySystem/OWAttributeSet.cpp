@@ -90,6 +90,10 @@ void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxShield()); 
 	}
+	if (Attribute == GetNumCurrentBulletsAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetNumMaxBullets()); 
+	}
 }
 
 void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -112,6 +116,10 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetShieldAttribute())
 	{
 		SetShield(FMath::Clamp(GetShield(), 0.f, GetMaxShield())); 
+	}
+	if (Data.EvaluatedData.Attribute == GetNumCurrentBulletsAttribute())
+	{
+		SetNumCurrentBullets(FMath::Clamp(GetNumCurrentBullets(), 0.f, GetNumMaxBullets())); 
 	}
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{

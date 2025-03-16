@@ -37,6 +37,7 @@ public:
 	virtual bool IsDead_Implementation() const override; 
 	virtual bool IsBeingShocked_Implementation() const override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override; 
+	virtual USkeletalMeshComponent* GetWeapon_Implementation() override; 
 
 	FOnASCRegistered OnASCRegistered; 
 	FOnDeath OnDeath; 
