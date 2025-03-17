@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/Abilities/Support/Illiari/SolarRifle.h"
 #include "AbilitySystemGlobals.h"
-#include "Character/OWCharacterBase.h"
+#include "Interfaces/CombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Actor/OWProjectile.h"
@@ -23,23 +23,20 @@ void USolarRifle::ActivateAbility(
 	if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo)) return; 
 	
 	// To Hit Scan, Get Weapon's Muzzle Flash Socket Location 
-	AActor* AvatarActor = GetAvatarActorFromActorInfo(); 
-	if (!AvatarActor) return; 
+	if (GetAvatarActorFromActorInfo() && GetAvatarActorFromActorInfo()->Implements<UCombatInterface>())
+	{
+		const USkeletalMeshComponent* SolarRifle = ICombatInterface::Execute_GetWeapon(GetAvatarActorFromActorInfo());
+		const FTransform SocketTransform = SolarRifle->GetSocketTransform("MuzzleFlash");
 
-	AOWCharacterBase* OWCharacterBase = Cast<AOWCharacterBase>(AvatarActor);
-	if (!OWCharacterBase) return; 
-		
-	const USkeletalMeshComponent* SolarRifle = OWCharacterBase->GetWeapon(); 
-	const FTransform SocketTransform = SolarRifle->GetSocketTransform("MuzzleFlash"); 
-	
-	// Fire (Spawn Muzzle Flash, Solar Projectile, and Impact Effect if Hit)
-	HitScan(SocketTransform); 
-	
-	CommitAbilityCost(Handle, ActorInfo, ActivationInfo); 
+		// Fire (Spawn Muzzle Flash, Solar Projectile, and Impact Effect if Hit)
+		HitScan(SocketTransform);
 
-	CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
+		CommitAbilityCost(Handle, ActorInfo, ActivationInfo);
 
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false); 
+		CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
+
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	}
 }
 
 void USolarRifle::HitScan(const FTransform& SocketTransform)

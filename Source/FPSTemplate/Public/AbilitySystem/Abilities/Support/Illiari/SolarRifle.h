@@ -16,6 +16,16 @@ UCLASS()
 class FPSTEMPLATE_API USolarRifle : public UOWDamageGameplayAbility
 {
 	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UNiagaraSystem> MuzzleFlash;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AOWProjectile> SolarProjectileClass;
+
+	UPROPERTY(EditAnywhere)
+	float MaxDistance = 40000.f;
 	
 protected:
 	virtual void ActivateAbility(
@@ -26,14 +36,4 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Fire")
 	void HitScan(const FTransform& SocketTransform);
-	
-private:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UNiagaraSystem> MuzzleFlash; 
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<AOWProjectile> SolarProjectileClass; 
-
-	UPROPERTY(EditAnywhere)
-	float MaxDistance = 40000.f;
 };
