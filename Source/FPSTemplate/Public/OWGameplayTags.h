@@ -122,6 +122,8 @@ public:
 	FGameplayTag Abilities_Illiari_SolarRifle; 
 	FGameplayTag Abilities_Illiari_HealingRay; 
 
+	FGameplayTag GameplayCue_Illiari_HealingRay;
+
 	/* Hero GameplayTags - Reinhardt */
 	FGameplayTag Abilities_Reinhardt_Charge; 
 	FGameplayTag Abilities_Reinhardt_FireStrike;

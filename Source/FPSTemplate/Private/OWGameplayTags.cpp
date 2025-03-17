@@ -324,6 +324,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Illiari.HealingRay"),
 		FString("Illiari's HealingRay Ability"));
 
+	GameplayTags.GameplayCue_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.HealingRay"),
+		FString("Illiari's HealingRay GameplayCue"));
+
 	/* Hero GameplayTags - Reinhardt */
 	GameplayTags.Abilities_Reinhardt_Charge= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Reinhardt.Charge"),
