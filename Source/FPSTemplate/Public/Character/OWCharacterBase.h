@@ -40,7 +40,6 @@ public:
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override; 
 	virtual bool IsBeingHealed_Implementation() const override;
 	virtual void SetIsBeingHealed_Implementation(bool bInHeal) override; 
-	virtual void SetInHealLoop_Implementation(bool bInLoop) override; 
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override; 
 
 	FOnASCRegistered OnASCRegistered; 

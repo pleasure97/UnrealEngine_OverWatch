@@ -36,6 +36,10 @@ public:
 	FGameplayTag Damage; 
 	FGameplayTag Damage_Physical; 
 	FGameplayTag Damage_Laser; 
+	FGameplayTag Damage_Stun; 
+	FGameplayTag Damage_Knockback; 
+	FGameplayTag Damage_ForcedMovement; 
+
 	FGameplayTag Damage_Healing; 
 	
 	/* Resistance Attributes */
@@ -106,7 +110,7 @@ public:
 	FGameplayTag Debuff_Frequency;
 
 	FGameplayTag Debuff_Stun;
-	FGameplayTag Debuff_Airborne;
+	FGameplayTag Debuff_Knockback;
 	FGameplayTag Debuff_ForcedMovement;
 
 	/* Map of Damage Types to Debuffs */

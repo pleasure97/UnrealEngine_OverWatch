@@ -72,15 +72,19 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Damage_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Damage.Stun"),
-		FString("Stunned Damage"));
+		FString("Stun Damage"));
 
-	GameplayTags.Damage_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Damage.Airborne"),
-		FString("Airborne Damage"));
+	GameplayTags.Damage_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Knockback"),
+		FString("Knockback Damage"));
 
 	GameplayTags.Damage_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Damage.ForcedMovement"),
-		FString("Forced Movement Damage"));
+		FString("ForcedMovement Damage"));
+
+	GameplayTags.Damage_Healing = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Healing"),
+		FString("Healing is regarded as dealing Negative Damage."));
 
 	/* Resistance Attributes */
 
@@ -285,9 +289,9 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Stun"),
 		FString("Debuff Stun"));
 
-	GameplayTags.Debuff_Airborne = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Debuff.Airborne"),
-		FString("Debuff Airborne"));
+	GameplayTags.Debuff_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Knockback"),
+		FString("Debuff Knockback"));
 
 	GameplayTags.Debuff_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.ForcedMovement"),
@@ -295,7 +299,7 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	/* Map of Damage Types to Debuffs */
 	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Stun, GameplayTags.Debuff_Stun); 
-	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Airborne, GameplayTags.Debuff_Airborne); 
+	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Knockback, GameplayTags.Debuff_Knockback); 
 	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_ForcedMovement, GameplayTags.Debuff_ForcedMovement); 
 
 	/* Hero GameplayTags - Illiari */
@@ -327,6 +331,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.GameplayCue_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Illiari.HealingRay"),
 		FString("Illiari's HealingRay GameplayCue"));
+
+	GameplayTags.Event_Montage_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.HealingRay"),
+		FString("Illiari's Healing Ray Montage Event Tag"));
 
 	/* Hero GameplayTags - Reinhardt */
 	GameplayTags.Abilities_Reinhardt_Charge= UGameplayTagsManager::Get().AddNativeGameplayTag(
