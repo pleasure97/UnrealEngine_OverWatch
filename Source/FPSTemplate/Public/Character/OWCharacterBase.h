@@ -15,6 +15,7 @@ class UAnimMontage;
 class UGameplayAbility; 
 class UDebuffNiagaraComponent; 
 class UGameplayEffect; 
+class UHealthBarPoolWidgetComponent;
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -37,6 +38,9 @@ public:
 	virtual bool IsDead_Implementation() const override; 
 	virtual bool IsBeingShocked_Implementation() const override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override; 
+	virtual bool IsBeingHealed_Implementation() const override;
+	virtual void SetIsBeingHealed_Implementation(bool bInHeal) override; 
+	virtual void SetInHealLoop_Implementation(bool bInLoop) override; 
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override; 
 
 	FOnASCRegistered OnASCRegistered; 
@@ -86,6 +90,14 @@ protected:
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsBeingShocked = false;
+
+	/* State - Heal */
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsBeingHealed = false;
+
+	/* Widget Component */
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UHealthBarPoolWidgetComponent> HealthBarPoolWidgetComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")

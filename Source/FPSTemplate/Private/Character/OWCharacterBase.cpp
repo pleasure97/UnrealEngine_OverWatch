@@ -5,10 +5,12 @@
 #include "OWGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "AbilitySystem/OWAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UI/WidgetComponent/HealthBarPoolWidgetComponent.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
@@ -24,6 +26,9 @@ AOWCharacterBase::AOWCharacterBase()
 	StunDebuffComponent->SetupAttachment(GetRootComponent()); 
 	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
 
+	// Widget Component 
+	HealthBarPoolWidgetComponent = CreateDefaultSubobject<UHealthBarPoolWidgetComponent>("HealthBarPoolWidgetComponent");
+	HealthBarPoolWidgetComponent->SetupAttachment(GetRootComponent());
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
@@ -37,6 +42,7 @@ void AOWCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 	DOREPLIFETIME(AOWCharacterBase, bIsStunned);
 	DOREPLIFETIME(AOWCharacterBase, bIsBeingShocked); 
+	DOREPLIFETIME(AOWCharacterBase, bIsBeingHealed); 
 }
 
 UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
@@ -73,6 +79,16 @@ bool AOWCharacterBase::IsBeingShocked_Implementation() const
 void AOWCharacterBase::SetIsBeingShocked_Implementation(bool bInShock)
 {
 	bIsBeingShocked = bInShock; 
+}
+
+bool AOWCharacterBase::IsBeingHealed_Implementation() const
+{
+	return bIsBeingHealed; 
+}
+
+void AOWCharacterBase::SetIsBeingHealed_Implementation(bool bInHeal)
+{
+	bIsBeingHealed = bInHeal; 
 }
 
 USkeletalMeshComponent* AOWCharacterBase::GetWeapon_Implementation()

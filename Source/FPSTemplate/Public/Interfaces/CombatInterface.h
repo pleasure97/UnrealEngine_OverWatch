@@ -40,6 +40,13 @@ public:
 	/* Character Defaults */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int32 GetCharacterLevel() const;
+
+	/* Heal */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	bool IsBeingHealed() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetIsBeingHealed(bool bInHeal); 
 	
 	/* Death */
 	virtual void Die(const FVector& DeathImpulse) = 0; 
