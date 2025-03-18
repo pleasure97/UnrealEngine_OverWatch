@@ -36,9 +36,7 @@ public:
 	FGameplayTag Damage; 
 	FGameplayTag Damage_Physical; 
 	FGameplayTag Damage_Laser; 
-	FGameplayTag Damage_Stun; 
-	FGameplayTag Damage_Airborne; 
-	FGameplayTag Damage_ForcedMovement; 
+	FGameplayTag Damage_Healing; 
 	
 	/* Resistance Attributes */
 	FGameplayTag Attributes_Resistance_Laser; 
@@ -123,6 +121,8 @@ public:
 	FGameplayTag Abilities_Illiari_HealingRay; 
 
 	FGameplayTag GameplayCue_Illiari_HealingRay;
+
+	FGameplayTag Event_Montage_HealingRay; 
 
 	/* Hero GameplayTags - Reinhardt */
 	FGameplayTag Abilities_Reinhardt_Charge; 
