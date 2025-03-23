@@ -12,6 +12,8 @@
 #include "OWGameplayTags.h"
 #include "OWAbilityTypes.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Engine/OverlapResult.h"
+#include "Interfaces/CombatInterface.h"
 
 /* Widget Controller */
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
@@ -303,6 +305,29 @@ void UOWAbilitySystemLibrary::SetRadialDamageOrigin(FGameplayEffectContextHandle
 	if (FOWGameplayEffectContext* OWEffectContext = static_cast<FOWGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		OWEffectContext->SetRadialDamageOrigin(InRadialDamageOrigin); 
+	}
+}
+
+void UOWAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
+{
+	FCollisionQueryParams SphereParams; 
+	SphereParams.AddIgnoredActors(ActorsToIgnore); 
+
+	TArray<FOverlapResult> Overlaps; 
+	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		World->OverlapMultiByObjectType(Overlaps, 
+			SphereOrigin, 
+			FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), 
+			FCollisionShape::MakeSphere(Radius), 
+			SphereParams); 
+		for (FOverlapResult& Overlap : Overlaps)
+		{
+			if (Overlap.GetActor()->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsDead(Overlap.GetActor()))
+			{
+				OutOverlappingActors.AddUnique(ICombatInterface::Execute_GetAvatar(Overlap.GetActor())); 
+			}
+		}
 	}
 }
 

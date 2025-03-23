@@ -41,6 +41,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int32 GetCharacterLevel() const;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AActor* GetAvatar(); 
+
 	/* Heal */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool IsBeingHealed() const;

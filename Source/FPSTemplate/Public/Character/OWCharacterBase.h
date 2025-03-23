@@ -36,6 +36,7 @@ public:
 	virtual FOnDeath& GetOnDeathDelegate() override; 
 	virtual void Die(const FVector& DeathImpulse) override; 
 	virtual bool IsDead_Implementation() const override; 
+	virtual AActor* GetAvatar_Implementation() override; 
 	virtual bool IsBeingShocked_Implementation() const override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override; 
 	virtual bool IsBeingHealed_Implementation() const override;

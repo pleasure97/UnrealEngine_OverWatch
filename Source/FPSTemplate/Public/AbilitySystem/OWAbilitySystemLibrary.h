@@ -129,6 +129,11 @@ public:
 	/*
 	 * Gameplay Mechanics 
 	 */
+	UFUNCTION(BlueprintCallable, Category="OWAbilitySystemLibrary|GameplayMechanics")
+	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject,
+		TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,
+		float Radius, const FVector& SphereOrigin); 
+
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayMechanics")
 	static FGameplayEffectContextHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams); 
 

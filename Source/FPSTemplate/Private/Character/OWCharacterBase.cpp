@@ -71,6 +71,11 @@ bool AOWCharacterBase::IsDead_Implementation() const
 	return bDead; 
 }
 
+AActor* AOWCharacterBase::GetAvatar_Implementation()
+{
+	return this; 
+}
+
 bool AOWCharacterBase::IsBeingShocked_Implementation() const
 {
 	return bIsBeingShocked; 
