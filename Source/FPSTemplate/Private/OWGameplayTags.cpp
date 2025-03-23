@@ -332,6 +332,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Illiari.HealingRay"),
 		FString("Illiari's HealingRay GameplayCue"));
 
+	GameplayTags.GameplayCue_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.Outburst"),
+		FString("Illiari's Outburst GameplayCue"));
+
 	GameplayTags.Event_Montage_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.HealingRay"),
 		FString("Illiari's Healing Ray Montage Event Tag"));

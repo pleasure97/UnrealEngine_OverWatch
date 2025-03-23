@@ -125,6 +125,7 @@ public:
 	FGameplayTag Abilities_Illiari_HealingRay; 
 
 	FGameplayTag GameplayCue_Illiari_HealingRay;
+	FGameplayTag GameplayCue_Illiari_Outburst; 
 
 	FGameplayTag Event_Montage_HealingRay; 
 
