@@ -44,19 +44,19 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 
 FOnAttributeChangedSignature* UOverlayWidgetController::GetDelegateForTag(const FGameplayTag& Tag)
 {
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_Health) return &OnHealthChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_MaxHealth) return &OnMaxHealthChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_Armor) return &OnArmorChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_MaxArmor) return &OnMaxArmorChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_Shield) return &OnShieldChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_MaxShield) return &OnMaxShieldChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_TempArmor) return &OnTempArmorChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_TempShield) return &OnTempShieldChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Defense_OverHealth) return &OnOverHealthChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Skill_UltimateGauge) return &OnUltimateGaugeChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Skill_MaxUltimateGauge) return &OnMaxUltimateGaugeChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Skill_NumCurrentBullets) return &OnNumCurrentBulletsChanged;
-	if (Tag == FOWGameplayTags::Get().Attributes_Skill_NumMaxBullets) return &OnNumMaxBulletsChanged;
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+	if (Tag == GameplayTags.Attributes_Defense_Health) return &OnHealthChanged;
+	if (Tag == GameplayTags.Attributes_Defense_MaxHealth) return &OnMaxHealthChanged;
+	if (Tag == GameplayTags.Attributes_Defense_Armor) return &OnArmorChanged;
+	if (Tag == GameplayTags.Attributes_Defense_MaxArmor) return &OnMaxArmorChanged;
+	if (Tag == GameplayTags.Attributes_Defense_Shield) return &OnShieldChanged;
+	if (Tag == GameplayTags.Attributes_Defense_MaxShield) return &OnMaxShieldChanged;
+	if (Tag == GameplayTags.Attributes_Defense_TempArmor) return &OnTempArmorChanged;
+	if (Tag == GameplayTags.Attributes_Defense_TempShield) return &OnTempShieldChanged;
+	if (Tag == GameplayTags.Attributes_Skill_UltimateGauge) return &OnUltimateGaugeChanged;
+	if (Tag == GameplayTags.Attributes_Skill_MaxUltimateGauge) return &OnMaxUltimateGaugeChanged;
+	if (Tag == GameplayTags.Attributes_Skill_NumCurrentBullets) return &OnNumCurrentBulletsChanged;
+	if (Tag == GameplayTags.Attributes_Skill_NumMaxBullets) return &OnNumMaxBulletsChanged;
 
 	return nullptr; 
 }
@@ -73,7 +73,8 @@ void UOverlayWidgetController::BindAttributeChange(UAbilitySystemComponent* ASC,
 
 void UOverlayWidgetController::BroadcastHeroInfo() const
 {
-	EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
+	// EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
+	EHeroName HeroName = EHeroName::ILLIARI; 
 	const FOWHeroInfo& OWHeroInfo = HeroInfo->HeroInformation[HeroName]; 
 	for (const FOWAbilityInfo& OWAbilityInfo : OWHeroInfo.Abilities)
 	{

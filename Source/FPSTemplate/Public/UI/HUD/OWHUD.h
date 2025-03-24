@@ -6,7 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "OWHUD.generated.h"
 
-class UOWUserWidget; 
+class UPlayerOverlay; 
 class UOverlayWidgetController; 
 struct FWidgetControllerParams; 
 class UAbilitySystemComponent; 
@@ -22,7 +22,7 @@ class FPSTEMPLATE_API AOWHUD : public AHUD
 	
 public:
 	UPROPERTY()
-	TObjectPtr<UOWUserWidget> PlayerOverlay; 
+	TObjectPtr<UPlayerOverlay> PlayerOverlay; 
 
 	UOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams); 
 
@@ -30,7 +30,7 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<UOWUserWidget> OverlayWidgetClass; 
+	TSubclassOf<UPlayerOverlay> OverlayWidgetClass; 
 	
 	UPROPERTY()
 	TObjectPtr<UOverlayWidgetController> OverlayWidgetController; 
