@@ -5,12 +5,14 @@
 #include "OWGameplayTags.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
-#include "AbilitySystem/OWAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "UI/WidgetComponent/HealthBarPoolWidgetComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/Widget/HealthBarPool.h"
+#include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "Player/OWPlayerState.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
@@ -27,8 +29,10 @@ AOWCharacterBase::AOWCharacterBase()
 	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
 
 	// Widget Component 
-	HealthBarPoolWidgetComponent = CreateDefaultSubobject<UHealthBarPoolWidgetComponent>("HealthBarPoolWidgetComponent");
-	HealthBarPoolWidgetComponent->SetupAttachment(GetRootComponent());
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("WidgetComponent");
+	WidgetComponent->SetupAttachment(GetRootComponent());
+	WidgetComponent->SetOwnerNoSee(true);
+	WidgetComponent->SetIsReplicated(true); 
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
@@ -122,6 +126,42 @@ void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 void AOWCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//if (!IsLocallyControlled() || GetWorld()->GetNetMode() == NM_DedicatedServer)
+	//{
+	//	return;
+	//}
+
+	if (UHealthBarPool* HealthBarPool = Cast<UHealthBarPool>(WidgetComponent->GetUserWidgetObject()))
+	{
+		HealthBarPool->SetWidgetController(this); 
+		HealthBarPool->BindWidgetControllerEvents(); 
+	}
+}
+
+FOnAttributeChangedSignature* AOWCharacterBase::GetDelegateForTag(const FGameplayTag& Tag)
+{
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	if (Tag == GameplayTags.Attributes_Defense_Health) return &OnHealthChanged;
+	if (Tag == GameplayTags.Attributes_Defense_MaxHealth) return &OnMaxHealthChanged;
+	if (Tag == GameplayTags.Attributes_Defense_Armor) return &OnArmorChanged;
+	if (Tag == GameplayTags.Attributes_Defense_MaxArmor) return &OnMaxArmorChanged;
+	if (Tag == GameplayTags.Attributes_Defense_Shield) return &OnShieldChanged;
+	if (Tag == GameplayTags.Attributes_Defense_MaxShield) return &OnMaxShieldChanged;
+	if (Tag == GameplayTags.Attributes_Defense_TempArmor) return &OnTempArmorChanged;
+	if (Tag == GameplayTags.Attributes_Defense_TempShield) return &OnTempShieldChanged;
+
+	return nullptr;
+}
+
+void AOWCharacterBase::BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate)
+{
+	ASC->GetGameplayAttributeValueChangeDelegate(Attribute).AddLambda(
+		[&](const FOnAttributeChangeData& Data)
+		{
+			Delegate.Broadcast(Data.NewValue);
+		}
+	);
 }
 
 void AOWCharacterBase::AddHeroAbilities()

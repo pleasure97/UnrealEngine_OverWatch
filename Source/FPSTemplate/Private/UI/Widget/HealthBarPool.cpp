@@ -8,12 +8,20 @@
 #include "Components/HorizontalBoxSlot.h"
 #include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
+#include "Character/OWCharacterBase.h"
 
-void UHealthBarPool::NativePreConstruct()
+void UHealthBarPool::NativeConstruct()
 {
-	Super::NativePreConstruct(); 
+	Super::NativeConstruct();
 
-	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	InitializeHealthBarPoolInfos();
+
+	BindWidgetControllerEvents();
+}
+
+void UHealthBarPool::InitializeHealthBarPoolInfos()
+{
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Blue));
@@ -32,11 +40,12 @@ void UHealthBarPool::NativePreConstruct()
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
 }
 
-void UHealthBarPool::NativeConstruct()
+void UHealthBarPool::BindWidgetControllerEvents()
 {
-	Super::NativeConstruct();
-
-	check(WidgetController);
+	if (TagsToHealthBarInfos.IsEmpty() || HealthBarInfos.IsEmpty())
+	{
+		InitializeHealthBarPoolInfos(); 
+	}
 
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
@@ -45,12 +54,27 @@ void UHealthBarPool::NativeConstruct()
 		OverlayWidgetController->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
 		OverlayWidgetController->OnMaxArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxArmorBars);
 		OverlayWidgetController->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
-		OverlayWidgetController->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars); 
-		OverlayWidgetController->OnArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateArmorBars); 
-		OverlayWidgetController->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars); 
-		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars); 
-		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars); 
-		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars); 
+		OverlayWidgetController->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars);
+		OverlayWidgetController->OnArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateArmorBars);
+		OverlayWidgetController->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars);
+		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars);
+		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars);
+		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars);
+	}
+
+	if (AOWCharacterBase* OWCharacterBase = Cast<AOWCharacterBase>(WidgetController))
+	{
+		SetWidgetController(OWCharacterBase);
+
+		OWCharacterBase->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
+		OWCharacterBase->OnMaxArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxArmorBars);
+		OWCharacterBase->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
+		OWCharacterBase->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars);
+		OWCharacterBase->OnArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateArmorBars);
+		OWCharacterBase->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars);
+		OWCharacterBase->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars);
+		OWCharacterBase->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars);
+		OWCharacterBase->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars);
 	}
 }
 

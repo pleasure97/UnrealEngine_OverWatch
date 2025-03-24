@@ -11,6 +11,7 @@
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "OWGameplayTags.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "AbilitySystem/OWAttributeSet.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -56,6 +57,24 @@ void AOWCharacter::PossessedBy(AController* NewController)
 	AddHeroAbilities(); 
 
 	InitializeDefaultAttributes();
+
+	if (UOWAttributeSet* OWAttributeSet = Cast<UOWAttributeSet>(AttributeSet))
+	{
+		for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : OWAttributeSet->TagsToAttributes)
+		{
+			FOnAttributeChangedSignature* AttributeDelegate = GetDelegateForTag(Pair.Key);
+			BindAttributeChange(AbilitySystemComponent, Pair.Key, Pair.Value(), *AttributeDelegate);
+		}
+
+		OnMaxHealthChanged.Broadcast(OWAttributeSet->GetMaxHealth());
+		OnMaxArmorChanged.Broadcast(OWAttributeSet->GetMaxArmor());
+		OnMaxShieldChanged.Broadcast(OWAttributeSet->GetMaxShield());
+		OnHealthChanged.Broadcast(OWAttributeSet->GetHealth());
+		OnArmorChanged.Broadcast(OWAttributeSet->GetArmor());
+		OnShieldChanged.Broadcast(OWAttributeSet->GetShield());
+		OnTempArmorChanged.Broadcast(OWAttributeSet->GetTempArmor());
+		OnTempShieldChanged.Broadcast(OWAttributeSet->GetTempShield());
+	}
 }
 
 void AOWCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

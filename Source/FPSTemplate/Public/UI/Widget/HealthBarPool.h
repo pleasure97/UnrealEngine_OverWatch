@@ -107,9 +107,12 @@ public:
 
 	UPROPERTY()
 	TArray<FHealthBarPoolInfo> HealthBarInfos; 
+
+	UFUNCTION()
+	void BindWidgetControllerEvents();
 protected:
-	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
+	void InitializeHealthBarPoolInfos();
 
 private:
 	/* Update Attributes */

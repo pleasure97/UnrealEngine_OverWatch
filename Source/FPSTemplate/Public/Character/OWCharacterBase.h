@@ -7,6 +7,7 @@
 #include "AbilitySystemInterface.h"
 #include "Interfaces/CombatInterface.h"
 #include "GameplayTagContainer.h"
+#include "UI/WidgetController/OverlayWidgetController.h"
 #include "OWCharacterBase.generated.h"
 
 class UAbilitySystemComponent;
@@ -15,7 +16,7 @@ class UAnimMontage;
 class UGameplayAbility; 
 class UDebuffNiagaraComponent; 
 class UGameplayEffect; 
-class UHealthBarPoolWidgetComponent;
+class UWidgetComponent;
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
@@ -26,7 +27,6 @@ public:
 	AOWCharacterBase();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
-	UAttributeSet* GetAttributeSet() const { return AttributeSet;  }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; 
 
@@ -46,6 +46,39 @@ public:
 	FOnASCRegistered OnASCRegistered; 
 	FOnDeath OnDeath; 
 	/** Combat Interface End **/
+
+	/** Attribute Value Changed Delegate **/
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxHealthChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxArmorChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxShieldChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnArmorChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnShieldChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnTempArmorChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnTempShieldChanged;
+	
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnOverHealthChanged;
+
+	FOnAttributeChangedSignature* GetDelegateForTag(const FGameplayTag& Tag); 
+
+	void BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate);
+	/** Attribute Value Changed Delegate End **/
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse); 
@@ -97,7 +130,7 @@ protected:
 
 	/* Widget Component */
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UHealthBarPoolWidgetComponent> HealthBarPoolWidgetComponent;
+	TObjectPtr<UWidgetComponent> WidgetComponent;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
