@@ -62,29 +62,30 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Damage"),
 		FString("Damage")); 
 
-	GameplayTags.Damage_Physical= UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Damage.Physical"),
-		FString("Physical Damage"));
+	GameplayTags.Damage_HitScan = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.HitScan"),
+		FString("HitScan Damage"));
+
+	GameplayTags.Damage_Projectile = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Projectile"),
+		FString("Projectile Damage"));
 
 	GameplayTags.Damage_Laser = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Damage.Laser"),
 		FString("Laser Damage"));
 
-	GameplayTags.Damage_Stun = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Damage.Stun"),
-		FString("Stun Damage"));
-
-	GameplayTags.Damage_Knockback = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Damage.Knockback"),
-		FString("Knockback Damage"));
-
-	GameplayTags.Damage_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Damage.ForcedMovement"),
-		FString("ForcedMovement Damage"));
+	GameplayTags.Damage_MeleeAttack = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.MeleeAttack"),
+		FString("Melee Attack Damage"));
 
 	GameplayTags.Damage_Healing = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Damage.Healing"),
 		FString("Healing is regarded as dealing Negative Damage."));
+
+	GameplayTags.DamageTypes.Add(GameplayTags.Damage_HitScan);
+	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Projectile);
+	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Laser);
+	GameplayTags.DamageTypes.Add(GameplayTags.Damage_MeleeAttack);
 
 	/* Resistance Attributes */
 
@@ -297,10 +298,9 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.ForcedMovement"),
 		FString("Debuff ForcedMovement"));
 
-	/* Map of Damage Types to Debuffs */
-	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Stun, GameplayTags.Debuff_Stun); 
-	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_Knockback, GameplayTags.Debuff_Knockback); 
-	GameplayTags.DamageTypesToDebuffs.Add(GameplayTags.Damage_ForcedMovement, GameplayTags.Debuff_ForcedMovement); 
+	GameplayTags.Debuff_Laceration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Laceration"),
+		FString("Debuff Laceration"));
 
 	/* Hero GameplayTags - Illiari */
 
