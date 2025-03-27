@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Actor/CaptiveSunProjectile.h"
+#include "OWGameplayTags.h"
 
 void UCaptiveSun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
@@ -89,8 +90,7 @@ void UCaptiveSun::SpawnCaptiveSun()
 
 		CaptiveSunProjectile->SetActorEnableCollision(false);
 		CaptiveSunProjectile->AttachToComponent(SolarRifle, FAttachmentTransformRules::KeepRelativeTransform, FName("BeamSocket")); 
-		CaptiveSunProjectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults(); 
-
+		CaptiveSunProjectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults(nullptr, FOWGameplayTags::Get().Debuff_Laceration);
 		CaptiveSunProjectile->FinishSpawning(SpawnTransform);
 	}
 }

@@ -161,6 +161,15 @@ float UOWAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHa
 	return 0.0f;
 }
 
+FGameplayTag UOWAbilitySystemLibrary::GetDebuffTag(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FOWGameplayEffectContext* OWEffectContext = static_cast<const FOWGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return *OWEffectContext->GetDebuffTag(); 
+	}
+	return FGameplayTag();
+}
+
 FGameplayTag UOWAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FOWGameplayEffectContext* OWEffectContext = static_cast<const FOWGameplayEffectContext*>(EffectContextHandle.Get()))

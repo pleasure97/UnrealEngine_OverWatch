@@ -7,6 +7,26 @@
 #include "OWAbilityTypes.h"
 #include "OWDamageGameplayAbility.generated.h"
 
+USTRUCT(BlueprintType)
+struct FDebuffInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Debuff")
+	FGameplayTag DebuffTag; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
+	float DebuffChance; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
+	float DebuffDamage; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
+	float DebuffDuration; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
+	float DebuffFrequency; 
+};
 /**
  * 
  */
@@ -22,6 +42,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(
 		AActor* TargetActor = nullptr,
+		FGameplayTag InDebuffTag = FGameplayTag(), 
 		FVector InRadialDamageOrigin = FVector::ZeroVector,
 		bool bOverrideKnockbackForce = false,
 		FVector KnockbackDirectionOverride = FVector::ZeroVector,
@@ -44,16 +65,7 @@ protected:
 	FScalableFloat Damage; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffChance = 0.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffDamage = 5.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffFrequency = 1.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Damage")
-	float DebuffDuration = 5.f;
+	TArray<FDebuffInfo> DebuffInfos; 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Damage")
 	float DeathImpulseMagnitude = 1000.f;

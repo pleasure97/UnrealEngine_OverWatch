@@ -73,6 +73,9 @@ public:
 	static float GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle); 
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayEffects")
+	static FGameplayTag GetDebuffTag(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayEffects")
 	static FGameplayTag GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle); 
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayEffects")

@@ -93,7 +93,8 @@ void UOutBurst::TraceEnemies(TArray<AActor*>& TargetEnemies)
 void UOutBurst::DamageAndKnockback(AActor* TargetActor)
 {
 	const FVector& RadiusOrigin = GetAvatarActorFromActorInfo()->GetActorLocation();
-	FDamageEffectParams DamageEffectParams = MakeDamageEffectParamsFromClassDefaults(TargetActor, RadiusOrigin,
+	FDamageEffectParams DamageEffectParams = MakeDamageEffectParamsFromClassDefaults(
+		TargetActor, FOWGameplayTags::Get().Debuff_Knockback, RadiusOrigin,
 		true, TargetActor->GetActorLocation() - RadiusOrigin, 
 		true, TargetActor->GetActorLocation() - RadiusOrigin, 
 		true, 20.f); 

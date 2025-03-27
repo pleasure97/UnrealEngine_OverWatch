@@ -18,6 +18,7 @@ void UOWDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 
 FDamageEffectParams UOWDamageGameplayAbility::MakeDamageEffectParamsFromClassDefaults(
 	AActor* TargetActor, 
+	FGameplayTag InDebuffTag,
 	FVector InRadialDamageOrigin,
 	bool bOverrideKnockbackForce, 
 	FVector KnockbackDirectionOverride,
@@ -34,10 +35,17 @@ FDamageEffectParams UOWDamageGameplayAbility::MakeDamageEffectParamsFromClassDef
 	Params.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor); 
 	Params.BaseDamage = Damage.GetValueAtLevel(GetAbilityLevel()); 
 	Params.DamageType = DamageType;
-	Params.DebuffChance = DebuffChance; 
-	Params.DebuffDamage = DebuffDamage; 
-	Params.DebuffDuration = DebuffDuration; 
-	Params.DebuffFrequency = DebuffFrequency; 
+	for (const FDebuffInfo& DebuffInfo : DebuffInfos)
+	{
+		if (DebuffInfo.DebuffTag == InDebuffTag)
+		{
+			Params.DebuffTag = DebuffInfo.DebuffTag; 
+			Params.DebuffChance = DebuffInfo.DebuffChance;
+			Params.DebuffDamage = DebuffInfo.DebuffDamage;
+			Params.DebuffDuration = DebuffInfo.DebuffDuration;
+			Params.DebuffFrequency = DebuffInfo.DebuffFrequency;
+		}
+	}
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude; 
 	Params.KnockbackForceMagnitude = KnockbackForceMagnitude; 
 	

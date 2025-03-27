@@ -342,6 +342,13 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 				EffectProperties.TargetCharacter->LaunchCharacter(KnockbackForce, true, true); 
 			}
 		}
+
+		const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle); 
+
+		if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
+		{
+			Debuff(EffectProperties); 
+		}
 	}
 	// Process Negative Incoming Damage as Healing 
 	else if (LocalIncomingDamage < 0.f)
@@ -431,6 +438,7 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 	EffectContextHandle.AddSourceObject(EffectProperties.SourceCharacter); 
 
 	const FGameplayTag DamageType = UOWAbilitySystemLibrary::GetDamageType(EffectProperties.EffectContextHandle); 
+	const FGameplayTag DebuffTag = UOWAbilitySystemLibrary::GetDebuffTag(EffectProperties.EffectContextHandle); 
 	const float DebuffDamage = UOWAbilitySystemLibrary::GetDebuffDamage(EffectProperties.EffectContextHandle); 
 	const float DebuffDuration = UOWAbilitySystemLibrary::GetDebuffDuration(EffectProperties.EffectContextHandle); 
 	const float DebuffFrequency = UOWAbilitySystemLibrary::GetDebuffFrequency(EffectProperties.EffectContextHandle); 
@@ -442,8 +450,6 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration; 
 	Effect->Period = DebuffFrequency; 
 	Effect->DurationMagnitude = FScalableFloat(DebuffDuration); 
-
-	const FGameplayTag DebuffTag = GameplayTags.DamageTypesToDebuffs[DamageType]; 
 	
 	FInheritedTagContainer TagContainer = FInheritedTagContainer(); 
 	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>(); 

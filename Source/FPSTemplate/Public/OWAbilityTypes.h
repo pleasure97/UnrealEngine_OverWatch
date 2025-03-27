@@ -38,6 +38,9 @@ struct FDamageEffectParams
 	FGameplayTag DamageType = FGameplayTag(); 
 
 	UPROPERTY(BlueprintReadWrite)
+	FGameplayTag DebuffTag = FGameplayTag();
+
+	UPROPERTY(BlueprintReadWrite)
 	float DebuffChance = 0.f;
 
 	UPROPERTY(BlueprintReadWrite)
@@ -84,6 +87,7 @@ public:
 	float GetDebuffDamage() const { return DebuffDamage; }
 	float GetDebuffDuration() const { return DebuffDuration; }
 	float GetDebuffFrequency() const { return DebuffFrequency; }
+	TSharedPtr<FGameplayTag> GetDebuffTag() const { return DebuffTag; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
 	FVector GetKnockbackForce() const { return KnockbackForce; }
@@ -141,6 +145,8 @@ protected:
 
 	UPROPERTY()
 	float DebuffFrequency = 0.f;
+
+	TSharedPtr<FGameplayTag> DebuffTag; 
 	
 	TSharedPtr<FGameplayTag> DamageType; 
 

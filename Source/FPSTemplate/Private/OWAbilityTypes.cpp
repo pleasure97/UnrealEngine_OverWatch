@@ -57,34 +57,38 @@ bool FOWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
         {
             RepBits |= 1 << 11;
         }
-        if (DamageType.IsValid())
+        if (DebuffTag.IsValid())
         {
             RepBits |= 1 << 12; 
         }
-        if (!DeathImpulse.IsZero())
+        if (DamageType.IsValid())
         {
             RepBits |= 1 << 13; 
         }
-        if (!KnockbackForce.IsZero())
+        if (!DeathImpulse.IsZero())
         {
             RepBits |= 1 << 14; 
         }
-        if (bIsRadialDamage)
+        if (!KnockbackForce.IsZero())
         {
             RepBits |= 1 << 15; 
+        }
+        if (bIsRadialDamage)
+        {
+            RepBits |= 1 << 16; 
 
             if (RadialDamageRadius > 0.f)
             {
-                RepBits |= 1 << 16; 
+                RepBits |= 1 << 17; 
             }
             if (!RadialDamageOrigin.IsZero())
             {
-                RepBits |= 1 << 17; 
+                RepBits |= 1 << 18; 
             }
         }
     }
 
-    Ar.SerializeBits(&RepBits, 17); 
+    Ar.SerializeBits(&RepBits, 18); 
 
     if (RepBits & (1 << 0))
     {
@@ -150,30 +154,41 @@ bool FOWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
     {
         if (Ar.IsLoading())
         {
-            if (!DamageType.IsValid())
+            if (!DebuffTag.IsValid())
             {
-                DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag()); 
+                DebuffTag = TSharedPtr<FGameplayTag>(new FGameplayTag()); 
             }
-            DamageType->NetSerialize(Ar, Map, bOutSuccess); 
+            DebuffTag->NetSerialize(Ar, Map, bOutSuccess); 
         }
     }
     if (RepBits & (1 << 13))
     {
-        DeathImpulse.NetSerialize(Ar, Map, bOutSuccess); 
+        if (Ar.IsLoading())
+        {
+            if (!DamageType.IsValid())
+            {
+                DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag());
+            }
+            DamageType->NetSerialize(Ar, Map, bOutSuccess);
+        }
     }
     if (RepBits & (1 << 14))
     {
-        KnockbackForce.NetSerialize(Ar, Map, bOutSuccess); 
+        DeathImpulse.NetSerialize(Ar, Map, bOutSuccess); 
     }
     if (RepBits & (1 << 15))
     {
+        KnockbackForce.NetSerialize(Ar, Map, bOutSuccess); 
+    }
+    if (RepBits & (1 << 16))
+    {
         Ar << bIsRadialDamage; 
 
-        if (RepBits & (1 << 16))
+        if (RepBits & (1 << 17))
         {
             Ar << RadialDamageRadius; 
         }
-        if (RepBits & (1 << 17))
+        if (RepBits & (1 << 18))
         {
             RadialDamageOrigin.NetSerialize(Ar, Map, bOutSuccess); 
         }
