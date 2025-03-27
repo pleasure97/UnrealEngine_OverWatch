@@ -30,9 +30,12 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; 
 
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override; 
+
 	/** Combat Interface **/
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; 
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override; 
+	virtual FOnDamageSignature& GetOnDamageSignature() override; 
 	virtual FOnDeath& GetOnDeathDelegate() override; 
 	virtual void Die(const FVector& DeathImpulse) override; 
 	virtual bool IsDead_Implementation() const override; 
@@ -44,6 +47,7 @@ public:
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override; 
 
 	FOnASCRegistered OnASCRegistered; 
+	FOnDamageSignature OnDamage; 
 	FOnDeath OnDeath; 
 	/** Combat Interface End **/
 

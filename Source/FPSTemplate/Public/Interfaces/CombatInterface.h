@@ -12,6 +12,7 @@ class USkeletalMeshComponent;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor); 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDamageSignature, float /*Damage Amount*/);
 
 
 // This class does not need to be modified.
@@ -43,6 +44,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	AActor* GetAvatar(); 
+
+	/* Damage */
+	virtual FOnDamageSignature& GetOnDamageSignature() = 0; 
 
 	/* Heal */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)

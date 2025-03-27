@@ -49,6 +49,14 @@ void AOWCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME(AOWCharacterBase, bIsBeingHealed); 
 }
 
+float AOWCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageTaken = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser); 
+	OnDamage.Broadcast(DamageTaken); 
+
+	return DamageTaken;
+}
+
 UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
 {
 	return HitReactMontage; 
@@ -57,6 +65,11 @@ UAnimMontage* AOWCharacterBase::GetHitReactMontage_Implementation()
 FOnASCRegistered& AOWCharacterBase::GetOnASCRegisteredDelegate()
 {
 	return OnASCRegistered; 
+}
+
+FOnDamageSignature& AOWCharacterBase::GetOnDamageSignature()
+{
+	return OnDamage; 
 }
 
 FOnDeath& AOWCharacterBase::GetOnDeathDelegate()
