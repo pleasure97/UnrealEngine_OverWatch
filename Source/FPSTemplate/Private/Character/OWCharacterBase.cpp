@@ -33,6 +33,9 @@ AOWCharacterBase::AOWCharacterBase()
 	WidgetComponent->SetupAttachment(GetRootComponent());
 	WidgetComponent->SetOwnerNoSee(true);
 	WidgetComponent->SetIsReplicated(true); 
+
+	// Post Process - Wall Scan Effect
+	GetMesh()->SetRenderCustomDepth(true); 
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
