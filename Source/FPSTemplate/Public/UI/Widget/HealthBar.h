@@ -34,8 +34,9 @@ public:
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& NewPercentValue); 
 
 	UFUNCTION()
-	void PlayProgressZeroAnimation();
-
-	UFUNCTION()
 	void OnProgressZeroAnimationFinished(); 
+
+protected:
+	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
 };

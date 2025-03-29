@@ -7,17 +7,40 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 
+void UHealthBar::NativeConstruct()
+{
+    Super::NativeConstruct(); 
+
+    if (ProgressZeroAnimation)
+    {
+        FWidgetAnimationDynamicEvent AnimationFinishedEvent;
+        AnimationFinishedEvent.BindUFunction(this, FName("OnProgressZeroAnimationFinished"));
+        BindToAnimationFinished(ProgressZeroAnimation, AnimationFinishedEvent);
+    }
+}
+
+void UHealthBar::NativeDestruct()
+{
+    if (ProgressZeroAnimation)
+    {
+        UnbindAllFromAnimationFinished(ProgressZeroAnimation); 
+    }
+
+    Super::NativeDestruct(); 
+}
+
 void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& NewPercentValue)
 {
     if (CurrentPercentValue > 0.f && NewPercentValue == 0.f)
     {
-        FProgressBarStyle Style = ProgressBar->WidgetStyle;
+        FProgressBarStyle Style = ProgressBar->GetWidgetStyle();
         // Set Background Tint Color to Red 
         Style.BackgroundImage.TintColor = FSlateColor(FLinearColor::Red); 
         ProgressBar->SetWidgetStyle(Style);
-        PlayProgressZeroAnimation();
-        CurrentPercentValue = NewPercentValue;
-        return;
+        if (ProgressZeroAnimation && !IsAnimationPlaying(ProgressZeroAnimation))
+        {
+            PlayAnimation(ProgressZeroAnimation); 
+        }
     }
 
     if (ProgressBar)
@@ -26,17 +49,6 @@ void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& N
         ProgressBar->SetFillColorAndOpacity(FillColor); 
         ProgressBar->SetPercent(NewPercentValue);
     }
-}
-
-void UHealthBar::PlayProgressZeroAnimation()
-{
-	if (ProgressZeroAnimation)
-	{
-		PlayAnimation(ProgressZeroAnimation); 
-        FWidgetAnimationDynamicEvent WidgetAnimationDynamicEvent; 
-        WidgetAnimationDynamicEvent.BindUFunction(this, FName("OnProgressZeroAnimationFinished")); 
-        BindToAnimationFinished(ProgressZeroAnimation, WidgetAnimationDynamicEvent); 
-	}
 }
 
 void UHealthBar::OnProgressZeroAnimationFinished()
@@ -49,4 +61,3 @@ void UHealthBar::OnProgressZeroAnimationFinished()
         ProgressBar->SetWidgetStyle(Style);
     }
 }
-
