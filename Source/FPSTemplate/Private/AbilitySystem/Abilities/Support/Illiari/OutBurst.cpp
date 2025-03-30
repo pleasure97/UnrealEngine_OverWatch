@@ -15,6 +15,8 @@ void UOutBurst::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData); 
 
+	if (bActivate) return; 
+
 	// Play Montage and Wait 
 	if (OutburstMontage)
 	{
@@ -26,7 +28,10 @@ void UOutBurst::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const F
 	if (WaitInputReleaseTask)
 	{
 		WaitInputReleaseTask->OnRelease.AddDynamic(this, &UOutBurst::OnInputRelease); 
+		WaitInputReleaseTask->Activate(); 
 	}
+
+	bActivate = true;
 }
 
 void UOutBurst::PrepareToEndAbility()
@@ -34,6 +39,8 @@ void UOutBurst::PrepareToEndAbility()
 	CommitAbilityCooldown(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, false);
 
 	EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+
+	bActivate = false; 
 }
 
 void UOutBurst::OnInputRelease(float TimeHeld)
@@ -57,7 +64,7 @@ void UOutBurst::Soar(float TimeHeld)
 	if (!GetAvatarActorFromActorInfo()->HasAuthority()) return; 
 
 	// Clamp TimeHeld from 0 to max. 
-	float HeldTime =  UKismetMathLibrary::Clamp(TimeHeld, 0.f, MaxHeldTime); 
+	float HeldTime =  FMath::Clamp(TimeHeld, 0.f, MaxHeldTime); 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetAvatarActorFromActorInfo()); 
 
 	// Launch Character 

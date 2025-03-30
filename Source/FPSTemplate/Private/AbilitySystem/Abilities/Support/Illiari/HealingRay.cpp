@@ -24,7 +24,7 @@ void UHealingRay::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	// Check Ability Cost 
 	check(CurrentActorInfo); 
-	if (!UAbilitySystemGlobals::Get().ShouldIgnoreCooldowns() && !CheckCost(CurrentSpecHandle, CurrentActorInfo)) return; 
+	if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo)) return; 
 	
 	// Store Owner Character 
 	OwnerCharacter = Cast<ACharacter>(CurrentActorInfo->AvatarActor); 

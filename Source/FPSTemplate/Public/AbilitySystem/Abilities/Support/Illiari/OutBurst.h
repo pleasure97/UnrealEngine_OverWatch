@@ -43,4 +43,5 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxOutburstVelocity = 1840.f; 
 
+	bool bActivate = false;
 };
