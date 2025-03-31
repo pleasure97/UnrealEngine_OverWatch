@@ -73,4 +73,8 @@ public:
 	/* Weapon */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	USkeletalMeshComponent* GetWeapon(); 
+
+	/* Camera */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void TransitionCamera(bool bSmoothTransition); 
 };
