@@ -9,7 +9,8 @@ public class FPSTemplate : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { 
-			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", "DedicatedServers", "GameplayAbilities", "AIModule"
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", 
+			"DedicatedServers", "GameplayAbilities", "AIModule", "NetCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "GameplayTags", "Slate", "SlateCore",  "GameplayTasks" });

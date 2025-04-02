@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "Interfaces/CombatInterface.h"
+#include "Interfaces/TeamInterface.h"
 #include "GameplayTagContainer.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "OWCharacterBase.generated.h"
@@ -19,7 +20,7 @@ class UGameplayEffect;
 class UWidgetComponent;
 
 UCLASS(ABSTRACT)
-class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface
+class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface, public ITeamInterface
 {
 	GENERATED_BODY()
 
@@ -50,6 +51,16 @@ public:
 	FOnDamageSignature OnDamage; 
 	FOnDeath OnDeath; 
 	/** Combat Interface End **/
+
+	/** Pawn Interface **/
+	virtual void NotifyControllerChanged() override; 
+	/** Pawn Interface End **/
+
+	/** Team Interface **/
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override; 
+	virtual FGenericTeamId GetGenericTeamId() const override; 
+	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
+	/** Team Interface End **/
 
 	/** Attribute Value Changed Delegate **/
 	UPROPERTY(BlueprintAssignable)
@@ -92,6 +103,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void PossessedBy(AController* NewController) override; 
+	virtual void UnPossessed() override; 
 	
 	void AddHeroAbilities(); 
 
@@ -136,7 +150,24 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UWidgetComponent> WidgetComponent;
 
+	virtual FGenericTeamId DetermineNewTeamAfterPossessionEnds(FGenericTeamId OldTeamId) const
+	{
+		return FGenericTeamId::NoTeam; 
+	}
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)
+	FGenericTeamId MyTeamID; 
+
+	UPROPERTY()
+	FOnTeamIndexChangedDelegate OnTeamChangedDelegate; 
+
+	UFUNCTION()
+	void OnRep_MyTeamID(FGenericTeamId OldTeamID); 
+
+	UFUNCTION()
+	void OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
 };

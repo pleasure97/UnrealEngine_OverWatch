@@ -15,6 +15,11 @@ inline int32 GenericTeamIdToInteger(FGenericTeamId ID)
 	return (ID == FGenericTeamId::NoTeam) ? INDEX_NONE : (int32)ID; 
 }
 
+inline FGenericTeamId IntegerToGenericTeamId(int32 ID)
+{
+	return (ID == INDEX_NONE) ? FGenericTeamId::NoTeam : FGenericTeamId((uint8)ID); 
+}
+
 // This class does not need to be modified.
 UINTERFACE(meta = (CannotImplementInterfaceInBlueprint))
 class UTeamInterface : public UGenericTeamAgentInterface
@@ -29,6 +34,7 @@ class FPSTEMPLATE_API ITeamInterface : public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 
+public:
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() { return nullptr; }
 

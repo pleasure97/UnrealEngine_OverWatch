@@ -47,6 +47,8 @@ void AOWCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 
+	DOREPLIFETIME(AOWCharacterBase, MyTeamID); 
+
 	DOREPLIFETIME(AOWCharacterBase, bIsStunned);
 	DOREPLIFETIME(AOWCharacterBase, bIsBeingShocked); 
 	DOREPLIFETIME(AOWCharacterBase, bIsBeingHealed); 
@@ -121,6 +123,54 @@ USkeletalMeshComponent* AOWCharacterBase::GetWeapon_Implementation()
 	return Weapon;
 }
 
+void AOWCharacterBase::NotifyControllerChanged()
+{
+	const FGenericTeamId OldTeamID = GetGenericTeamId(); 
+
+	Super::NotifyControllerChanged(); 
+
+	// Update our Team ID based on the controller
+	if (HasAuthority() && (Controller != nullptr))
+	{
+		if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(Controller))
+		{
+			MyTeamID = ControllerWithTeamInterface->GetGenericTeamId(); 
+			BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
+		}
+	}
+}
+
+void AOWCharacterBase::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	if (GetController() == nullptr)
+	{
+		if (HasAuthority())
+		{
+			const FGenericTeamId OldTeamID = MyTeamID; 
+			MyTeamID = NewTeamID; 
+			BroadcastTeamChanged(this, OldTeamID, NewTeamID); 
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a character (%s) except on the authority."), *GetPathName(this)); 
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a possessed character (%s); it's driven by the associated controller"), *GetPathNameSafe(this));
+	}
+}
+
+FGenericTeamId AOWCharacterBase::GetGenericTeamId() const
+{
+	return MyTeamID; 
+}
+
+FOnTeamIndexChangedDelegate* AOWCharacterBase::GetOnTeamIndexChangedDelegate()
+{
+	return &OnTeamChangedDelegate; 
+}
+
 void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	Weapon->SetSimulatePhysics(true); 
@@ -153,6 +203,36 @@ void AOWCharacterBase::BeginPlay()
 		HealthBarPool->SetWidgetController(this); 
 		HealthBarPool->BindWidgetControllerEvents(); 
 	}
+}
+
+void AOWCharacterBase::PossessedBy(AController* NewController)
+{
+	const FGenericTeamId OldTeamID = MyTeamID;
+
+	Super::PossessedBy(NewController); 
+
+	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(NewController))
+	{
+		MyTeamID = ControllerWithTeamInterface->GetGenericTeamId(); 
+		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacterBase::OnControllerChangedTeam); 
+	}
+	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
+}
+
+void AOWCharacterBase::UnPossessed()
+{
+	AController* OldController = Controller; 
+
+	const FGenericTeamId OldTeamID = MyTeamID; 
+	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(OldController))
+	{
+		ControllerWithTeamInterface->GetTeamChangedDelegate().RemoveAll(this); 
+	}
+
+	Super::UnPossessed(); 
+
+	MyTeamID = DetermineNewTeamAfterPossessionEnds(OldTeamID);
+	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
 }
 
 FOnAttributeChangedSignature* AOWCharacterBase::GetDelegateForTag(const FGameplayTag& Tag)
@@ -214,5 +294,17 @@ void AOWCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewC
 {
 	bIsStunned = NewCount > 0; 
 	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
+}
+
+void AOWCharacterBase::OnRep_MyTeamID(FGenericTeamId OldTeamID)
+{
+	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
+}
+
+void AOWCharacterBase::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
+{
+	const FGenericTeamId MyOldTeamID = MyTeamID; 
+	MyTeamID = IntegerToGenericTeamId(NewTeam); 
+	BroadcastTeamChanged(this, MyOldTeamID, MyTeamID); 
 }
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Player/DS_MatchPlayerState.h"
 #include "AbilitySystemInterface.h"
+#include "Interfaces/TeamInterface.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "OWPlayerState.generated.h"
@@ -19,7 +20,7 @@ DECLARE_MULTICAST_DELEGATE_TwoParams(FOnLevelChanged, int32 /*Stat Value*/, bool
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOWPlayerState : public ADS_MatchPlayerState, public IAbilitySystemInterface
+class FPSTEMPLATE_API AOWPlayerState : public ADS_MatchPlayerState, public IAbilitySystemInterface, public ITeamInterface 
 {
 	GENERATED_BODY()
 
@@ -65,6 +66,15 @@ public:
 	void SetSpellPoints(int32 InSpellPoints); 
 	/* End LevelUp Info */
 
+	/** Team Interface **/
+	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override; 
+	virtual FGenericTeamId GetGenericTeamId() const override; 
+	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
+	/** Team Interface End **/
+
+	UFUNCTION()
+	int32 GetTeamId() const { return GenericTeamIdToInteger(MyTeamID);  }
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	UPROPERTY()
@@ -86,6 +96,12 @@ protected:
 	int32 SpellPoints = 0; 
 
 private:
+	UPROPERTY()
+	FOnTeamIndexChangedDelegate OnTeamChangedDelegate;
+
+	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)
+	FGenericTeamId MyTeamID;
+
 	UFUNCTION()
 	void OnRep_Level(int32 OldLevel); 
 
@@ -97,4 +113,7 @@ private:
 
 	UFUNCTION()
 	void OnRep_SpellPoints(int32 OldSpellPoints); 
+
+	UFUNCTION()
+	void OnRep_MyTeamID(FGenericTeamId OldTeamID); 
 };

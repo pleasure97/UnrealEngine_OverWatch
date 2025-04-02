@@ -8,11 +8,31 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
 #include "Interfaces/PlayerInterface.h"
+#include "Player/OWPlayerState.h"
 
 AOWPlayerController::AOWPlayerController()
 {
 	bReplicates = true; 
 	bPlayerAlive = true; 
+}
+
+void AOWPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+}
+
+FGenericTeamId AOWPlayerController::GetGenericTeamId() const
+{
+	if (const ITeamInterface* PlayerStateWithTeamInterface = Cast<ITeamInterface>(PlayerState))
+	{
+		return PlayerStateWithTeamInterface->GetGenericTeamId(); 
+	}
+
+	return FGenericTeamId::NoTeam;
+}
+
+FOnTeamIndexChangedDelegate* AOWPlayerController::GetOnTeamIndexChangedDelegate()
+{
+	return &OnTeamChangedDelegate; 
 }
 
 void AOWPlayerController::OnPossess(APawn* InPawn)
@@ -47,6 +67,24 @@ void AOWPlayerController::SetupInputComponent()
 
 	OWInputComponent->BindAbilityActions(InputConfig, this, 
 		&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagHeld);
+}
+
+void AOWPlayerController::InitPlayerState()
+{
+	Super::InitPlayerState(); 
+	BroadcastOnPlayerStateChanged(); 
+}
+
+void AOWPlayerController::CleanupPlayerState()
+{
+	Super::CleanupPlayerState(); 
+	BroadcastOnPlayerStateChanged();
+}
+
+void AOWPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState(); 
+	BroadcastOnPlayerStateChanged();
 }
 
 UOWAbilitySystemComponent* AOWPlayerController::GetAbilitySystemComponent()
@@ -119,5 +157,37 @@ void AOWPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputHeld)) return;
 
 	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+}
+
+void AOWPlayerController::BroadcastOnPlayerStateChanged()
+{
+	FGenericTeamId OldTeamID = FGenericTeamId::NoTeam; 
+	if (LastSeenPlayerState != nullptr)
+	{
+		if (ITeamInterface* PlayerStateWithTeamInterface = Cast<ITeamInterface>(LastSeenPlayerState))
+		{
+			OldTeamID = PlayerStateWithTeamInterface->GetGenericTeamId(); 
+			PlayerStateWithTeamInterface->GetTeamChangedDelegate().RemoveAll(this); 
+		}
+	}
+
+	FGenericTeamId NewTeamID = FGenericTeamId::NoTeam; 
+	if (PlayerState != nullptr)
+	{
+		if (ITeamInterface* PlayerStateWithTeamInterface = Cast<ITeamInterface>(PlayerState))
+		{
+			NewTeamID = PlayerStateWithTeamInterface->GetGenericTeamId(); 
+			PlayerStateWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWPlayerController::OnPlayerStateChangedTeam); 
+		}
+	}
+
+	BroadcastTeamChanged(this, OldTeamID, NewTeamID); 
+
+	LastSeenPlayerState = PlayerState; 
+}
+
+void AOWPlayerController::OnPlayerStateChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
+{
+	BroadcastTeamChanged(this, IntegerToGenericTeamId(OldTeam), IntegerToGenericTeamId(NewTeam)); 
 }
 

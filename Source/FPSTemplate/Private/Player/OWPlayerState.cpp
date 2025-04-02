@@ -17,6 +17,8 @@ AOWPlayerState::AOWPlayerState()
 	SetSelectedHeroName(EHeroName::ILLIARI); 
 
 	NetUpdateFrequency = 100.f; 
+
+	MyTeamID = FGenericTeamId::NoTeam;
 }
 
 UAbilitySystemComponent* AOWPlayerState::GetAbilitySystemComponent() const
@@ -38,6 +40,7 @@ void AOWPlayerState::OnRep_SelectedHeroName()
 void AOWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
+	DOREPLIFETIME(AOWPlayerState, MyTeamID); 
 	DOREPLIFETIME(AOWPlayerState, SelectedHeroName);
 	DOREPLIFETIME(AOWPlayerState, Level); 
 	DOREPLIFETIME(AOWPlayerState, XP); 
@@ -93,6 +96,31 @@ void AOWPlayerState::SetSpellPoints(int32 InSpellPoints)
 	OnSpellPointsChangedDelegate.Broadcast(SpellPoints); 
 }
 
+void AOWPlayerState::SetGenericTeamId(const FGenericTeamId& NewTeamID)
+{
+	if (HasAuthority())
+	{
+		const FGenericTeamId OldTeamID = MyTeamID; 
+		MARK_PROPERTY_DIRTY_FROM_NAME(AOWPlayerState, MyTeamID, this);
+		MyTeamID = NewTeamID; 
+		BroadcastTeamChanged(this, OldTeamID, NewTeamID); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cannot set team for %s on non-authority"), *GetPathName(this)); 
+	}
+}
+
+FGenericTeamId AOWPlayerState::GetGenericTeamId() const
+{
+	return MyTeamID; 
+}
+
+FOnTeamIndexChangedDelegate* AOWPlayerState::GetOnTeamIndexChangedDelegate()
+{
+	return &OnTeamChangedDelegate; 
+}
+
 
 void AOWPlayerState::OnRep_Level(int32 OldLevel)
 {
@@ -112,5 +140,10 @@ void AOWPlayerState::OnRep_AttributePoints(int32 OldAttributePoints)
 void AOWPlayerState::OnRep_SpellPoints(int32 OldSpellPoints)
 {
 	OnSpellPointsChangedDelegate.Broadcast(SpellPoints); 
+}
+
+void AOWPlayerState::OnRep_MyTeamID(FGenericTeamId OldTeamID)
+{
+	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
 }
 
