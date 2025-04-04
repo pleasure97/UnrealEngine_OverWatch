@@ -8,6 +8,7 @@
 #include "OWTeamInfoBase.generated.h"
 
 class UOWTeamSubsystem; 
+class UOWTeamDisplayAsset; 
 
 /**
  * 
@@ -24,6 +25,10 @@ public:
 	FGameplayTagContainer TeamTag; 
 
 	int32 GetTeamID() const { return TeamID; }
+	void SetTeamID(int32 NewTeamID);
+
+	UOWTeamDisplayAsset* GetTeamDisplayAsset() const { return TeamDisplayAsset; }
+	void SetTeamDisplayAsset(UOWTeamDisplayAsset* NewDisplayAsset); 
 
 	virtual void BeginPlay() override; 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
@@ -35,10 +40,14 @@ protected:
 
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_TeamID)
-	int32 TeamID = -1; 
+	int32 TeamID;
 	
 	UFUNCTION()
 	void OnRep_TeamID(); 
 
-	void SetTeamID(int32 NewTeamID); 
+	UPROPERTY(ReplicatedUsing=OnRep_TeamDisplayAsset)
+	TObjectPtr<UOWTeamDisplayAsset> TeamDisplayAsset; 
+
+	UFUNCTION()
+	void OnRep_TeamDisplayAsset(); 
 };

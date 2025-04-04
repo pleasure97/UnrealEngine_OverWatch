@@ -32,6 +32,7 @@ void AOWTeamInfoBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 	DOREPLIFETIME(AOWTeamInfoBase, TeamTag); 
 	DOREPLIFETIME_CONDITION(AOWTeamInfoBase, TeamID, COND_InitialOnly); 
+	DOREPLIFETIME_CONDITION(AOWTeamInfoBase, TeamDisplayAsset, COND_InitialOnly); 
 }
 
 void AOWTeamInfoBase::RegisterWithTeamSubsystem(UOWTeamSubsystem* Subsystem)
@@ -41,7 +42,7 @@ void AOWTeamInfoBase::RegisterWithTeamSubsystem(UOWTeamSubsystem* Subsystem)
 
 void AOWTeamInfoBase::TryRegisterWithTeamSubsystem()
 {
-	if (TeamID != -1)
+	if (TeamID != INDEX_NONE)
 	{
 		UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>(); 
 		if (TeamSubsystem)
@@ -56,12 +57,27 @@ void AOWTeamInfoBase::OnRep_TeamID()
 	TryRegisterWithTeamSubsystem(); 
 }
 
+void AOWTeamInfoBase::OnRep_TeamDisplayAsset()
+{
+	TryRegisterWithTeamSubsystem(); 
+}
+
 void AOWTeamInfoBase::SetTeamID(int32 NewTeamID)
 {
 	if (!HasAuthority()) return; 
-	if (TeamID != -1 || NewTeamID == -1) return; 
+	if (TeamID != INDEX_NONE || NewTeamID == INDEX_NONE) return;
 
 	TeamID = NewTeamID; 
+
+	TryRegisterWithTeamSubsystem(); 
+}
+
+void AOWTeamInfoBase::SetTeamDisplayAsset(UOWTeamDisplayAsset* NewDisplayAsset)
+{
+	check(HasAuthority()); 
+	check(TeamDisplayAsset == nullptr); 
+
+	TeamDisplayAsset = NewDisplayAsset; 
 
 	TryRegisterWithTeamSubsystem(); 
 }
