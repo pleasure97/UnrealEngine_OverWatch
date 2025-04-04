@@ -7,6 +7,7 @@
 #include "Interfaces/CombatInterface.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Team/OWTeamSubsystem.h"
 
 struct OWDamageStatics
 {
@@ -52,7 +53,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Laser, DamageStatics().LaserResistanceDef); 
 
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent(); 
-	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetSourceAbilitySystemComponent(); 
+	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent(); 
 
 	AActor* SourceAvatarActor = SourceASC ? SourceASC->GetAvatarActor() : nullptr; 
 	AActor* TargetAvatarActor = TargetASC ? TargetASC->GetAvatarActor() : nullptr; 
@@ -77,6 +78,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	FAggregatorEvaluateParameters EvaluationParameters; 
 	EvaluationParameters.SourceTags = SourceTags; 
 	EvaluationParameters.TargetTags = TargetTags; 
+
 
 	// Debuff
 	DetermineDebuff(ExecutionParams, GameplayEffectSpec, EvaluationParameters, TagsToCaptureDefinitions); 
@@ -119,7 +121,24 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	Damage = (SourceCriticalHitDamage > 0.f) ? SourceCriticalHitDamage : Damage; 
 
-	const FGameplayModifierEvaluatedData EvaluatedData(UOWAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage); 
+	// Cause Damage 
+	float DamageAllowedMultiplier = 0.f;
+	if (TargetAvatarActor)
+	{
+		UOWTeamSubsystem* TeamSubsystem = TargetAvatarActor->GetWorld()->GetSubsystem<UOWTeamSubsystem>();
+		if (ensure(TeamSubsystem))
+		{
+			const bool bSameTeam = !TeamSubsystem->CanCauseDamage(SourceAvatarActor, TargetAvatarActor) ? 1. : 0.;
+			if ((Damage < 0.f && bSameTeam) || (Damage > 0.f && !bSameTeam))
+			{
+				DamageAllowedMultiplier = 1.f; 
+			}
+		}
+	}
+
+	const float DamageDone = Damage * DamageAllowedMultiplier; 
+
+	const FGameplayModifierEvaluatedData EvaluatedData(UOWAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone); 
 }
 
 void UExecCalc_Damage::DetermineDebuff(
