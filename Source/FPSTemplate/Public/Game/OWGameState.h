@@ -6,6 +6,8 @@
 #include "GameFramework/GameState.h"
 #include "OWGameState.generated.h"
 
+class UTeamCreationComponent; 
+
 /**
  * 
  */
@@ -15,5 +17,15 @@ class FPSTEMPLATE_API AOWGameState : public AGameState
 	GENERATED_BODY()
 	
 public:
+	AOWGameState(); 
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override; 
+
+	virtual void PostInitializeComponents() override; 
+
+	UPROPERTY()
+	TObjectPtr<UTeamCreationComponent> TeamCreationComponent; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UTeamCreationComponent> TeamCreationComponentClass;
 };

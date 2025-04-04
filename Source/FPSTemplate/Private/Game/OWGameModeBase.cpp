@@ -47,3 +47,10 @@ void AOWGameModeBase::ChangeHero(APlayerController* PlayerController, EHeroName 
 		OWPlayerState->SetSelectedHeroName(NewHeroName);
 	}
 }
+
+void AOWGameModeBase::GenericPlayerInitialization(AController* NewPlayer)
+{
+	Super::GenericPlayerInitialization(NewPlayer); 
+
+	OnGameModePlayerInitialized.Broadcast(this, NewPlayer); 
+}

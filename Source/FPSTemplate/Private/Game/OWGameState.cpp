@@ -2,8 +2,26 @@
 
 
 #include "Game/OWGameState.h"
+#include "Team/TeamCreationComponent.h"
+
+AOWGameState::AOWGameState()
+{
+	PrimaryActorTick.bCanEverTick = true; 
+	PrimaryActorTick.bStartWithTickEnabled = true; 
+}
 
 void AOWGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
+}
+
+void AOWGameState::PostInitializeComponents()
+{
+	Super::PostInitializeComponents(); 
+
+	if (TeamCreationComponentClass)
+	{
+		TeamCreationComponent = NewObject<UTeamCreationComponent>(this, TeamCreationComponentClass); 
+		TeamCreationComponent->RegisterComponent(); 
+	}
 }

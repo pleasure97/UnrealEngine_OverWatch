@@ -10,6 +10,8 @@
 
 class AOWCharacter; 
 
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModePlayerInitialized, AGameModeBase*,  AController*);
+
 /**
  * 
  */
@@ -31,4 +33,8 @@ public:
 	virtual void BeginPlay() override; 
 
 	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName); 
+
+	virtual void GenericPlayerInitialization(AController* NewPlayer) override; 
+
+	FOnGameModePlayerInitialized OnGameModePlayerInitialized; 
 };
