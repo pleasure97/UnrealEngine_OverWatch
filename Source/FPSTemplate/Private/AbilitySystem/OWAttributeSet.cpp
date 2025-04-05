@@ -94,6 +94,10 @@ void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetNumMaxBullets()); 
 	}
+	if (Attribute == GetUltimateGaugeAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxUltimateGauge()); 
+	}
 }
 
 void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)

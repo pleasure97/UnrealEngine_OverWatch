@@ -137,8 +137,10 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	}
 
 	const float DamageDone = Damage * DamageAllowedMultiplier; 
+	const FGameplayModifierEvaluatedData EvaluatedDamage(UOWAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone); 
 
-	const FGameplayModifierEvaluatedData EvaluatedData(UOWAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone); 
+	const float DamageAbsolute = FMath::Abs(DamageDone); 
+	const FGameplayModifierEvaluatedData EvaluatedUltimateGauge(UOWAttributeSet::GetUltimateGaugeAttribute(), EGameplayModOp::Additive, DamageAbsolute); 
 }
 
 void UExecCalc_Damage::DetermineDebuff(
