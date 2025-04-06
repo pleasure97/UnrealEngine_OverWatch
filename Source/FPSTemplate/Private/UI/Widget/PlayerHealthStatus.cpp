@@ -5,7 +5,8 @@
 #include "OWGameplayTags.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Components/TextBlock.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "Materials/MaterialParameterCollection.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 
 void UPlayerHealthStatus::NativeConstruct()
 {
@@ -45,86 +46,136 @@ void UPlayerHealthStatus::NativeConstruct()
 	MaxHealthStatusMap.Add(GameplayTags.Attributes_Defense_TempArmor, 0.f); 
 	MaxHealthStatusMap.Add(GameplayTags.Attributes_Defense_TempShield, 0.f); 
 	MaxHealthStatusMap.Add(GameplayTags.Attributes_Defense_OverHealth, 0.f); 
+
+	CachedMPCInstance = GetWorld()->GetParameterCollectionInstance(MaterialParameterCollection);
 }
 
-void UPlayerHealthStatus::SetCurrentHealth()
+void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealthStatus HealthStatus)
 {
-	CurrentHealth = 0.f; 
-	for (TPair<FGameplayTag, float>& Pair : CurrentHealthStatusMap)
+	switch (HealthStatus)
 	{
-		CurrentHealth += Pair.Value; 
+		case EHealthStatus::Current:
+		{
+			float& ValueToChange = CurrentHealthStatusMap[Tag]; 
+			float OldValue = ValueToChange; 
+			ValueToChange = NewValue; 
+
+			CurrentHealth += (NewValue - OldValue); 
+			CheckDamagedOrHealed(OldValue, NewValue); 
+			TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth)));
+
+			break; 
+		}
+		case EHealthStatus::Max:
+		{
+			float& ValueToChange = MaxHealthStatusMap[Tag];
+			float OldValue = ValueToChange;
+			ValueToChange = NewValue;
+
+			MaxHealth += (NewValue - OldValue);
+			TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
+
+			break; 
+		}
+		case EHealthStatus::All:
+		{
+			float& CurrentValueToChange = CurrentHealthStatusMap[Tag];
+			float OldCurrentValue = CurrentValueToChange;
+			CurrentValueToChange = NewValue;
+
+			CurrentHealth += (NewValue - OldCurrentValue);
+			CheckDamagedOrHealed(OldCurrentValue, NewValue);
+			TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth)));
+
+			float& MaxValueToChange = MaxHealthStatusMap[Tag];
+			float OldMaxValue = MaxValueToChange;
+			MaxValueToChange = NewValue; 
+
+			MaxHealth += (NewValue - OldMaxValue);
+			TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
+
+			break; 
+		}
 	}
-	TextBlock_CurrentHealth->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(CurrentHealth)));
 }
 
-void UPlayerHealthStatus::SetMaxHealth()
+void UPlayerHealthStatus::CheckDamagedOrHealed(float OldValue, float NewValue)
 {
-	MaxHealth = 0.f; 
-	for (TPair<FGameplayTag, float>& Pair : MaxHealthStatusMap)
+	if (!CachedMPCInstance) return; 
+
+	// Damaged 
+	// TODO - Consider How to Show Fatal State in Another Client's HUD 
+	if (CurrentHealth < MaxHealth * FatalPercentage)
 	{
-		MaxHealth += Pair.Value;
+		CachedMPCInstance->SetScalarParameterValue(TEXT("Damage"), 1.f); 
 	}
-	TextBlock_MaxHealth->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(MaxHealth)));
+	else
+	{
+		CachedMPCInstance->SetScalarParameterValue(TEXT("Damage"), 0.f); 
+	}
+
+	// Healed 
+	if (OldValue < NewValue)
+	{
+		CachedMPCInstance->SetScalarParameterValue(TEXT("Healing"), 1.f); 
+
+		GetWorld()->GetTimerManager().ClearTimer(HealingResetTimerHandle); 
+
+		GetWorld()->GetTimerManager().SetTimer(HealingResetTimerHandle, this, &UPlayerHealthStatus::ResetHealingEffect, 1.f, false); 
+	}
+}
+
+void UPlayerHealthStatus::ResetHealingEffect()
+{
+	if (CachedMPCInstance)
+	{
+		CachedMPCInstance->SetScalarParameterValue(TEXT("Healing"), 0.f); 
+	}
 }
 
 void UPlayerHealthStatus::UpdateCurrentHealthStatus(float NewValue)
 {
-	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_Health] = NewValue; 
-	SetCurrentHealth(); 
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_Health, NewValue, EHealthStatus::Current); 
 }
 
 void UPlayerHealthStatus::UpdateMaxHealthStatus(float NewValue)
 {
-	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_MaxHealth] = NewValue;
-	SetMaxHealth(); 
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_MaxHealth, NewValue, EHealthStatus::Max);
 }
 
 void UPlayerHealthStatus::UpdateCurrentArmorStatus(float NewValue)
 {
-	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_Armor] = NewValue;
-	SetCurrentHealth();
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_Armor, NewValue, EHealthStatus::Current);
 }
 
 void UPlayerHealthStatus::UpdateMaxArmorStatus(float NewValue)
 {
-	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_MaxArmor] = NewValue;
-	SetMaxHealth();
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_MaxArmor, NewValue, EHealthStatus::Max);
 }
 
 void UPlayerHealthStatus::UpdateCurrentShieldStatus(float NewValue)
 {
-	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_Shield] = NewValue;
-	SetCurrentHealth();
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_Shield, NewValue, EHealthStatus::Current);
 }
 
 void UPlayerHealthStatus::UpdateMaxShieldStatus(float NewValue)
 {
-	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_MaxShield] = NewValue;
-	SetMaxHealth();
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_MaxShield, NewValue, EHealthStatus::Max);
 }
 
 void UPlayerHealthStatus::UpdateTempArmorStatus(float NewValue)
 {
-	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempArmor] = NewValue;
-	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempArmor] = NewValue;
-	SetCurrentHealth();
-	SetMaxHealth(); 
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_TempArmor, NewValue, EHealthStatus::All);
 }
 
 void UPlayerHealthStatus::UpdateTempShieldStatus(float NewValue)
 {
-	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempShield] = NewValue;
-	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_TempShield] = NewValue;
-	SetCurrentHealth();
-	SetMaxHealth();
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_TempShield, NewValue, EHealthStatus::All);
 }
 
 void UPlayerHealthStatus::UpdateOverHealthStatus(float NewValue)
 {
-	CurrentHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_OverHealth] = NewValue;
-	MaxHealthStatusMap[FOWGameplayTags::Get().Attributes_Defense_OverHealth] = NewValue;
-	SetCurrentHealth();
-	SetMaxHealth();
+	UpdateStatus(FOWGameplayTags::Get().Attributes_Defense_OverHealth, NewValue, EHealthStatus::All);
 }
 
 

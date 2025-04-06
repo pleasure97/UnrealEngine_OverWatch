@@ -8,6 +8,16 @@
 #include "PlayerHealthStatus.generated.h"
 
 class UTextBlock; 
+class UMaterialParameterCollection; 
+class UMaterialParameterCollectionInstance; 
+
+UENUM()
+enum class EHealthStatus : uint8
+{
+	Current, 
+	Max, 
+	All 
+};
 
 /**
  * 
@@ -35,15 +45,29 @@ public:
 	
 	UPROPERTY()
 	float MaxHealth = 0.f; 
+
+	UPROPERTY()
+	float FatalPercentage = 0.35f; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MPC")
+	TObjectPtr<UMaterialParameterCollection> MaterialParameterCollection; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MPC")
+	TObjectPtr<UMaterialParameterCollectionInstance> CachedMPCInstance; 
+
+	FTimerHandle HealingResetTimerHandle; 
+
+	UFUNCTION()
+	void ResetHealingEffect(); 
 protected:
 	//virtual void NativePreConstruct() override; 
 	virtual void NativeConstruct() override; 
 	
 private:
 
-	void SetCurrentHealth(); 
+	void UpdateStatus(FGameplayTag Tag, float NewValue, EHealthStatus HealthStatus); 
 
-	void SetMaxHealth(); 
+	void CheckDamagedOrHealed(float OldValue, float NewValue); 
 
 	/* Callback Functions for Delegates of Overlay Widget Controller*/
 	UFUNCTION()
