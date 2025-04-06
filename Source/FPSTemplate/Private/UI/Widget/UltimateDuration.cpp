@@ -26,6 +26,13 @@ void UUltimateDuration::NativePreConstruct()
 	}
 }
 
+void UUltimateDuration::SetDuration(float InDuration)
+{
+	Duration = InDuration; 
+	UpdateDurationText(Duration);
+	UpdateDurationBar(Duration); 
+}
+
 void UUltimateDuration::UpdateDurationText(float RemainingTime)
 {
 	FText RemainingTimeText = UKismetTextLibrary::Conv_IntToText(FMath::TruncToInt(RemainingTime));

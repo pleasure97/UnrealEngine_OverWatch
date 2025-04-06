@@ -28,13 +28,18 @@ public:
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> DynamicMaterialInstance; 
 
-	UPROPERTY()
-	float Duration = 5.2f; 
+	float GetDuration() const { return Duration; }
+
+	void SetDuration(float InDuration); 
+
+	void UpdateDurationText(float RemainingTime);
+
+	void UpdateDurationBar(float RemainingTime);
 
 protected:
-	virtual void NativePreConstruct() override; 
+	virtual void NativePreConstruct() override;
 
-	void UpdateDurationText(float RemainingTime); 
-
-	void UpdateDurationBar(float RemainingTime); 
+private:
+	UPROPERTY()
+	float Duration;
 };

@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/Support/Illiari/CaptiveSun.h"
 #include "AbilitySystemGlobals.h"
+#include "UI/Widget/UltimateDuration.h"
 #include "Components/TimelineComponent.h"
 #include "Interfaces/CombatInterface.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
@@ -24,6 +25,22 @@ void UCaptiveSun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 
 	// Commit Ability Cost
 	CommitAbilityCost(Handle, ActorInfo, ActivationInfo); 
+
+	// Add Ultimate Duration to Viewport 
+	APlayerController* PlayerController = Cast<APlayerController>(OwnerCharacter->GetController()); 
+	if (PlayerController && UltimateDurationClass)
+	{
+		UltimateDuration = CreateWidget<UUltimateDuration>(PlayerController, UltimateDurationClass); 
+		if (UltimateDuration)
+		{
+			UltimateDuration->SetDuration(Duration); 
+			UltimateDuration->AddToViewport(); 
+
+			GetWorld()->GetTimerManager().SetTimer(DurationTickTimerHandle, this, &UCaptiveSun::UpdateDurationUI, 0.1f, true);
+
+			GetWorld()->GetTimerManager().SetTimer(DurationEndTimerHandle, this, &UCaptiveSun::EndDurationUI, Duration, false); 
+		}
+	}
 
 	// Soaring 
 	if (VelocityCurve)
@@ -50,15 +67,44 @@ void UCaptiveSun::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	}
 }
 
-void UCaptiveSun::Shoot(float TimeWaited)
+void UCaptiveSun::UpdateDurationUI()
 {
-	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
-	if (!bIsServer) return;
+	if (!UltimateDuration) return; 
+
+	float ElapsedTime = GetWorld()->GetTimerManager().GetTimerElapsed(DurationEndTimerHandle); 
+	float TotalTime = UltimateDuration->GetDuration(); 
+	float RemainingTime = FMath::Max(TotalTime - ElapsedTime, 0.f); 
+
+	UltimateDuration->UpdateDurationText(RemainingTime);
+	UltimateDuration->UpdateDurationBar(RemainingTime); 
 }
 
-void UCaptiveSun::UpdateSoaringVelocity(float Velocity)
+void UCaptiveSun::EndDurationUI()
 {
-	OwnerCharacter->LaunchCharacter(FVector(0., 0., Velocity), true, true); 
+	if (UltimateDuration)
+	{
+		UltimateDuration->RemoveFromParent(); 
+		UltimateDuration = nullptr; 
+	}
+
+	GetWorld()->GetTimerManager().ClearTimer(DurationTickTimerHandle); 
+	GetWorld()->GetTimerManager().ClearTimer(DurationEndTimerHandle); 
+}
+
+void UCaptiveSun::Shoot(float TimeWaited)
+{
+	if (IsLocallyControlled())
+	{
+		EndDurationUI(); 
+	}
+
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
+	if (!bIsServer) return; 
+}
+
+void UCaptiveSun::UpdateSoaringVelocity(float Output)
+{
+	OwnerCharacter->LaunchCharacter(FVector(0., 0., Output), true, true); 
 }
 
 void UCaptiveSun::FinishSoaring()

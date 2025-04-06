@@ -8,6 +8,7 @@
 
 class UTimelineComponent; 
 class ACaptiveSunProjectile; 
+class UUltimateDuration; 
 
 /**
  * 
@@ -35,7 +36,7 @@ protected:
 	TObjectPtr<UTimelineComponent> SoaringVelocity; 
 
 	UFUNCTION()
-	void UpdateSoaringVelocity(float Velocity); 
+	void UpdateSoaringVelocity(float Output); 
 
 	UFUNCTION()
 	void FinishSoaring(); 
@@ -49,6 +50,26 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<ACaptiveSunProjectile> CaptiveSunProjectile;
+
+	/* Ultimate Duration */
+	UPROPERTY()
+	float Duration = 5.2f; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UUltimateDuration> UltimateDurationClass; 
+
+	UPROPERTY()
+	TObjectPtr<UUltimateDuration> UltimateDuration; 
+
+	FTimerHandle DurationTickTimerHandle; 
+
+	FTimerHandle DurationEndTimerHandle; 
+
+	UFUNCTION()
+	void UpdateDurationUI();
+
+	UFUNCTION()
+	void EndDurationUI(); 
 
 	/* Shoot */
 	UFUNCTION()
