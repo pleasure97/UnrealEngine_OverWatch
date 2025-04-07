@@ -302,6 +302,28 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Laceration"),
 		FString("Debuff Laceration"));
 
+	/* Gameplay Cues */
+
+	GameplayTags.GameplayCue_DamageImpact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.DamageImpact"),
+		FString("GameplayCue When Damaged"));
+
+	GameplayTags.GameplayCue_HealImpact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.HealImpact"),
+		FString("GameplayCue When Healed"));
+
+	GameplayTags.GameplayCue_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.HealingRay"),
+		FString("Illiari's Healing Ray GameplayCue"));
+
+	GameplayTags.GameplayCue_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.Outburst"),
+		FString("Illiari's Outburst GameplayCue"));
+
+	GameplayTags.GameplayCue_Illiari_Laceration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.Laceration"),
+		FString("Illiari's Laceration GameplayCue"));
+
 	/* Hero GameplayTags - Illiari */
 
 	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -327,14 +349,6 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Illiari.HealingRay"),
 		FString("Illiari's HealingRay Ability"));
-
-	GameplayTags.GameplayCue_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GameplayCue.Illiari.HealingRay"),
-		FString("Illiari's HealingRay GameplayCue"));
-
-	GameplayTags.GameplayCue_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GameplayCue.Illiari.Outburst"),
-		FString("Illiari's Outburst GameplayCue"));
 
 	GameplayTags.Event_Montage_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.HealingRay"),

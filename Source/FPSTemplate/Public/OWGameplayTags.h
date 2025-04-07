@@ -115,6 +115,15 @@ public:
 	FGameplayTag Debuff_ForcedMovement;
 	FGameplayTag Debuff_Laceration; 
 
+	/* Gameplay Cue */
+
+	FGameplayTag GameplayCue_DamageImpact; 
+	FGameplayTag GameplayCue_HealImpact; 
+
+	FGameplayTag GameplayCue_Illiari_HealingRay;
+	FGameplayTag GameplayCue_Illiari_Outburst;
+	FGameplayTag GameplayCue_Illiari_Laceration; 
+
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 
 	FGameplayTag Abilities_Illiari_HealingPylon; 
@@ -122,9 +131,6 @@ public:
 	FGameplayTag Abilities_Illiari_CaptiveSun; 
 	FGameplayTag Abilities_Illiari_SolarRifle; 
 	FGameplayTag Abilities_Illiari_HealingRay; 
-
-	FGameplayTag GameplayCue_Illiari_HealingRay;
-	FGameplayTag GameplayCue_Illiari_Outburst; 
 
 	FGameplayTag Event_Montage_HealingRay; 
 
@@ -134,6 +140,7 @@ public:
 	FGameplayTag Abilities_Reinhardt_EarthShatter;
 	FGameplayTag Abilities_Reinhardt_BarrierField;
 	FGameplayTag Abilities_Reinhardt_RocketHammer; 
+
 
 private:
 	static FOWGameplayTags GameplayTags; 

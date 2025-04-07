@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/GameplayCues/GameplayCueHealingRay.h"
+#include "AbilitySystem/GameplayCueNotifies/GameplayCueNotify_HealingRay.h"
 
 
 
