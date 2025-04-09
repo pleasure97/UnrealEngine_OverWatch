@@ -141,6 +141,13 @@ EOWTeamComparison UOWTeamSubsystem::CompareTeams(const UObject* A, const UObject
     }
 }
 
+EOWTeamComparison UOWTeamSubsystem::CompareTeams(const UObject* A, const UObject* B) const
+{
+    int32 TeamIdA; 
+    int32 TeamIdB; 
+    return CompareTeams(A, B, TeamIdA, TeamIdB); 
+}
+
 bool UOWTeamSubsystem::CanCauseDamage(const UObject* Instigator, const UObject* Target, bool bAllowDamageToSelf) const
 {
     if (bAllowDamageToSelf)
