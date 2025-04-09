@@ -3,18 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameplayCueNotify_Static.h"
+#include "GameplayCueNotify_Burst.h"
 #include "GameplayCueNotify_HealImpact.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API UGameplayCueNotify_HealImpact : public UGameplayCueNotify_Static
+class FPSTEMPLATE_API UGameplayCueNotify_HealImpact : public UGameplayCueNotify_Burst
 {
 	GENERATED_BODY()
-	
-	
-	
 	
 };
