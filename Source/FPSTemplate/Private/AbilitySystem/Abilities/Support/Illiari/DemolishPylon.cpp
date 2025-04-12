@@ -37,7 +37,7 @@ void UDemolishPylon::ActivateAbility(const FGameplayAbilitySpecHandle Handle, co
 	// Create Pylon Destroyed Widget
 	if (IsLocallyControlled())
 	{
-		PylonDestroyedWidget = CreateWidget<UOWUserWidget>(this, PylonDestroyedWidgetClass); 
+		PylonDestroyedWidget = CreateWidget<UOWUserWidget>(PlayerController, PylonDestroyedWidgetClass); 
 		PylonDestroyedWidget->AddToViewport(); 
 		PylonDestroyedWidget->SetPositionInViewport(ScreenPosition, false); 
 		GetWorld()->GetTimerManager().SetTimer(RemoveWidgetTimerHandle, this, &UDemolishPylon::RemoveWidget, 2.f, false); 
