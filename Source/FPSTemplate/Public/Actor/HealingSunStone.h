@@ -26,19 +26,19 @@ public:
 	AHealingSunStone();
 	
 	/* Component */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TObjectPtr<UBoxComponent> Box; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> Pedestal; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TObjectPtr<UWidgetComponent> HealthBar; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TObjectPtr<UStaticMeshComponent> SunStone; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	TObjectPtr<UNiagaraComponent> SunRay; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -50,12 +50,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraSystem> HealCross;
 
+	/* Vital Attributes */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayEffect> VitalAttributes; 
+
 	/* Attribute Changed Delegate */
 	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnHealthChanged;
 
 	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxHealthChanged;
+
+	UPROPERTY(BlueprintAssignable)
 	FOnAttributeChangedSignature OnShieldChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttributeChangedSignature OnMaxShieldChanged;
 
 	/* Spawn */
 	void Throw(FVector NewVelocity); 
@@ -65,7 +75,7 @@ public:
 protected:
 	virtual void BeginPlay() override; 
 	void InitAbilityActorInfo(); 
-	void InitializeDefaultAttributes();
+	void InitializeVitalAttributes(); 
 
 	/* Heal Mechanics */
 	UFUNCTION(BlueprintCallable)

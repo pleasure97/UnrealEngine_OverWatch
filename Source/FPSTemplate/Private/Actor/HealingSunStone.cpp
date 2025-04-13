@@ -14,6 +14,7 @@
 #include "Team/OWTeamSubsystem.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Interfaces/CombatInterface.h"
+#include "UI/Widget/OWUserWidget.h"
 
 AHealingSunStone::AHealingSunStone()
 {
@@ -47,7 +48,47 @@ void AHealingSunStone::BeginPlay()
 {
 	Super::BeginPlay(); 
 
-	FTimerHandle TimerHandle = UKismetSystemLibrary::K2_SetTimer(this, "ActivateHealing", 0.8f, true, false, 2.f); 
+	if (UOWUserWidget* OWUserWidget = Cast<UOWUserWidget>(HealthBar->GetUserWidgetObject()))
+	{
+		OWUserWidget->SetWidgetController(this); 
+	}
+
+	if (const UOWAttributeSet* OWAttributeSet = CastChecked<UOWAttributeSet>(AttributeSet))
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(OWAttributeSet->GetHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnHealthChanged.Broadcast(Data.NewValue);
+			}
+		); 
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(OWAttributeSet->GetMaxHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxHealthChanged.Broadcast(Data.NewValue);
+			}
+		);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(OWAttributeSet->GetShieldAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnShieldChanged.Broadcast(Data.NewValue);
+			}
+		);
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(OWAttributeSet->GetMaxShieldAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxShieldChanged.Broadcast(Data.NewValue);
+			}
+		);
+
+		OnHealthChanged.Broadcast(OWAttributeSet->GetHealth()); 
+		OnMaxHealthChanged.Broadcast(OWAttributeSet->GetMaxHealth()); 
+		OnShieldChanged.Broadcast(OWAttributeSet->GetShield()); 
+		OnMaxShieldChanged.Broadcast(OWAttributeSet->GetMaxShield()); 
+	}
+
+	FTimerHandle TimerHandle = UKismetSystemLibrary::K2_SetTimer(this, "ActivateHealing", 0.8f, true, false, 2.f);
 }
 
 void AHealingSunStone::InitAbilityActorInfo()
@@ -57,14 +98,22 @@ void AHealingSunStone::InitAbilityActorInfo()
 
 	if (HasAuthority())
 	{
-		InitializeDefaultAttributes(); 
+		InitializeVitalAttributes(); 
 	}
+
 	OnASCRegistered.Broadcast(AbilitySystemComponent); 
 }
 
-void AHealingSunStone::InitializeDefaultAttributes()
+void AHealingSunStone::InitializeVitalAttributes()
 {
+	FGameplayEffectContextHandle VitalAttributesContextHandle = AbilitySystemComponent->MakeEffectContext(); 
 
+	VitalAttributesContextHandle.AddSourceObject(this); 
+
+	const FGameplayEffectSpecHandle VitalAttributeSpecHandle =
+		AbilitySystemComponent->MakeOutgoingSpec(VitalAttributes, Level, VitalAttributesContextHandle); 
+
+	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get()); 
 }
 
 void AHealingSunStone::Throw(FVector NewVelocity)
