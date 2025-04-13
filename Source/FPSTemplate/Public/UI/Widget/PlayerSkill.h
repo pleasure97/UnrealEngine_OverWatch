@@ -10,6 +10,7 @@
 class UImage; 
 class UProgressBar; 
 class UTextBlock; 
+class UBorder;
 struct FOWAbilityInfo; 
 class UWaitCooldownChange; 
 
@@ -26,6 +27,9 @@ public:
 	TObjectPtr<UImage> Image_Background; 
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Deactivate; 
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_SkillIcon; 
 
 	UPROPERTY(meta = (BindWidget))
@@ -35,10 +39,13 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_Cooltime; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> Image_InputKey;
+	TObjectPtr<UBorder> Border_InputKey;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_InputKey;
+
+	UPROPERTY(BlueprintReadOnly)
+	FGameplayTag AbilityTag; 
 
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag InputTag;
@@ -50,6 +57,8 @@ public:
 	TObjectPtr<UWaitCooldownChange> WaitCooldownChangeTask; 
 
 	void SetWidgetInfo(const FOWAbilityInfo& WidgetInfo); 
+
+	void UpdateBlockedByTag(bool bBlocked); 
 
 	void SetCooldownInfo(const FOWAbilityInfo& Info); 
 
@@ -70,4 +79,6 @@ protected:
 
 private:
 	FTimerHandle CooldownTimerHandle; 
+
+	bool bCurrentlyBlocked = false; 
 };

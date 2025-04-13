@@ -11,6 +11,7 @@ class UPlayerSkill;
 class UHorizontalBox; 
 class UBorder; 
 struct FOWAbilityInfo; 
+class UGameplayAbility; 
 
 /**
  * 
@@ -23,7 +24,7 @@ class FPSTEMPLATE_API UPlayerSkills : public UOWUserWidget
 public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UPlayerSkill> PlayerSkillClass; 
-	
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HorizontalBox_PlayerSkills; 
 
@@ -42,8 +43,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TMap<FGameplayTag, TObjectPtr<UBorder>> TagsToBorders; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TMap<FGameplayTag, TObjectPtr<UPlayerSkill>> TagsToSkills; 
+
+	UPROPERTY()
+	TMap<FGameplayTag, FGameplayTagContainer> BlockAbilitiesWithTags; 
+
 	UFUNCTION()
-	void SetChildToBorder(const FOWAbilityInfo& Info); 
+	void InitializePlayerSkill(const FOWAbilityInfo& Info); 
+
+	UFUNCTION()
+	void OnAbilityActivated(UGameplayAbility* ActivatedAbility); 
+
+	UFUNCTION()
+	void OnAbilityEnded(const FAbilityEndedData& AbilityEndedData); 
 
 protected:
 	virtual void NativePreConstruct() override; 

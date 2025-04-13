@@ -27,6 +27,7 @@ void UPlayerSkill::NativePreConstruct()
 
 void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 {
+	AbilityTag = WidgetInfo.AbilityTag; 
 	InputTag = WidgetInfo.InputTag; 
 	FSlateBrush SlateBrush; 
 	SlateBrush.SetResourceObject(const_cast<UTexture2D*>(WidgetInfo.Icon.Get())); 
@@ -53,6 +54,48 @@ void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_LMB))
 	{
 		TextBlock_InputKey->SetText(FText::FromString(""));
+	}
+}
+
+void UPlayerSkill::UpdateBlockedByTag(bool bBlocked)
+{
+	if (bCurrentlyBlocked == bBlocked) return;
+
+	bCurrentlyBlocked = bBlocked; 
+
+	if (bBlocked)
+	{
+		if (Image_Background)
+		{
+			Image_Background->SetColorAndOpacity(FLinearColor(0.491021f, 0.026241f, 0.076185f, 1.f));
+		}
+		if (Image_Deactivate)
+		{
+			Image_Deactivate->SetColorAndOpacity(FLinearColor(0.168269f, 0.025187f, 0.035601f, 1.f));
+		}
+		if (Image_SkillIcon)
+		{
+			FSlateBrush CurrentBrush = Image_SkillIcon->GetBrush();
+			CurrentBrush.TintColor = FSlateColor(FLinearColor(0.491f, 0.026f, 0.076f, 1.f));
+			Image_SkillIcon->SetBrush(CurrentBrush); 
+		}
+	}
+	else
+	{
+		if (Image_Background)
+		{
+			Image_Background->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
+		}
+		if (Image_Deactivate)
+		{
+			Image_Deactivate->SetColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.f));
+		}
+		if (Image_SkillIcon)
+		{
+			FSlateBrush CurrentBrush = Image_SkillIcon->GetBrush();
+			CurrentBrush.TintColor = FSlateColor(FLinearColor(0.f, 0.f, 0.f, 1.f));
+			Image_SkillIcon->SetBrush(CurrentBrush);
+		}
 	}
 }
 
@@ -95,10 +138,11 @@ void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
 
 void UPlayerSkill::UpdateCooldownTimer()
 {
-	if (CurrentRemainedTime <= 0.f && CooldownTimerHandle.IsValid())
+	if (CurrentRemainedTime <= 1.f && CooldownTimerHandle.IsValid())
 	{
 		TextBlock_Cooltime->SetRenderOpacity(0.f); 
 		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
+		return; 
 	}
 
 	CurrentRemainedTime -= GetWorld()->GetDeltaSeconds(); 

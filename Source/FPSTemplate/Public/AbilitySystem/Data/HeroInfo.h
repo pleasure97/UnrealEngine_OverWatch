@@ -41,6 +41,9 @@ struct FOWAbilityInfo
 	FGameplayTag InputTag = FGameplayTag();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTagContainer BlockAbilitiesWithTag;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FGameplayTagContainer DebuffTags; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
