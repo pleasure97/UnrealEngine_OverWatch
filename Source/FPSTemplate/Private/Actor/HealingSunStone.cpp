@@ -15,12 +15,21 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Interfaces/CombatInterface.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "UI/Widget/HealthBarPool.h"
 
 AHealingSunStone::AHealingSunStone()
 {
+	bReplicates = true; 
+	SetReplicatingMovement(true); 
+
 	PrimaryActorTick.bCanEverTick = false; 
 
 	Box = CreateDefaultSubobject<UBoxComponent>("Box"); 
+	Box->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics); 
+	Box->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName); 
+	Box->SetSimulatePhysics(true); 
+	Box->SetNotifyRigidBodyCollision(true); 
+	Box->OnComponentHit.AddDynamic(this, &AHealingSunStone::OnAttached); 
 	SetRootComponent(Box); 
 
 	Pedestal = CreateDefaultSubobject<UStaticMeshComponent>("Pedestal"); 
@@ -28,6 +37,7 @@ AHealingSunStone::AHealingSunStone()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar"); 
 	HealthBar->SetupAttachment(GetRootComponent()); 
+	HealthBar->SetIsReplicated(true); 
 
 	SunStone = CreateDefaultSubobject<UStaticMeshComponent>("SunStone"); 
 	SunStone->SetupAttachment(GetRootComponent()); 
@@ -35,22 +45,30 @@ AHealingSunStone::AHealingSunStone()
 	SunRay = CreateDefaultSubobject<UNiagaraComponent>("SunRay"); 
 	SunRay->SetupAttachment(SunStone); 
 
-	// Box->OnComponentHit.AddDynamic(this, &AHealingStone::OnAttached); 
-
 	AbilitySystemComponent = CreateDefaultSubobject<UOWAbilitySystemComponent>("AbilitySystemComponent"); 
 	AbilitySystemComponent->SetIsReplicated(true); 
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal); 
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); 
 
 	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
 }
+
+UAbilitySystemComponent* AHealingSunStone::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent; 
+}
+
+//void AHealingSunStone::Die(const FVector& DeathImpulse)
+//{
+//}
 
 void AHealingSunStone::BeginPlay()
 {
 	Super::BeginPlay(); 
 
-	if (UOWUserWidget* OWUserWidget = Cast<UOWUserWidget>(HealthBar->GetUserWidgetObject()))
+	if (UHealthBarPool* HealthBarPool = Cast<UHealthBarPool>(HealthBar->GetUserWidgetObject()))
 	{
-		OWUserWidget->SetWidgetController(this); 
+		HealthBarPool->SetWidgetController(this);
+		HealthBarPool->BindWidgetControllerEvents();
 	}
 
 	if (const UOWAttributeSet* OWAttributeSet = CastChecked<UOWAttributeSet>(AttributeSet))
@@ -88,6 +106,7 @@ void AHealingSunStone::BeginPlay()
 		OnMaxShieldChanged.Broadcast(OWAttributeSet->GetMaxShield()); 
 	}
 
+	
 	FTimerHandle TimerHandle = UKismetSystemLibrary::K2_SetTimer(this, "ActivateHealing", 0.8f, true, false, 2.f);
 }
 
@@ -101,7 +120,7 @@ void AHealingSunStone::InitAbilityActorInfo()
 		InitializeVitalAttributes(); 
 	}
 
-	OnASCRegistered.Broadcast(AbilitySystemComponent); 
+	// OnASCRegistered.Broadcast(AbilitySystemComponent); 
 }
 
 void AHealingSunStone::InitializeVitalAttributes()
@@ -122,13 +141,13 @@ void AHealingSunStone::Throw(FVector NewVelocity)
 }
 
 void AHealingSunStone::OnAttached(
-	UPrimitiveComponent* HitComponent, 
-	AActor* OtherActor, 
-	UPrimitiveComponent* OtherComp, 
-	FVector NormalImpulse, 
+	UPrimitiveComponent* HitComponent,
+	AActor* OtherActor,
+	UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	if (Hit.GetActor() == nullptr) return;
+	if (Hit.GetActor() == nullptr || Hit.GetActor() == this) return;
 
 	ECollisionChannel CollisionChannel = Hit.GetComponent()->GetCollisionObjectType(); 
 	

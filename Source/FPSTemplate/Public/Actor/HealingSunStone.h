@@ -18,7 +18,7 @@ class UNiagaraSystem;
 class USoundBase; 
 
 UCLASS()
-class FPSTEMPLATE_API AHealingSunStone : public AActor/*, public IAbilitySystemInterface, public ICombatInterface */
+class FPSTEMPLATE_API AHealingSunStone : public AActor, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
@@ -26,19 +26,19 @@ public:
 	AHealingSunStone();
 	
 	/* Component */
-	UPROPERTY()
-	TObjectPtr<UBoxComponent> Box; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UBoxComponent> Box;
 
-	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent> Pedestal; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> Pedestal;
 
-	UPROPERTY()
-	TObjectPtr<UWidgetComponent> HealthBar; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UWidgetComponent> HealthBar;
 
-	UPROPERTY()
-	TObjectPtr<UStaticMeshComponent> SunStone; 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UStaticMeshComponent> SunStone;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UNiagaraComponent> SunRay; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -72,6 +72,12 @@ public:
 
 	/* Damage Effect */
 	FDamageEffectParams DamageEffectParams; 
+
+	/* Ability System Interface */
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
+
+	/* Combat Interface */
+	// virtual void Die(const FVector& DeathImpulse) override; 
 protected:
 	virtual void BeginPlay() override; 
 	void InitAbilityActorInfo(); 
@@ -125,6 +131,6 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet; 
 
 	/* Combat Interface */
-	FOnASCRegistered OnASCRegistered;
-	FOnDamageSignature OnDamage; 
+	// FOnASCRegistered OnASCRegistered;
+	// FOnDamageSignature OnDamage; 
 };
