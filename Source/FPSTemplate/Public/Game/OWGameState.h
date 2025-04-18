@@ -7,6 +7,7 @@
 #include "OWGameState.generated.h"
 
 class UTeamCreationComponent; 
+class UPlayerSpawningManagerComponent; 
 
 /**
  * 
@@ -28,4 +29,10 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UTeamCreationComponent> TeamCreationComponentClass;
+
+	UPROPERTY()
+	TObjectPtr<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponent; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponentClass; 
 };

@@ -3,6 +3,7 @@
 
 #include "Game/OWGameState.h"
 #include "Team/TeamCreationComponent.h"
+#include "Game/PlayerSpawningManagerComponent.h"
 
 AOWGameState::AOWGameState()
 {
@@ -23,5 +24,11 @@ void AOWGameState::PostInitializeComponents()
 	{
 		TeamCreationComponent = NewObject<UTeamCreationComponent>(this, TeamCreationComponentClass); 
 		TeamCreationComponent->RegisterComponent(); 
+	}
+
+	if (PlayerSpawningManagerComponentClass)
+	{
+		PlayerSpawningManagerComponent = NewObject<UPlayerSpawningManagerComponent>(this, PlayerSpawningManagerComponentClass); 
+		PlayerSpawningManagerComponent->RegisterComponent(); 
 	}
 }
