@@ -324,6 +324,16 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Illiari.Laceration"),
 		FString("Illiari's Laceration GameplayCue"));
 
+	/* Set By Caller */
+
+	GameplayTags.Data_Cooldown = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.Cooldown"),
+		FString("Gamplay Tag When Cooldown is Set By Caller"));
+
+	GameplayTags.Data_CriticalHitDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.CriticalHitDamage"),
+		FString("Gamplay Tag When Critical Hit Damage is Set By Caller"));
+
 	/* Hero GameplayTags - Illiari */
 
 	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
