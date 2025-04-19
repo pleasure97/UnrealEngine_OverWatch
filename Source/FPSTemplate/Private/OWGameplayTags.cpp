@@ -360,6 +360,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Illiari.HealingRay"),
 		FString("Illiari's HealingRay Ability"));
 
+	GameplayTags.Event_Montage_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.Outburst"),
+		FString("Illiari's Outburst Montage Event Tag"));
+
 	GameplayTags.Event_Montage_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.HealingRay"),
 		FString("Illiari's Healing Ray Montage Event Tag"));

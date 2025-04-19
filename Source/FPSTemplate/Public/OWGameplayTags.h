@@ -135,6 +135,7 @@ public:
 	FGameplayTag Abilities_Illiari_SolarRifle; 
 	FGameplayTag Abilities_Illiari_HealingRay; 
 
+	FGameplayTag Event_Montage_Outburst; 
 	FGameplayTag Event_Montage_HealingRay; 
 
 	/* Hero GameplayTags - Reinhardt */
