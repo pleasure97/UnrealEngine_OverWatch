@@ -11,6 +11,7 @@ class UPlayerHealthStatus;
 class UPlayerSkills; 
 class UPlayerWeaponStatus; 
 class UUltimateGauge; 
+class UHitIndicatorPool; 
 
 /**
  * 
@@ -35,6 +36,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UUltimateGauge> WBP_UltimateGauge;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UHitIndicatorPool> WBP_HitIndicatorPool; 
 
 	virtual void SetChildWidgetControllers() override; 
 };

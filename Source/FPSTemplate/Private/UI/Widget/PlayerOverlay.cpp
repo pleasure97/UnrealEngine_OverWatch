@@ -8,6 +8,7 @@
 #include "UI/Widget/PlayerSkills.h"
 #include "UI/Widget/PlayerWeaponStatus.h"
 #include "UI/Widget/UltimateGauge.h"
+#include "UI/Widget/HitIndicatorPool.h"
 
 void UPlayerOverlay::SetChildWidgetControllers()
 {
@@ -18,5 +19,6 @@ void UPlayerOverlay::SetChildWidgetControllers()
 		WBP_PlayerSkills->SetWidgetController(OverlayWidgetController); 
 		WBP_PlayerWeaponStatus->SetWidgetController(OverlayWidgetController); 
 		WBP_UltimateGauge->SetWidgetController(OverlayWidgetController); 
+		WBP_HitIndicatorPool->SetWidgetController(OverlayWidgetController); 
 	}
 }
