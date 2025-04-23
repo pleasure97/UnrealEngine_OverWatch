@@ -13,6 +13,8 @@
 		GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName) \
 
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnDamageReceived, AActor*, /* DamageEffectCauser */ AActor*, /* Owner Actor */ float /* Damage */);
+
 USTRUCT()
 struct FEffectProperties
 {
@@ -52,7 +54,6 @@ struct FEffectProperties
 template<class T>
 using TStaticFuncPtr = typename TBaseStaticDelegateInstance<T, FDefaultDelegateUserPolicy>::FFuncPtr;
 
-
 UCLASS()
 class FPSTEMPLATE_API UOWAttributeSet : public UAttributeSet
 {
@@ -68,6 +69,8 @@ public:
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override; 
 
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; 
+
+	FOnDamageReceived OnDamageReceived; 
 
 	/* 
 	 * Defensive Attributes

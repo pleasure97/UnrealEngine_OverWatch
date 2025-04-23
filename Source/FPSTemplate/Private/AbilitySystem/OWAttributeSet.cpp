@@ -107,7 +107,9 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	FEffectProperties EffectProperties; 
 	SetEffectProperties(Data, EffectProperties);
 
-	if (EffectProperties.TargetCharacter->Implements<UCombatInterface>() && ICombatInterface::Execute_IsDead(EffectProperties.TargetCharacter)) return;
+	if (EffectProperties.TargetCharacter &&
+		EffectProperties.TargetCharacter->Implements<UCombatInterface>() 
+		&& ICombatInterface::Execute_IsDead(EffectProperties.TargetCharacter)) return;
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
@@ -345,6 +347,8 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			{
 				EffectProperties.TargetCharacter->LaunchCharacter(KnockbackForce, true, true); 
 			}
+			// Broadcast Damage Effect Causer, Hit Actor, and Damage 
+			OnDamageReceived.Broadcast(EffectProperties.SourceAvatarActor, EffectProperties.TargetAvatarActor, LocalIncomingDamage);
 		}
 
 		const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle); 
