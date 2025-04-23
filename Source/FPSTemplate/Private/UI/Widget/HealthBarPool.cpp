@@ -9,6 +9,7 @@
 #include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
 #include "Character/OWCharacterBase.h"
+#include "Actor/HealingSunStone.h"
 
 void UHealthBarPool::NativeConstruct()
 {
@@ -24,7 +25,7 @@ void UHealthBarPool::InitializeHealthBarPoolInfos()
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Blue));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Sky));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
 	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
@@ -46,6 +47,8 @@ void UHealthBarPool::BindWidgetControllerEvents()
 	{
 		InitializeHealthBarPoolInfos(); 
 	}
+
+	// TODO - Change Repetitive and Inefficient Codes 
 
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
@@ -75,6 +78,14 @@ void UHealthBarPool::BindWidgetControllerEvents()
 		OWCharacterBase->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars);
 		OWCharacterBase->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars);
 		OWCharacterBase->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars);
+	}
+
+	if (AHealingSunStone* HealingSunStone = Cast<AHealingSunStone>(WidgetController))
+	{
+		HealingSunStone->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
+		HealingSunStone->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
+		HealingSunStone->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars);
+		HealingSunStone->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars);
 	}
 }
 

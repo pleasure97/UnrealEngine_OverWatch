@@ -65,6 +65,8 @@ void AHealingSunStone::BeginPlay()
 {
 	Super::BeginPlay(); 
 
+	InitAbilityActorInfo(); 
+
 	if (UHealthBarPool* HealthBarPool = Cast<UHealthBarPool>(HealthBar->GetUserWidgetObject()))
 	{
 		HealthBarPool->SetWidgetController(this);
