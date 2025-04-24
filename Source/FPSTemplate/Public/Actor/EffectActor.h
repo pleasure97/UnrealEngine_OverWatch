@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "GameplayEffectTypes.h"
+#include "AbilitySystemInterface.h"
 #include "EffectActor.generated.h"
 
 class UAbilitySystemComponent; 
@@ -25,12 +26,14 @@ enum class EEffectRemovalPolicy : uint8
 };
 
 UCLASS()
-class FPSTEMPLATE_API AEffectActor : public AActor
+class FPSTEMPLATE_API AEffectActor : public AActor, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	AEffectActor();
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 protected:
 	UFUNCTION(BlueprintCallable)
@@ -74,5 +77,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effects")
 	float ActorLevel = 1.f; 
 private:
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent; 
 
 };

@@ -8,9 +8,20 @@
 
 AEffectActor::AEffectActor()
 {
+	bReplicates = true;
+
 	PrimaryActorTick.bCanEverTick = false; 
 
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot")); 
+
+	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComponent");
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+}
+
+UAbilitySystemComponent* AEffectActor::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
 }
 
 void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
@@ -22,11 +33,11 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
 
 	check(GameplayEffectClass); 
 
-	FGameplayEffectContextHandle EffectContextHandle = TargetASC->MakeEffectContext(); 
+	FGameplayEffectContextHandle EffectContextHandle = AbilitySystemComponent->MakeEffectContext(); 
 	EffectContextHandle.AddSourceObject(this); 
 
-	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContextHandle);
-	const FActiveGameplayEffectHandle ActiveEffectHandle = TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+	const FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClass, ActorLevel, EffectContextHandle);
+	const FActiveGameplayEffectHandle ActiveEffectHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*EffectSpecHandle.Data.Get(), TargetASC);
 
 	const bool bIsInfinite = EffectSpecHandle.Data.Get()->Def.Get()->DurationPolicy == EGameplayEffectDurationType::Infinite; 
 
