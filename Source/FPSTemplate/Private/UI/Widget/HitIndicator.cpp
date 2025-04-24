@@ -57,12 +57,14 @@ float UHitIndicator::CalculateHitDirectionNormalized(AActor* OwnerActor, const F
 void UHitIndicator::PlayStart(AActor* DamageCauser, AActor* OwnerActor, float Damage)
 {
 	if (HitIndicatorState == EHitIndicatorState::Ending) { return; }
+	if (Damage <= 0.f) { return; }
 
 	// Save Damage Causer and Owner Actor 
 	LastOwnerActor = OwnerActor; 
 	LastDamageCauser = DamageCauser; 
-	float AngleValue = CalculateHitDirectionNormalized(LastOwnerActor, LastDamageCauser->GetActorLocation()); 
-	// MID_HitIndicator->SetScalarParameterValue(FName(" "), Damage);
+	float ClampedDamage = (Damage >= 120.f) ? 0.4f : FMath::Clamp(Damage, 0.05f, 0.4f);
+	float AngleValue = CalculateHitDirectionNormalized(LastOwnerActor, LastDamageCauser->GetActorLocation());
+	MID_HitIndicator->SetScalarParameterValue(FName("AlphaIntensity"), ClampedDamage);
 	MID_HitIndicator->SetScalarParameterValue(FName("Angle"), AngleValue); 
 
 	HitIndicatorState = EHitIndicatorState::Starting; 
