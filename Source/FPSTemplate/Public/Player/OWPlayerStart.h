@@ -25,8 +25,11 @@ class FPSTEMPLATE_API AOWPlayerStart : public APlayerStart
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditAnywhere, Category = "Team")
+	int32 TeamID = INDEX_NONE; 
 
-	const FGameplayTagContainer& GetGameplayTags() { return StartPointTags; }
+	UFUNCTION(BlueprintCallable, Category = "Team")
+	int32 GetTeamID() const { return TeamID;  }
 
 	EOWPlayerStartOccupancy GetLocationOccupancy(AController* const ControllerPawnToFit) const; 
 

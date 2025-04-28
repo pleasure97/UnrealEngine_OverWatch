@@ -16,15 +16,10 @@ void FOWTeamTrackingInfo::SetTeamInfo(AOWTeamInfoBase* Info)
 
         UOWTeamDisplayAsset* OldDisplayAsset = DisplayAsset; 
         DisplayAsset = NewPublicInfo->GetTeamDisplayAsset(); 
-
-        if (OldDisplayAsset != DisplayAsset)
-        {
-            // TODO 
-        }
     }
     else if (AOWTeamPrivateInfo* NewPrivateInfo = Cast<AOWTeamPrivateInfo>(Info))
     {
-        ensure((NewPrivateInfo == nullptr) || (PrivateInfo == NewPrivateInfo)); 
+        ensure((PrivateInfo == nullptr) || (PrivateInfo == NewPrivateInfo)); 
         PrivateInfo = NewPrivateInfo; 
     }
 }
@@ -39,6 +34,16 @@ void FOWTeamTrackingInfo::RemoveTeamInfo(AOWTeamInfoBase* Info)
     {
         PrivateInfo = nullptr; 
     }
+}
+
+void UOWTeamSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+    Super::Initialize(Collection); 
+}
+
+void UOWTeamSubsystem::Deinitialize()
+{
+    Super::Deinitialize(); 
 }
 
 bool UOWTeamSubsystem::RegisterTeamInfo(AOWTeamInfoBase* TeamInfo)
@@ -98,6 +103,25 @@ const AOWPlayerState* UOWTeamSubsystem::FindPlayerStateFromActor(const AActor* P
     }
 
     return nullptr;
+}
+
+bool UOWTeamSubsystem::ChangeTeamForActor(AActor* ActorToChange, int32 NewTeamIndex)
+{
+    const FGenericTeamId NewTeamID = IntegerToGenericTeamId(NewTeamIndex); 
+    if (AOWPlayerState* OWPlayerState = const_cast<AOWPlayerState*>(FindPlayerStateFromActor(ActorToChange)))
+    {
+        OWPlayerState->SetGenericTeamId(NewTeamID); 
+        return true; 
+    }
+    else if (ITeamInterface* TeamActor = Cast<ITeamInterface>(ActorToChange))
+    {
+        TeamActor->SetGenericTeamId(NewTeamID); 
+        return true; 
+    }
+    else
+    {
+        return false;
+    }
 }
 
 int32 UOWTeamSubsystem::FindTeamFromObject(const UObject* TestObject) const

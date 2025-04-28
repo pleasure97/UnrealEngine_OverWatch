@@ -93,39 +93,26 @@ AActor* UPlayerSpawningManagerComponent::OnChoosePlayerStart(AController* Player
 	const int32 PlayerTeamID = TeamSubsystem->FindTeamFromObject(Player);
 	if (!ensure(PlayerTeamID != INDEX_NONE)) { return nullptr; }
 
-	AOWGameState* GameState = CastChecked<AOWGameState>(GetOwner());
-
-	AOWPlayerStart* BestPlayerStart = nullptr;
-	double MaxDistance = 0;
-	AOWPlayerStart* FallbackPlayerStart = nullptr;
-	double FallbackMaxDistance = 0;
-
-	for (APlayerState* PlayerState : GameState->PlayerArray)
+	TArray<AOWPlayerStart*> TeamStarts; 
+	for (AOWPlayerStart* PlayerStart : PlayerStarts)
 	{
-		const int32 TeamID = TeamSubsystem->FindTeamFromObject(PlayerState);
-
-		if (!ensure(TeamID != INDEX_NONE)) { continue; }
-
-		if (TeamID != PlayerTeamID)
+		// Check Player's Team ID is same as Player Start's Team ID 
+		if (PlayerStart && PlayerStart->GetTeamID() == PlayerTeamID)
 		{
-			for (AOWPlayerStart* PlayerStart : PlayerStarts)
-			{
-				if (APawn* Pawn = PlayerState->GetPawn())
-				{
-					const double Distance = PlayerStart->GetDistanceTo(Pawn);
-
-					// TODO
-				}
-			}
+			TeamStarts.Add(PlayerStart); 
 		}
 	}
 
-	if (BestPlayerStart)
+	// Check if Players' Team IDs do not match Player Starts' Team IDs at all.
+	const TArray<AOWPlayerStart*>& Candidates = (TeamStarts.Num() > 0) ? TeamStarts : PlayerStarts; 
+	
+	AOWPlayerStart* ChosenStart = GetFirstRandomUnoccupiedPlayerStart(Player, Candidates); 
+	if (ChosenStart)
 	{
-		return BestPlayerStart;
+		ChosenStart->TryClaim(Player); 
 	}
 
-	return FallbackPlayerStart;
+	return ChosenStart; 
 }
 
 AOWPlayerStart* UPlayerSpawningManagerComponent::GetFirstRandomUnoccupiedPlayerStart(AController* Controller, const TArray<AOWPlayerStart*>& FoundStartPoints) const

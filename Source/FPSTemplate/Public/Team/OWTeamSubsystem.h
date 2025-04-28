@@ -45,15 +45,18 @@ class FPSTEMPLATE_API UOWTeamSubsystem : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override; 
+	virtual void Deinitialize() override;
+
 	bool RegisterTeamInfo(AOWTeamInfoBase* TeamInfo); 
 	bool UnregisterTeamInfo(AOWTeamInfoBase* TeamInfo); 
 
 	const AOWPlayerState* FindPlayerStateFromActor(const AActor* PossibleTeamActor) const; 
 
+	bool ChangeTeamForActor(AActor* ActorToChange, int32 NewTeamIndex); 
 	int32 FindTeamFromObject(const UObject* TestObject) const; 
 
 	EOWTeamComparison CompareTeams(const UObject* A, const UObject* B, int32& TeamIdA, int32& TeamIdB) const; 
-
 	EOWTeamComparison CompareTeams(const UObject* A, const UObject* B) const; 
 
 	bool CanCauseDamage(const UObject* Instigator, const UObject* Target, bool bAllowDamageToSelf = true) const; 

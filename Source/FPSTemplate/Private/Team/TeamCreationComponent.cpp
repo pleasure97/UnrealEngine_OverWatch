@@ -37,6 +37,7 @@ void UTeamCreationComponent::ServerCreateTeams()
 	{
 		const int32 TeamID = Team.Key; 
 		ServerCreateTeam(TeamID, Team.Value); 
+		UE_LOG(LogTemp, Log, TEXT("Team Creation Component :: Server Create Teams() - %d"), TeamID); 
 	}
 }
 
@@ -79,6 +80,12 @@ void UTeamCreationComponent::ServerChooseTeamForPlayer(AOWPlayerState* OWPlayerS
 	{
 		const FGenericTeamId TeamID = IntegerToGenericTeamId(GetLeastPopulatedTeamID()); 
 		OWPlayerState->SetGenericTeamId(TeamID); 
+		UE_LOG(
+			LogTemp,
+			Log,
+			TEXT("Team Creation Component :: Server Choose Team For Player() - Player State : %s, Team ID : %d"),
+			*OWPlayerState->GetName(),
+			GenericTeamIdToInteger(TeamID));
 	}
 }
 
