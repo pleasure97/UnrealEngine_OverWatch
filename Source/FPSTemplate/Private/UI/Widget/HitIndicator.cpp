@@ -5,13 +5,24 @@
 #include "Components/Border.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Animation/WidgetAnimation.h"
+#include "Animation/UMGSequencePlayer.h"
 
 void UHitIndicator::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 	SetVisibility(ESlateVisibility::Collapsed); 
 
-	MID_HitIndicator = Border_HitIndicator->GetDynamicMaterial(); 
+	if (Border_HitIndicator)
+	{
+		MID_HitIndicator = Border_HitIndicator->GetDynamicMaterial(); 
+	}
+
+	if (StartAnimation)
+	{
+		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
+		AnimationFinishedEvent.BindUFunction(this, FName("OnStartAnimationFinished"));
+		BindToAnimationFinished(StartAnimation, AnimationFinishedEvent);
+	}
 
 	if (EndAnimation)
 	{
@@ -23,6 +34,11 @@ void UHitIndicator::NativeConstruct()
 
 void UHitIndicator::NativeDestruct()
 {
+	if (StartAnimation)
+	{
+		UnbindAllFromAnimationFinished(StartAnimation);
+	}
+
 	if (EndAnimation)
 	{
 		UnbindAllFromAnimationFinished(EndAnimation);
@@ -75,6 +91,13 @@ void UHitIndicator::PlayStart(AActor* DamageCauser, AActor* OwnerActor, float Da
 	{
 		PlayAnimation(StartAnimation); 
 	}
+}
+
+void UHitIndicator::OnStartAnimationFinished()
+{
+	HitIndicatorState = EHitIndicatorState::Progressing;
+
+	GetWorld()->GetTimerManager().ClearTimer(EndTimerHandle);
 
 	GetWorld()->GetTimerManager().SetTimer(
 		EndTimerHandle,
@@ -103,6 +126,57 @@ void UHitIndicator::PlayEnd()
 	}
 }
 
+void UHitIndicator::Reset()
+{
+	FlushRenderingCommands();
+
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(EndTimerHandle);
+	}
+
+	// Stop All Playing Animations
+	StopAllAnimations(); 
+
+	// Force to Clean Up Sequence Player
+	for (UUMGSequencePlayer* StoppedPlayer : StoppedSequencePlayers)
+	{
+		ActiveSequencePlayers.RemoveSwap(StoppedPlayer);
+		StoppedPlayer->TearDown();
+	}
+
+	StoppedSequencePlayers.Empty();
+
+	// Release Slate Source
+	ReleaseSlateResources(true); 
+
+	// Unbind EndAnimation Handler and Bind Again 
+	if (EndAnimation)
+	{
+		UnbindAllFromAnimationFinished(EndAnimation); 
+		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
+		AnimationFinishedEvent.BindUFunction(this, FName("OnEndAnimationFinished"));
+		BindToAnimationFinished(EndAnimation, AnimationFinishedEvent);
+	}
+
+	// 
+	SynchronizeProperties(); 
+
+	// Reset Dynamic Material Instance
+	if (Border_HitIndicator)
+	{
+		MID_HitIndicator = Border_HitIndicator->GetDynamicMaterial();
+	}
+
+	// Reset to Idle State
+	HitIndicatorState = EHitIndicatorState::Idle; 
+	SetVisibility(ESlateVisibility::Collapsed); 
+
+	// Reset Saved Owner Actor and Damage Causer 
+	LastOwnerActor = nullptr; 
+	LastDamageCauser = nullptr; 
+}
+
 void UHitIndicator::OnEndAnimationFinished()
 {
 	LastOwnerActor = nullptr; 
@@ -118,7 +192,7 @@ void UHitIndicator::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime); 
 
-	if (HitIndicatorState != EHitIndicatorState::Starting) { return; }
+	if (HitIndicatorState != EHitIndicatorState::Progressing) { return; }
 
 	if (!LastOwnerActorLocation.Equals(LastOwnerActor->GetActorLocation()) ||
 		!LastOwnerActorForwardVector.Equals(LastOwnerActor->GetActorForwardVector()) ||

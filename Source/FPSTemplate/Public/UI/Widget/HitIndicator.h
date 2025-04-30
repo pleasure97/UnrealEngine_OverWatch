@@ -15,6 +15,7 @@ enum class EHitIndicatorState : uint8
 {
 	Idle, 
 	Starting, 
+	Progressing,
 	Ending
 };
 
@@ -40,6 +41,9 @@ public:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> EndAnimation;
+
+	UFUNCTION()
+	void OnStartAnimationFinished();
 	
 	UFUNCTION()
 	void OnEndAnimationFinished();
@@ -49,6 +53,8 @@ public:
 	void PlayStart(AActor* DamageCauser, AActor* OwnerActor, float Damage); 
 
 	void PlayEnd(); 
+
+	void Reset(); 
 
 	EHitIndicatorState GetHitIndicatorState() const { return HitIndicatorState; }
 
