@@ -21,10 +21,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOverlay> Overlay_HitIndicatorPool; 
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UHitIndicator> HitIndicatorClass; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly)
 	int32 NumHitIndicators = 12; 
 
 	UFUNCTION()
@@ -35,6 +35,8 @@ public:
 
 protected:
 	virtual void NativeConstruct() override; 
+
+	virtual void NativeDestruct() override; 
 
 	TArray<UHitIndicator*> IndicatorQueue; 
 

@@ -35,6 +35,37 @@ void UHitIndicatorPool::NativeConstruct()
 	}
 }
 
+void UHitIndicatorPool::NativeDestruct()
+{
+	if (UOverlayWidgetController* OverlayController = Cast<UOverlayWidgetController>(WidgetController))
+	{
+		if (UOWAttributeSet* OWAttributeSet = Cast<UOWAttributeSet>(OverlayController->AttributeSet))
+		{
+			OWAttributeSet->OnDamageReceived.RemoveAll(this);
+		}
+	}
+
+	//  Remove Hit Indicator From Parent Before Flushing Indicator Queue
+	for (UHitIndicator* HitIndicator : IndicatorQueue)
+	{
+		if (HitIndicator)
+		{
+			HitIndicator->SetVisibility(ESlateVisibility::Collapsed);
+			HitIndicator->RemoveFromParent();
+
+			HitIndicator->Reset();
+		}
+	}
+	IndicatorQueue.Empty();
+
+	// Clear Child Widgets Added to Overlay 
+	if (Overlay_HitIndicatorPool)
+	{
+		Overlay_HitIndicatorPool->ClearChildren();
+	}
+
+}
+
 void UHitIndicatorPool::ProcessDamageReceived(AActor* DamageCauser, AActor* OwnerActor, float Damage)
 {
 	if (!DamageCauser || !OwnerActor) { return; }
@@ -71,6 +102,7 @@ void UHitIndicatorPool::ProcessDamageReceived(AActor* DamageCauser, AActor* Owne
 
 	IndicatorQueue.Add(ChosenHitIndicator); 
 
+	ChosenHitIndicator->Reset(); 
 	ChosenHitIndicator->PlayStart(DamageCauser, OwnerActor, Damage); 
 }
 
@@ -82,5 +114,6 @@ void UHitIndicatorPool::OnHitIndicatorEnd(UHitIndicator* HitIndicator)
 		IndicatorQueue.RemoveAt(QueueIndex);
 		IndicatorQueue.Add(HitIndicator); 
 	}
+	HitIndicator->Reset();
 }
 
