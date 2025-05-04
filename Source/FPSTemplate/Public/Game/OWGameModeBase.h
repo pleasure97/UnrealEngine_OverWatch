@@ -21,6 +21,7 @@ class FPSTEMPLATE_API AOWGameModeBase : public ADS_MatchGameMode
 	GENERATED_BODY()
 	
 public:
+	/* Data Asset */
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
 	TObjectPtr<UHeroInfo> HeroInfo;
 	
@@ -32,9 +33,26 @@ public:
 
 	virtual void BeginPlay() override; 
 
-	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName); 
-
+	/** AGameModeBase Interface **/
+	//virtual bool ShouldSpawnAtStartSpot(AController* Player) override;
 	virtual void GenericPlayerInitialization(AController* NewPlayer) override; 
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override; 
+	virtual void FinishRestartPlayer(AController* NewPlayer, const FRotator& StartRotation) override; 
+	virtual bool PlayerCanRestart_Implementation(APlayerController* Player) override; 
+	virtual void FailedToRestartPlayer(AController* NewPlayer) override;
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override; 
+	virtual bool UpdatePlayerStartSpot(AController* Player, const FString& Portal, FString& OutErrorMessage) override; 
+	virtual bool ShouldSpawnAtStartSpot(AController* Player) override; 
+	/** AGameModeBase Interface End **/
+
+	UFUNCTION(BlueprintCallable)
+	void RequestPlayerRestartNextFrame(AController* Controller); 
+
+	virtual bool ControllerCanRestart(AController* Controller); 
+
+	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName);
+
+	void PlayerDied(ACharacter* DeadCharacter);
 
 	FOnGameModePlayerInitialized OnGameModePlayerInitialized; 
 };
