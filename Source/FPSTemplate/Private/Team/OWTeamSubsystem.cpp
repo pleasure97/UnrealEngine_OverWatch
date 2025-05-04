@@ -126,11 +126,6 @@ bool UOWTeamSubsystem::ChangeTeamForActor(AActor* ActorToChange, int32 NewTeamIn
 
 int32 UOWTeamSubsystem::FindTeamFromObject(const UObject* TestObject) const
 {
-    if (const ITeamInterface* ObjectWithTeamInterface = Cast<ITeamInterface>(TestObject))
-    {
-        return GenericTeamIdToInteger(ObjectWithTeamInterface->GetGenericTeamId());
-    }
-
     if (const AActor* TestActor = Cast<const AActor>(TestObject))
     {
         if (const ITeamInterface* InstigatorWithTeamInterface = Cast<ITeamInterface>(TestActor->GetInstigator()))
@@ -145,6 +140,11 @@ int32 UOWTeamSubsystem::FindTeamFromObject(const UObject* TestObject) const
         {
             return OWPlayerState->GetTeamId(); 
         }
+    }
+
+    if (const ITeamInterface* ObjectWithTeamInterface = Cast<ITeamInterface>(TestObject))
+    {
+        return GenericTeamIdToInteger(ObjectWithTeamInterface->GetGenericTeamId());
     }
 
     return INDEX_NONE; 

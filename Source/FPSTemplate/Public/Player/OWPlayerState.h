@@ -99,7 +99,7 @@ private:
 	UPROPERTY()
 	FOnTeamIndexChangedDelegate OnTeamChangedDelegate;
 
-	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_MyTeamID)
 	FGenericTeamId MyTeamID;
 
 	UFUNCTION()

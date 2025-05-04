@@ -22,6 +22,7 @@ public:
 
 	virtual void InitializeComponent() override; 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
 
 protected:
 	virtual AActor* OnChoosePlayerStart(AController* Player, TArray<AOWPlayerStart*>& PlayerStarts); 
@@ -38,9 +39,6 @@ private:
 	void FinishRestartPlayer(AController* NewPlayer, const FRotator& StartRotation); 
 
 	void OnLevelAdded(ULevel* InLevel, UWorld* InWorld); 
+	void OnLevelRemoved(ULevel* InLevel, UWorld* InWorld); 
 	void HandleOnActorSpawned(AActor* SpawnedActor); 
-
-#if WITH_EDITOR
-	AOWPlayerStart* FindPlayFromHereStart(AController* Player); 
-#endif
 };

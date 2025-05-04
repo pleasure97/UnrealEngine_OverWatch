@@ -2,10 +2,37 @@
 
 
 #include "Player/OWPlayerStart.h"
+#include "Team/OWTeamSubsystem.h"
 #include "GameFramework/GameModeBase.h"
+#include "GameFramework/PlayerState.h"
+
+bool AOWPlayerStart::IsMatchingTeam(AController* Controller) const
+{
+	if (!Controller || !Controller->PlayerState)
+	{
+		return false;
+	}
+
+	UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>();
+
+	if (!ensure(TeamSubsystem))
+	{
+		return false; 
+	}
+
+	const int32 ControllerTeamID = TeamSubsystem->FindTeamFromObject(Controller->PlayerState);
+
+	return (ControllerTeamID != INDEX_NONE) && (ControllerTeamID == TeamID); 
+}
 
 EOWPlayerStartOccupancy AOWPlayerStart::GetLocationOccupancy(AController* const ControllerPawnToFit) const
 {
+	if (!IsMatchingTeam(ControllerPawnToFit))
+	{
+		// If the team doesn't fit, the Player Start's processed as Full.
+		return EOWPlayerStartOccupancy::Full;
+	}
+
 	UWorld* World = GetWorld(); 
 	if (HasAuthority() && World)
 	{

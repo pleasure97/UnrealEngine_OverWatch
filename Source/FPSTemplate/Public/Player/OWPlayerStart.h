@@ -31,6 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Team")
 	int32 GetTeamID() const { return TeamID;  }
 
+	bool IsMatchingTeam(AController* Controller) const;
+
 	EOWPlayerStartOccupancy GetLocationOccupancy(AController* const ControllerPawnToFit) const; 
 
 	bool IsClaimed() const; 

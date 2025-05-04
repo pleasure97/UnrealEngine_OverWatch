@@ -9,6 +9,9 @@
 #include "OWGameplayTags.h"
 #include "Interfaces/PlayerInterface.h"
 #include "Player/OWPlayerState.h"
+#include "Team/OWTeamSubsystem.h"
+#include "Materials/MaterialParameterCollection.h"
+#include "Materials/MaterialParameterCollectionInstance.h"
 
 AOWPlayerController::AOWPlayerController()
 {
@@ -18,6 +21,7 @@ AOWPlayerController::AOWPlayerController()
 
 void AOWPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 {
+	UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a player controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));
 }
 
 FGenericTeamId AOWPlayerController::GetGenericTeamId() const
@@ -84,7 +88,25 @@ void AOWPlayerController::CleanupPlayerState()
 void AOWPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState(); 
+
 	BroadcastOnPlayerStateChanged();
+
+	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
+	{
+		int32 MyTeamID = OWPlayerState->GetTeamId();
+
+		if (TeamMPC)
+		{
+			if (UMaterialParameterCollectionInstance* TeamMPCInstance = GetWorld()->GetParameterCollectionInstance(TeamMPC))
+			{
+				bool bSuccess = TeamMPCInstance->SetScalarParameterValue(TEXT("TeamID"), (float)MyTeamID);
+				if (!bSuccess)
+				{
+					UE_LOG(LogTemp, Error, TEXT("Team MPC Instance Set Scalar Parameter Value Failed.")); 
+				}
+			}
+		}
+	}
 }
 
 UOWAbilitySystemComponent* AOWPlayerController::GetAbilitySystemComponent()

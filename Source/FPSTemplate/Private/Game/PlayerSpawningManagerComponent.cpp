@@ -31,6 +31,7 @@ void UPlayerSpawningManagerComponent::InitializeComponent()
 	Super::InitializeComponent(); 
 
 	FWorldDelegates::LevelAddedToWorld.AddUObject(this, &UPlayerSpawningManagerComponent::OnLevelAdded); 
+	FWorldDelegates::LevelRemovedFromWorld.AddUObject(this, &UPlayerSpawningManagerComponent::OnLevelRemoved);
 
 	UWorld* World = GetWorld(); 
 	World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &UPlayerSpawningManagerComponent::HandleOnActorSpawned));
@@ -48,13 +49,6 @@ AActor* UPlayerSpawningManagerComponent::ChoosePlayerStart(AController* Player)
 {
 	if (Player)
 	{
-#if WITH_EDITOR
-		if (AOWPlayerStart* PlayerStart = FindPlayFromHereStart(Player))
-		{
-			return PlayerStart; 
-		}
-#endif
-
 		TArray<AOWPlayerStart*> StarterPoints; 
 		for (auto StartIterator = CachedPlayerStarts.CreateIterator(); StartIterator; ++StartIterator)
 		{
@@ -91,7 +85,14 @@ AActor* UPlayerSpawningManagerComponent::OnChoosePlayerStart(AController* Player
 	if (!ensure(TeamSubsystem)) { return nullptr; }
 
 	const int32 PlayerTeamID = TeamSubsystem->FindTeamFromObject(Player);
-	if (!ensure(PlayerTeamID != INDEX_NONE)) { return nullptr; }
+	if (!ensure(PlayerTeamID != INDEX_NONE)) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Controller=%s, PlayerState=%s, TeamID=%d"),
+			*Player->GetName(),
+			Player->PlayerState ? *Player->PlayerState->GetPlayerName() : TEXT("null"),
+			PlayerTeamID);
+		return nullptr; 
+	}
 
 	TArray<AOWPlayerStart*> TeamStarts; 
 	for (AOWPlayerStart* PlayerStart : PlayerStarts)
@@ -103,10 +104,8 @@ AActor* UPlayerSpawningManagerComponent::OnChoosePlayerStart(AController* Player
 		}
 	}
 
-	// Check if Players' Team IDs do not match Player Starts' Team IDs at all.
-	const TArray<AOWPlayerStart*>& Candidates = (TeamStarts.Num() > 0) ? TeamStarts : PlayerStarts; 
-	
-	AOWPlayerStart* ChosenStart = GetFirstRandomUnoccupiedPlayerStart(Player, Candidates); 
+	// Check if Players' Team IDs do not match Player Starts' Team IDs at all.	
+	AOWPlayerStart* ChosenStart = GetFirstRandomUnoccupiedPlayerStart(Player, TeamStarts); 
 	if (ChosenStart)
 	{
 		ChosenStart->TryClaim(Player); 
@@ -131,6 +130,9 @@ AOWPlayerStart* UPlayerSpawningManagerComponent::GetFirstRandomUnoccupiedPlayerS
 				UnoccupiedStartPoints.Add(FoundStartPoint);
 				break;
 			case EOWPlayerStartOccupancy::Partial:
+				OccupiedStartPoints.Add(FoundStartPoint);
+				break;
+			case EOWPlayerStartOccupancy::Full:
 				OccupiedStartPoints.Add(FoundStartPoint);
 				break;
 			}
@@ -174,6 +176,26 @@ void UPlayerSpawningManagerComponent::OnLevelAdded(ULevel* InLevel, UWorld* InWo
 	}
 }
 
+void UPlayerSpawningManagerComponent::OnLevelRemoved(ULevel* InLevel, UWorld* InWorld)
+{
+	if (InWorld != GetWorld())
+	{
+		return; 
+	}
+
+	// Delete Added Player Starts From Cached Player Starts
+	for (AActor* Actor : InLevel->Actors)
+	{
+		if (AOWPlayerStart* OWPlayerStart = Cast<AOWPlayerStart>(Actor))
+		{
+			CachedPlayerStarts.RemoveAll([OWPlayerStart](const TWeakObjectPtr<AOWPlayerStart>& WeakPlayerStart)
+				{
+					return WeakPlayerStart.Get() == OWPlayerStart;
+				});
+		}
+	}
+}
+
 void UPlayerSpawningManagerComponent::HandleOnActorSpawned(AActor* SpawnedActor)
 {
 	if (AOWPlayerStart* PlayerStart = Cast<AOWPlayerStart>(SpawnedActor))
@@ -182,32 +204,18 @@ void UPlayerSpawningManagerComponent::HandleOnActorSpawned(AActor* SpawnedActor)
 	}
 }
 
-# if WITH_EDITOR
-AOWPlayerStart* UPlayerSpawningManagerComponent::FindPlayFromHereStart(AController* Player)
-{
-	if (Player->IsA<APlayerController>())
-	{
-		if (UWorld* World = GetWorld())
-		{
-			for (TActorIterator<AOWPlayerStart> It(World); It; ++It)
-			{
-				if (AOWPlayerStart* PlayerStart = *It)
-				{
-					if (PlayerStart->IsA<APlayerStartPIE>())
-					{
-						return PlayerStart; 
-					}
-				}
-			}
-		}
-	}
-	return nullptr; 
-}
-# endif
-
-
 void UPlayerSpawningManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UPlayerSpawningManagerComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	FWorldDelegates::LevelAddedToWorld.RemoveAll(this);
+	FWorldDelegates::LevelRemovedFromWorld.RemoveAll(this);
+
+	CachedPlayerStarts.Empty();
+
+	Super::EndPlay(EndPlayReason); 
 }
 

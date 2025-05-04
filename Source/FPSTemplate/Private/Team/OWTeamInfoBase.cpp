@@ -6,6 +6,7 @@
 #include "Team/OWTeamSubsystem.h"
 
 AOWTeamInfoBase::AOWTeamInfoBase()
+	: TeamID (INDEX_NONE)
 {
 	bReplicates = true; 
 	bAlwaysRelevant = true; 

@@ -22,7 +22,7 @@ void UOWLocalPlayer::InitOnlineSession()
 void UOWLocalPlayer::OnPlayerControllerChanged(APlayerController* NewController)
 {
 	FGenericTeamId OldTeamID = FGenericTeamId::NoTeam; 
-	if (ITeamInterface* ControllerAsTeamProvider = Cast<ITeamInterface>(LastBoundPlayerController))
+	if (ITeamInterface* ControllerAsTeamProvider = Cast<ITeamInterface>(LastBoundPlayerController.Get()))
 	{
 		OldTeamID = ControllerAsTeamProvider->GetGenericTeamId(); 
 		ControllerAsTeamProvider->GetTeamChangedDelegate().RemoveAll(this);
