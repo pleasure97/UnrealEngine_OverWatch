@@ -65,10 +65,28 @@ struct FOWHeroInfo
 	EHeroClass HeroClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<const UTexture2D> HeroPortrait2D = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<const UTexture2D> HeroPortrait3D = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FOWAbilityInfo> Abilities; 
+};
+
+USTRUCT(BlueprintType)
+struct FOWCommonClassInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<const UTexture2D> ClassIcon = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> PrimaryAttributes; 
 };
 
 UCLASS()
@@ -79,6 +97,9 @@ class FPSTEMPLATE_API UHeroInfo : public UDataAsset
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Defaults")
 	TMap<EHeroName, FOWHeroInfo> HeroInformation;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
+	TMap<EHeroClass, FOWCommonClassInfo> CommonClassInformation;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;

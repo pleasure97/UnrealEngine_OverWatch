@@ -17,6 +17,9 @@
 
 AOWCharacterBase::AOWCharacterBase()
 {
+	bReplicates = true; 
+	SetReplicateMovement(true);
+
 	PrimaryActorTick.bCanEverTick = false;
 	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get();
 
@@ -31,7 +34,8 @@ AOWCharacterBase::AOWCharacterBase()
 	// Widget Component 
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("WidgetComponent");
 	WidgetComponent->SetupAttachment(GetRootComponent());
-	WidgetComponent->SetOwnerNoSee(true);
+	WidgetComponent->SetOnlyOwnerSee(false);
+	WidgetComponent->SetOwnerNoSee(false);
 	WidgetComponent->SetIsReplicated(true); 
 }
 
