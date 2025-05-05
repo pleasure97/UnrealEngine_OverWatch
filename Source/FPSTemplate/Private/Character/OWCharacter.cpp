@@ -4,6 +4,8 @@
 #include "Character/OWCharacter.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Character/CameraTransitionComponent.h"
+#include "Components/PostProcessComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Player/OWPlayerState.h"
 #include "Player/OWPlayerController.h"
@@ -15,66 +17,74 @@
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/CapsuleComponent.h"
+#include "Game/OWGameModeBase.h"
+#include "Kismet/GameplayStatics.h"
 
 AOWCharacter::AOWCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true; 
 
-	FirstPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("FirstPersonSpringArm"); 
-	FirstPersonSpringArm->SetupAttachment(GetRootComponent()); 
-	FirstPersonSpringArm->TargetArmLength = 0.f; 
-	FirstPersonSpringArm->bEnableCameraLag = true; 
-	FirstPersonSpringArm->CameraLagSpeed = 15.f; 
-	FirstPersonSpringArm->bUsePawnControlRotation = true; 
+	FirstPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("FirstPersonSpringArm");
+	FirstPersonSpringArm->SetupAttachment(GetRootComponent());
+	FirstPersonSpringArm->TargetArmLength = 0.f;
+	FirstPersonSpringArm->bEnableCameraLag = true;
+	FirstPersonSpringArm->CameraLagSpeed = 15.f;
+	FirstPersonSpringArm->bUsePawnControlRotation = true;
 
-	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera"); 
-	FirstPersonCamera->SetupAttachment(FirstPersonSpringArm); 
+	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
+	FirstPersonCamera->SetupAttachment(FirstPersonSpringArm);
 	FirstPersonCamera->bUsePawnControlRotation = false;
 
-	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>("FirstPersonMesh"); 
-	FirstPersonMesh->SetupAttachment(FirstPersonCamera); 
-	// Show FirstPersonMesh visible to the user, invisible to other clients 
-	FirstPersonMesh->bOnlyOwnerSee = true; 
-	FirstPersonMesh->bOwnerNoSee = false; 
-	FirstPersonMesh->bCastDynamicShadow = false; 
-	FirstPersonMesh->bReceivesDecals = false; 
-	FirstPersonMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered; 
-	FirstPersonMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics; 
+	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>("FirstPersonMesh");
+	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
+
+	ThirdPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("ThirdPersonSpringArm"); 
+	ThirdPersonSpringArm->SetupAttachment(GetRootComponent());
+
+	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>("ThirdPersonCamera"); 
+	ThirdPersonCamera->SetupAttachment(ThirdPersonSpringArm);
+	ThirdPersonCamera->SetRelativeLocation(FVector(0., 10., 53.));
+	ThirdPersonCamera->bUsePawnControlRotation = true;
+
+	CameraTransitionComponent = CreateDefaultSubobject<UCameraTransitionComponent>("CameraTransitionComponent");
+	CameraTransitionComponent->FirstPersonSpringArm = FirstPersonSpringArm;
+	CameraTransitionComponent->FirstPersonCamera = FirstPersonCamera;
+	CameraTransitionComponent->ThirdPersonSpringArm = ThirdPersonSpringArm; 
+	CameraTransitionComponent->ThirdPersonCamera = ThirdPersonCamera;
 
 	// Show ThirdPersonMesh visible to other clients, invisible to the user 
 	GetMesh()->bOnlyOwnerSee = false; 
 	GetMesh()->bOwnerNoSee = true; 
 	GetMesh()->bReceivesDecals = false; 
-
-	ThirdPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("ThirdPersonSpringArm"); 
-	ThirdPersonSpringArm->SetupAttachment(GetRootComponent()); 
-
-	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>("ThirdPersonCamera"); 
-	ThirdPersonCamera->SetupAttachment(ThirdPersonSpringArm); 
-	ThirdPersonCamera->SetRelativeLocation(FVector(0., 10., 53.)); 
-	ThirdPersonCamera->bUsePawnControlRotation = true; 
-
-	TPtoFPCameraTimeline = CreateDefaultSubobject<UTimelineComponent>("TPtoFPCameraTimeline"); 
-	FPtoTPCameraTimeline = CreateDefaultSubobject<UTimelineComponent>("FPtoTPCameraTimeline"); 
 }
 
 void AOWCharacter::BeginPlay()
 {
 	Super::BeginPlay(); 
 
-	FirstPersonCameraTransform = FirstPersonCamera->GetRelativeTransform(); 
-	ThirdPersonCameraTransform = ThirdPersonCamera->GetRelativeTransform(); 
+	CameraTransitionComponent->SetFirstPersonCameraTransform(FirstPersonCamera->GetRelativeTransform()); 
+	CameraTransitionComponent->SetThirdPersonCameraTransform(ThirdPersonCamera->GetRelativeTransform()); 
+	CameraTransitionComponent->ActiveFirstPersonCamera(); 
 
-	ActiveFirstPersonCamera(); 
+	// Show FirstPersonMesh visible to the user, invisible to other clients 
+	if (IsLocallyControlled())
+	{
+		
 
-	if (FPtoTPCameraTimeline)
-	{
-		FPtoTPCameraTimeline->SetPlayRate(CameraTransitionSpeed);
+
+
+		FirstPersonMesh->bOnlyOwnerSee = true;
+		FirstPersonMesh->bOwnerNoSee = false;
 	}
-	if (TPtoFPCameraTimeline)
+	else
 	{
-		TPtoFPCameraTimeline->SetPlayRate(CameraTransitionSpeed);
+		FirstPersonMesh->bOnlyOwnerSee = true;
+		FirstPersonMesh->bOwnerNoSee = false;
 	}
+	FirstPersonMesh->bCastDynamicShadow = false;
+	FirstPersonMesh->bReceivesDecals = false;
+	FirstPersonMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	FirstPersonMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)
@@ -115,7 +125,6 @@ void AOWCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	Super::SetupPlayerInputComponent(PlayerInputComponent); 
 
 	UEnhancedInputComponent* OWInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent); 
-
 }
 
 void AOWCharacter::OnRep_PlayerState()
@@ -211,68 +220,33 @@ int32 AOWCharacter::GetCharacterLevel_Implementation() const
 	return OWPlayerState->GetPlayerLevel();
 }
 
+void AOWCharacter::Die(const FVector& DeathImpulse)
+{
+	Super::Die(DeathImpulse); 
+
+	CameraTransitionComponent->ActiveThirdPersonCamera(); 
+
+	FTimerDelegate DeathTimerDelegate; 
+	DeathTimerDelegate.BindLambda(
+		[this]()
+		{
+			AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(this));
+			if (OWGameMode)
+			{
+				OWGameMode->PlayerDied(this);
+			}
+		}); 
+	GetWorldTimerManager().SetTimer(DeathTimer, DeathTimerDelegate, DeathTime, false);
+}
+
+UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() const
+{
+	return FirstPersonMesh->GetAnimInstance(); 
+}
+
 void AOWCharacter::TransitionCamera_Implementation(bool bSmoothTransition)
 {
-	if (bCameraTransitioning) return; 
-
-	bCameraTransitioning = true; 
-
-	if (bSmoothTransition)
-	{
-		if (bFirstPersonView)
-		{
-			if (!SlideAmount || !FPtoTPCameraTimeline) return; 
-
-			FOnTimelineFloat TimelineProgress;
-			TimelineProgress.BindUFunction(this, FName("UpdateFPtoTPCamera"));
-			FPtoTPCameraTimeline->AddInterpFloat(SlideAmount, TimelineProgress);
-
-			FOnTimelineEvent TimelineFinished;
-			TimelineFinished.BindUFunction(this, FName("FinishFPtoTPCamera"));
-			FPtoTPCameraTimeline->SetTimelineFinishedFunc(TimelineFinished);
-
-			FPtoTPCameraTimeline->SetLooping(false);
-			FPtoTPCameraTimeline->PlayFromStart();
-
-			if (IsLocallyControlled() || HasAuthority())
-			{
-				GetMesh()->SetVisibility(true, true);
-				FirstPersonMesh->SetVisibility(false, true);
-			}
-		}
-		else
-		{
-			if (!SlideAmount || !TPtoFPCameraTimeline) return; 
-
-			FOnTimelineFloat TimelineProgress;
-			TimelineProgress.BindUFunction(this, FName("UpdateTPtoFPCamera"));
-			TPtoFPCameraTimeline->AddInterpFloat(SlideAmount, TimelineProgress);
-
-			FOnTimelineEvent TimelineFinished;
-			TimelineFinished.BindUFunction(this, FName("FinishTPtoFPCamera"));
-			TPtoFPCameraTimeline->SetTimelineFinishedFunc(TimelineFinished);
-
-			TPtoFPCameraTimeline->SetLooping(false);
-			TPtoFPCameraTimeline->PlayFromStart();
-
-			if (IsLocallyControlled() || HasAuthority())
-			{
-				GetMesh()->SetVisibility(false, true);
-				FirstPersonMesh->SetVisibility(true, true);
-			}
-		}
-	}
-	else
-	{
-		if (bFirstPersonView)
-		{
-			ActiveThirdPersonCamera(); 
-		}
-		else
-		{
-			ActiveFirstPersonCamera(); 
-		}
-	}
+	CameraTransitionComponent->TransitionCamera(bSmoothTransition); 
 }
 
 void AOWCharacter::InitAbilityActorInfo()
@@ -295,51 +269,6 @@ void AOWCharacter::InitAbilityActorInfo()
 			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
 		}
 	}
-}
-
-void AOWCharacter::ActiveFirstPersonCamera()
-{
-	bUseControllerRotationYaw = true; 
-	ThirdPersonCamera->SetActive(false); 
-	FirstPersonCamera->SetActive(true); 
-	bFirstPersonView = true; 
-}
-
-void AOWCharacter::ActiveThirdPersonCamera()
-{
-	bUseControllerRotationYaw = false; 
-	FirstPersonCamera->SetActive(false); 
-	ThirdPersonCamera->SetActive(true); 
-	bFirstPersonView = false; 
-}
-
-void AOWCharacter::UpdateFPtoTPCamera(float Output)
-{
-	FTransform NewTransform = UKismetMathLibrary::TLerp(FirstPersonCamera->GetComponentTransform(), ThirdPersonCamera->GetComponentTransform(), Output); 
-	FirstPersonCamera->SetWorldTransform(NewTransform); 
-}
-
-void AOWCharacter::FinishFPtoTPCamera()
-{
-	ActiveThirdPersonCamera(); 
-	FirstPersonCamera->SetRelativeTransform(FirstPersonCameraTransform); 
-	bCameraTransitioning = false; 
-}
-
-void AOWCharacter::UpdateTPtoFPCamera(float Output)
-{
-	FVector NewVector = UKismetMathLibrary::VLerp(ThirdPersonCamera->GetComponentLocation(), FirstPersonCamera->GetComponentLocation(), Output);
-	ThirdPersonCamera->SetWorldLocation(NewVector); 
-
-	FRotator NewRotator = UKismetMathLibrary::RLerp(GetCapsuleComponent()->GetComponentRotation(), ThirdPersonCamera->GetComponentRotation(), Output, false); 
-	GetCapsuleComponent()->SetWorldRotation(NewRotator); 
-}
-
-void AOWCharacter::FinishTPtoFPCamera()
-{
-	ActiveFirstPersonCamera(); 
-	ThirdPersonCamera->SetRelativeTransform(ThirdPersonCameraTransform); 
-	bCameraTransitioning = false;
 }
 
 void AOWCharacter::MulticastLevelUp_Implementation() const

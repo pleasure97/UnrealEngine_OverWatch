@@ -8,9 +8,10 @@
 #include "OWCharacter.generated.h"
 
 class USpringArmComponent; 
-class UCameraComponent; 
+class UCameraComponent;
+class UCameraTransitionComponent; 
 class UInputComponent; 
-class UTimelineComponent; 
+class UPostProcessComponent; 
 
 /**
  * 
@@ -46,38 +47,13 @@ public:
 
 	/* Combat Interface */
 	virtual int32 GetCharacterLevel_Implementation() const override; 
-	virtual void TransitionCamera_Implementation(bool bSmoothTransition) override; 
+	virtual void Die(const FVector& DeathImpulse) override; 
+	virtual UAnimInstance* GetFirstPersonMeshAnimInstance_Implementation() const override;
+	virtual void TransitionCamera_Implementation(bool bSmoothTransition) override;
 	/* End Combat Interface */
 
-	/* Camera Timeline*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Transition")
-	TObjectPtr<UCurveFloat> SlideAmount;
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera Transition")
-	TObjectPtr<UTimelineComponent> FPtoTPCameraTimeline;
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera Transition")
-	TObjectPtr<UTimelineComponent> TPtoFPCameraTimeline;
-	/* End Camera Timeline */
 private:
 	void InitAbilityActorInfo(); 
-
-	/* Camera */
-	void ActiveFirstPersonCamera(); 
-
-	void ActiveThirdPersonCamera(); 
-
-	UFUNCTION()
-	void UpdateFPtoTPCamera(float Output); 
-
-	UFUNCTION()
-	void FinishFPtoTPCamera(); 
-
-	UFUNCTION()
-	void UpdateTPtoFPCamera(float Output);
-
-	UFUNCTION()
-	void FinishTPtoFPCamera(); 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> FirstPersonSpringArm; 
@@ -86,28 +62,22 @@ private:
 	TObjectPtr<UCameraComponent> FirstPersonCamera; 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> ThirdPersonSpringArm; 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> ThirdPersonCamera; 
-
-	UPROPERTY()
-	FTransform FirstPersonCameraTransform; 
-
-	UPROPERTY()
-	FTransform ThirdPersonCameraTransform; 
-
-	bool bCameraTransitioning = false;
-
-	bool bFirstPersonView = true; 
-
-	UPROPERTY()
-	float CameraTransitionSpeed = 0.025f; 
 	/* Camera End */
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh; 
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCameraTransitionComponent> CameraTransitionComponent;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUp() const; 
+
+	FTimerHandle DeathTimer; 
+
+	float DeathTime = 9.f; 
 };
