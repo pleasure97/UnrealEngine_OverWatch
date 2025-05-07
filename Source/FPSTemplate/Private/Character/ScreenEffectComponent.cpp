@@ -2,34 +2,26 @@
 
 
 #include "Character/ScreenEffectComponent.h"
-#include "Components/PostProcessComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 
-void UScreenEffectComponent::OnRegister()
+
+void UScreenEffectComponent::ApplyPostProcessMaterials(UCameraComponent* CameraComponent)
 {
-	Super::OnRegister();
-
-	PostProcessComponent = NewObject<UPostProcessComponent>(GetOwner()); 
-	PostProcessComponent->SetupAttachment(GetOwner()->GetRootComponent()); 
-	PostProcessComponent->bUnbound = true; 
-	PostProcessComponent->RegisterComponent(); 
-
-	ApplyPostProcessMaterials();
-}
-
-void UScreenEffectComponent::ApplyPostProcessMaterials()
-{
-	if (PostProcessMaterials.IsEmpty() || !PostProcessComponent)
+	if (PostProcessMaterials.IsEmpty() || !MaterialInstanceDynamics.IsEmpty())
 	{
 		return;
 	}
 
-	PostProcessComponent->Settings.WeightedBlendables.Array.Empty(); 
-
 	for (UMaterialInterface* PostProcessMaterial : PostProcessMaterials)
 	{
-		UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(PostProcessMaterial, this); 
-		PostProcessComponent->Settings.WeightedBlendables.Array.Add(FWeightedBlendable(1.f, MID)); 
+		UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(PostProcessMaterial, this);
+		if (!MID)
+		{
+			return; 
+		}
+		MaterialInstanceDynamics.Add(MID); 
+		CameraComponent->AddOrUpdateBlendable(MID, 1.f); 
 	}
 }
 

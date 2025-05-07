@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ScreenEffectComponent.generated.h"
 
-class UPostProcessComponent; 
+class UCameraComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSTEMPLATE_API UScreenEffectComponent : public UActorComponent
@@ -21,14 +21,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Screen Effects")
 	TArray<UMaterialInterface*> PostProcessMaterials; 
 
-	void SetScalarParameterValue(FName ScalaraParameterName, float ScalarParameterValue);
-
-protected:
-	virtual void OnRegister() override;
-
-private:
 	UPROPERTY()
-	TObjectPtr<UPostProcessComponent> PostProcessComponent; 
+	TArray<UMaterialInstanceDynamic*> MaterialInstanceDynamics;
 
-	void ApplyPostProcessMaterials(); 
+	void SetScalarParameterValue(FName ScalarParameterName, float ScalarParameterValue);
+
+	void ApplyPostProcessMaterials(UCameraComponent* CameraComponent);
 };
