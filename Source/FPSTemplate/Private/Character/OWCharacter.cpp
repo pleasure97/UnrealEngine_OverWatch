@@ -5,7 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Character/CameraTransitionComponent.h"
-#include "Components/PostProcessComponent.h"
+#include "Character/ScreenEffectComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Player/OWPlayerState.h"
 #include "Player/OWPlayerController.h"
@@ -52,6 +52,8 @@ AOWCharacter::AOWCharacter()
 	CameraTransitionComponent->ThirdPersonSpringArm = ThirdPersonSpringArm; 
 	CameraTransitionComponent->ThirdPersonCamera = ThirdPersonCamera;
 
+	ScreenEffectComponent = CreateDefaultSubobject<UScreenEffectComponent>("ScreenEffectComponent");
+
 	// Show ThirdPersonMesh visible to other clients, invisible to the user 
 	GetMesh()->bOnlyOwnerSee = false; 
 	GetMesh()->bOwnerNoSee = true; 
@@ -69,10 +71,6 @@ void AOWCharacter::BeginPlay()
 	// Show FirstPersonMesh visible to the user, invisible to other clients 
 	if (IsLocallyControlled())
 	{
-		
-
-
-
 		FirstPersonMesh->bOnlyOwnerSee = true;
 		FirstPersonMesh->bOwnerNoSee = false;
 	}
@@ -94,6 +92,19 @@ void AOWCharacter::PossessedBy(AController* NewController)
 	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
 	{
 		OWPlayerState->OnRep_SelectedHeroName(); 
+	}
+
+	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(NewController))
+	{
+		MyTeamID = ControllerWithTeamInterface->GetGenericTeamId();
+		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacter::OnTeamChanged);
+	}
+
+	if (IsLocallyControlled())
+	{
+		ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera);
+		ScreenEffectComponent->ApplyPostProcessMaterials(ThirdPersonCamera);
+		ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
 	}
 
 	InitAbilityActorInfo(); 
@@ -247,6 +258,16 @@ UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() con
 void AOWCharacter::TransitionCamera_Implementation(bool bSmoothTransition)
 {
 	CameraTransitionComponent->TransitionCamera(bSmoothTransition); 
+}
+
+void AOWCharacter::OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
+{
+	if (IsLocallyControlled())
+	{
+		ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera); 
+		ScreenEffectComponent->ApplyPostProcessMaterials(ThirdPersonCamera); 
+		ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
+	}
 }
 
 void AOWCharacter::InitAbilityActorInfo()

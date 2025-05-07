@@ -11,7 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UCameraTransitionComponent; 
 class UInputComponent; 
-class UPostProcessComponent; 
+class UScreenEffectComponent; 
 
 /**
  * 
@@ -52,6 +52,9 @@ public:
 	virtual void TransitionCamera_Implementation(bool bSmoothTransition) override;
 	/* End Combat Interface */
 
+	UFUNCTION()
+	void OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
+
 private:
 	void InitAbilityActorInfo(); 
 
@@ -73,6 +76,9 @@ private:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraTransitionComponent> CameraTransitionComponent;
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UScreenEffectComponent> ScreenEffectComponent;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUp() const; 
