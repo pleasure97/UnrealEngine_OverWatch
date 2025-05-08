@@ -7,7 +7,7 @@
 #include "Components/Image.h"
 #include "Combat/CombatComponent.h"
 #include "Weapon/Weapon.h"
-#include "Interfaces/PlayerInterface.h"
+#include "Interface/PlayerInterface.h"
 
 namespace Reticle
 {

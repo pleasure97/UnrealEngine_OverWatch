@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Player/DS_MatchPlayerState.h"
 #include "AbilitySystemInterface.h"
-#include "Interfaces/TeamInterface.h"
+#include "Interface/TeamInterface.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "OWPlayerState.generated.h"

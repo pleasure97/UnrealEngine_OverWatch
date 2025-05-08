@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/LocalPlayer.h"
-#include "Interfaces/TeamInterface.h"
+#include "Interface/TeamInterface.h"
 #include "OWLocalPlayer.generated.h"
 
 /**

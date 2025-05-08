@@ -3,7 +3,7 @@
 
 #include "Weapon/Weapon.h"
 
-#include "Interfaces/PlayerInterface.h"
+#include "Interface/PlayerInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 

@@ -2,7 +2,7 @@
 
 
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 

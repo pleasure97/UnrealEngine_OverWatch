@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/CameraTransitionComponent.h"
+#include "Component/CameraTransitionComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMathLibrary.h"

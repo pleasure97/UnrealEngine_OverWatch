@@ -9,6 +9,7 @@
 class UAnimMontage; 
 class UAbilitySystemComponent; 
 class USkeletalMeshComponent; 
+class UAnimInstance; 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor); 
@@ -77,4 +78,8 @@ public:
 	/* Camera */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void TransitionCamera(bool bSmoothTransition); 
+
+	/* Animation */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UAnimInstance* GetFirstPersonMeshAnimInstance() const; 
 };

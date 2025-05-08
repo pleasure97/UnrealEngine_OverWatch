@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "AbilitySystemInterface.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "OWAbilityTypes.h"
 #include "HealingSunStone.generated.h"

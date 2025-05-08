@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "GameplayTagContainer.h"
-#include "Interfaces/PlayerInterface.h"
+#include "Interface/PlayerInterface.h"
 #include "ShooterTypes/ShooterTypes.h"
 #include "ShooterCharacter.generated.h"
 

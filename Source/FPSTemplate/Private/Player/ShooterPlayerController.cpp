@@ -6,7 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
-#include "Interfaces/PlayerInterface.h"
+#include "Interface/PlayerInterface.h"
 
 AShooterPlayerController::AShooterPlayerController()
 {

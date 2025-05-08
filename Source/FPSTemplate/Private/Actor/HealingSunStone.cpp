@@ -13,7 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Team/OWTeamSubsystem.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "UI/Widget/HealthBarPool.h"
 

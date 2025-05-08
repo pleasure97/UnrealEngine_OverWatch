@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/OWCharacterBase.h"
-#include "Interfaces/LevelUpInterface.h"
+#include "Interface/LevelUpInterface.h"
 #include "OWCharacter.generated.h"
 
 class USpringArmComponent; 

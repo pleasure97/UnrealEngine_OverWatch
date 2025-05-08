@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/Abilities/Support/Illiari/SolarRifle.h"
 #include "AbilitySystemGlobals.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Actor/OWProjectile.h"

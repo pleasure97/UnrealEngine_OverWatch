@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/ScreenEffectComponent.h"
+#include "Component/ScreenEffectComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 

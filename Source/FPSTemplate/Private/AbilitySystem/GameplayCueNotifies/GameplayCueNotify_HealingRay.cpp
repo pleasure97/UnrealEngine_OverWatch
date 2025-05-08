@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/GameplayCueNotifies/GameplayCueNotify_HealingRay.h"
 #include "NiagaraFunctionLibrary.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "Team/OWTeamSubsystem.h"
 #include "NiagaraComponent.h"
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Character/ShooterHealthComponent.h"
+#include "Component/ShooterHealthComponent.h"
 #include "Net/UnrealNetwork.h"
 
 UShooterHealthComponent::UShooterHealthComponent()

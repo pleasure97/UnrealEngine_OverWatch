@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Character/OWCharacterBase.h"
-#include "Interfaces/OmnicInterface.h"
+#include "Interface/OmnicInterface.h"
 #include "OWOmnic.generated.h"
 
 /**

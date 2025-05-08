@@ -5,7 +5,7 @@
 #include "AbilitySystemGlobals.h"
 #include "UI/Widget/UltimateDuration.h"
 #include "Components/TimelineComponent.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "Abilities/Tasks/AbilityTask_WaitInputPress.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"

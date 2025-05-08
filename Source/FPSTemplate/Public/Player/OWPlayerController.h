@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Player/DSPlayerController.h"
-#include "Interfaces/TeamInterface.h"
+#include "Interface/TeamInterface.h"
 #include "GameplayTagContainer.h"
 #include "OWPlayerController.generated.h"
 

@@ -4,7 +4,7 @@
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 #include "AbilitySystem/OWAttributeSet.h"
 #include "OWGameplayTags.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Team/OWTeamSubsystem.h"

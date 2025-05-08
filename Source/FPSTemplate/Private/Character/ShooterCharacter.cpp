@@ -5,7 +5,7 @@
 
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Character/ShooterHealthComponent.h"
+#include "Component/ShooterHealthComponent.h"
 #include "Data/WeaponData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"

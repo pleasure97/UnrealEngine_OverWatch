@@ -5,7 +5,7 @@
 
 #include "Character/ShooterCharacter.h"
 #include "Combat/CombatComponent.h"
-#include "Interfaces/PlayerInterface.h"
+#include "Interface/PlayerInterface.h"
 #include "Weapon/Weapon.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
