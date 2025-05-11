@@ -9,16 +9,6 @@
 class UBorder; 
 class UMaterialInstanceDynamic; 
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnHitIndicatorEnd, UHitIndicator*); 
-
-enum class EHitIndicatorState : uint8
-{
-	Idle, 
-	Starting, 
-	Progressing,
-	Ending
-};
-
 /**
  * 
  */
@@ -32,46 +22,38 @@ public:
 	TObjectPtr<UBorder> Border_HitIndicator; 
 
 	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> MID_HitIndicator;
+	UMaterialInstanceDynamic* MID_HitIndicator;
 
-	FOnHitIndicatorEnd OnHitIndicatorEnd; 
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> StartAnimation;
+	UPROPERTY(EditAnywhere, Category = "Damage")
+	float MaxDamage = 120.f;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> EndAnimation;
+	UWidgetAnimation* StartAnimation;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* EndAnimation;
 
 	UFUNCTION()
-	void OnStartAnimationFinished();
-	
+	void OnStartAnimationFinished(); 
+
 	UFUNCTION()
 	void OnEndAnimationFinished();
 
-	float CalculateHitDirectionNormalized(AActor* OwnerActor, const FVector& DamageCauserLocation); 
+	float CalculateHitDirectionNormalized(AActor* InOwnerActor, const FVector& InDamageCauserLocation);
 
-	void PlayStart(AActor* DamageCauser, AActor* OwnerActor, float Damage); 
-
-	void PlayEnd(); 
-
-	void Reset(); 
-
-	EHitIndicatorState GetHitIndicatorState() const { return HitIndicatorState; }
+	void SetHitInfo(AActor* InDamageCauser, AActor* InOwnerActor, float InDamage);
 
 protected:
 	virtual void NativeConstruct() override; 
 	virtual void NativeDestruct() override; 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-	FTimerHandle EndTimerHandle; 
-
-	EHitIndicatorState HitIndicatorState = EHitIndicatorState::Idle;
-
 private:
-	TObjectPtr<AActor> LastOwnerActor = nullptr; 
-	TObjectPtr<AActor> LastDamageCauser = nullptr; 
+	TObjectPtr<AActor> OwnerActor = nullptr; 
+	TObjectPtr<AActor> DamageCauser = nullptr; 
+	float Damage = 0.f; 
 
-	FVector LastOwnerActorForwardVector; 
-	FVector LastOwnerActorLocation; 
-	FVector LastDamageCauserLocation; 
+	FVector OwnerActorForwardVector; 
+	FVector OwnerActorLocation; 
+	FVector DamageCauserLocation; 
 };

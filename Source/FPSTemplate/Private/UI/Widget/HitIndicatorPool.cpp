@@ -11,10 +11,12 @@ void UHitIndicatorPool::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
+	// Check Hit Indicator Widget Class is not nullptr 
 	if (!HitIndicatorClass) { return; }
 
 	check(WidgetController); 
 
+	// Bind Overlay Widget Controller to ProcessDamageReceived() Callback
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
 		SetWidgetController(OverlayWidgetController); 
@@ -24,96 +26,32 @@ void UHitIndicatorPool::NativeConstruct()
 			OWAttributeSet->OnDamageReceived.AddUObject(this, &UHitIndicatorPool::ProcessDamageReceived); 
 		}
 	}
-
-	for (int32 i = 0; i < NumHitIndicators; ++i)
-	{
-		UHitIndicator* HitIndicator = CreateWidget<UHitIndicator>(this, HitIndicatorClass);
-		Overlay_HitIndicatorPool->AddChild(HitIndicator); 
-		HitIndicator->SetVisibility(ESlateVisibility::Collapsed); 
-		HitIndicator->OnHitIndicatorEnd.AddUObject(this, &UHitIndicatorPool::OnHitIndicatorEnd); 
-		IndicatorQueue.Add(HitIndicator); 
-	}
 }
 
 void UHitIndicatorPool::NativeDestruct()
 {
+	// Unbind Overlay Widget Controller to All Callbacks 
 	if (UOverlayWidgetController* OverlayController = Cast<UOverlayWidgetController>(WidgetController))
 	{
 		if (UOWAttributeSet* OWAttributeSet = Cast<UOWAttributeSet>(OverlayController->AttributeSet))
 		{
 			OWAttributeSet->OnDamageReceived.RemoveAll(this);
 		}
-	}
+	} 
 
-	//  Remove Hit Indicator From Parent Before Flushing Indicator Queue
-	for (UHitIndicator* HitIndicator : IndicatorQueue)
-	{
-		if (HitIndicator)
-		{
-			HitIndicator->SetVisibility(ESlateVisibility::Collapsed);
-			HitIndicator->RemoveFromParent();
-
-			HitIndicator->Reset();
-		}
-	}
-	IndicatorQueue.Empty();
-
-	// Clear Child Widgets Added to Overlay 
-	if (Overlay_HitIndicatorPool)
-	{
-		Overlay_HitIndicatorPool->ClearChildren();
-	}
-
+	Super::NativeDestruct(); 
 }
 
 void UHitIndicatorPool::ProcessDamageReceived(AActor* DamageCauser, AActor* OwnerActor, float Damage)
 {
-	if (!DamageCauser || !OwnerActor) { return; }
-
-	UHitIndicator* ChosenHitIndicator = nullptr; 
+	// Check Damage Causer, Owner Actor, and Hit Indicator Class is not nullptr 
+	if (!DamageCauser || !OwnerActor || !HitIndicatorClass) { return; }
 	
-	// Find the Hit Indicator which is in Idle State in Pool 
-	for (int32 i = 0; i < IndicatorQueue.Num(); ++i)
-	{
-		if (IndicatorQueue[i]->GetHitIndicatorState() == EHitIndicatorState::Idle)
-		{
-			ChosenHitIndicator = IndicatorQueue[i]; 
-			IndicatorQueue.RemoveAt(i); 
-			break; 
-		}
-	}
-
-	// If there is No Idle Hit Indicator in the Pool, Select Hit Indicators in Order and Execute End Animation 
-	if (!ChosenHitIndicator)
-	{
-		for (int32 i = 0; i < IndicatorQueue.Num(); ++i)
-		{
-			if (IndicatorQueue[i]->GetHitIndicatorState() != EHitIndicatorState::Ending)
-			{
-				ChosenHitIndicator = IndicatorQueue[i];
-				IndicatorQueue.RemoveAt(i);
-				break;
-			}
-		}
-	}
-
-	// TODO - 
-	if (!ChosenHitIndicator) { return; }
-
-	IndicatorQueue.Add(ChosenHitIndicator); 
-
-	ChosenHitIndicator->Reset(); 
-	ChosenHitIndicator->PlayStart(DamageCauser, OwnerActor, Damage); 
+	UHitIndicator* HitIndicator = CreateWidget<UHitIndicator>(GetOwningPlayer(), HitIndicatorClass);
+	HitIndicator->SetHitInfo(DamageCauser, OwnerActor, Damage); 
+	HitIndicator->AddToViewport(); 
+	HitIndicator->SetDesiredSizeInViewport(ViewportSize);
+	HitIndicator->SetAnchorsInViewport(ViewportAnchor);
+	HitIndicator->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
+	HitIndicator->SetPositionInViewport(ViewportPosition);
 }
-
-void UHitIndicatorPool::OnHitIndicatorEnd(UHitIndicator* HitIndicator)
-{
-	int32 QueueIndex = IndicatorQueue.IndexOfByKey(HitIndicator); 
-	if (QueueIndex != INDEX_NONE)
-	{
-		IndicatorQueue.RemoveAt(QueueIndex);
-		IndicatorQueue.Add(HitIndicator); 
-	}
-	HitIndicator->Reset();
-}
-
