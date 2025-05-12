@@ -50,8 +50,4 @@ void UHitIndicatorPool::ProcessDamageReceived(AActor* DamageCauser, AActor* Owne
 	UHitIndicator* HitIndicator = CreateWidget<UHitIndicator>(GetOwningPlayer(), HitIndicatorClass);
 	HitIndicator->SetHitInfo(DamageCauser, OwnerActor, Damage); 
 	HitIndicator->AddToViewport(); 
-	HitIndicator->SetDesiredSizeInViewport(ViewportSize);
-	HitIndicator->SetAnchorsInViewport(ViewportAnchor);
-	HitIndicator->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
-	HitIndicator->SetPositionInViewport(ViewportPosition);
 }

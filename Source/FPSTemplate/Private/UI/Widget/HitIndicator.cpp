@@ -47,10 +47,7 @@ void UHitIndicator::OnStartAnimationFinished()
 void UHitIndicator::OnEndAnimationFinished()
 {
 	RemoveFromParent();
-}
 
-void UHitIndicator::NativeDestruct()
-{
 	if (StartAnimation)
 	{
 		UnbindAllFromAnimationFinished(StartAnimation);
@@ -61,8 +58,11 @@ void UHitIndicator::NativeDestruct()
 		UnbindAllFromAnimationFinished(EndAnimation);
 	}
 
-	MID_HitIndicator = nullptr; 
+	MID_HitIndicator = nullptr;
+}
 
+void UHitIndicator::NativeDestruct()
+{
 	Super::NativeDestruct(); 
 }
 
