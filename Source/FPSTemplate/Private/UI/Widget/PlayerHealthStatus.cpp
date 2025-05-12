@@ -50,6 +50,23 @@ void UPlayerHealthStatus::NativeConstruct()
 	CachedMPCInstance = GetWorld()->GetParameterCollectionInstance(MaterialParameterCollection);
 }
 
+void UPlayerHealthStatus::NativeDestruct()
+{
+	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	{
+		/* Bind Overlay Widget Controller Delegates to Callback Functions */
+		OverlayWidgetController->OnHealthChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateCurrentHealthStatus);
+		OverlayWidgetController->OnMaxHealthChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateMaxHealthStatus);
+		OverlayWidgetController->OnArmorChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateCurrentArmorStatus);
+		OverlayWidgetController->OnMaxArmorChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateMaxArmorStatus);
+		OverlayWidgetController->OnShieldChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateCurrentShieldStatus);
+		OverlayWidgetController->OnMaxShieldChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateMaxShieldStatus);
+		OverlayWidgetController->OnTempArmorChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateTempArmorStatus);
+		OverlayWidgetController->OnTempShieldChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateTempShieldStatus);
+		OverlayWidgetController->OnOverHealthChanged.RemoveDynamic(this, &UPlayerHealthStatus::UpdateOverHealthStatus);
+	}
+}
+
 void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealthStatus HealthStatus)
 {
 	switch (HealthStatus)
@@ -62,8 +79,10 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 
 			CurrentHealth += (NewValue - OldValue); 
 			CheckDamagedOrHealed(OldValue, NewValue); 
-			TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth)));
-
+			if (TextBlock_CurrentHealth)
+			{
+				TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth))); 
+			}
 			break; 
 		}
 		case EHealthStatus::Max:
@@ -73,8 +92,10 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 			ValueToChange = NewValue;
 
 			MaxHealth += (NewValue - OldValue);
-			TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
-
+			if (TextBlock_MaxHealth)
+			{
+				TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
+			}
 			break; 
 		}
 		case EHealthStatus::All:
@@ -85,15 +106,20 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 
 			CurrentHealth += (NewValue - OldCurrentValue);
 			CheckDamagedOrHealed(OldCurrentValue, NewValue);
-			TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth)));
+			if (TextBlock_CurrentHealth)
+			{
+				TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth)));
+			}
 
 			float& MaxValueToChange = MaxHealthStatusMap[Tag];
 			float OldMaxValue = MaxValueToChange;
 			MaxValueToChange = NewValue; 
 
 			MaxHealth += (NewValue - OldMaxValue);
-			TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
-
+			if (TextBlock_MaxHealth)
+			{
+				TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
+			}
 			break; 
 		}
 	}
@@ -101,7 +127,11 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 
 void UPlayerHealthStatus::CheckDamagedOrHealed(float OldValue, float NewValue)
 {
-	if (!CachedMPCInstance) return; 
+	if (!CachedMPCInstance || bFirstUpdated)
+	{
+		bFirstUpdated = false;
+		return;
+	}
 
 	// Damaged 
 	// TODO - Consider How to Show Fatal State in Another Client's HUD 

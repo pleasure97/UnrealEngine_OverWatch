@@ -62,8 +62,10 @@ public:
 protected:
 	//virtual void NativePreConstruct() override; 
 	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
 	
 private:
+	bool bFirstUpdated = true; 
 
 	void UpdateStatus(FGameplayTag Tag, float NewValue, EHealthStatus HealthStatus); 
 
