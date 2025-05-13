@@ -389,4 +389,8 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Reinhardt.RocketHammer"),
 		FString("Reinhardt's RocketHammer Ability"));
 
+	GameplayTags.Event_Montage_BarrierField= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.BarrierField"),
+		FString("Reinhardt's BarrierField Montage Event Tag"));
+
 }

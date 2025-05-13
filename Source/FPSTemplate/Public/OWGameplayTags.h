@@ -145,6 +145,8 @@ public:
 	FGameplayTag Abilities_Reinhardt_BarrierField;
 	FGameplayTag Abilities_Reinhardt_RocketHammer; 
 
+	FGameplayTag Event_Montage_BarrierField;
+
 private:
 	static FOWGameplayTags GameplayTags; 
 };
