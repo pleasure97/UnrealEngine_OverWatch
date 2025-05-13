@@ -260,6 +260,16 @@ void AOWCharacter::TransitionCamera_Implementation(bool bSmoothTransition)
 	CameraTransitionComponent->TransitionCamera(bSmoothTransition); 
 }
 
+EAttackDirection AOWCharacter::GetAttackDirection_Implementation() const
+{
+	return AttackDirection;
+}
+
+void AOWCharacter::SetAttackDirection_Implementation(EAttackDirection InAttackDirection)
+{
+	AttackDirection = InAttackDirection; 
+}
+
 void AOWCharacter::OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
 {
 	if (IsLocallyControlled())

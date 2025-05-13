@@ -50,6 +50,8 @@ public:
 	virtual void Die(const FVector& DeathImpulse) override; 
 	virtual UAnimInstance* GetFirstPersonMeshAnimInstance_Implementation() const override;
 	virtual void TransitionCamera_Implementation(bool bSmoothTransition) override;
+	virtual EAttackDirection GetAttackDirection_Implementation() const override; 
+	virtual void SetAttackDirection_Implementation(EAttackDirection InAttackDirection) override; 
 	/* End Combat Interface */
 
 	UFUNCTION()
@@ -86,4 +88,6 @@ private:
 	FTimerHandle DeathTimer; 
 
 	float DeathTime = 9.f; 
+
+	EAttackDirection AttackDirection = EAttackDirection::None; 
 };

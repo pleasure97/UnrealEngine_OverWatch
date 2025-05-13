@@ -11,10 +11,20 @@ class UAbilitySystemComponent;
 class USkeletalMeshComponent; 
 class UAnimInstance; 
 
+UENUM(BlueprintType)
+enum EAttackDirection : uint8
+{
+	Left   UMETA(DisplayName = "Left"),
+	Right  UMETA(DisplayName = "Right"),
+	Up     UMETA(DisplayName = "Up"),
+	Down   UMETA(DisplayName = "Down"),
+	None   UMETA(DisplayName = "None"),
+};
+
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor); 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnDamageSignature, float /*Damage Amount*/);
-
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
@@ -82,4 +92,11 @@ public:
 	/* Animation */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimInstance* GetFirstPersonMeshAnimInstance() const; 
+
+	/* Attack State */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	EAttackDirection GetAttackDirection() const; 
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetAttackDirection(EAttackDirection InAttackDirection); 
 };
