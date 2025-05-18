@@ -123,6 +123,11 @@ public:
 	FGameplayTag GameplayCue_Illiari_Outburst;
 	FGameplayTag GameplayCue_Illiari_Laceration; 
 
+	/* Gameplay Message */
+	FGameplayTag Gameplay_Message_HealthPlate_Add; 
+	FGameplayTag Gameplay_Message_HealthPlate_Remove; 
+	FGameplayTag Gameplay_Message_HealthPlate_Discover; 
+
 	/* Set By Caller */ 
 	FGameplayTag Data_Cooldown; 
 	FGameplayTag Data_CriticalHitDamage; 
