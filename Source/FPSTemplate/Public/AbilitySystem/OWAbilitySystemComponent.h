@@ -26,11 +26,14 @@ public:
 	FAbilityStatusChanged AbilityStatusChanged; 
 	FAbilityEquipped AbilityEquipped; 
 
+	/* Ability Initialization */
+	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override; 
 	void AbilityActorInfoSet(); 
 	void AddHeroAbilities(); 
 
 	bool bDefaultAbilitiesGiven = false;
 
+	/* Ability Input Tag */
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);

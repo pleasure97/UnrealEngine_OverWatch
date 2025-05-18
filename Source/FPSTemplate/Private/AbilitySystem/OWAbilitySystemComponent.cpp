@@ -2,10 +2,31 @@
 
 
 #include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "Animation/OWAnimInstance.h"
 #include "OWGameplayTags.h"
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/HeroInfo.h"
+
+void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
+{
+    FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get(); 
+    check(ActorInfo); 
+    check(InOwnerActor); 
+
+    const bool bHasNewPawnAvatar = Cast<APawn>(InAvatarActor) && (InAvatarActor != ActorInfo->AvatarActor); 
+
+    Super::InitAbilityActorInfo(InOwnerActor, InAvatarActor); 
+
+    if (bHasNewPawnAvatar)
+    {
+        // Map Ability System Component to Anim Instance 
+        if (UOWAnimInstance* OWAnimInstance = Cast<UOWAnimInstance>(ActorInfo->GetAnimInstance()))
+        {
+            OWAnimInstance->InitializeWithAbilitySystem(this); 
+        }
+    }
+}
 
 void UOWAbilitySystemComponent::AbilityActorInfoSet()
 {
