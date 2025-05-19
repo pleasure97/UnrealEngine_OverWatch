@@ -175,6 +175,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("InputTag.RMB"),
 		FString("InputTag of Right Mouse Button"));
 
+	GameplayTags.InputTag_ScoreBoard = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.ScoreBoard"),
+		FString("InputTag of ScoreBoard Button"));
+
 	/* Player Input Attributes */
 
 	GameplayTags.Player_Block_InputPressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -194,10 +198,35 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Skill.SkillGauge"),
 		FString("Skill Gauge")); 
 
-	/* Meta Types */
+	/* Meta Attributes */
 	GameplayTags.Attributes_Meta_IncomingXP = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Meta.IncomingXP"),
 		FString("Incoming XP")); 
+
+	/* Match Attributes */
+	GameplayTags.Attributes_Match_NumKills = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Match.NumKills"),
+		FString("Num Kills")); 
+
+	GameplayTags.Attributes_Match_NumDeaths = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Match.NumDeaths"),
+		FString("Num Deaths"));
+
+	GameplayTags.Attributes_Match_NumAssists = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Match.NumAssists"),
+		FString("Num Assists"));
+
+	GameplayTags.Attributes_Match_TotalDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Match.TotalDamage"),
+		FString("Total Damage"));
+
+	GameplayTags.Attributes_Match_TotalHeal = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Match.TotalHeal"),
+		FString("Total Heal"));
+
+	GameplayTags.Attributes_Match_TotalMitigatedDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Match.TotalMitigatedDamage"),
+		FString("Total Mitigated Damage"));
 
 	/* Cooldown Types - Illiari */
 	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(

@@ -5,12 +5,12 @@
 #include "Net/UnrealNetwork.h"
 #include "OWGameplayTags.h"
 #include "GameFramework/Character.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
-#include "Interfaces/LevelUpInterface.h"
-#include "Interfaces/OmnicInterface.h"
+#include "Interface/LevelUpInterface.h"
+#include "Interface/OmnicInterface.h"
 #include "OWAbilityTypes.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 
@@ -42,6 +42,15 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_MaxUltimateGauge, GetMaxUltimateGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_NumCurrentBullets, GetNumCurrentBulletsAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_NumMaxBullets, GetNumMaxBulletsAttribute); 
+
+	/* Match Attributes */
+	TagsToAttributes.Add(GameplayTags.Attributes_Match_NumKills, GetNumKillsAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Match_NumDeaths, GetNumDeathsAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Match_NumAssists, GetNumAssistsAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Match_TotalDamage, GetTotalDamageAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Match_TotalHeal, GetTotalHealAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Match_TotalMitigatedDamage, GetTotalMitigatedDamageAttribute);
+
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -72,6 +81,14 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumCurrentBullets, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumMaxBullets, COND_None, REPNOTIFY_Always); 
+
+	/* Match Attributes */
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumKills, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumDeaths, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumAssists, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TotalDamage, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TotalHeal, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, TotalMitigatedDamage, COND_None, REPNOTIFY_Always);
 }
 
 void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -242,6 +259,36 @@ void UOWAttributeSet::OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMa
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumMaxBullets, OldNumMaxBullets);
 }
 
+void UOWAttributeSet::OnRep_NumKills(const FGameplayAttributeData& OldNumKills) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumKills, OldNumKills);
+}
+
+void UOWAttributeSet::OnRep_NumDeaths(const FGameplayAttributeData& OldNumDeaths) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumDeaths, OldNumDeaths);
+}
+
+void UOWAttributeSet::OnRep_NumAssists(const FGameplayAttributeData& OldNumAssists) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumAssists, OldNumAssists);
+}
+
+void UOWAttributeSet::OnRep_TotalDamage(const FGameplayAttributeData& OldTotalDamage) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TotalDamage, OldTotalDamage);
+}
+
+void UOWAttributeSet::OnRep_TotalHeal(const FGameplayAttributeData& OldTotalHeal) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TotalHeal, OldTotalHeal);
+}
+
+void UOWAttributeSet::OnRep_TotalMitigateDamage(const FGameplayAttributeData& OldTotalMitigatedDamage) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TotalMitigatedDamage, OldTotalMitigatedDamage);
+}
+
 void UOWAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const
 {
 	// Source = Causer of the Effect
@@ -353,10 +400,10 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 
 		const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle); 
 
-		if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
+		/*if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
 		{
 			Debuff(EffectProperties); 
-		}
+		}*/
 	}
 	// Process Negative Incoming Damage as Healing 
 	else if (LocalIncomingDamage < 0.f)

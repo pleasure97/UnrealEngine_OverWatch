@@ -165,6 +165,33 @@ public:
 	FGameplayAttributeData IncomingXP;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, IncomingXP); 
 
+	/*
+	 * Match Attributes 
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	FGameplayAttributeData NumKills; 
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumKills);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	FGameplayAttributeData NumDeaths;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumDeaths);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	FGameplayAttributeData NumAssists;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumAssists);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	FGameplayAttributeData TotalDamage;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TotalDamage);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	FGameplayAttributeData TotalHeal;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TotalHeal);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	FGameplayAttributeData TotalMitigatedDamage;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TotalMitigatedDamage);
+
 	/*------------------------------- Replicating Functions -------------------------------*/ 
 
 	/*
@@ -229,6 +256,27 @@ public:
 
 	UFUNCTION()
 	void OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMaxBullets) const;
+
+	/*
+	 * Match Attributes
+	 */
+	UFUNCTION()
+	void OnRep_NumKills(const FGameplayAttributeData& OldNumKills) const;
+
+	UFUNCTION()
+	void OnRep_NumDeaths(const FGameplayAttributeData& OldNumDeaths) const;
+
+	UFUNCTION()
+	void OnRep_NumAssists(const FGameplayAttributeData& OldNumAssists) const;
+
+	UFUNCTION()
+	void OnRep_TotalDamage(const FGameplayAttributeData& OldTotalDamage) const;
+
+	UFUNCTION()
+	void OnRep_TotalHeal(const FGameplayAttributeData& OldTotalHeal) const;
+
+	UFUNCTION()
+	void OnRep_TotalMitigateDamage(const FGameplayAttributeData& OldTotalMitigatedDamage) const;
 
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const; 

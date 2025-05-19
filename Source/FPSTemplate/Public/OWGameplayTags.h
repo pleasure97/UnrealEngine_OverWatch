@@ -63,6 +63,7 @@ public:
 	FGameplayTag InputTag_Reload; 
 	FGameplayTag InputTag_LMB; 
 	FGameplayTag InputTag_RMB; 
+	FGameplayTag InputTag_ScoreBoard; 
 
 	/* Player Input Attributes */
 	FGameplayTag Player_Block_InputPressed; 
@@ -76,8 +77,16 @@ public:
 	FGameplayTag Attributes_Skill_NumCurrentBullets; 
 	FGameplayTag Attributes_Skill_NumMaxBullets; 
 
-	/* Meta Types */
+	/* Meta Attributes */
 	FGameplayTag Attributes_Meta_IncomingXP;
+
+	/* Match Attributes */
+	FGameplayTag Attributes_Match_NumKills;
+	FGameplayTag Attributes_Match_NumDeaths;
+	FGameplayTag Attributes_Match_NumAssists;
+	FGameplayTag Attributes_Match_TotalDamage;
+	FGameplayTag Attributes_Match_TotalHeal;
+	FGameplayTag Attributes_Match_TotalMitigatedDamage;
 
 	/* Cooldown Types */
 	FGameplayTag Cooldown_Illiari_Outburst;
