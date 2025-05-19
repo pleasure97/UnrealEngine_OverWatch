@@ -14,6 +14,7 @@ class UThrobber;
 
 namespace ScoreBoardColors
 {
+	constexpr FLinearColor TransparentColor(0.f, 0.f, 0.f, 0.f); 
 	constexpr FLinearColor OriginalBlue(0.041667f, 0.6407f, 1.f, 1.f);
 	constexpr FLinearColor OpacityBlue(0.041667f, 0.6407f, 1.f, 0.8f);
 	constexpr FLinearColor DarkBlue(0.004774f, 0.073414f, 0.114583f, 0.8f);
@@ -92,24 +93,26 @@ public:
 
 	/* Damage */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UBorder> Border_DamageInfo;
+	TObjectPtr<UBorder> Border_TotalDamage;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_DamageAmount;
+	TObjectPtr<UTextBlock> TextBlock_TotalDamage;
 
 	/* Heal */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UBorder> Border_HealInfo;
+	TObjectPtr<UBorder> Border_TotalHeal;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_HealAmount;
+	TObjectPtr<UTextBlock> TextBlock_TotalHeal;
 
-	/* Tank */
+	/* Mitigated Damage */
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UBorder> Border_TankInfo;
+	TObjectPtr<UBorder> Border_TotalMitigatedDamage;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_TankAmount;
+	TObjectPtr<UTextBlock> TextBlock_TotalMitigatedDamage;
+
+	void SetBorderColors(int32 TeamID); 
 
 protected:
 	virtual void NativeConstruct() override; 
