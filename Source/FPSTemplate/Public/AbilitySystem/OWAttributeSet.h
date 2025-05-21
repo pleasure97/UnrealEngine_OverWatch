@@ -14,6 +14,7 @@
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName) \
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnDamageReceived, AActor*, /* DamageEffectCauser */ AActor*, /* Owner Actor */ float /* Damage */);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHeroKilled, APlayerState*, /* DamageEffectCauser */ APlayerState* /* Owner Actor */);
 
 USTRUCT()
 struct FEffectProperties
@@ -37,6 +38,9 @@ struct FEffectProperties
 	ACharacter* SourceCharacter = nullptr; 
 
 	UPROPERTY()
+	APlayerState* SourcePlayerState = nullptr; 
+
+	UPROPERTY()
 	UAbilitySystemComponent* TargetASC = nullptr; 
 
 	UPROPERTY()
@@ -47,6 +51,9 @@ struct FEffectProperties
 
 	UPROPERTY()
 	ACharacter* TargetCharacter = nullptr; 
+
+	UPROPERTY()
+	APlayerState* TargetPlayerState = nullptr; 
 };
 
 // typedef is specific to the FGameplayAttribute() signature, but TStaticFuncPtr is generic to any signature chosen. 
@@ -71,6 +78,7 @@ public:
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; 
 
 	FOnDamageReceived OnDamageReceived; 
+	FOnHeroKilled OnHeroKilled; 
 
 	/* 
 	 * Defensive Attributes

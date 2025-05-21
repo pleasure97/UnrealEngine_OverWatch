@@ -308,11 +308,13 @@ void UOWAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 			if (const APawn* Pawn = Cast<APawn>(EffectProperties.SourceAvatarActor))
 			{
 				EffectProperties.SourceController = Pawn->GetController(); 
+				EffectProperties.SourcePlayerState = Pawn->GetPlayerState(); 
 			}
 		}
 		if (EffectProperties.SourceController != nullptr)
 		{
 			EffectProperties.SourceCharacter = Cast<ACharacter>(EffectProperties.SourceController->GetPawn()); 
+			EffectProperties.SourcePlayerState = EffectProperties.SourceController->PlayerState; 
 		}
 	}
 
@@ -322,6 +324,14 @@ void UOWAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 		EffectProperties.TargetController = Data.Target.AbilityActorInfo->PlayerController.Get(); 
 		EffectProperties.TargetCharacter = Cast<ACharacter>(EffectProperties.TargetAvatarActor); 
 		EffectProperties.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(EffectProperties.TargetAvatarActor); 
+		if (EffectProperties.TargetController)
+		{
+			EffectProperties.TargetPlayerState = EffectProperties.TargetController->PlayerState;
+		}
+		else if (APawn* Pawn = Cast<APawn>(EffectProperties.TargetAvatarActor))
+		{
+			EffectProperties.TargetPlayerState = Pawn->GetPlayerState();
+		}
 	}
 }
 
@@ -378,6 +388,7 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			{
 				CombatInterface->Die(UOWAbilitySystemLibrary::GetDeathImpulse(EffectProperties.EffectContextHandle));
 			}
+			OnHeroKilled.Broadcast(EffectProperties.SourcePlayerState, EffectProperties.SourcePlayerState);
 			SendXPEvent(EffectProperties); 
 		}
 		else
