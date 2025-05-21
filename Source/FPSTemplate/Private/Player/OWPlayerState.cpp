@@ -14,7 +14,7 @@ AOWPlayerState::AOWPlayerState()
 
 	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
 
-	SetSelectedHeroName(EHeroName::ILLIARI); 
+	SetHeroName(EHeroName::ILLIARI); 
 
 	NetUpdateFrequency = 100.f; 
 
@@ -26,22 +26,30 @@ UAbilitySystemComponent* AOWPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void AOWPlayerState::SetSelectedHeroName(EHeroName NewHeroName)
+void AOWPlayerState::SetHeroName(EHeroName NewHeroName)
 {
-	SelectedHeroName = NewHeroName;
-	OnRep_SelectedHeroName();
+	HeroName = NewHeroName;
+	OnRep_HeroName();
 }
 
-void AOWPlayerState::OnRep_SelectedHeroName()
+void AOWPlayerState::OnRep_HeroName()
 {
-	UE_LOG(LogTemp, Log, TEXT("Hero changed!"));
+	if (const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHeroName"), true))
+	{
+		FString HeroNameString = EnumPtr->GetNameStringByValue(static_cast<int64>(GetHeroName()));
+		UE_LOG(LogTemp, Log, TEXT("Hero Name Changed to %s!"), *HeroNameString);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to find UEnum for EHeroName"));
+	}
 }
 
 void AOWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 	DOREPLIFETIME(AOWPlayerState, MyTeamID); 
-	DOREPLIFETIME(AOWPlayerState, SelectedHeroName);
+	DOREPLIFETIME(AOWPlayerState, HeroName);
 	DOREPLIFETIME(AOWPlayerState, Level); 
 	DOREPLIFETIME(AOWPlayerState, XP); 
 	DOREPLIFETIME(AOWPlayerState, AttributePoints); 

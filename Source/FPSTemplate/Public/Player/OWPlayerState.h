@@ -27,29 +27,31 @@ class FPSTEMPLATE_API AOWPlayerState : public ADS_MatchPlayerState, public IAbil
 public:
 	AOWPlayerState();
 
+	/* Ability System */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet;  }
 
 	/* Hero Info */
-	UPROPERTY(ReplicatedUsing = OnRep_SelectedHeroName, BlueprintReadOnly)
-	EHeroName SelectedHeroName;
+	UPROPERTY(ReplicatedUsing = OnRep_HeroName, BlueprintReadOnly)
+	EHeroName HeroName;
+
+	EHeroName GetHeroName() const { return HeroName; }
+	void SetHeroName(EHeroName NewHeroName);
 
 	UFUNCTION()
-	void SetSelectedHeroName(EHeroName NewHeroName);
-
-	UFUNCTION()
-	void OnRep_SelectedHeroName();
-	/* End Hero Info */
+	void OnRep_HeroName();
 
 	/* LevelUp Info */
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<ULevelUpInfo> LevelUpInfo; 
 
+	/* Delegates */
 	FOnPlayerStateChanged OnXPChangedDelegate;
 	FOnLevelChanged OnLevelChangedDelegate; 
 	FOnPlayerStateChanged OnAttributePointsChangedDelegate; 
 	FOnPlayerStateChanged OnSpellPointsChangedDelegate; 
 
+	/* Level Up Info */ 
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
 	FORCEINLINE int32 GetXP() const { return XP; }
 	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
@@ -64,13 +66,11 @@ public:
 	void SetLevel(int32 InLevel); 
 	void SetAttributePoints(int32 InAttributePoints); 
 	void SetSpellPoints(int32 InSpellPoints); 
-	/* End LevelUp Info */
 
-	/** Team Interface **/
+	/* Team Interface */
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override; 
 	virtual FGenericTeamId GetGenericTeamId() const override; 
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
-	/** Team Interface End **/
 
 	UFUNCTION()
 	int32 GetTeamId() const { return GenericTeamIdToInteger(MyTeamID);  }

@@ -91,7 +91,7 @@ void AOWCharacter::PossessedBy(AController* NewController)
 
 	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
 	{
-		OWPlayerState->OnRep_SelectedHeroName(); 
+		OWPlayerState->OnRep_HeroName(); 
 	}
 
 	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(NewController))

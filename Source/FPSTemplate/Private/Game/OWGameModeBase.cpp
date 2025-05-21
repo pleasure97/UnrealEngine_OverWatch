@@ -56,7 +56,7 @@ void AOWGameModeBase::ChangeHero(APlayerController* PlayerController, EHeroName 
 
 	if (AOWPlayerState* OWPlayerState = PlayerController->GetPlayerState<AOWPlayerState>())
 	{
-		OWPlayerState->SetSelectedHeroName(NewHeroName);
+		OWPlayerState->SetHeroName(NewHeroName);
 	}
 }
 
