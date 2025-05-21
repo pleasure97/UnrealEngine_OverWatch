@@ -354,6 +354,7 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Illiari's Laceration GameplayCue"));
 
 	/* Gameplay Message */
+
 	GameplayTags.Gameplay_Message_HealthPlate_Add = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.HealthPlate.Add"),
 		FString("Gameplay Message for Adding HealthPlate"));
@@ -364,7 +365,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Gameplay_Message_HealthPlate_Discover = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.HealthPlate.Discover"),
-		FString("Gameplay Message for Discovering HealthPlate"));
+		FString("Gameplay Message for Discovering HealthPlate")); 
+
+	GameplayTags.Gameplay_Message_HeroKilled = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.HeroKilled"),
+		FString("Gameplay Message for Event Hero Killed")); 
 
 	/* Set By Caller */
 

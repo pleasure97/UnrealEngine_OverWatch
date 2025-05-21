@@ -14,7 +14,6 @@
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName) \
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnDamageReceived, AActor*, /* DamageEffectCauser */ AActor*, /* Owner Actor */ float /* Damage */);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHeroKilled, APlayerState*, /* DamageEffectCauser */ APlayerState* /* Owner Actor */);
 
 USTRUCT()
 struct FEffectProperties
@@ -78,7 +77,6 @@ public:
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; 
 
 	FOnDamageReceived OnDamageReceived; 
-	FOnHeroKilled OnHeroKilled; 
 
 	/* 
 	 * Defensive Attributes
@@ -290,6 +288,7 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const; 
 
 	void HandleIncomingDamage(const FEffectProperties& EffectProperties);
+	void SendHeroKilledEvent(const FEffectProperties& EffectProperties);
 	void HandleIncomingXP(const FEffectProperties& EffectProperties);
 	void SendXPEvent(const FEffectProperties& EffectProperties);
 	void Debuff(const FEffectProperties& EffectProperties); 

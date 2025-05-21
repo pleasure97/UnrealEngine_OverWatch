@@ -136,6 +136,7 @@ public:
 	FGameplayTag Gameplay_Message_HealthPlate_Add; 
 	FGameplayTag Gameplay_Message_HealthPlate_Remove; 
 	FGameplayTag Gameplay_Message_HealthPlate_Discover; 
+	FGameplayTag Gameplay_Message_HeroKilled; 
 
 	/* Set By Caller */ 
 	FGameplayTag Data_Cooldown; 

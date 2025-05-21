@@ -13,6 +13,8 @@
 #include "Interface/OmnicInterface.h"
 #include "OWAbilityTypes.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Message/OWMessageTypes.h"
 
 UOWAttributeSet::UOWAttributeSet()
 {
@@ -388,7 +390,7 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			{
 				CombatInterface->Die(UOWAbilitySystemLibrary::GetDeathImpulse(EffectProperties.EffectContextHandle));
 			}
-			OnHeroKilled.Broadcast(EffectProperties.SourcePlayerState, EffectProperties.SourcePlayerState);
+			SendHeroKilledEvent(EffectProperties);
 			SendXPEvent(EffectProperties); 
 		}
 		else
@@ -479,6 +481,15 @@ void UOWAttributeSet::HandleIncomingXP(const FEffectProperties& EffectProperties
 		}
 		ILevelUpInterface::Execute_AddToXP(EffectProperties.SourceCharacter, LocalIncomingXP); 
 	}
+}
+
+void UOWAttributeSet::SendHeroKilledEvent(const FEffectProperties& EffectProperties)
+{
+	// Broadcast HeroKilled Message Using Gameplay Message Subsystem 
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FGameplayTag HeroKilledTag = FOWGameplayTags::Get().Gameplay_Message_HeroKilled;
+	FHeroKilledInfo HeroKilledInfo = FHeroKilledInfo(EffectProperties.SourcePlayerState, EffectProperties.TargetPlayerState);
+	GameplayMessageSubsystem.BroadcastMessage(HeroKilledTag, HeroKilledInfo);
 }
 
 void UOWAttributeSet::SendXPEvent(const FEffectProperties& EffectProperties)
