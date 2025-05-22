@@ -9,6 +9,8 @@
 #include "UI/Widget/PlayerWeaponStatus.h"
 #include "UI/Widget/UltimateGauge.h"
 #include "UI/Widget/HitIndicatorPool.h"
+#include "UI/Widget/CombatLogPool.h"
+#include "UI/Widget/KillLogPool.h"
 
 void UPlayerOverlay::SetChildWidgetControllers()
 {
@@ -20,5 +22,7 @@ void UPlayerOverlay::SetChildWidgetControllers()
 		WBP_PlayerWeaponStatus->SetWidgetController(OverlayWidgetController); 
 		WBP_UltimateGauge->SetWidgetController(OverlayWidgetController); 
 		WBP_HitIndicatorPool->SetWidgetController(OverlayWidgetController); 
+		WBP_CombatLogPool->SetWidgetController(OverlayWidgetController); 
+		WBP_KillLogPool->SetWidgetController(OverlayWidgetController); 
 	}
 }
