@@ -65,12 +65,24 @@ void UCombatLogPool::AddNewItem(ECombatLogType CombatLogType, const FString& Pla
 	TArray<UObject*> CurrentItems = ListView_CombatLog->GetListItems(); 
 	if (CurrentItems.Num() >= MaxItems)
 	{
-		ListView_CombatLog->RemoveItem(CurrentItems[0]);
+		if (UCombatLog* OldestCombatLog = Cast<UCombatLog>(CurrentItems[0]))
+		{
+			OldestCombatLog->OnCombatLogFinished.BindLambda([this](UCombatLog* InCombatLog)
+				{
+					ListView_CombatLog->RemoveItem(InCombatLog); 
+				}); 
+			OldestCombatLog->HoldThenPlayEnd();
+		}
 	}
 
 	// Create New Combat Log Listening Gameplay Message 
-	UCombatLog* CombatLog = NewObject<UCombatLog>(this);
-	CombatLog->ShowCombatLog(CombatLogType, PlayerName); 
-	ListView_CombatLog->AddItem(CombatLog);
-	CombatLog->PlayAnimation(CombatLog->StartAnimation);
+	UCombatLog* NewCombatLog = NewObject<UCombatLog>(this);
+	NewCombatLog->ShowCombatLog(CombatLogType, PlayerName); 
+
+	NewCombatLog->OnCombatLogFinished.BindLambda([this](UCombatLog* InCombatLog)
+		{
+			ListView_CombatLog->RemoveItem(InCombatLog);
+		}); 
+
+	ListView_CombatLog->AddItem(NewCombatLog);
 }

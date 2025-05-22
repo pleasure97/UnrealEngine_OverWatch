@@ -19,6 +19,7 @@ class FPSTEMPLATE_API UCombatLogPool : public UOWUserWidget
 	GENERATED_BODY()
 
 public:
+	/* List View */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UListView> ListView_CombatLog; 
 
@@ -26,7 +27,7 @@ public:
 	TSubclassOf<UCombatLog> ListItemClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ListView")
-	int32 MaxItems = 5; 
+	int32 MaxItems = 3; 
 
 	UFUNCTION()
 	void OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload);

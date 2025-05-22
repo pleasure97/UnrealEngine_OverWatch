@@ -4,6 +4,45 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
+void UCombatLog::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (StartAnimation)
+	{
+		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
+		AnimationFinishedEvent.BindUFunction(this, FName("OnStartAnimationFinished"));
+		BindToAnimationFinished(StartAnimation, AnimationFinishedEvent);
+	}
+
+	if (EndAnimation)
+	{
+		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
+		AnimationFinishedEvent.BindUFunction(this, FName("OnEndAnimationFinished"));
+		BindToAnimationFinished(EndAnimation, AnimationFinishedEvent);
+	}
+}
+
+void UCombatLog::NativeDestruct()
+{
+	if (StartAnimation)
+	{
+		UnbindAllFromAnimationFinished(StartAnimation);
+	}
+
+	if (EndAnimation)
+	{
+		UnbindAllFromAnimationFinished(EndAnimation);
+	}
+
+	if (HoldTimerHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(HoldTimerHandle); 
+	}
+
+	Super::NativeDestruct();
+}
+
 void UCombatLog::ShowCombatLog(ECombatLogType CombatLogType, const FString& PlayerName)
 {
 	check(!IconMap.IsEmpty()); 
@@ -33,4 +72,24 @@ void UCombatLog::ShowCombatLog(ECombatLogType CombatLogType, const FString& Play
 		break;
 	}
 	}
+
+	PlayAnimation(StartAnimation); 
+}
+
+void UCombatLog::OnStartAnimationFinished()
+{
+	GetWorld()->GetTimerManager().SetTimer(HoldTimerHandle, this, &UCombatLog::HoldThenPlayEnd, 3.f, false); 
+}
+
+void UCombatLog::OnEndAnimationFinished()
+{
+	if (OnCombatLogFinished.IsBound())
+	{
+		OnCombatLogFinished.Execute(this); 
+	}
+}
+
+void UCombatLog::HoldThenPlayEnd()
+{
+	PlayAnimation(EndAnimation); 
 }
