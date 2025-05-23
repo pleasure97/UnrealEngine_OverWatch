@@ -7,13 +7,12 @@
 #include "Player/OWPlayerState.h"
 #include "UI/WidgetController/OWWidgetController.h"
 #include "AbilitySystemComponent.h"
-#include "AbilitySystem/Data/HeroInfo.h"
 #include "Game/OWGameModeBase.h"
 #include "OWGameplayTags.h"
 #include "OWAbilityTypes.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Engine/OverlapResult.h"
-#include "Interfaces/CombatInterface.h"
+#include "Interface/CombatInterface.h"
 
 /* Widget Controller */
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
@@ -74,15 +73,6 @@ void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextOb
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1); 
 		ASC->GiveAbility(AbilitySpec); 
 	}
-
-	// TODO 
-	/*const FOWHeroInfo& OWHeroInfo = HeroInfo->GetHeroAbilityInfo(HeroName);
-	for (const FOWAbilityInfo& AbilityInfo : OWHeroInfo.Abilities)
-	{
-		TSubclassOf<UGameplayAbility> AbilityClass = AbilityInfo.Ability; 
-		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1); 
-		ASC->GiveAbility(AbilitySpec); 
-	}*/
 }
 
 UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObject)
@@ -101,7 +91,13 @@ EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject
 	if (!World) return EHeroName::None;
 
 	const AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(UGameplayStatics::GetPlayerState(WorldContextObject, 0));
-	return OWPlayerState ? OWPlayerState->SelectedHeroName : EHeroName::None;
+	return OWPlayerState ? OWPlayerState->GetHeroName() : EHeroName::None;
+}
+
+void UOWAbilitySystemLibrary::GetIndividualHeroInfo(const UObject* WorldContextObject, EHeroName HeroName, FOWHeroInfo& OutHeroInfo)
+{
+	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject); 
+	OutHeroInfo = HeroInfo->HeroInformation[HeroName]; 
 }
 
 UOmnicInfo* UOWAbilitySystemLibrary::GetOmnicInfo(const UObject* WorldContextObject)

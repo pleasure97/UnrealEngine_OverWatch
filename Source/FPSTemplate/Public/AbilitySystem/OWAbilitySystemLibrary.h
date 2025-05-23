@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWAbilitySystemLibrary.generated.h"
 
 struct FWidgetControllerParams; 
 class AOWHUD; 
 class UOverlayWidgetController; 
-class UHeroInfo; 
 struct FDamageEffectParams; 
 
 /**
@@ -47,6 +47,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static EHeroName GetHeroName(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static void GetIndividualHeroInfo(const UObject* WorldContextObject, EHeroName HeroName, FOWHeroInfo& OutHeroInfo); 
 
 	/*
 	 * Omnic Info Defaults
