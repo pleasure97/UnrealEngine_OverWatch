@@ -10,7 +10,8 @@
 
 class AOWCharacter; 
 
-DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModePlayerInitialized, AGameModeBase*,  AController*);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModePlayerInitialized, AGameModeBase*,  AController*)
+DECLARE_MULTICAST_DELEGATE(FOnGameplayReady)
 
 /**
  * 
@@ -43,6 +44,7 @@ public:
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override; 
 	virtual bool UpdatePlayerStartSpot(AController* Player, const FString& Portal, FString& OutErrorMessage) override; 
 	virtual bool ShouldSpawnAtStartSpot(AController* Player) override; 
+	virtual void StartPlay() override; 
 	/** AGameModeBase Interface End **/
 
 	UFUNCTION(BlueprintCallable)
@@ -55,4 +57,6 @@ public:
 	void PlayerDied(ACharacter* DeadCharacter);
 
 	FOnGameModePlayerInitialized OnGameModePlayerInitialized; 
+
+	FOnGameplayReady OnGameplayReady; 
 };

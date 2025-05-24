@@ -152,6 +152,13 @@ bool AOWGameModeBase::ShouldSpawnAtStartSpot(AController* Player)
 	return false;
 }
 
+void AOWGameModeBase::StartPlay()
+{
+	Super::StartPlay(); 
+
+	OnGameplayReady.Broadcast(); 
+}
+
 void AOWGameModeBase::RequestPlayerRestartNextFrame(AController* Controller)
 {
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
