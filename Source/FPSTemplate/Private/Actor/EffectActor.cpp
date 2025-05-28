@@ -54,6 +54,8 @@ void AEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGamepla
 
 void AEffectActor::OnOverlap(AActor* TargetActor)
 {
+	if (!HasAuthority()) { return; }
+
 	if (TargetActor->ActorHasTag("Enemy") && !bApplyEffectsToEnemies) return; 
 
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
@@ -72,6 +74,8 @@ void AEffectActor::OnOverlap(AActor* TargetActor)
 
 void AEffectActor::OnEndOverlap(AActor* TargetActor)
 {
+	if (!HasAuthority()) { return; }
+
 	if (TargetActor->ActorHasTag(FName("Enemy")) && !bApplyEffectsToEnemies) return; 
 
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)

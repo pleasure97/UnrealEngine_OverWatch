@@ -13,9 +13,9 @@ class UGameplayEffect;
 UENUM(BlueprintType)
 enum class EHeroName : uint8
 {
-	None,
-	ILLIARI,
-	REINHARDT, 
+	None       UMETA(DisplayName = "None"),
+	ILLIARI    UMETA(DisplayName = "Illiari"),
+	REINHARDT  UMETA(DisplayName = "Reinhardt"),
 };
 
 UENUM(BlueprintType)

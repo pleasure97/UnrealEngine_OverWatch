@@ -51,24 +51,48 @@ void UCombatLog::ShowCombatLog(ECombatLogType CombatLogType, const FString& Play
 	{
 	case ECombatLogType::Kill:
 	{
-		Border_CombatLog->SetBrushColor(CombatLogColors::Red);
+		if (Border_CombatLog)
+		{
+			Border_CombatLog->SetBrushColor(CombatLogColors::Red);
+		}
 		if (UTexture2D** FoundIcon = IconMap.Find(ECombatLogType::Kill))
 		{
-			Image_CombatLog->SetBrushFromTexture(*FoundIcon, true);
+			if (Image_CombatLog)
+			{
+				Image_CombatLog->SetBrushFromTexture(*FoundIcon, true);
+			}
 		}
-		TextBlock_Username->SetText(FText::FromString(PlayerName));
-		TextBlock_KillLog->SetVisibility(ESlateVisibility::Collapsed);
+		if (TextBlock_Username)
+		{
+			TextBlock_Username->SetText(FText::FromString(PlayerName));
+		}
+		if (TextBlock_KillLog)
+		{
+			TextBlock_KillLog->SetVisibility(ESlateVisibility::Collapsed);
+		}
 		break;
 	}
 	case ECombatLogType::Death:
 	{
-		Border_CombatLog->SetBrushColor(CombatLogColors::Gray); 
+		if (Border_CombatLog)
+		{
+			Border_CombatLog->SetBrushColor(CombatLogColors::Gray);
+		}
 		if (UTexture2D** FoundIcon = IconMap.Find(ECombatLogType::Death))
 		{
-			Image_CombatLog->SetBrushFromTexture(*FoundIcon, true);
+			if (Image_CombatLog)
+			{
+				Image_CombatLog->SetBrushFromTexture(*FoundIcon, true);
+			}
 		}
-		TextBlock_Username->SetText(FText::FromString(PlayerName));
-		TextBlock_KillLog->SetVisibility(ESlateVisibility::Visible);
+		if (TextBlock_Username)
+		{
+			TextBlock_Username->SetText(FText::FromString(PlayerName));
+		}
+		if (TextBlock_KillLog)
+		{
+			TextBlock_KillLog->SetVisibility(ESlateVisibility::Visible);
+		}
 		break;
 	}
 	}
