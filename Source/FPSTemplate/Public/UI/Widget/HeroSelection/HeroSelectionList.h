@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "HeroSelectionList.generated.h"
 
 class URoleGroupList; 
@@ -26,14 +27,27 @@ public:
 	TObjectPtr<URoleGroupList> WBP_DamageGroupList;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<URoleGroupList> WBP_HealGroupList;
+	TObjectPtr<URoleGroupList> WBP_SupportGroupList;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UWidgetSwitcher> WidgetSwitcher_HeroSelectionList; 
+	TObjectPtr<UButton> Button_HeroSelect; 
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_BeforeHeroSelect; 
+protected:
+	virtual void NativeConstruct() override; 
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> Button_AfterHeroSelect;
+private:
+	UFUNCTION()
+	void OnHeroSelectButtonPressed();
+
+	UFUNCTION()
+	void OnHeroSelected(EHeroName HeroName); 
+
+	UFUNCTION()
+	void OnHeroUnselected(); 
+
+	UPROPERTY()
+	bool bHeroSelected = false; 
+
+	UPROPERTY()
+	EHeroName SelectedHeroName; 
 };
