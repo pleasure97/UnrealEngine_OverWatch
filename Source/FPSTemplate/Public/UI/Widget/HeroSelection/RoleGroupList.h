@@ -7,6 +7,9 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "RoleGroupList.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeroSelectedSignature, EHeroName, HeroName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHeroUnselectedSignature);
+
 class UImage; 
 class UHorizontalBox; 
 class UHeroSelection; 
@@ -30,6 +33,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UHeroSelection> HeroSelectionWidgetClass; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TMap<EHeroClass, UTexture2D*> RoleGroupMap; 
+	void SetRoleGroupList(EHeroClass InHeroClass); 
+
+	UPROPERTY(BlueprintAssignable)
+	FHeroSelectedSignature HeroSelectedSignature;
+
+	UPROPERTY(BlueprintAssignable)
+	FHeroUnselectedSignature HeroUnselectedSignature;
+
+private:
+	UPROPERTY()
+	EHeroClass HeroClass; 
+
+	UFUNCTION()
+	void OnHeroSelected(EHeroName HeroName); 
+
+	UFUNCTION()
+	void OnHeroUnselected(); 
 };
