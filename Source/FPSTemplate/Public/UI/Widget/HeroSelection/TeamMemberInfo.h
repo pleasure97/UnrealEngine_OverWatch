@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "TeamMemberInfo.generated.h"
 
 class UImage; 
 class UTextBlock; 
+class UThrobber; 
+class AOWPlayerState; 
 
 /**
  * 
@@ -25,6 +28,14 @@ public:
 	TObjectPtr<UImage> Image_RoleGroup; 
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UThrobber> Throbber_WaitingTeamMember; 
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_Nickname;
-	
+
+	void HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName); 
+
+private:
+	UPROPERTY()
+	bool bInfoSet = false; 
 };
