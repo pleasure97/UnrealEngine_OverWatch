@@ -7,6 +7,7 @@
 #include "TeamMemberInfoList.generated.h"
 
 class UTeamMemberInfo; 
+class AOWPlayerState; 
 
 /**
  * 
@@ -31,4 +32,16 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTeamMemberInfo> TeamMember5;
+
+	void SetTeamMemberInfoList(); 
+
+protected:
+	virtual void NativeConstruct() override; 
+
+	UFUNCTION()
+	void HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName); 
+
+	TArray<UTeamMemberInfo*> MemberWidgets; 
+
+	TArray<AOWPlayerState*> TeamPlayerStates; 
 };
