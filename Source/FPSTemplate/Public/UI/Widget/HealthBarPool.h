@@ -110,11 +110,7 @@ public:
 
 	UFUNCTION()
 	void BindWidgetControllerEvents();
-protected:
-	virtual void NativeConstruct() override;
-	void InitializeHealthBarPoolInfos();
 
-private:
 	/* Update Attributes */
 	UFUNCTION()
 	void UpdateHealthBars(float NewValue);
@@ -145,6 +141,13 @@ private:
 
 	/* End Update Attributes */
 
+	void SetHealthBarColor(FLinearColor Color); 
+protected:
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override; 
+	void InitializeHealthBarPoolInfos();
+
+private:
 	void InitializeProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarPoolInfo);
 	void UpdateProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarPoolInfo);
 	void UpdateBorderVisibility();

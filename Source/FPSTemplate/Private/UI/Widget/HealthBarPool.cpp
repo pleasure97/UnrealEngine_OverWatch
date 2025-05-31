@@ -20,6 +20,45 @@ void UHealthBarPool::NativeConstruct()
 	BindWidgetControllerEvents();
 }
 
+void UHealthBarPool::NativeDestruct()
+{
+	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	{
+		OverlayWidgetController->OnMaxHealthChanged.RemoveAll(this); 
+		OverlayWidgetController->OnMaxArmorChanged.RemoveAll(this);
+		OverlayWidgetController->OnMaxShieldChanged.RemoveAll(this);
+		OverlayWidgetController->OnHealthChanged.RemoveAll(this);
+		OverlayWidgetController->OnArmorChanged.RemoveAll(this);
+		OverlayWidgetController->OnShieldChanged.RemoveAll(this);
+		OverlayWidgetController->OnTempArmorChanged.RemoveAll(this);
+		OverlayWidgetController->OnTempShieldChanged.RemoveAll(this);
+		OverlayWidgetController->OnOverHealthChanged.RemoveAll(this);
+	}
+
+	if (AOWCharacterBase* OWCharacterBase = Cast<AOWCharacterBase>(WidgetController))
+	{
+		OWCharacterBase->OnMaxHealthChanged.RemoveAll(this);
+		OWCharacterBase->OnMaxArmorChanged.RemoveAll(this);
+		OWCharacterBase->OnMaxShieldChanged.RemoveAll(this);
+		OWCharacterBase->OnHealthChanged.RemoveAll(this);
+		OWCharacterBase->OnArmorChanged.RemoveAll(this);
+		OWCharacterBase->OnShieldChanged.RemoveAll(this);
+		OWCharacterBase->OnTempArmorChanged.RemoveAll(this);
+		OWCharacterBase->OnTempShieldChanged.RemoveAll(this);
+		OWCharacterBase->OnOverHealthChanged.RemoveAll(this);
+	}
+
+	if (AHealingSunStone* HealingSunStone = Cast<AHealingSunStone>(WidgetController))
+	{
+		HealingSunStone->OnMaxHealthChanged.RemoveAll(this);
+		HealingSunStone->OnMaxShieldChanged.RemoveAll(this);
+		HealingSunStone->OnHealthChanged.RemoveAll(this);
+		HealingSunStone->OnShieldChanged.RemoveAll(this);
+	}
+
+	Super::NativeDestruct(); 
+}
+
 void UHealthBarPool::InitializeHealthBarPoolInfos()
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
@@ -104,10 +143,16 @@ void UHealthBarPool::InitializeProgressBars(const float& NewValue, const FHealth
 	for (int i = 0; i < NumHealthBars; ++i)
 	{
 		UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-		HealthBar->UpdateProgressBar(HealthBarPoolInfo.HealthBarColor, 1.f);
+		if (HealthBar)
+		{
+			HealthBar->UpdateProgressBar(HealthBarPoolInfo.HealthBarColor, 1.f);
+		}
 
 		UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
-		HorizontalBoxSlot->SetSize(SlateChildSize);
+		if (HorizontalBoxSlot)
+		{
+			HorizontalBoxSlot->SetSize(SlateChildSize);
+		}
 	}
 }
 
@@ -120,20 +165,21 @@ void UHealthBarPool::UpdateProgressBars(const float& NewValue, const FHealthBarP
 	for (int i = 0; i < NumChildren; ++i)
 	{
 		UHealthBar* HealthBar = Cast<UHealthBar>(HealthBarInfo.HorizontalBox->GetChildAt(i));
-
-		if (i < NumBarsToFill)
+		if (HealthBar)
 		{
-			HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 1.f);
+			if (i < NumBarsToFill)
+			{
+				HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 1.f);
+			}
+			else if (i == NumBarsToFill)
+			{
+				HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, Remainder / HealthPerBar);
+			}
+			else
+			{
+				HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 0.f);
+			}
 		}
-		else if (i == NumBarsToFill)
-		{
-			HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, Remainder / HealthPerBar);
-		}
-		else
-		{
-			HealthBar->UpdateProgressBar(HealthBarInfo.HealthBarColor, 0.f);
-		}
-
 	}
 }
 
@@ -235,7 +281,7 @@ void UHealthBarPool::UpdateBorderVisibility()
 		UHorizontalBox* HorizontalBox = HealthBarInfo.HorizontalBox;
 		UBorder* Border = HealthBarInfo.Border;
 
-		if (HorizontalBox->GetChildrenCount() > 0)
+		if (HorizontalBox->GetChildrenCount() > 0 && Border)
 		{
 			Border->SetVisibility(ESlateVisibility::HitTestInvisible);
 		}
@@ -253,7 +299,10 @@ void UHealthBarPool::DistributeFillSize()
 	for (const FHealthBarPoolInfo& HealthBarInfo : HealthBarInfos)
 	{
 		UHorizontalBox* HorizontalBox = HealthBarInfo.HorizontalBox;
-		NumAllChildren += HorizontalBox->GetChildrenCount(); 
+		if (HorizontalBox)
+		{
+			NumAllChildren += HorizontalBox->GetChildrenCount();
+		}
 	}
 
 	FSlateChildSize ChildSize;
@@ -274,4 +323,10 @@ void UHealthBarPool::DistributeFillSize()
 			HorizontalBoxSlot->SetSize(ChildSize);
 		}
 	}
+}
+
+void UHealthBarPool::SetHealthBarColor(FLinearColor Color)
+{
+	FHealthBarPoolInfo HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health];
+	HealthBarPoolInfo.HealthBarColor = Color; 
 }
