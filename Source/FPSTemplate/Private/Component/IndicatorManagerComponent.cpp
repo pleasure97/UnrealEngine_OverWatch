@@ -3,6 +3,7 @@
 
 #include "Component/IndicatorManagerComponent.h"
 #include "UI/Indicator/IndicatorController.h"
+#include "GameFramework/PlayerController.h"
 
 UIndicatorManagerComponent::UIndicatorManagerComponent()
 {
@@ -20,6 +21,19 @@ UIndicatorManagerComponent* UIndicatorManagerComponent::GetComponent(AController
 	}
 	
 	return nullptr;
+}
+
+void UIndicatorManagerComponent::BeginPlay()
+{
+	Super::BeginPlay(); 
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetOwner());
+
+	// Check Player Controller is Local Controller 
+	if (!PlayerController || !PlayerController->IsLocalController())
+	{
+		DestroyComponent(); 
+	}
 }
 
 void UIndicatorManagerComponent::AddIndicator(UIndicatorController* Indicator)

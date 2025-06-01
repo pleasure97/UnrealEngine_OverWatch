@@ -7,16 +7,22 @@
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
-#include "Interfaces/PlayerInterface.h"
+#include "Interface/PlayerInterface.h"
 #include "Player/OWPlayerState.h"
 #include "Team/OWTeamSubsystem.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
+#include "Component/HealthPlateManagerComponent.h"
+#include "Component/IndicatorManagerComponent.h"
 
 AOWPlayerController::AOWPlayerController()
 {
 	bReplicates = true; 
 	bPlayerAlive = true; 
+
+	// InputComponentClass = UOWInputComponent::StaticClass(); 
+	HealthPlateManagerComponent = CreateDefaultSubobject<UHealthPlateManagerComponent>("HealthPlateManagerComponent"); 
+	IndicatorManagerComponent = CreateDefaultSubobject<UIndicatorManagerComponent>("IndicatorManagerComponent"); 
 }
 
 void AOWPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
@@ -49,28 +55,39 @@ void AOWPlayerController::OnPossess(APawn* InPawn)
 void AOWPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	check(OWContext); 
-
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()); 
-	if (Subsystem)
-	{
-		Subsystem->AddMappingContext(OWContext, 0);
-	}
 }
 
 void AOWPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent(); 
 
+	UE_LOG(LogTemp, Warning, TEXT(">> [%s] SetupInputComponent called on %s"),
+		*GetName(), IsLocalController() ? TEXT("LOCAL") : TEXT("REMOTE"));
+
+	if (IsLocalController())
+	{
+		check(OWContext);
+
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+		if (Subsystem)
+		{
+			Subsystem->AddMappingContext(OWContext, 1);
+		}
+	}
+	
 	UOWInputComponent* OWInputComponent = CastChecked<UOWInputComponent>(InputComponent); 
 	OWInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
 	OWInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
 	OWInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Crouch);
 	OWInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Jump);
 
+	ensure(IsLocalController()); 
+
 	OWInputComponent->BindAbilityActions(InputConfig, this, 
 		&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagHeld);
+
+	UE_LOG(LogTemp, Warning, TEXT(">> [%s] SetupInputComponent called on %s"),
+		*GetName(), IsLocalController() ? TEXT("LOCAL") : TEXT("REMOTE"));
 }
 
 void AOWPlayerController::InitPlayerState()
@@ -90,23 +107,6 @@ void AOWPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState(); 
 
 	BroadcastOnPlayerStateChanged();
-
-	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
-	{
-		int32 MyTeamID = OWPlayerState->GetTeamId();
-
-		if (TeamMPC)
-		{
-			if (UMaterialParameterCollectionInstance* TeamMPCInstance = GetWorld()->GetParameterCollectionInstance(TeamMPC))
-			{
-				bool bSuccess = TeamMPCInstance->SetScalarParameterValue(TEXT("TeamID"), (float)MyTeamID);
-				if (!bSuccess)
-				{
-					UE_LOG(LogTemp, Error, TEXT("Team MPC Instance Set Scalar Parameter Value Failed.")); 
-				}
-			}
-		}
-	}
 }
 
 UOWAbilitySystemComponent* AOWPlayerController::GetAbilitySystemComponent()

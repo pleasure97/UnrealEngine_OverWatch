@@ -31,6 +31,9 @@ public:
 
 	const TArray<UIndicatorController*>& GetIndicators() const { return Indicators; }
 
+protected:
+	virtual void BeginPlay() override; 
+
 private:
 	UPROPERTY()
 	TArray<UIndicatorController*> Indicators; 

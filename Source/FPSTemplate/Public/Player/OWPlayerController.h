@@ -14,6 +14,8 @@ class UOWInputConfig;
 class UOWAbilitySystemComponent; 
 struct FInputActionValue; 
 class AOWPlayerState; 
+class UHealthPlateManagerComponent; 
+class UIndicatorManagerComponent; 
 
 /**
  * 
@@ -31,6 +33,9 @@ public:
 	virtual FGenericTeamId GetGenericTeamId() const override; 
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
 	/** Team Interface End **/
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UHealthPlateManagerComponent> HealthPlateManagerComponent;
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void BeginPlay() override; 
@@ -71,6 +76,9 @@ private:
 
 	UPROPERTY()
 	FOnTeamIndexChangedDelegate OnTeamChangedDelegate; 
+
+	UPROPERTY()
+	TObjectPtr<UIndicatorManagerComponent> IndicatorManagerComponent;
 
 	UOWAbilitySystemComponent* GetAbilitySystemComponent();
 
