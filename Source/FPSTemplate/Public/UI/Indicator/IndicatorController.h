@@ -70,6 +70,12 @@ public:
 	void SetScreenSpaceOffset(FVector2D InScreenSpaceOffset) { ScreenSpaceOffset = InScreenSpaceOffset; }
 
 	UFUNCTION(BlueprintCallable)
+	EHorizontalAlignment GetHAlignment() const { return HAlignment; }
+
+	UFUNCTION(BlueprintCallable)
+	EVerticalAlignment GetVAlignment() const { return VAlignment; }
+
+	UFUNCTION(BlueprintCallable)
 	void SetVAlignment(EVerticalAlignment InVAlignment) { VAlignment = InVAlignment; }
 
 	UFUNCTION(BlueprintCallable)
@@ -77,6 +83,14 @@ public:
 	{
 		bAutoRemoveWhenIndicatorComponentIsNull = CanAutomaticallyRemove;
 	}
+	
+	bool CanAutomaticallyRemove() const
+	{
+		return bAutoRemoveWhenIndicatorComponentIsNull && !IsValid(GetSceneComponent()); 
+	}
+
+	UFUNCTION(BlueprintCallable)
+	bool GetClampToScreen() const { return bClampToScreen; }
 
 	UFUNCTION(BlueprintCallable)
 	void SetClampToScreen(bool CanClampToScreen)
@@ -84,11 +98,29 @@ public:
 		bClampToScreen = CanClampToScreen;
 	}
 
+	UFUNCTION(BlueprintCallable)
+	bool GetShowClampToScreenArrow() const { return bShowClampToScreenArrow; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetShowClampToScreenArrow(bool bValue)
+	{
+		bShowClampToScreenArrow = bValue;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetPriority() const { return Priority; }
+
+	UFUNCTION(BlueprintCallable)
+	TSoftClassPtr<UUserWidget> GetIndicatorClass() { return IndicatorWidgetClass;  }
+
 	UIndicatorManagerComponent* GetIndicatorMangerComponent() const { return IndicatorManagerComponentPtr.Get(); }
 	void SetIndicatorManagerComponent(UIndicatorManagerComponent* InIndicatorManagerComponent); 
 
 	UFUNCTION(BlueprintCallable)
 	void UnregisterIndicator(); 
+
+public:
+	TWeakObjectPtr<UUserWidget> IndicatorWidget; 
 
 private:
 	UPROPERTY()
@@ -113,7 +145,13 @@ private:
 	FVector2D ScreenSpaceOffset = FVector2D(0, 0);
 
 	UPROPERTY()
+	TEnumAsByte<EHorizontalAlignment> HAlignment = HAlign_Center; 
+
+	UPROPERTY()
 	TEnumAsByte<EVerticalAlignment> VAlignment = VAlign_Bottom; 
+
+	UPROPERTY()
+	int32 Priority = 0; 
 
 	UPROPERTY()
 	bool bVisible = true; 
@@ -123,4 +161,11 @@ private:
 
 	UPROPERTY()
 	bool bClampToScreen = true; 
+
+	UPROPERTY()
+	bool bShowClampToScreenArrow = false; 
+
+	TWeakPtr<SWidget> CanvasHost; 
+
+	friend class SActorCanvas; 
 };
