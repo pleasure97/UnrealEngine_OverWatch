@@ -6,24 +6,37 @@
 #include "Components/ActorComponent.h"
 #include "HealthPlateManagerComponent.generated.h"
 
+class APawn;
+class UAsyncAction_ListenForGameplayMessage; 
+struct FGameplayTag; 
+struct FHealthPlateInfo; 
+class UUserWidget; 
+class UIndicatorController;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), Blueprintable, meta=(BlueprintSpawnableComponent) )
 class FPSTEMPLATE_API UHealthPlateManagerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UHealthPlateManagerComponent();
 
+	UFUNCTION()
+	void OnHealthPlateAdded(FGameplayTag Channel, const FHealthPlateInfo& Payload);
+
+	UFUNCTION()
+	void OnHealthPlateRemoved(FGameplayTag Channel, const FHealthPlateInfo& Payload);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftClassPtr<UUserWidget> IndicatorControllerClass; 
+
+	void RegisterHealthPlateSource(APawn* IndicatedPawn); 
+	void UnregisterHealthPlateSource(APawn* IndicatedPawn); 
+
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-		
-	
+private:
+	TMap<APawn*, UIndicatorController*> IndicatorMap; 
 };
