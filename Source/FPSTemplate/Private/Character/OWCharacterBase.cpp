@@ -13,6 +13,7 @@
 #include "UI/Widget/HealthBarPool.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Player/OWPlayerState.h"
+#include "Component/HealthPlateSourceComponent.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
@@ -37,6 +38,8 @@ AOWCharacterBase::AOWCharacterBase()
 	WidgetComponent->SetOnlyOwnerSee(false);
 	WidgetComponent->SetOwnerNoSee(false);
 	WidgetComponent->SetIsReplicated(true); 
+
+	HealthPlateSourceComponent = CreateDefaultSubobject<UHealthPlateSourceComponent>("HealthPlateSourceComponent"); 
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const

@@ -11,6 +11,7 @@
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "OWCharacterBase.generated.h"
 
+
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UAnimMontage; 
@@ -18,6 +19,7 @@ class UGameplayAbility;
 class UDebuffNiagaraComponent; 
 class UGameplayEffect; 
 class UWidgetComponent;
+class UHealthPlateSourceComponent; 
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface, public ITeamInterface
@@ -149,6 +151,9 @@ protected:
 	/* Widget Component */
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UWidgetComponent> WidgetComponent;
+
+	UPROPERTY()
+	TObjectPtr<UHealthPlateSourceComponent> HealthPlateSourceComponent; 
 
 	/* Team */
 	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)

@@ -5,15 +5,23 @@
 #include "OWGameplayTags.h"
 #include "Message/OWMessageTypes.h"
 #include "Component/HealthPlateManagerComponent.h"
+#include "GameFramework/Character.h"
 
 UHealthPlateSourceComponent::UHealthPlateSourceComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UHealthPlateSourceComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner()); 
+	if (!OwnerCharacter || !OwnerCharacter->IsLocallyControlled())
+	{
+		DestroyComponent(); 
+		return;
+	}
 
 	// Get Gameplay Message Subsystem
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this); 
