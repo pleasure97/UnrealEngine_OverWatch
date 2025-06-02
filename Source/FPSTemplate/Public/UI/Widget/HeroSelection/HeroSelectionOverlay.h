@@ -25,10 +25,13 @@ public:
 	TObjectPtr<UImage> Image_HeroSelectionOverlay; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_TeamUpTimeDescription; 
+	TObjectPtr<UTextBlock> TextBlock_MainMission; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_TeamUpRemainingTime; 
+	TObjectPtr<UTextBlock> TextBlock_MissionDescription; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_PreparationTime; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_HeroName; 
