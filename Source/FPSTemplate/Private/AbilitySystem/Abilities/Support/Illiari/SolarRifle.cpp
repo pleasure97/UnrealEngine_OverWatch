@@ -20,7 +20,11 @@ void USolarRifle::ActivateAbility(
 
 	// Check Ability Cost 
 	check(CurrentActorInfo); 
-	if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo)) return; 
+	if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo))
+	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+		return;
+	}
 	
 	// To Hit Scan, Get Weapon's Muzzle Flash Socket Location 
 	if (GetAvatarActorFromActorInfo() && GetAvatarActorFromActorInfo()->Implements<UCombatInterface>())
@@ -28,12 +32,10 @@ void USolarRifle::ActivateAbility(
 		const USkeletalMeshComponent* SolarRifle = ICombatInterface::Execute_GetWeapon(GetAvatarActorFromActorInfo());
 		const FTransform SocketTransform = SolarRifle->GetSocketTransform("MuzzleFlash");
 
+		CommitAbility(Handle, ActorInfo, ActivationInfo); 
+
 		// Fire (Spawn Muzzle Flash, Solar Projectile, and Impact Effect if Hit)
 		HitScan(SocketTransform);
-
-		CommitAbilityCost(Handle, ActorInfo, ActivationInfo);
-
-		CommitAbilityCooldown(Handle, ActorInfo, ActivationInfo, true);
 
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
 	}
@@ -68,6 +70,11 @@ void USolarRifle::HitScan(const FTransform& SocketTransform)
 		GetOwningActorFromActorInfo(),
 		Cast<APawn>(GetOwningActorFromActorInfo()),
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+
+	if (!SolarProjectile)
+	{
+		return;
+	}
 
 	// If Hit 
 	if (HitResult.bBlockingHit)
