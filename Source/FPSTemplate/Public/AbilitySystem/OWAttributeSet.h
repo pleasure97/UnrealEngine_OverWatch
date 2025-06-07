@@ -174,27 +174,27 @@ public:
 	/*
 	 * Match Attributes 
 	 */
-	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumKills, Category = "Match Attributes")
 	FGameplayAttributeData NumKills; 
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumKills);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumDeaths, Category = "Match Attributes")
 	FGameplayAttributeData NumDeaths;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumDeaths);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_NumAssists, Category = "Match Attributes")
 	FGameplayAttributeData NumAssists;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumAssists);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TotalDamage, Category = "Match Attributes")
 	FGameplayAttributeData TotalDamage;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TotalDamage);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TotalHeal, Category = "Match Attributes")
 	FGameplayAttributeData TotalHeal;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TotalHeal);
 
-	UPROPERTY(BlueprintReadOnly, Category = "Match Attributes")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_TotalMitigatedDamage, Category = "Match Attributes")
 	FGameplayAttributeData TotalMitigatedDamage;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, TotalMitigatedDamage);
 
@@ -282,7 +282,7 @@ public:
 	void OnRep_TotalHeal(const FGameplayAttributeData& OldTotalHeal) const;
 
 	UFUNCTION()
-	void OnRep_TotalMitigateDamage(const FGameplayAttributeData& OldTotalMitigatedDamage) const;
+	void OnRep_TotalMitigatedDamage(const FGameplayAttributeData& OldTotalMitigatedDamage) const;
 
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const; 

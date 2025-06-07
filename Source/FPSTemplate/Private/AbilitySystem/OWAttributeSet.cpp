@@ -95,7 +95,7 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 
 void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
-	Super::PreAttributeBaseChange(Attribute, NewValue); 
+	Super::PreAttributeChange(Attribute, NewValue); 
 
 	if (Attribute == GetHealthAttribute())
 	{
@@ -286,7 +286,7 @@ void UOWAttributeSet::OnRep_TotalHeal(const FGameplayAttributeData& OldTotalHeal
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TotalHeal, OldTotalHeal);
 }
 
-void UOWAttributeSet::OnRep_TotalMitigateDamage(const FGameplayAttributeData& OldTotalMitigatedDamage) const
+void UOWAttributeSet::OnRep_TotalMitigatedDamage(const FGameplayAttributeData& OldTotalMitigatedDamage) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, TotalMitigatedDamage, OldTotalMitigatedDamage);
 }
