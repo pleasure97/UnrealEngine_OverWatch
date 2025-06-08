@@ -31,7 +31,7 @@ public:
 	/* Secondary Attributes */
 	FGameplayTag Attributes_Secondary_CriticalHitDamage;
 	FGameplayTag Attributes_Secondary_ShieldRegeneration; 
-
+	
 	/* Damage Attributes */
 	FGameplayTag Damage; 
 	FGameplayTag Damage_HitScan; 
@@ -103,6 +103,9 @@ public:
 	FGameplayTag Cost_Illiari_SolarRifle; 
 	FGameplayTag Cost_Illiari_HealingRay; 
 
+	/* Common Abilities */
+	FGameplayTag Abilities_Reload; 
+
 	/* Hit React */
 	FGameplayTag Abilities_HitReact;
 	FGameplayTag Effects_HitReact; 
@@ -112,6 +115,7 @@ public:
 	FGameplayTag Abilities_Status_Eligible; 
 	FGameplayTag Abilities_Status_Unlocked; 
 	FGameplayTag Abilities_Status_Equipped; 
+	FGameplayTag Abilities_Status_Death; 
 
 	/* Debuff Types */
 	FGameplayTag Debuff_Chance; 
@@ -137,10 +141,27 @@ public:
 	FGameplayTag Gameplay_Message_HealthPlate_Remove; 
 	FGameplayTag Gameplay_Message_HealthPlate_Discover; 
 	FGameplayTag Gameplay_Message_HeroKilled; 
+	FGameplayTag Gameplay_Message_Respawn; 
+
+	/* Game Phase */
+	FGameplayTag GamePhase_MatchBeginCountdown; 
+	FGameplayTag GamePhase_Playing; 
+	FGameplayTag GamePhase_PostGame; 
+	FGameplayTag GamePhase_Warmup; 
 
 	/* Set By Caller */ 
 	FGameplayTag Data_Cooldown; 
 	FGameplayTag Data_CriticalHitDamage; 
+
+	/* Animation */
+	FGameplayTag Event_Movement_AimDownSight; 
+	FGameplayTag Event_Movement_WeaponFire; 
+	FGameplayTag Event_Movement_Reload; 
+
+	/* Event */
+	FGameplayTag Event_ChangeHero; 
+	FGameplayTag Event_ReloadDone; 
+	FGameplayTag Event_Death; 
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

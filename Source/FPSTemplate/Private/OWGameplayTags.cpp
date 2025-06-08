@@ -271,7 +271,12 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Cost_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cost.Illiari.HealingRay"),
 		FString("Cost of HealingRay"));
-	
+
+	/* Common Abilities */
+	GameplayTags.Abilities_Reload = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Reload"),
+		FString("Reload Ability"));
+
 	/* Hit React */
 	GameplayTags.Abilities_HitReact= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.HitReact"),
@@ -297,6 +302,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_Status_Unlocked = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Unlocked"),
 		FString("Unlocked Status"));
+
+	GameplayTags.Abilities_Status_Death = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Status.Death"),
+		FString("Death Status"));
 
 	/* Debuff Types */
 	GameplayTags.Debuff_Chance = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -371,6 +380,27 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.HeroKilled"),
 		FString("Gameplay Message for Event Hero Killed")); 
 
+	GameplayTags.Gameplay_Message_Respawn = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.Respawn"),
+		FString("Gameplay Message for Event Hero Respawning"));
+
+	/* Game Phase */
+	GameplayTags.GamePhase_MatchBeginCountdown = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchBeginCountdown"),
+		FString("Game Phase When Match Begins Countdown"));
+
+	GameplayTags.GamePhase_Playing = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.Playing"),
+		FString("Game Phase When Playing"));
+
+	GameplayTags.GamePhase_PostGame = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.PostGame"),
+		FString("Game Phase After Game"));
+
+	GameplayTags.GamePhase_Warmup = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.Warmup"),
+		FString("Game Phase When Warmup"));
+
 	/* Set By Caller */
 
 	GameplayTags.Data_Cooldown = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -380,6 +410,32 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Data_CriticalHitDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.CriticalHitDamage"),
 		FString("Gamplay Tag When Critical Hit Damage is Set By Caller"));
+
+	/* Animation */
+	GameplayTags.Event_Movement_AimDownSight = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Movement.AimDownSight"),
+		FString("Aim Down Sight Event Tag"));
+
+	GameplayTags.Event_Movement_WeaponFire = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Movement.WeaponFire"),
+		FString("Weapon Fire Event Tag"));
+
+	GameplayTags.Event_Movement_Reload = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Movement.Reload"),
+		FString("Reload Event Tag"));
+
+	/* Event */
+	GameplayTags.Event_ChangeHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.ChangeHero"),
+		FString("Change Hero Event Tag"));
+
+	GameplayTags.Event_ReloadDone = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.ReloadDone"),
+		FString("Reload Done Event Tag"));
+
+	GameplayTags.Event_Death = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Death"),
+		FString("Death Event Tag"));
 
 	/* Hero GameplayTags - Illiari */
 
