@@ -62,3 +62,74 @@ struct FHeroKilledInfo
 	UPROPERTY()
 	TObjectPtr<APlayerState> TargetPlayerState = nullptr;
 };
+
+USTRUCT(BlueprintType)
+struct FHeroRespawnInfo
+{
+	GENERATED_BODY()
+
+	FHeroRespawnInfo() {}
+
+	FHeroRespawnInfo(APlayerState* InOwnerPlayerState)
+		: OwnerPlayerState(InOwnerPlayerState)
+	{
+	}
+
+	UPROPERTY()
+	TObjectPtr<APlayerState> OwnerPlayerState = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FInteractionDurationInfo
+{
+	GENERATED_BODY()
+
+	FInteractionDurationInfo() {}
+
+	FInteractionDurationInfo(APlayerState* InPlayerState, float InInteractionDuraction)
+		: PlayerState(InPlayerState), InteractionDuration(InInteractionDuraction)
+	{
+
+	}
+
+	UPROPERTY()
+	TObjectPtr<APlayerState> PlayerState = nullptr; 
+
+	UPROPERTY()
+	float InteractionDuration = 0.f; 
+};
+
+USTRUCT()
+struct FOWVerbMessage
+{
+	GENERATED_BODY()
+
+	FOWVerbMessage() {}
+
+	FOWVerbMessage(FGameplayTag InVerb, AActor* InInstigator, AActor* InTarget)
+		: Verb(InVerb), Instigator(InInstigator), Target(InTarget)
+	{
+
+	}
+
+	UPROPERTY()
+	FGameplayTag Verb = FGameplayTag(); 
+
+	UPROPERTY()
+	TObjectPtr<AActor> Instigator = nullptr; 
+
+	UPROPERTY()
+	TObjectPtr<AActor> Target = nullptr; 
+
+	UPROPERTY()
+	FGameplayTagContainer InstigatorTags = FGameplayTagContainer();
+
+	UPROPERTY()
+	FGameplayTagContainer TargetTags = FGameplayTagContainer();
+
+	UPROPERTY()
+	FGameplayTagContainer ContextTags = FGameplayTagContainer();
+
+	UPROPERTY()
+	float Magnitude = 0.f;
+};
