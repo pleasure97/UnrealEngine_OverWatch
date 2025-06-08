@@ -26,6 +26,8 @@ public:
 	FAbilityStatusChanged AbilityStatusChanged; 
 	FAbilityEquipped AbilityEquipped; 
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
+
 	/* Ability Initialization */
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override; 
 	void AbilityActorInfoSet(); 
@@ -54,6 +56,11 @@ public:
 
 	UFUNCTION(Client, Reliable)
 	void ClientEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag); 
+
+	/* Cancel Ability */
+	typedef TFunctionRef<bool(const UGameplayAbility* OWAbility, FGameplayAbilitySpecHandle Handle)> TShouldCancelAbilityFunc; 
+	void CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility); 
+
 protected:
 	UFUNCTION(Client, Reliable)
 	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle); 

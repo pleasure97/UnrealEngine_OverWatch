@@ -7,6 +7,7 @@
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/HeroInfo.h"
+#include "AbilitySystem/OWGlobalAbilitySystem.h"
 
 void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
@@ -20,11 +21,17 @@ void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActo
 
     if (bHasNewPawnAvatar)
     {
+        // Register the Global Ability System.
+        if (UOWGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UOWGlobalAbilitySystem>(GetWorld()))
+        {
+            GlobalAbilitySystem->RegisterASC(this);
+        }
+
         // Map Ability System Component to Anim Instance 
         if (UOWAnimInstance* OWAnimInstance = Cast<UOWAnimInstance>(ActorInfo->GetAnimInstance()))
         {
             OWAnimInstance->InitializeWithAbilitySystem(this); 
-        }
+        } 
     }
 }
 
@@ -213,6 +220,44 @@ void UOWAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySyste
     EffectAssetTags.Broadcast(GameplayTagContainer); 
 }
 
+void UOWAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)
+{
+    ABILITYLIST_SCOPE_LOCK(); 
+    for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+    {
+        if (!AbilitySpec.IsActive())
+        {
+            continue;
+        }
+
+        UGameplayAbility* AbilityCDO = CastChecked<UGameplayAbility>(AbilitySpec.Ability); 
+
+        if (AbilityCDO->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+        {
+            // Cancel All Spawned Instances, not CDO. 
+            TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances(); 
+            for (UGameplayAbility* AbilityInstance : Instances)
+            {
+                if (ShouldCancelFunc(AbilityInstance, AbilitySpec.Handle))
+                {
+                    if (AbilityInstance->CanBeCanceled())
+                    {
+                        AbilityInstance->CancelAbility(
+                            AbilitySpec.Handle, 
+                            AbilityActorInfo.Get(), 
+                            AbilityInstance->GetCurrentActivationInfo(),
+                            bReplicateCancelAbility); 
+                    }
+                    else
+                    {
+                        UE_LOG(LogTemp, Error, TEXT("CancelAbilitiesByFunc : Can't cancel Ability [%s]"), *AbilityInstance->GetName()); 
+                    }
+                }
+            }
+        }
+    }
+}
+
 void UOWAbilitySystemComponent::OnRep_ActivateAbilities()
 {
     Super::OnRep_ActivateAbilities(); 
@@ -229,3 +274,12 @@ void UOWAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const F
     AbilityStatusChanged.Broadcast(AbilityTag, StatusTag, AbilityLevel); 
 }
 
+void UOWAbilitySystemComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (UOWGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UOWGlobalAbilitySystem>(GetWorld()))
+    {
+        GlobalAbilitySystem->UnregisterASC(this); 
+    }
+
+    Super::EndPlay(EndPlayReason); 
+}
