@@ -437,6 +437,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Event.Death"),
 		FString("Death Event Tag"));
 
+	GameplayTags.Event_ResetHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.ResetHero"),
+		FString("Reset Hero Tag"));
+
 	/* Hero GameplayTags - Illiari */
 
 	GameplayTags.Abilities_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(

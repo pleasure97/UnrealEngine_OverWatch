@@ -57,8 +57,14 @@ public:
 	UFUNCTION()
 	void OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
 
+	void Reset();
+
 private:
 	void InitAbilityActorInfo(); 
+
+	void DisableMovementAndCollision(); 
+
+	void UninitAndDestroy(); 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> FirstPersonSpringArm; 

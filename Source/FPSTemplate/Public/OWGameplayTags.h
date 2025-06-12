@@ -162,6 +162,7 @@ public:
 	FGameplayTag Event_ChangeHero; 
 	FGameplayTag Event_ReloadDone; 
 	FGameplayTag Event_Death; 
+	FGameplayTag Event_ResetHero; 
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

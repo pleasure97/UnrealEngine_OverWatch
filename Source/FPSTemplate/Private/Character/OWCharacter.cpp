@@ -19,6 +19,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Game/OWGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -300,6 +301,49 @@ void AOWCharacter::InitAbilityActorInfo()
 			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
 		}
 	}
+}
+
+void AOWCharacter::Reset()
+{
+	DisableMovementAndCollision(); 
+
+	K2_OnReset(); 
+
+	UninitAndDestroy(); 
+}
+
+void AOWCharacter::DisableMovementAndCollision()
+{
+	if (Controller)
+	{
+		Controller->SetIgnoreMoveInput(true); 
+	}
+
+	UCapsuleComponent* CharacterCapsule = GetCapsuleComponent(); 
+	check(CharacterCapsule);
+
+	CharacterCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CharacterCapsule->SetCollisionResponseToChannels(ECR_Ignore);
+
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	if (MovementComponent)
+	{
+		MovementComponent->StopMovementImmediately();
+		MovementComponent->DisableMovement();
+	}
+}
+
+void AOWCharacter::UninitAndDestroy()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		DetachFromControllerPendingDestroy(); 
+		SetLifeSpan(0.1f); 
+	}
+
+	// TODO - Uninitialize Ability System
+
+	SetActorHiddenInGame(true); 
 }
 
 void AOWCharacter::MulticastLevelUp_Implementation() const
