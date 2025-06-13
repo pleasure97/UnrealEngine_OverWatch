@@ -193,3 +193,73 @@ bool UOWTeamSubsystem::CanCauseDamage(const UObject* Instigator, const UObject* 
  
     return false;
 }
+
+void UOWTeamSubsystem::AddTeamTagStack(int32 TeamId, FGameplayTag Tag, int32 StackCount)
+{
+    // Find Team Tracking Info from Team Map 
+    if (FOWTeamTrackingInfo* TeamTrackingInfo = TeamMap.Find(TeamId))
+    {
+        // Get Public Tracking Info and Check Has Authority 
+        if (TeamTrackingInfo->PublicInfo)
+        {
+            if (TeamTrackingInfo->PublicInfo->HasAuthority())
+            {
+                TeamTrackingInfo->PublicInfo->TeamTag.AddStack(Tag, StackCount);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed because it was called on a client."));
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed because there is no team info spawned yet."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed because it was passed an unknown team id."))
+    }
+}
+
+void UOWTeamSubsystem::RemoveTeamTagStack(int32 TeamId, FGameplayTag Tag, int32 StackCount)
+{
+    if (FOWTeamTrackingInfo* TeamTrackingInfo = TeamMap.Find(TeamId))
+    {
+        // Get Public Tracking Info and Check Has Authority 
+        if (TeamTrackingInfo->PublicInfo)
+        {
+            if (TeamTrackingInfo->PublicInfo->HasAuthority())
+            {
+                TeamTrackingInfo->PublicInfo->TeamTag.RemoveStack(Tag, StackCount);
+            }
+            else
+            {
+                UE_LOG(LogTemp, Error, TEXT("Failed because it was called on a client."));
+            }
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed because there is no team info spawned yet."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed because it was passed an unknown team id."))
+    }
+}
+
+int32 UOWTeamSubsystem::GetTeamTagStackCount(int32 TeamId, FGameplayTag Tag) const
+{
+    if (const FOWTeamTrackingInfo* TeamTrackingInfo = TeamMap.Find(TeamId))
+    {
+        const int32 PublicStackCount = (TeamTrackingInfo->PublicInfo ? TeamTrackingInfo->PublicInfo->TeamTag.GetStackCount(Tag) : 0); 
+        const int32 PrivateStackCount = (TeamTrackingInfo->PrivateInfo ? TeamTrackingInfo->PrivateInfo->TeamTag.GetStackCount(Tag) : 0); 
+        return PublicStackCount + PrivateStackCount; 
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("GetTeamTagStackCount(TeamId: %d, Tag: %s) failed."), TeamId, *Tag.ToString());
+        return 0; 
+    }
+}

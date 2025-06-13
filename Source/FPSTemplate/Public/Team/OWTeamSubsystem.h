@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "GameplayTagContainer.h"
 #include "OWTeamSubsystem.generated.h"
 
 class AOWTeamPublicInfo;
@@ -60,6 +61,11 @@ public:
 	EOWTeamComparison CompareTeams(const UObject* A, const UObject* B) const; 
 
 	bool CanCauseDamage(const UObject* Instigator, const UObject* Target, bool bAllowDamageToSelf = true) const; 
+
+	void AddTeamTagStack(int32 TeamId, FGameplayTag Tag, int32 StackCount); 
+	void RemoveTeamTagStack(int32 TeamId, FGameplayTag Tag, int32 StackCount); 
+
+	int32 GetTeamTagStackCount(int32 TeamId, FGameplayTag Tag) const;
 private:
 	UPROPERTY()
 	TMap<int32, FOWTeamTrackingInfo> TeamMap; 

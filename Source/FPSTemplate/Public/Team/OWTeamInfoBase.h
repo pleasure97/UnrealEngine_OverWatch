@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Info.h"
-#include "GameplayTagContainer.h"
+#include "Data/GameplayTagStack.h"
 #include "OWTeamInfoBase.generated.h"
 
 class UOWTeamSubsystem; 
@@ -22,7 +22,7 @@ public:
 	AOWTeamInfoBase(); 
 
 	UPROPERTY(Replicated)
-	FGameplayTagContainer TeamTag; 
+	FGameplayTagStackContainer TeamTag; 
 
 	int32 GetTeamID() const { return TeamID; }
 	void SetTeamID(int32 NewTeamID);
