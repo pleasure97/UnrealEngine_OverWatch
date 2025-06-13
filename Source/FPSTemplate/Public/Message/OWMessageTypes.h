@@ -80,6 +80,22 @@ struct FHeroRespawnInfo
 };
 
 USTRUCT(BlueprintType)
+struct FHeroResetInfo
+{
+	GENERATED_BODY()
+
+	FHeroResetInfo() {}
+
+	FHeroResetInfo(AActor* InOwnerPlayerState)
+		: OwnerPlayerState(InOwnerPlayerState)
+	{
+	}
+
+	UPROPERTY()
+	TObjectPtr<AActor> OwnerPlayerState = nullptr;
+};
+
+USTRUCT(BlueprintType)
 struct FInteractionDurationInfo
 {
 	GENERATED_BODY()
@@ -99,7 +115,7 @@ struct FInteractionDurationInfo
 	float InteractionDuration = 0.f; 
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FOWVerbMessage
 {
 	GENERATED_BODY()
@@ -132,4 +148,32 @@ struct FOWVerbMessage
 
 	UPROPERTY()
 	float Magnitude = 0.f;
+};
+
+UENUM(BlueprintType)
+enum EOccupationState : uint8
+{
+	Start UMETA(DisplayName = "Start"),
+	Stop UMETA(DisplayName = "Stop"),
+	Contesting UMETA(DisplayName = "Contesting"),
+	Complete UMETA(DisplayName = "Complete"), 
+	None UMETA(DisplayName = "None")
+};
+
+USTRUCT(BlueprintType)
+struct FOccupationInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TEnumAsByte<EOccupationState> OccupationState = EOccupationState::None; 
+
+	UPROPERTY()
+	int32 NumDefenders = 0; 
+
+	UPROPERTY()
+	int32 NumAttackers = 0; 
+
+	UPROPERTY()
+	float OccupationProgress = 0.f; 
 };

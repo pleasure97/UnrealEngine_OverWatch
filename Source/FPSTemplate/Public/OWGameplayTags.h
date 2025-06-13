@@ -142,6 +142,7 @@ public:
 	FGameplayTag Gameplay_Message_HealthPlate_Discover; 
 	FGameplayTag Gameplay_Message_HeroKilled; 
 	FGameplayTag Gameplay_Message_Respawn; 
+	FGameplayTag Gameplay_Message_AssaultProgress; 
 
 	/* Game Phase */
 	FGameplayTag GamePhase_MatchBeginCountdown; 
