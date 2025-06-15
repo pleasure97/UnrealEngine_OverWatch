@@ -22,9 +22,11 @@ public:
 	virtual void NativeOnInitialized() override; 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override; 
 protected:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	ECountTimerDirection TimerDirection = ECountTimerDirection::Countdown; 
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	ECountdownTimerType TimerType = ECountdownTimerType::None; 
+	ECountTimerType TimerType = ECountTimerType::None; 
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ADSPlayerController> OwningPlayerController;
@@ -42,19 +44,19 @@ protected:
 	bool bHiddenWhenInactive = true;
 
 	UFUNCTION()
-	virtual void OnTimerUpdated(float CountdownTimeLeft, ECountdownTimerType Type); 
+	virtual void OnTimerUpdated(float CountTime, ECountTimerDirection Direction, ECountTimerType Type);
 
 	UFUNCTION()
-	virtual void OnTimerStopped(float CountdownTimeLeft, ECountdownTimerType Type); 
+	virtual void OnTimerStopped(float CountTime, ECountTimerDirection Direction, ECountTimerType Type);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Timer Started"))
-	void K2_OnTimerStarted(float Time, ECountdownTimerType Type);
+	void K2_OnTimerStarted(float Time, ECountTimerDirection Direction, ECountTimerType Type);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Timer Updated"))
-	void K2_OnTimerUpdated(float Time, ECountdownTimerType Type); 
+	void K2_OnTimerUpdated(float Time, ECountTimerDirection Direction, ECountTimerType Type);
 
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Timer Stopped"))
-	void K2_OnTimerStopped(float Time, ECountdownTimerType Type);
+	void K2_OnTimerStopped(float Time, ECountTimerDirection Direction, ECountTimerType Type);
 
 	FString FormatTimeAsString(float TimeSeconds) const; 
 	
@@ -62,10 +64,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_Time; 
 
-	float InternalCountdown; 
+	float InternalCountTime; 
 
 	void TimerStarted(float InitialTime); 
 	void TimerStopped(); 
 
-	void UpdateCountdown(float TimeSeconds); 
+	void UpdateCountTime(float TimeSeconds); 
 };

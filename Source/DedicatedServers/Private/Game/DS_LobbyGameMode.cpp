@@ -15,15 +15,15 @@ ADS_LobbyGameMode::ADS_LobbyGameMode()
 	bUseSeamlessTravel = true; 
 	LobbyStatus = ELobbyStatus::WaitingForPlayers; 
 	MinPlayers = 1; 
-	LobbyCountdownTimer.Type = ECountdownTimerType::LobbyCountdown; 
+	LobbyCountTimer.Type = ECountTimerType::LobbyCountup; 
 }
 
-void ADS_LobbyGameMode::CheckAndStartLobbyCountdown()
+void ADS_LobbyGameMode::CheckAndStartLobbyCountTime()
 {
 	if (GetNumPlayers() >= MinPlayers && LobbyStatus == ELobbyStatus::WaitingForPlayers)
 	{
-		LobbyStatus = ELobbyStatus::CountdownToSeamlessTravel;
-		StartCountdownTimer(LobbyCountdownTimer);
+		LobbyStatus = ELobbyStatus::PreparingSeamlessTravel;
+		StartCountTimer(LobbyCountTimer);
 	}
 }
 
@@ -31,7 +31,7 @@ void ADS_LobbyGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer); 
 
-	CheckAndStartLobbyCountdown(); 
+	CheckAndStartLobbyCountTime(); 
 
 	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::PostLogin for %s"), *NewPlayer->GetName()); 
 }
@@ -40,7 +40,7 @@ void ADS_LobbyGameMode::InitSeamlessTravelPlayer(AController* NewController)
 {
 	Super::InitSeamlessTravelPlayer(NewController);
 
-	CheckAndStartLobbyCountdown(); 
+	CheckAndStartLobbyCountTime(); 
 
 	if (LobbyStatus != ELobbyStatus::SeamlessTravelling)
 	{
@@ -51,12 +51,12 @@ void ADS_LobbyGameMode::InitSeamlessTravelPlayer(AController* NewController)
 }
 
 
-void ADS_LobbyGameMode::CheckAndStopLobbyCountdown()
+void ADS_LobbyGameMode::CheckAndStopLobbyCountTime()
 {
-	if (GetNumPlayers() - 1 < MinPlayers && LobbyStatus == ELobbyStatus::CountdownToSeamlessTravel)
+	if (GetNumPlayers() - 1 < MinPlayers && LobbyStatus == ELobbyStatus::PreparingSeamlessTravel)
 	{
 		LobbyStatus = ELobbyStatus::WaitingForPlayers;
-		StopCountdownTimer(LobbyCountdownTimer);
+		StopCountTimer(LobbyCountTimer);
 	}
 }
 
@@ -64,7 +64,7 @@ void ADS_LobbyGameMode::Logout(AController* Exiting)
 {
 	Super::Logout(Exiting); 
 
-	CheckAndStopLobbyCountdown(); 
+	CheckAndStopLobbyCountTime(); 
 
 	RemovePlayerSession(Exiting); 
 
@@ -184,13 +184,13 @@ void ADS_LobbyGameMode::BeginPlay()
 	InitGameLift(); 
 }
 
-void ADS_LobbyGameMode::OnCountdownTimerFinished(ECountdownTimerType Type)
+void ADS_LobbyGameMode::OnCountTimerFinished(ECountTimerType Type)
 {
-	Super::OnCountdownTimerFinished(Type); 
+	Super::OnCountTimerFinished(Type); 
 
-	if (Type == ECountdownTimerType::LobbyCountdown)
+	if (Type == ECountTimerType::LobbyCountdown)
 	{
-		StopCountdownTimer(LobbyCountdownTimer); 
+		StopCountTimer(LobbyCountTimer); 
 		LobbyStatus = ELobbyStatus::SeamlessTravelling; 
 		TrySeamlessTravel(DestinationMap); 
 	}

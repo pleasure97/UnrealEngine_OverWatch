@@ -35,16 +35,16 @@ protected:
 
 	virtual void BeginPlay() override; 
 
-	virtual void OnCountdownTimerFinished(ECountdownTimerType Type) override; 
+	virtual void OnCountTimerFinished(ECountTimerType Type) override; 
 
 	UPROPERTY(EditDefaultsOnly)
-	FCountdownTimerHandle PreMatchTimer;
+	FCountTimerHandle PreMatchTimer;
 
 	UPROPERTY(EditDefaultsOnly)
-	FCountdownTimerHandle MatchTimer;
+	FCountTimerHandle MatchTimer;
 
 	UPROPERTY(EditDefaultsOnly)
-	FCountdownTimerHandle PostMatchTimer;
+	FCountTimerHandle PostMatchTimer;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSoftObjectPtr<UWorld> LobbyMap; 

@@ -8,7 +8,7 @@
 #include "DSPlayerController.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTimerStateChangedDelegate, float, Time, ECountdownTimerType, Type); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTimerStateChangedDelegate, float, Time, ECountTimerDirection, Direction, ECountTimerType, Type); 
 
 /**
  * 
@@ -27,10 +27,10 @@ public:
 	virtual void BeginPlay() override; 
 
 	UFUNCTION(Client, Reliable)
-	void Client_TimerUpdated(float CountdownTimeLeft, ECountdownTimerType Type) const; 
+	void Client_TimerUpdated(float CountTime, ECountTimerDirection Direction, ECountTimerType Type) const; 
 
 	UFUNCTION(Client, Reliable)
-	void Client_TimerStopped(float CountdownTimeLeft, ECountdownTimerType Type) const; 
+	void Client_TimerStopped(float CountTime, ECountTimerDirection Direction, ECountTimerType Type) const;
 
 	UFUNCTION(Client, Reliable)
 	void Client_SetInputEnabled(bool bEnabled);

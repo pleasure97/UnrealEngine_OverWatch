@@ -16,10 +16,10 @@ class DEDICATEDSERVERS_API ADS_GameModeBase : public AGameMode
 	GENERATED_BODY()
 	
 protected:
-	void StartCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle); 
-	void StopCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle); 
-	void UpdateCountdownTimer(const FCountdownTimerHandle& CountdownTimerHandle); 
-	virtual void OnCountdownTimerFinished(ECountdownTimerType Type); 
+	void StartCountTimer(FCountTimerHandle& CountTimerHandle); 
+	void StopCountTimer(FCountTimerHandle& CountTimerHandle); 
+	void UpdateCountTimer(const FCountTimerHandle& CountTimerHandle); 
+	virtual void OnCountTimerFinished(ECountTimerType Type); 
 	
 	void TrySeamlessTravel(TSoftObjectPtr<UWorld> DestinationMap); 
 

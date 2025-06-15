@@ -65,14 +65,14 @@ void ADSPlayerController::Client_SetInputEnabled_Implementation(bool bEnabled)
 	}
 }
 
-void ADSPlayerController::Client_TimerUpdated_Implementation(float CountdownTimeLeft, ECountdownTimerType Type) const
+void ADSPlayerController::Client_TimerUpdated_Implementation(float CountTime, ECountTimerDirection Direction, ECountTimerType Type) const
 {
-	OnTimerUpdated.Broadcast(CountdownTimeLeft - SingleTripTime, Type); 
+	OnTimerUpdated.Broadcast(CountTime - SingleTripTime, Direction, Type);
 }
 
-void ADSPlayerController::Client_TimerStopped_Implementation(float CountdownTimeLeft, ECountdownTimerType Type) const
+void ADSPlayerController::Client_TimerStopped_Implementation(float CountTime, ECountTimerDirection Direction, ECountTimerType Type) const
 {
-	OnTimerStopped.Broadcast(CountdownTimeLeft - SingleTripTime, Type); 
+	OnTimerStopped.Broadcast(CountTime - SingleTripTime, Direction, Type);
 }
 
 void ADSPlayerController::Server_Ping_Implementation(float TimeOfRequest)

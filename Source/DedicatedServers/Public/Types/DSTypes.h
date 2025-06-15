@@ -3,7 +3,7 @@
 #include "DSTypes.generated.h"
 
 UENUM(BlueprintType)
-enum class ECountdownTimerState : uint8
+enum class ECountTimerState : uint8
 {
 	NotStarted UMETA(DisplayName = "Not Started"), 
 	Started UMETA(DisplayName = "Started"), 
@@ -12,9 +12,17 @@ enum class ECountdownTimerState : uint8
 };
 
 UENUM(BlueprintType)
-enum class ECountdownTimerType : uint8
+enum class ECountTimerDirection : uint8
+{
+	Countdown UMETA(DisplayName = "Countdown"), 
+	Countup UMETA(DisplayName = "Countup")
+};
+
+UENUM(BlueprintType)
+enum class ECountTimerType : uint8
 {
 	LobbyCountdown UMETA(DisplayName = "Lobby Countdown"), 
+	LobbyCountup UMETA(DisplayName = "Lobby Countup"), 
 	PreMatch UMETA(DisplayName = "Pre Match"), 
 	Match UMETA(DisplayName = "Match"), 
 	PostMatch UMETA(DisplayName = "Post Match"), 
@@ -35,27 +43,30 @@ UENUM()
 enum class ELobbyStatus : uint8
 {
 	WaitingForPlayers, 
-	CountdownToSeamlessTravel, 
+	PreparingSeamlessTravel, 
 	SeamlessTravelling
 };
 
 
 USTRUCT(BlueprintType)
-struct FCountdownTimerHandle
+struct FCountTimerHandle
 {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
-	ECountdownTimerState State = ECountdownTimerState::NotStarted; 
+	ECountTimerState State = ECountTimerState::NotStarted; 
 
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
-	ECountdownTimerType Type = ECountdownTimerType::None;
+	ECountTimerDirection Direction = ECountTimerDirection::Countdown; 
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly)
+	ECountTimerType Type = ECountTimerType::None;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CountdownTime = 0.f; 
+	float CountTime = 0.f; 
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	float CountdownUpdateInterval = 1.f; 
+	float CountUpdateInterval = 1.f; 
 
 	FTimerHandle TimerFinishedHandle{}; 
 	FTimerHandle TimerUpdateHandle{}; 
@@ -64,7 +75,7 @@ struct FCountdownTimerHandle
 	FTimerDelegate TimerUpdateDelegate{}; 
 }; 
 
-inline bool operator==(const FCountdownTimerHandle& lhs, const FCountdownTimerHandle& rhs)
+inline bool operator==(const FCountTimerHandle& lhs, const FCountTimerHandle& rhs)
 {
-	return lhs.Type == rhs.Type; 
+	return (lhs.Type == rhs.Type) && (lhs.Direction == rhs.Direction); 
 }

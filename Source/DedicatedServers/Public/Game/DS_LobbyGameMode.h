@@ -22,14 +22,14 @@ public:
 	
 	virtual void PostLogin(APlayerController* NewPlayer) override; 
 
-	void CheckAndStartLobbyCountdown();
+	void CheckAndStartLobbyCountTime();
 
-	void CheckAndStopLobbyCountdown(); 
+	void CheckAndStopLobbyCountTime(); 
 
 protected: 
 	virtual void BeginPlay() override; 
 
-	virtual void OnCountdownTimerFinished(ECountdownTimerType Type) override; 
+	virtual void OnCountTimerFinished(ECountTimerType Type) override; 
 
 	virtual void InitSeamlessTravelPlayer(AController* NewController) override; 
 
@@ -54,7 +54,7 @@ private:
 	TObjectPtr<UDS_GameInstanceSubsystem> DSGameInstanceSubsystem; 
 
 	UPROPERTY(EditDefaultsOnly)
-	FCountdownTimerHandle LobbyCountdownTimer; 
+	FCountTimerHandle LobbyCountTimer; 
 
 	void InitGameLift();
 	void SetServerParameters(FServerParameters& OutServerParameters); 

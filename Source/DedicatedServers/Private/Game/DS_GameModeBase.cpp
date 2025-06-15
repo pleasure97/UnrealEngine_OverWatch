@@ -6,46 +6,51 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameLiftServerSDK.h"
 
-void ADS_GameModeBase::StartCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle)
+void ADS_GameModeBase::StartCountTimer(FCountTimerHandle& CountTimerHandle)
 {
-	CountdownTimerHandle.TimerFinishedDelegate.BindWeakLambda(this,
+	// Bind Timer Finshed Delegate when Timer Direction is Countdown 
+	if (CountTimerHandle.Direction == ECountTimerDirection::Countdown)
+	{
+		CountTimerHandle.TimerFinishedDelegate.BindWeakLambda(this,
+			[&]()
+			{
+				OnCountTimerFinished(CountTimerHandle.Type);
+			});
+
+		GetWorldTimerManager().SetTimer(
+			CountTimerHandle.TimerFinishedHandle,
+			CountTimerHandle.TimerFinishedDelegate,
+			CountTimerHandle.CountTime,
+			false);
+	}
+	
+	CountTimerHandle.TimerUpdateDelegate.BindWeakLambda(this,
 		[&]()
 		{
-			OnCountdownTimerFinished(CountdownTimerHandle.Type); 
+			UpdateCountTimer(CountTimerHandle); 
 		});
 
 	GetWorldTimerManager().SetTimer(
-		CountdownTimerHandle.TimerFinishedHandle, 
-		CountdownTimerHandle.TimerFinishedDelegate, 
-		CountdownTimerHandle.CountdownTime,
-		false); 
-
-	CountdownTimerHandle.TimerUpdateDelegate.BindWeakLambda(this,
-		[&]()
-		{
-			UpdateCountdownTimer(CountdownTimerHandle); 
-		});
-
-	GetWorldTimerManager().SetTimer(
-		CountdownTimerHandle.TimerUpdateHandle,
-		CountdownTimerHandle.TimerUpdateDelegate,
-		CountdownTimerHandle.CountdownUpdateInterval,
+		CountTimerHandle.TimerUpdateHandle,
+		CountTimerHandle.TimerUpdateDelegate,
+		CountTimerHandle.CountUpdateInterval,
 		true);
-	UpdateCountdownTimer(CountdownTimerHandle);
+
+	UpdateCountTimer(CountTimerHandle);
 }
 
-void ADS_GameModeBase::StopCountdownTimer(FCountdownTimerHandle& CountdownTimerHandle)
-{
-	CountdownTimerHandle.State = ECountdownTimerState::Stopped;
-	GetWorldTimerManager().ClearTimer(CountdownTimerHandle.TimerFinishedHandle); 
-	GetWorldTimerManager().ClearTimer(CountdownTimerHandle.TimerUpdateHandle);
-	if (CountdownTimerHandle.TimerFinishedDelegate.IsBound())
+void ADS_GameModeBase::StopCountTimer(FCountTimerHandle& CountTimerHandle)
+{	
+	CountTimerHandle.State = ECountTimerState::Stopped;
+	GetWorldTimerManager().ClearTimer(CountTimerHandle.TimerFinishedHandle); 
+	GetWorldTimerManager().ClearTimer(CountTimerHandle.TimerUpdateHandle);
+	if (CountTimerHandle.TimerFinishedDelegate.IsBound())
 	{
-		CountdownTimerHandle.TimerFinishedDelegate.Unbind(); 
+		CountTimerHandle.TimerFinishedDelegate.Unbind(); 
 	}
-	if (CountdownTimerHandle.TimerUpdateDelegate.IsBound())
+	if (CountTimerHandle.TimerUpdateDelegate.IsBound())
 	{
-		CountdownTimerHandle.TimerUpdateDelegate.Unbind(); 
+		CountTimerHandle.TimerUpdateDelegate.Unbind(); 
 	}
 
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
@@ -53,25 +58,45 @@ void ADS_GameModeBase::StopCountdownTimer(FCountdownTimerHandle& CountdownTimerH
 		ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Iterator->Get()); 
 		if (IsValid(DSPlayerController))
 		{
-			DSPlayerController->Client_TimerStopped(0.f, CountdownTimerHandle.Type); 
+			DSPlayerController->Client_TimerStopped(0.f, CountTimerHandle.Direction, CountTimerHandle.Type); 
 		}
 	}
 }
 
-void ADS_GameModeBase::UpdateCountdownTimer(const FCountdownTimerHandle& CountdownTimerHandle)
+void ADS_GameModeBase::UpdateCountTimer(const FCountTimerHandle& CountTimerHandle)
 {
+	// Iterate Player Controller
 	for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
 	{
+		// Cast to DSPlayerController 
 		ADSPlayerController* DSPlayerController = Cast<ADSPlayerController>(Iterator->Get());
 		if (IsValid(DSPlayerController))
 		{
-			const float CountdownTimeLeft = CountdownTimerHandle.CountdownTime - GetWorldTimerManager().GetTimerElapsed(CountdownTimerHandle.TimerFinishedHandle);
-			DSPlayerController->Client_TimerUpdated(CountdownTimeLeft, CountdownTimerHandle.Type);
+			float CountTime = 0.f; 
+
+			// Depend on Countup or Countdown 
+			switch (CountTimerHandle.Direction)
+			{
+			case(ECountTimerDirection::Countup):
+			{
+				// Calculate Time using Timer Finshed Handle's Elapsed Time 
+				CountTime = CountTimerHandle.CountTime - GetWorldTimerManager().GetTimerElapsed(CountTimerHandle.TimerFinishedHandle);
+				break;
+			}
+			case (ECountTimerDirection::Countdown):
+			{
+				// Calculate Time using Timer Update Handle's Elapsed Time 
+				CountTime = GetWorldTimerManager().GetTimerElapsed(CountTimerHandle.TimerUpdateHandle); 
+				break;
+			}
+			}
+
+			DSPlayerController->Client_TimerUpdated(CountTime, CountTimerHandle.Direction, CountTimerHandle.Type);
 		}
 	}
 }
 
-void ADS_GameModeBase::OnCountdownTimerFinished(ECountdownTimerType Type)
+void ADS_GameModeBase::OnCountTimerFinished(ECountTimerType Type)
 {
 }
 

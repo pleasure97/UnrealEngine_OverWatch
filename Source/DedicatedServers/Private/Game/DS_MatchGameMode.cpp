@@ -10,9 +10,9 @@ ADS_MatchGameMode::ADS_MatchGameMode()
 {
 	bUseSeamlessTravel = true; 
 	MatchStatus = EMatchStatus::WaitingForPlayers; 
-	PreMatchTimer.Type = ECountdownTimerType::PreMatch; 
-	MatchTimer.Type = ECountdownTimerType::Match; 
-	PostMatchTimer.Type = ECountdownTimerType::PostMatch; 
+	PreMatchTimer.Type = ECountTimerType::PreMatch; 
+	MatchTimer.Type = ECountTimerType::Match; 
+	PostMatchTimer.Type = ECountTimerType::PostMatch; 
 }
 
 void ADS_MatchGameMode::PostLogin(APlayerController* NewPlayer)
@@ -22,7 +22,7 @@ void ADS_MatchGameMode::PostLogin(APlayerController* NewPlayer)
 	if (MatchStatus == EMatchStatus::WaitingForPlayers)
 	{
 		MatchStatus = EMatchStatus::PreMatch; 
-		StartCountdownTimer(PreMatchTimer); 
+		StartCountTimer(PreMatchTimer); 
 	}
 }
 
@@ -40,7 +40,7 @@ void ADS_MatchGameMode::InitSeamlessTravelPlayer(AController* NewController)
 	if (MatchStatus == EMatchStatus::WaitingForPlayers)
 	{
 		MatchStatus = EMatchStatus::PreMatch;
-		StartCountdownTimer(PreMatchTimer);
+		StartCountTimer(PreMatchTimer);
 	}
 }
 
@@ -52,28 +52,28 @@ void ADS_MatchGameMode::BeginPlay()
 	GameStatsManager->OnUpdateLeaderboardSucceeded.AddDynamic(this, &ADS_MatchGameMode::OnLeaderboardUpdated); 
 }
 
-void ADS_MatchGameMode::OnCountdownTimerFinished(ECountdownTimerType Type)
+void ADS_MatchGameMode::OnCountTimerFinished(ECountTimerType Type)
 {
-	Super::OnCountdownTimerFinished(Type); 
+	Super::OnCountTimerFinished(Type); 
 
-	if (Type == ECountdownTimerType::PreMatch)
+	if (Type == ECountTimerType::PreMatch)
 	{
-		StopCountdownTimer(PreMatchTimer); 
+		StopCountTimer(PreMatchTimer); 
 		MatchStatus = EMatchStatus::Match; 
-		StartCountdownTimer(MatchTimer); 
+		StartCountTimer(MatchTimer); 
 		SetClientInputEnabled(true); 
 	}
-	if (Type == ECountdownTimerType::Match)
+	if (Type == ECountTimerType::Match)
 	{
-		StopCountdownTimer(MatchTimer);
+		StopCountTimer(MatchTimer);
 		MatchStatus = EMatchStatus::PostMatch; 
-		StartCountdownTimer(PostMatchTimer); 
+		StartCountTimer(PostMatchTimer); 
 		SetClientInputEnabled(false); 
 		OnMatchEnded(); 
 	}
-	if (Type == ECountdownTimerType::PostMatch)
+	if (Type == ECountTimerType::PostMatch)
 	{
-		StopCountdownTimer(PostMatchTimer);
+		StopCountTimer(PostMatchTimer);
 		MatchStatus = EMatchStatus::SeamlessTravelling; 
 		TrySeamlessTravel(LobbyMap); 
 	}

@@ -29,29 +29,41 @@ void UTimerWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 	if (bActive)
 	{
-		UpdateCountdown(InternalCountdown - InDeltaTime); 
+		switch (TimerDirection)
+		{
+		case ECountTimerDirection::Countup:
+		{
+			UpdateCountTime(InternalCountTime + InDeltaTime); 
+			break;
+		}
+		case ECountTimerDirection::Countdown:
+		{
+			UpdateCountTime(InternalCountTime - InDeltaTime);
+			break;
+		}
+		}
 	}
 }
 
-void UTimerWidget::OnTimerUpdated(float CountdownTimeLeft, ECountdownTimerType Type)
+void UTimerWidget::OnTimerUpdated(float CountTime, ECountTimerDirection Direction, ECountTimerType Type)
 {
 	if (Type != TimerType) return; 
 
 	if (!bActive)
 	{
-		TimerStarted(CountdownTimeLeft);	
+		TimerStarted(CountTime);	
 	}
-	UpdateCountdown(CountdownTimeLeft); 
-	K2_OnTimerUpdated(CountdownTimeLeft, TimerType);
+	UpdateCountTime(CountTime); 
+	K2_OnTimerUpdated(CountTime, Direction, TimerType);
 }
 
-void UTimerWidget::OnTimerStopped(float CountdownTimeLeft, ECountdownTimerType Type)
+void UTimerWidget::OnTimerStopped(float CountdownTimeLeft, ECountTimerDirection Direction, ECountTimerType Type)
 {
 	if (Type != TimerType) return; 
 
 	TimerStopped(); 
 
-	K2_OnTimerStopped(0.f, TimerType);
+	K2_OnTimerStopped(0.f, Direction, TimerType);
 }
 
 FString UTimerWidget::FormatTimeAsString(float TimeSeconds) const
@@ -77,23 +89,29 @@ FString UTimerWidget::FormatTimeAsString(float TimeSeconds) const
 void UTimerWidget::TimerStarted(float InitialTime)
 {
 	bActive = true; 
-	TextBlock_Time->SetRenderOpacity(1.f); 
-	K2_OnTimerStarted(InitialTime, TimerType); 
+	if (TextBlock_Time)
+	{
+		TextBlock_Time->SetRenderOpacity(1.f);
+	}
+	K2_OnTimerStarted(InitialTime, TimerDirection, TimerType); 
 }
 
 void UTimerWidget::TimerStopped()
 {
 	bActive = false;
-	UpdateCountdown(0.f); 
+	UpdateCountTime(0.f); 
 	if (bHiddenWhenInactive)
 	{
-		TextBlock_Time->SetRenderOpacity(0.f); 
+		if (TextBlock_Time)
+		{
+			TextBlock_Time->SetRenderOpacity(0.f);
+		}
 	}
 }
 
-void UTimerWidget::UpdateCountdown(float TimeSeconds)
+void UTimerWidget::UpdateCountTime(float TimeSeconds)
 {
-	InternalCountdown = TimeSeconds;
-	const FText TimeText = FText::FromString(FormatTimeAsString(InternalCountdown));
+	InternalCountTime = TimeSeconds;
+	const FText TimeText = FText::FromString(FormatTimeAsString(InternalCountTime));
 	TextBlock_Time->SetText(TimeText);
 }
