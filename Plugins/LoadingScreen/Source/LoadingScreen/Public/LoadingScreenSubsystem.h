@@ -28,10 +28,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	TSubclassOf<UUserWidget> GetLoadingScreenWidget() const; 
 
-private:
 	UPROPERTY(BlueprintAssignable, meta=(AllowPrivateAccess))
 	FLoadingScreenWidgetChangedDelegate OnLoadingScreenWidgetChanged; 
 
+private:
 	UPROPERTY()
 	TSubclassOf<UUserWidget> LoadingScreenWidgetClass; 
 };
