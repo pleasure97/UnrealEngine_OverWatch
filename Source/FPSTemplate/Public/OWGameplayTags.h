@@ -149,7 +149,7 @@ public:
 	/* Game Phase */
 	FGameplayTag GamePhase_MatchBeginCountdown; 
 	FGameplayTag GamePhase_Playing; 
-	FGameplayTag GamePhase_PostGame; 
+	FGameplayTag GamePhase_PostMatch; 
 	FGameplayTag GamePhase_Warmup; 
 
 	/* Battle Field */

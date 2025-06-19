@@ -13,8 +13,18 @@ UCLASS()
 class FPSTEMPLATE_API UPostMatch : public UOWGamePhaseAbility
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> DamageImmuneGamelayEffectClass; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float NextGameInterval = 10.f; 
+
+protected:
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
 };
