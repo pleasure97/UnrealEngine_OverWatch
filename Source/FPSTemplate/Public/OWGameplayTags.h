@@ -41,6 +41,8 @@ public:
 
 	FGameplayTag Damage_Healing; 
 
+	FGameplayTag Damage_Immune; 
+
 	TArray<FGameplayTag> DamageTypes; 
 	
 	/* Resistance Attributes */
@@ -149,6 +151,9 @@ public:
 	FGameplayTag GamePhase_Playing; 
 	FGameplayTag GamePhase_PostGame; 
 	FGameplayTag GamePhase_Warmup; 
+
+	/* Battle Field */
+	FGameplayTag BattleField_Assault_TeamScore; 
 
 	/* Set By Caller */ 
 	FGameplayTag Data_Cooldown; 

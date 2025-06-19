@@ -119,6 +119,28 @@ void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	}
 }
 
+bool UOWAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
+{
+	if (!Super::PreGameplayEffectExecute(Data))
+	{
+		return false; 
+	}
+
+	// Process All Incoming Damage, whether greater than 0 or less than 0
+	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
+	{
+		// Find Damage Immune GameplayTag
+		if (Data.Target.HasMatchingGameplayTag(FOWGameplayTags::Get().Damage_Immune))
+		{
+			Data.EvaluatedData.Magnitude = 0.f; 
+			return false; 
+		}
+		// TODO - May need to deal with when damage comes in, even though character's dead?
+	}
+
+	return true; 
+}
+
 void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data); 
