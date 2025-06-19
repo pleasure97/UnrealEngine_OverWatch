@@ -27,16 +27,11 @@ void UEndGamePage::OnCancelEndGameButtonClicked()
 
 void UEndGamePage::OnEndGameButtonClicked()
 {
-	// TODO - Logic for Session End
-	if (APlayerController* PlayerController = GetOwningPlayer())
-	{
-
-	}
-
+	// TODO - Need for Further Processing when Participating in Game Session?
 	// Logic for Gameplay Statics 
 	UKismetSystemLibrary::QuitGame(
 		GetWorld(),
-		nullptr, // TODO - Need to Get Player Controller ?
+		nullptr,	// Get Player Controller internally using Gameplay Statics
 		EQuitPreference::Quit,
 		true);
 }
