@@ -9,8 +9,7 @@
 class UImage; 
 class UTextBlock; 
 class UOverlay; 
-class UTeamMemberInfoList; 
-class UHeroSelectionList; 
+class UHeroRoster; 
 
 /**
  * 
@@ -46,8 +45,5 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_WaitingForBattle; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTeamMemberInfoList> WBP_TeamMemberInfoList; 
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UHeroSelectionList> WBP_HeroSelectionList; 
+	TObjectPtr<UHeroRoster> WBP_HeroRoster; 
 };
