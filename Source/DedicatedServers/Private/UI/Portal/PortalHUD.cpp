@@ -18,8 +18,11 @@ void APortalHUD::BeginPlay()
 	}
 
 	FInputModeGameAndUI InputModeData; 
-	OwningPlayerController->SetInputMode(InputModeData); 
-	OwningPlayerController->SetShowMouseCursor(true); 
+	if (OwningPlayerController)
+	{
+		OwningPlayerController->SetInputMode(InputModeData);
+		OwningPlayerController->SetShowMouseCursor(true);
+	}
 }
 
 void APortalHUD::OnSignIn()
@@ -33,6 +36,17 @@ void APortalHUD::OnSignIn()
 	if (IsValid(DashboardOverlay))
 	{
 		DashboardOverlay->AddToViewport(); 
+		if (OwningPlayerController)
+		{
+			// Set Input Mode UI Only 
+			FInputModeUIOnly InputModeData;
+			// Do not Lock Mouse
+			InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock); 
+			// Focus on Dashboard Overlay 
+			InputModeData.SetWidgetToFocus(DashboardOverlay->TakeWidget()); 
+
+			OwningPlayerController->SetInputMode(InputModeData); 
+		}
 	}
 }
 

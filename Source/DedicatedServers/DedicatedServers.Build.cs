@@ -14,7 +14,8 @@ public class DedicatedServers : ModuleRules
 			"GameLiftServerSDK", 
 			"GameplayTags", 
 			"HTTP",
-			"NetCore"
+			"NetCore", 
+			"InputCore"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] 
