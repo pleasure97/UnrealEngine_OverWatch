@@ -18,12 +18,15 @@ class DEDICATEDSERVERS_API UGameSessionsManager : public UHTTPRequestManager
 	GENERATED_BODY()
 	
 public:
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameSessionActive, const FString&, SessionID);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnGameSessionActive OnGameSessionActive;
 
 	UPROPERTY(BlueprintAssignable)
 	FAPIStatusMessage BroadcastJoinGameSessionMessage;
 	
 	void JoinGameSession();
-
 
 private:
 	void FindOrCreateGameSession_Response(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);

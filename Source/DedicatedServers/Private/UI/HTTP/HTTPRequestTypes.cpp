@@ -4,6 +4,8 @@
 namespace HTTPStatusMessages
 {
 	const FString SomethingWentWrong{ TEXT("Something went wrong!") };
+	const FString FindActiveGameSession{ TEXT("Found Active Game Session. Creating a Player Session...") }; 
+	const FString SearchingGameSession{ TEXT("Searching for Game Session...") };
 }
 
 void FDSMetaData::Dump() const

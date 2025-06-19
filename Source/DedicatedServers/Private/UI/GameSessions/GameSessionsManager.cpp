@@ -16,7 +16,7 @@
 
 void UGameSessionsManager::JoinGameSession()
 {
-	BroadcastJoinGameSessionMessage.Broadcast(TEXT("Searching for Game Session..."), false);
+	BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::SearchingGameSession, false);
 
 	check(APIData);
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
@@ -76,7 +76,9 @@ void UGameSessionsManager::HandleGameSessionStatus(const FString& Status, const 
 {
 	if (Status.Equals(TEXT("ACTIVE")))
 	{
-		BroadcastJoinGameSessionMessage.Broadcast(TEXT("Found Active Game Session. Creating a Player Session..."), false);
+		BroadcastJoinGameSessionMessage.Broadcast(HTTPStatusMessages::FindActiveGameSession, false);
+
+		OnGameSessionActive.Broadcast(SessionId); 
 		
 		if (UDSLocalPlayerSubsystem* DSLocalPlayerSubsystem = GetDSLocalPlayerSubsystem(); IsValid(DSLocalPlayerSubsystem))
 		{

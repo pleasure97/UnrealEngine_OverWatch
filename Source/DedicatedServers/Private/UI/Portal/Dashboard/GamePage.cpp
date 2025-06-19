@@ -11,7 +11,7 @@ void UGamePage::NativeConstruct()
 	Super::NativeConstruct(); 
 
 	GameSessionsManager = NewObject<UGameSessionsManager>(this, GameSessionsManagerClass); 
-	GameSessionsManager->BroadcastJoinGameSessionMessage.AddDynamic(JoinGameWidget, &UJoinGame::SetStatusMessage);
+	GameSessionsManager->BroadcastJoinGameSessionMessage.AddDynamic(JoinGameWidget, &UJoinGame::ProcessHTTPStatus);
 
 	JoinGameWidget->Button_JoinGame->OnClicked.AddDynamic(this, &UGamePage::JoinGameButtonClicked); 
 }

@@ -5,6 +5,8 @@
 namespace HTTPStatusMessages
 {
 	extern DEDICATEDSERVERS_API const FString SomethingWentWrong;
+	extern DEDICATEDSERVERS_API const FString SearchingGameSession; 
+	extern DEDICATEDSERVERS_API const FString FindActiveGameSession; 
 }
 
 USTRUCT()
