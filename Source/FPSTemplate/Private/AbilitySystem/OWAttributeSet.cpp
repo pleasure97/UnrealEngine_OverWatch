@@ -532,10 +532,17 @@ void UOWAttributeSet::SendXPEvent(const FEffectProperties& EffectProperties)
 
 void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 {
-	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	// Check Effect Properties' Each Ability System Component and Character of Source and Target 
+	check(EffectProperties.SourceASC && EffectProperties.TargetASC && EffectProperties.SourceCharacter); 
+
+	// Get GameplayTag Singleton Container
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+
+	// Make Source Gameplay Effect Context 
 	FGameplayEffectContextHandle EffectContextHandle = EffectProperties.SourceASC->MakeEffectContext(); 
 	EffectContextHandle.AddSourceObject(EffectProperties.SourceCharacter); 
 
+	// Set Damage Type, Debuff Tag, Damage, Duration, and Frequency
 	const FGameplayTag DamageType = UOWAbilitySystemLibrary::GetDamageType(EffectProperties.EffectContextHandle); 
 	const FGameplayTag DebuffTag = UOWAbilitySystemLibrary::GetDebuffTag(EffectProperties.EffectContextHandle); 
 	const float DebuffDamage = UOWAbilitySystemLibrary::GetDebuffDamage(EffectProperties.EffectContextHandle); 
@@ -545,15 +552,20 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 	// Make Temporary GameplayEffect Object
 	FString DebuffName = FString::Printf(TEXT("DynamicDebuff_%s"), *DamageType.ToString()); 
 	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName)); 
+	checkf(Effect, TEXT("Failed to create UGameplayEffect %s in UOWAttributeSet::Debuff()"), *DebuffName);
 
+	// Set GameplayEffect's Duration Policy, Period, and Duration Magnitude 
 	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration; 
 	Effect->Period = DebuffFrequency; 
 	Effect->DurationMagnitude = FScalableFloat(DebuffDuration); 
 	
 	FInheritedTagContainer TagContainer = FInheritedTagContainer(); 
-	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>(); 
+	UTargetTagsGameplayEffectComponent& TargetTagsGameplayEffectComponent = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
+
 	TagContainer.Added.AddTag(DebuffTag); 
 	TagContainer.CombinedTags.AddTag(DebuffTag); 
+
+	// If Debuff is Stun or ForcedMovement, Block Input Held, Pressed, and Released
 	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun) || DebuffTag.MatchesTagExact(GameplayTags.Debuff_ForcedMovement))
 	{
 		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld); 
@@ -565,7 +577,7 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputReleased);
 		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_InputReleased);
 	}
-	Component.SetAndApplyTargetTagChanges(TagContainer); 
+	TargetTagsGameplayEffectComponent.SetAndApplyTargetTagChanges(TagContainer);
 	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource; 
 	Effect->StackLimitCount = 1; 
 
@@ -589,4 +601,22 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 
 		EffectProperties.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec); 
 	}
+
+	// Get Gameplay Message Subsystem and Debuff Message GameplayTag 
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	FGameplayTag HeroDebuffedTag = GameplayTags.Gameplay_Message_HeroDebuffed; 
+
+	// Initialize Hero Debuffed Info 
+	FHeroDebuffedInfo HeroDebuffedInfo; 
+	HeroDebuffedInfo.DebuffTag = DebuffTag; 
+	HeroDebuffedInfo.SourcePlayerState = EffectProperties.SourcePlayerState; 
+	HeroDebuffedInfo.TargetPlayerState = EffectProperties.TargetPlayerState; 
+	HeroDebuffedInfo.EffectContextHandle = EffectContextHandle;
+	HeroDebuffedInfo.DebuffDamage = DebuffDamage;
+	HeroDebuffedInfo.DebuffDuration = DebuffDuration;
+	HeroDebuffedInfo.DebuffFrequency = DebuffFrequency;
+	HeroDebuffedInfo.DebuffTimeSeconds = GetWorld()->GetTimeSeconds(); 
+
+	// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
+	GameplayMessageSubsystem.BroadcastMessage(HeroDebuffedTag, HeroDebuffedInfo);
 }

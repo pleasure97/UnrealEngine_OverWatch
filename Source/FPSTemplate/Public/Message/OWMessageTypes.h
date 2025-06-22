@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
+#include "GameplayEffectTypes.h"
 #include "OWMessageTypes.generated.h"
 
 class UHealthPlateManagerComponent; 
@@ -42,6 +44,38 @@ struct FHealthPlateManagerInfo
 
     UPROPERTY(BlueprintReadWrite)
     TObjectPtr<UHealthPlateManagerComponent> HealthPlateManagerComponent = nullptr;
+};
+
+USTRUCT(BlueprintType)
+struct FHeroDebuffedInfo
+{
+	GENERATED_BODY()
+
+	FHeroDebuffedInfo() {}; 
+
+	UPROPERTY()
+	FGameplayTag DebuffTag = FGameplayTag(); 
+
+	UPROPERTY()
+	TObjectPtr<APlayerState> SourcePlayerState = nullptr; 
+
+	UPROPERTY()
+	TObjectPtr<APlayerState> TargetPlayerState = nullptr; 
+
+	UPROPERTY()
+	FGameplayEffectContextHandle EffectContextHandle = FGameplayEffectContextHandle(); 
+
+	UPROPERTY()
+	float DebuffDamage = 0.f; 
+
+	UPROPERTY()
+	float DebuffDuration = 0.f; 
+
+	UPROPERTY()
+	float DebuffFrequency = 0.f; 
+
+	UPROPERTY()
+	float DebuffTimeSeconds = 0.f; 
 };
 
 USTRUCT(BlueprintType)
@@ -121,12 +155,6 @@ struct FOWVerbMessage
 	GENERATED_BODY()
 
 	FOWVerbMessage() {}
-
-	FOWVerbMessage(FGameplayTag InVerb, AActor* InInstigator, AActor* InTarget)
-		: Verb(InVerb), Instigator(InInstigator), Target(InTarget)
-	{
-
-	}
 
 	UPROPERTY()
 	FGameplayTag Verb = FGameplayTag(); 

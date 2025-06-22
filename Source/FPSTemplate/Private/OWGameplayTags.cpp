@@ -82,6 +82,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Damage.Healing"),
 		FString("Healing is regarded as dealing Negative Damage."));
 
+	GameplayTags.Damage_Immune = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Damage.Immune"),
+		FString("Make Incoming Damage zero."));
+
 	GameplayTags.DamageTypes.Add(GameplayTags.Damage_HitScan);
 	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Projectile);
 	GameplayTags.DamageTypes.Add(GameplayTags.Damage_Laser);
@@ -380,6 +384,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.HeroKilled"),
 		FString("Gameplay Message for Event Hero Killed")); 
 
+	GameplayTags.Gameplay_Message_HeroDebuffed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.HeroDebuffed"),
+		FString("Gameplay Message for Event Hero Debuffed"));
+
 	GameplayTags.Gameplay_Message_Respawn = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.Respawn"),
 		FString("Gameplay Message for Event Hero Respawning"));
@@ -397,13 +405,18 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GamePhase.Playing"),
 		FString("Game Phase When Playing"));
 
-	GameplayTags.GamePhase_PostGame = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.PostGame"),
-		FString("Game Phase After Game"));
+	GameplayTags.GamePhase_PostMatch = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.PostMatch"),
+		FString("Game Phase After Match"));
 
 	GameplayTags.GamePhase_Warmup = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GamePhase.Warmup"),
 		FString("Game Phase When Warmup"));
+
+	/* Battle Field */
+	GameplayTags.BattleField_Assault_TeamScore = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("BattleField.Assault.TeamScore"),
+		FString("Team Score in Assault Battle Field"));
 
 	/* Set By Caller */
 
