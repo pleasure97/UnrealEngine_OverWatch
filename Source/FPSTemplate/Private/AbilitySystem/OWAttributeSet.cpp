@@ -435,10 +435,10 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 
 		const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle); 
 
-		/*if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
+		if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
 		{
 			Debuff(EffectProperties); 
-		}*/
+		}
 	}
 	// Process Negative Incoming Damage as Healing 
 	else if (LocalIncomingDamage < 0.f)
@@ -470,7 +470,22 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			SetShield(GetShield() + ShieldHeal);
 		}
 	}
-}
+
+	// Get Gameplay Message Subsystem and Damage Message GameplayTag 
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	FGameplayTag HeroDamagedTag = GameplayTags.Gameplay_Message_HeroDamaged;
+
+	// Initialize Hero Damaged Info 
+	FHeroDamagedInfo HeroDamagedInfo;
+	// HeroDamagedInfo.DamageTag = DamageTag;
+	HeroDamagedInfo.SourcePlayerState = EffectProperties.SourcePlayerState;
+	HeroDamagedInfo.TargetPlayerState = EffectProperties.TargetPlayerState;
+	HeroDamagedInfo.Damage = LocalIncomingDamage;
+	HeroDamagedInfo.DamageTimeSeconds = GetWorld()->GetTimeSeconds();
+
+	// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
+	GameplayMessageSubsystem.BroadcastMessage(HeroDamagedTag, HeroDamagedInfo); }
 
 void UOWAttributeSet::HandleIncomingXP(const FEffectProperties& EffectProperties)
 {

@@ -47,6 +47,29 @@ struct FHealthPlateManagerInfo
 };
 
 USTRUCT(BlueprintType)
+struct FHeroDamagedInfo
+{
+	GENERATED_BODY()
+
+	FHeroDamagedInfo() {};
+
+	UPROPERTY()
+	FGameplayTag DamageTag = FGameplayTag();
+
+	UPROPERTY()
+	TObjectPtr<APlayerState> SourcePlayerState = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<APlayerState> TargetPlayerState = nullptr;
+
+	UPROPERTY()
+	float Damage = 0.f;
+
+	UPROPERTY()
+	double DamageTimeSeconds = 0.f;
+};
+
+USTRUCT(BlueprintType)
 struct FHeroDebuffedInfo
 {
 	GENERATED_BODY()
@@ -75,7 +98,7 @@ struct FHeroDebuffedInfo
 	float DebuffFrequency = 0.f; 
 
 	UPROPERTY()
-	float DebuffTimeSeconds = 0.f; 
+	double DebuffTimeSeconds = 0.f; 
 };
 
 USTRUCT(BlueprintType)

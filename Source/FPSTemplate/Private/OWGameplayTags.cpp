@@ -380,13 +380,17 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.HealthPlate.Discover"),
 		FString("Gameplay Message for Discovering HealthPlate")); 
 
-	GameplayTags.Gameplay_Message_HeroKilled = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Gameplay.Message.HeroKilled"),
-		FString("Gameplay Message for Event Hero Killed")); 
+	GameplayTags.Gameplay_Message_HeroDamaged = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.HeroDamaged"),
+		FString("Gameplay Message for Event Hero Damaged"));
 
 	GameplayTags.Gameplay_Message_HeroDebuffed = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.HeroDebuffed"),
 		FString("Gameplay Message for Event Hero Debuffed"));
+
+	GameplayTags.Gameplay_Message_HeroKilled = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.HeroKilled"),
+		FString("Gameplay Message for Event Hero Killed")); 
 
 	GameplayTags.Gameplay_Message_Respawn = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.Respawn"),

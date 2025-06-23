@@ -142,8 +142,9 @@ public:
 	FGameplayTag Gameplay_Message_HealthPlate_Add; 
 	FGameplayTag Gameplay_Message_HealthPlate_Remove; 
 	FGameplayTag Gameplay_Message_HealthPlate_Discover; 
+	FGameplayTag Gameplay_Message_HeroDamaged; 
+	FGameplayTag Gameplay_Message_HeroDebuffed;
 	FGameplayTag Gameplay_Message_HeroKilled; 
-	FGameplayTag Gameplay_Message_HeroDebuffed; 
 	FGameplayTag Gameplay_Message_Respawn; 
 	FGameplayTag Gameplay_Message_AssaultProgress; 
 
