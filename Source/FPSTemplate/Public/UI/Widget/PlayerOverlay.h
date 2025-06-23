@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
+#include "Message/OWMessageTypes.h"
 #include "PlayerOverlay.generated.h"
 
 class UHealthBarPool; 
@@ -14,6 +16,7 @@ class UUltimateGauge;
 class UHitIndicatorPool; 
 class UCombatLogPool; 
 class UKillLogPool; 
+class UTextBlock; 
 
 /**
  * 
@@ -48,5 +51,23 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UKillLogPool> WBP_KillLogPool;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_GameplayMessage; 
+
 	virtual void SetChildWidgetControllers() override; 
+
+protected:
+	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
+
+private:
+	UFUNCTION()
+	void OnPlayerDebuffedMessage(FGameplayTag Channel, const FHeroDebuffedInfo& Payload); 
+
+	UFUNCTION()
+	void OnMatchBeginCountdownMessage(FGameplayTag Channel, const FOWVerbMessage& Payload);
+
+	void AddListenerHandle(FGameplayMessageListenerHandle&& Handle);
+
+	TArray<FGameplayMessageListenerHandle> ListenerHandles;
 };

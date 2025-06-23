@@ -396,6 +396,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.Respawn"),
 		FString("Gameplay Message for Event Hero Respawning"));
 
+	GameplayTags.Gameplay_Message_MatchBeginCountdown = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.MatchBeginCountdown"),
+		FString("Gameplay Message for Match Begin Countdown"));
+
 	GameplayTags.Gameplay_Message_AssaultProgress = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.AssaultProgress"),
 		FString("Gameplay Message for Assault Progress"));
