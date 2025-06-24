@@ -108,7 +108,7 @@ void AAssaultPoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 		if (OWGamePhaseSubsystem)
 		{
 			// Check Current Game Phase is "Playing"
-			bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_Playing);
+			bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_MatchInProgress);
 			if (!PlayingPhaseActive)
 			{
 				return;
@@ -161,7 +161,7 @@ void AAssaultPoint::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActo
 		if (OWGamePhaseSubsystem)
 		{
 			// Check Current Game Phase is "Playing"
-			bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_Playing);
+			bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_MatchInProgress);
 			if (!PlayingPhaseActive)
 			{
 				return;

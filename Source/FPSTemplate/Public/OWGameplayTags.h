@@ -150,10 +150,9 @@ public:
 	FGameplayTag Gameplay_Message_AssaultProgress; 
 
 	/* Game Phase */
-	FGameplayTag GamePhase_MatchBeginCountdown; 
-	FGameplayTag GamePhase_Playing; 
+	FGameplayTag GamePhase_MatchPreparation; 
+	FGameplayTag GamePhase_MatchInProgress; 
 	FGameplayTag GamePhase_PostMatch; 
-	FGameplayTag GamePhase_Warmup; 
 
 	/* Battle Field */
 	FGameplayTag BattleField_Assault_TeamScore; 

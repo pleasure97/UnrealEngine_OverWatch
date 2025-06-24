@@ -405,21 +405,17 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Gameplay Message for Assault Progress"));
 
 	/* Game Phase */
-	GameplayTags.GamePhase_MatchBeginCountdown = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.MatchBeginCountdown"),
-		FString("Game Phase When Match Begins Countdown"));
+	GameplayTags.GamePhase_MatchPreparation = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchPreparation"),
+		FString("Game Phase When Match is Prepared"));
 
-	GameplayTags.GamePhase_Playing = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.Playing"),
-		FString("Game Phase When Playing"));
+	GameplayTags.GamePhase_MatchInProgress = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchInProgress"),
+		FString("Game Phase When Match is in Progress"));
 
 	GameplayTags.GamePhase_PostMatch = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GamePhase.PostMatch"),
 		FString("Game Phase After Match"));
-
-	GameplayTags.GamePhase_Warmup = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.Warmup"),
-		FString("Game Phase When Warmup"));
 
 	/* Battle Field */
 	GameplayTags.BattleField_Assault_TeamScore = UGameplayTagsManager::Get().AddNativeGameplayTag(
