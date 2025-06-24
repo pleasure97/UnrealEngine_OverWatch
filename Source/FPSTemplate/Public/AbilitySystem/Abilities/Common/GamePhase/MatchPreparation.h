@@ -37,5 +37,8 @@ protected:
 private:
 	int32 RemainingCountdown = 0; 
 
+	FTimerHandle BeforeCountdownTimerHandle; 
+	FTimerHandle CountdownTimerHandle; 
+
 	void BroadcastCountdownMessage(); 
 };
