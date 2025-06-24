@@ -8,6 +8,9 @@
 
 class UTeamCreationComponent; 
 class UPlayerSpawningManagerComponent; 
+class UMatchScoringComponent; 
+class UOWAbilitySystemComponent; 
+struct FOWVerbMessage; 
 
 /**
  * 
@@ -24,15 +27,31 @@ public:
 
 	virtual void PostInitializeComponents() override; 
 
+	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
+	void MulticastReliableMessageToClients(const FOWVerbMessage Message); 
+
+	/* Components - Team Creation */
 	UPROPERTY()
 	TObjectPtr<UTeamCreationComponent> TeamCreationComponent; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UTeamCreationComponent> TeamCreationComponentClass;
 
+	/* Components - Player Spawning */
 	UPROPERTY()
 	TObjectPtr<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponent; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponentClass; 
+
+	/* Components - Match Scoring */
+	UPROPERTY()
+	TObjectPtr<UMatchScoringComponent> MatchScoringComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UMatchScoringComponent> MatchScoringComponentClass;
+
+	/* Ability System Component */
+	UPROPERTY()
+	TObjectPtr<UOWAbilitySystemComponent> OWAbilitySystemComponent; 
 };
