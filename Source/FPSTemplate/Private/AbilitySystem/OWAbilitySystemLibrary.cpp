@@ -52,15 +52,39 @@ UOverlayWidgetController* UOWAbilitySystemLibrary::GetOverlayWidgetController(co
 /* Hero Info Defaults */
 void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC, float Level)
 {
+	// Get Avatar Actor
 	AActor* AvatarActor = ASC->GetAvatarActor(); 
 
+	// Get Hero Info Data Asset
 	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject); 
 
+	// Make Gaemplay Effect Context - Vital Attributes
 	FGameplayEffectContextHandle VitalAttributesContextHandle = ASC->MakeEffectContext(); 
+	// Set Gameplay Effect Context's Source Object to Avatar Actor
 	VitalAttributesContextHandle.AddSourceObject(AvatarActor); 
+	// Make Gameplay Effect Spec - Vital Attributes 
 	const FGameplayEffectSpecHandle VitalAttributeSpecHandle = ASC->MakeOutgoingSpec(
 		HeroInfo->HeroInformation[HeroName].VitalAttributes, Level, VitalAttributesContextHandle); 
+	// Apply Gameplay Effect Spec to Self
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get()); 
+
+	// Same as above - Primary Attributes
+	FGameplayEffectContextHandle PrimaryAttributesContextHandle = ASC->MakeEffectContext(); 
+	PrimaryAttributesContextHandle.AddSourceObject(AvatarActor); 
+	EHeroClass HeroClass = HeroInfo->HeroInformation[HeroName].HeroClass; 
+	const FGameplayEffectSpecHandle PrimaryAttributeSpecHandle = ASC->MakeOutgoingSpec(
+		HeroInfo->CommonClassInformation[HeroClass].PrimaryAttributes, Level, PrimaryAttributesContextHandle); 
+	ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributeSpecHandle.Data.Get()); 
+
+	// Same as above - Common Attributes
+	for (TSubclassOf<UGameplayEffect> CommonAttribute : HeroInfo->CommonAttributes)
+	{
+		FGameplayEffectContextHandle CommonAttributeContextHandle = ASC->MakeEffectContext();
+		CommonAttributeContextHandle.AddSourceObject(AvatarActor);
+		const FGameplayEffectSpecHandle CommonAttributeSpecHandle = ASC->MakeOutgoingSpec(
+			CommonAttribute, Level, CommonAttributeContextHandle);
+		ASC->ApplyGameplayEffectSpecToSelf(*CommonAttributeSpecHandle.Data.Get());
+	}
 }
 
 void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC)
