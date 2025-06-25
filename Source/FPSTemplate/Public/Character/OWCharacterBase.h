@@ -94,7 +94,6 @@ public:
 
 	FOnAttributeChangedSignature* GetDelegateForTag(const FGameplayTag& Tag); 
 
-	void BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate);
 	/** Attribute Value Changed Delegate End **/
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -121,9 +120,6 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet; 
 
 	/* Attributes */
-	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
-	TSubclassOf<UGameplayEffect> DefaultVitalAttributes; 
-
 	virtual void InitializeDefaultAttributes() const; 
 
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const; 

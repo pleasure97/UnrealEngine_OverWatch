@@ -14,7 +14,7 @@ namespace UltimateGaugeColor
 {
 	constexpr FLinearColor None(0.f, 0.f, 0.f, 0.f);
 	constexpr FLinearColor Orange(0.9568f, 0.2067f, 0.044f, 1.f);
-	constexpr FLinearColor Blue(0.3686f, 0.9961f, 0.9765f, 1.f);
+	constexpr FLinearColor Blue(0.f, 0.2f, 1.f, 1.f);
 }
 
 
@@ -40,7 +40,7 @@ public:
 	TObjectPtr<UImage> Image_UltimateIcon;
 
 	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> DynamicMaterialInstance; 
+	TObjectPtr<UMaterialInstanceDynamic> UltimateGaugeMID; 
 
 	UFUNCTION()
 	void ReceiveAbilityInfo(const FOWAbilityInfo& Info);
@@ -62,4 +62,5 @@ public:
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
 };

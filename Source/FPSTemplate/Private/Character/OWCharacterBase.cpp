@@ -197,11 +197,6 @@ void AOWCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//if (!IsLocallyControlled() || GetWorld()->GetNetMode() == NM_DedicatedServer)
-	//{
-	//	return;
-	//}
-
 	if (UHealthBarPool* HealthBarPool = Cast<UHealthBarPool>(WidgetComponent->GetUserWidgetObject()))
 	{
 		HealthBarPool->SetWidgetController(this); 
@@ -211,30 +206,34 @@ void AOWCharacterBase::BeginPlay()
 
 void AOWCharacterBase::PossessedBy(AController* NewController)
 {
+	// Save Old Team ID 
 	const FGenericTeamId OldTeamID = MyTeamID;
 
 	Super::PossessedBy(NewController); 
 
+	// Cast New Controller to Team Interface 
+	// Set Team ID and Bind Team Changed Delegate
 	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(NewController))
 	{
 		MyTeamID = ControllerWithTeamInterface->GetGenericTeamId(); 
 		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacterBase::OnControllerChangedTeam); 
+		BroadcastTeamChanged(this, OldTeamID, MyTeamID);
 	}
 
+	// Highlight the Outline of Character's Mesh depending on team (e.g., Blue or Red)
 	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(NewController->PlayerState))
 	{
 		GetMesh()->SetRenderCustomDepth(true); 
 		GetMesh()->SetCustomDepthStencilValue(OWPlayerState->GetTeamId()); 
 	}
-
-	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
 }
 
 void AOWCharacterBase::UnPossessed()
 {
+	// Save Old Controller and Team ID 
 	AController* OldController = Controller; 
-
 	const FGenericTeamId OldTeamID = MyTeamID; 
+	// Remove Team Changed Delegate's Bindings 
 	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(OldController))
 	{
 		ControllerWithTeamInterface->GetTeamChangedDelegate().RemoveAll(this); 
@@ -242,6 +241,7 @@ void AOWCharacterBase::UnPossessed()
 
 	Super::UnPossessed(); 
 
+	// Broadcast that the Team has Changed 
 	MyTeamID = DetermineNewTeamAfterPossessionEnds(OldTeamID);
 	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
 }
@@ -261,16 +261,6 @@ FOnAttributeChangedSignature* AOWCharacterBase::GetDelegateForTag(const FGamepla
 	return nullptr;
 }
 
-void AOWCharacterBase::BindAttributeChange(UAbilitySystemComponent* ASC, const FGameplayTag& Tag, const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& Delegate)
-{
-	ASC->GetGameplayAttributeValueChangeDelegate(Attribute).AddLambda(
-		[&](const FOnAttributeChangeData& Data)
-		{
-			Delegate.Broadcast(Data.NewValue);
-		}
-	);
-}
-
 void AOWCharacterBase::AddHeroAbilities()
 {
 	UOWAbilitySystemComponent* OWASC = CastChecked<UOWAbilitySystemComponent>(AbilitySystemComponent); 
@@ -282,12 +272,7 @@ void AOWCharacterBase::AddHeroAbilities()
 
 void AOWCharacterBase::InitializeDefaultAttributes() const
 {
-	if (!DefaultVitalAttributes)
-	{
-		UE_LOG(LogTemp, Log, TEXT("DefaultVitalAttributes is null, skipping attribute initialization."));
-		return;
-	}
-	ApplyEffectToSelf(DefaultVitalAttributes, 1.f); 
+
 }
 
 void AOWCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const

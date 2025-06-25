@@ -42,19 +42,18 @@ UExecCalc_Damage::UExecCalc_Damage()
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 	FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
+	// Map Captured Attribute's Gameplay Tag to Captured Attribute Definition  
 	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefinitions; 
-
 	const FOWGameplayTags& Tags = FOWGameplayTags::Get();
-
 	TagsToCaptureDefinitions.Add(Tags.Attributes_Defense_Armor, DamageStatics().ArmorDef); 
 	TagsToCaptureDefinitions.Add(Tags.Attributes_Defense_Shield, DamageStatics().ShieldDef); 
 	TagsToCaptureDefinitions.Add(Tags.Attributes_Secondary_CriticalHitDamage, DamageStatics().CriticalHitDamageDef);
-
 	TagsToCaptureDefinitions.Add(Tags.Attributes_Resistance_Laser, DamageStatics().LaserResistanceDef); 
 
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent(); 
 	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent(); 
 
+	// Get Avatar Actor and Level of Source and Target 
 	AActor* SourceAvatarActor = SourceASC ? SourceASC->GetAvatarActor() : nullptr; 
 	AActor* TargetAvatarActor = TargetASC ? TargetASC->GetAvatarActor() : nullptr; 
 
@@ -70,6 +69,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		TargetCharacterLevel = ICombatInterface::Execute_GetCharacterLevel(TargetAvatarActor); 
 	}
 
+	// Aggregate Various Damage Types that came in with SetByCaller
 	const FGameplayEffectSpec& GameplayEffectSpec = ExecutionParams.GetOwningSpec(); 
 	FGameplayEffectContextHandle GameplayEffectContextHandle = GameplayEffectSpec.GetContext(); 
 
@@ -78,7 +78,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	FAggregatorEvaluateParameters EvaluationParameters; 
 	EvaluationParameters.SourceTags = SourceTags; 
 	EvaluationParameters.TargetTags = TargetTags; 
-
 
 	// Debuff
 	DetermineDebuff(ExecutionParams, GameplayEffectSpec, EvaluationParameters, TagsToCaptureDefinitions); 
@@ -113,6 +112,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		Damage += DamageTypeValue; 
 	}
 
+	// Critical Hit Damage 
 	float SourceCriticalHitDamage = 0.f; 
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().CriticalHitDamageDef, EvaluationParameters, SourceCriticalHitDamage); 
 	SourceCriticalHitDamage = FMath::Max<float>(SourceCriticalHitDamage, 0.f); 
@@ -121,7 +121,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	Damage = (SourceCriticalHitDamage > 0.f) ? SourceCriticalHitDamage : Damage; 
 
-	// Cause Damage 
+	// Cause Damage - Another Team (Damage) or Same Team (Heal)
 	float DamageAllowedMultiplier = 0.f;
 	if (TargetAvatarActor)
 	{
@@ -136,11 +136,17 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		}
 	}
 
+	// Calculate Incoming Damage
 	const float DamageDone = Damage * DamageAllowedMultiplier; 
 	const FGameplayModifierEvaluatedData EvaluatedDamage(UOWAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone); 
+	OutExecutionOutput.AddOutputModifier(EvaluatedDamage); 
 
-	const float DamageAbsolute = FMath::Abs(DamageDone); 
-	const FGameplayModifierEvaluatedData EvaluatedUltimateGauge(UOWAttributeSet::GetUltimateGaugeAttribute(), EGameplayModOp::Additive, DamageAbsolute); 
+	// Calculate Ultimate Gauge
+	if (UAbilitySystemComponent* SourceAbilitySystemComponent = ExecutionParams.GetSourceAbilitySystemComponent())
+	{
+		const float DamageAbsolute = FMath::Abs(DamageDone);
+		SourceAbilitySystemComponent->ApplyModToAttribute(UOWAttributeSet::GetUltimateGaugeAttribute(), EGameplayModOp::Additive, DamageAbsolute);
+	}
 }
 
 void UExecCalc_Damage::DetermineDebuff(

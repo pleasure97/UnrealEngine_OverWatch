@@ -113,14 +113,10 @@ void AOWCharacter::PossessedBy(AController* NewController)
 
 	InitializeDefaultAttributes();
 
+	// TODO - Give Default Abilities, Give Default Effects 
+
 	if (UOWAttributeSet* OWAttributeSet = Cast<UOWAttributeSet>(AttributeSet))
 	{
-		for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : OWAttributeSet->TagsToAttributes)
-		{
-			FOnAttributeChangedSignature* AttributeDelegate = GetDelegateForTag(Pair.Key);
-			BindAttributeChange(AbilitySystemComponent, Pair.Key, Pair.Value(), *AttributeDelegate);
-		}
-
 		OnMaxHealthChanged.Broadcast(OWAttributeSet->GetMaxHealth());
 		OnMaxArmorChanged.Broadcast(OWAttributeSet->GetMaxArmor());
 		OnMaxShieldChanged.Broadcast(OWAttributeSet->GetMaxShield());
@@ -129,6 +125,20 @@ void AOWCharacter::PossessedBy(AController* NewController)
 		OnShieldChanged.Broadcast(OWAttributeSet->GetShield());
 		OnTempArmorChanged.Broadcast(OWAttributeSet->GetTempArmor());
 		OnTempShieldChanged.Broadcast(OWAttributeSet->GetTempShield());
+	}
+}
+
+void AOWCharacter::InitializeDefaultAttributes() const
+{
+	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState()))
+	{
+		EHeroName HeroName = OWPlayerState->GetHeroName(); 
+		UAbilitySystemComponent* ASC = GetAbilitySystemComponent(); 
+
+		if ((HeroName != EHeroName::None) && IsValid(ASC))
+		{
+			UOWAbilitySystemLibrary::InitializeDefaultAttributes(this, HeroName, ASC);
+		}
 	}
 }
 

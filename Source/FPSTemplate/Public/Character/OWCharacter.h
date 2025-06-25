@@ -59,6 +59,9 @@ public:
 
 	void Reset();
 
+protected:
+	virtual void InitializeDefaultAttributes() const override; 
+
 private:
 	void InitAbilityActorInfo(); 
 
@@ -95,5 +98,5 @@ private:
 
 	float DeathTime = 9.f; 
 
-	EAttackDirection AttackDirection = EAttackDirection::None; 
+	EAttackDirection AttackDirection = EAttackDirection::NotSet; 
 };
