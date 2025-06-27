@@ -107,6 +107,7 @@ public:
 
 	/* Common Abilities */
 	FGameplayTag Abilities_Reload; 
+	FGameplayTag Abilities_IgnoreDeath; 
 
 	/* Hit React */
 	FGameplayTag Abilities_HitReact;
@@ -131,6 +132,10 @@ public:
 	FGameplayTag Debuff_Laceration; 
 
 	/* Gameplay Cue */
+	FGameplayTag GameplayCue_HeroSelection;
+	FGameplayTag GameplayCue_SwitchInning; 
+	FGameplayTag GameplayCue_MatchDecided; 
+
 	FGameplayTag GameplayCue_DamageImpact; 
 	FGameplayTag GameplayCue_HealImpact; 
 
@@ -150,8 +155,12 @@ public:
 	FGameplayTag Gameplay_Message_AssaultProgress; 
 
 	/* Game Phase */
-	FGameplayTag GamePhase_MatchPreparation; 
-	FGameplayTag GamePhase_MatchInProgress; 
+	FGameplayTag GamePhase_HeroSelection; 
+	FGameplayTag GamePhase_MatchPreparation_FirstTeamOffense; 
+	FGameplayTag GamePhase_MatchPreparation_SecondTeamOffense; 
+	FGameplayTag GamePhase_SwitchInning;
+	FGameplayTag GamePhase_MatchInProgress_FirstTeamOffense;
+	FGameplayTag GamePhase_MatchInProgress_SecondTeamOffense;
 	FGameplayTag GamePhase_PostMatch; 
 
 	/* Battle Field */

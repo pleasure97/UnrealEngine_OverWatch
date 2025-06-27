@@ -35,7 +35,6 @@ public:
 	void OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle);
 	void OnEndPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle);
 
-protected:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly)
 	void StartPhase(TSubclassOf<UOWGamePhaseAbility> GamePhaseAbility, const FOWGamePhaseDynamicDelegate& PhaseEndedDelegate);
 

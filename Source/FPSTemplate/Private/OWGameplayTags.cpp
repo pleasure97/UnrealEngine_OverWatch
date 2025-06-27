@@ -281,6 +281,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Reload"),
 		FString("Reload Ability"));
 
+	GameplayTags.Abilities_IgnoreDeath= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.IgnoreDeath"),
+		FString("Ability which ignores Death"));
+
 	/* Hit React */
 	GameplayTags.Abilities_HitReact= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.HitReact"),
@@ -345,6 +349,17 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Debuff Laceration"));
 
 	/* Gameplay Cues */
+	GameplayTags.GameplayCue_HeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.HeroSelection"),
+		FString("GameplayCue When Hero Selection Phase is Active")); 
+
+	GameplayTags.GameplayCue_SwitchInning = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.SwitchInning"),
+		FString("GameplayCue When Switching Inning")); 
+
+	GameplayTags.GameplayCue_MatchDecided = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.MatchDecided"),
+		FString("GameplayCue When Match is Decided"));
 
 	GameplayTags.GameplayCue_DamageImpact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.DamageImpact"),
@@ -405,13 +420,29 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Gameplay Message for Assault Progress"));
 
 	/* Game Phase */
-	GameplayTags.GamePhase_MatchPreparation = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.MatchPreparation"),
-		FString("Game Phase When Match is Prepared"));
+	GameplayTags.GamePhase_HeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.HeroSelection"),
+		FString("Game Phase When Selecting a Hero"));
 
-	GameplayTags.GamePhase_MatchInProgress = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.MatchInProgress"),
-		FString("Game Phase When Match is in Progress"));
+	GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchPreparation.FirstTeamOffense"),
+		FString("Game Phase When the First Team Prepares to Attack"));
+
+	GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchPreparation.SecondTeamOffense"),
+		FString("Game Phase When the Second Team Prepares to Attack"));
+
+	GameplayTags.GamePhase_SwitchInning = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.SwitchInning"),
+		FString("Game Phase When Switching Offense and Defense"));
+
+	GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchInProgress.FirstTeamOffense"),
+		FString("Game Phase When the First Team Attacks"));
+
+	GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.MatchInProgress.SecondTeamOffense"),
+		FString("Game Phase When the Second Team Attacks"));
 
 	GameplayTags.GamePhase_PostMatch = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GamePhase.PostMatch"),
