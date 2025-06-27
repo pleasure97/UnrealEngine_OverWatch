@@ -12,6 +12,7 @@ class AOWPlayerController;
 class AOWPlayerState; 
 class UOWAbilitySystemComponent; 
 class UOWAttributeSet; 
+class UMatchScoringComponent; 
 
 
 /**
@@ -69,6 +70,7 @@ public:
 	AOWPlayerState* GetOW_PS();
 	UOWAbilitySystemComponent* GetOW_ASC();
 	UOWAttributeSet* GetOW_AS();
+	UMatchScoringComponent* GetMatchScoringComponent(); 
 
 protected:
 	
@@ -84,4 +86,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UOWAttributeSet> OWAttributeSet;
+
+	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
+	TObjectPtr<UMatchScoringComponent> MatchScoringComponent;
 };
