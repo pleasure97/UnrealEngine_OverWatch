@@ -2,7 +2,7 @@
 
 
 #include "Game/OWGamePhaseSubsystem.h"
-#include "AbilitySystem/Abilities/OWGamePhaseAbility.h"
+#include "AbilitySystem/Abilities/Common/GamePhase/OWGamePhaseAbility.h"
 #include "GameFramework/GameStateBase.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 
@@ -19,21 +19,12 @@ bool UOWGamePhaseSubsystem::IsPhaseActive(const FGameplayTag& GamePhaseTag) cons
 	return false; 
 }
 
-void UOWGamePhaseSubsystem::StartPhase(TSubclassOf<UOWGamePhaseAbility> GamePhaseAbility, const FOWGamePhaseDynamicDelegate& PhaseEndedDelegate)
+void UOWGamePhaseSubsystem::StartPhase(TSubclassOf<UOWGamePhaseAbility> GamePhaseAbility, FOWGamePhaseDelegate PhaseEndedDelegate)
 {
-	// Bind Phased Ended Delegate to Activate Subsequent Phase Ability 
-	const FOWGamePhaseDelegate& EndedDelegate =
-		FOWGamePhaseDelegate::CreateWeakLambda(const_cast<UObject*>(PhaseEndedDelegate.GetUObject()),
-			[PhaseEndedDelegate](const UOWGamePhaseAbility* PhaseAbility)
-			{
-				PhaseEndedDelegate.ExecuteIfBound(PhaseAbility);
-			}); 
-
-	if (GetWorld())
+	if (UWorld* World = GetWorld())
 	{
 		// Get Custom Ability System Component From Custom Game State 
-		UOWAbilitySystemComponent* GameStateASC = GetWorld()->GetGameState()->FindComponentByClass<UOWAbilitySystemComponent>(); 
-		if (GameStateASC)
+		if (UOWAbilitySystemComponent* GameStateASC = World->GetGameState()->FindComponentByClass<UOWAbilitySystemComponent>())
 		{
 			// Initialization - Ability, Ability Level, Input ID, Source Object)
 			FGameplayAbilitySpec GamePhaseSpec(GamePhaseAbility, 1, 0, this); 
@@ -44,14 +35,45 @@ void UOWGamePhaseSubsystem::StartPhase(TSubclassOf<UOWGamePhaseAbility> GamePhas
 			{
 				// Register Game Phase Entry (Game Phase Tag, Game Phase Ended Callback) to ActivePhaseMap
 				FOWGamePhaseEntry& GamePhaseEntry = ActivePhaseMap.FindOrAdd(SpecHandle); 
-				GamePhaseEntry.PhaseEndedCallback = EndedDelegate;
+				GamePhaseEntry.PhaseEndedCallback = PhaseEndedDelegate;
 			}
 			else
 			{
-				EndedDelegate.ExecuteIfBound(nullptr);
+				PhaseEndedDelegate.ExecuteIfBound(nullptr);
 			}
 		}
 	}
+}
+
+void UOWGamePhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FOWGamePhaseTagDelegate& WhenPhaseActive)
+{
+	// Declare PhaseObserver and Set Phase Information 
+	FPhaseObserver PhaseObserver; 
+	PhaseObserver.PhaseTag = PhaseTag; 
+	PhaseObserver.MatchType = MatchType; 
+	PhaseObserver.PhaseCallback = WhenPhaseActive; 
+
+	// Add it to Phase Start Observers Array 
+	PhaseStartObservers.Add(PhaseObserver); 
+
+	// Check if Phase Tag is Active 
+	if (IsPhaseActive(PhaseTag))
+	{
+		// Call Phase Active Callback
+		WhenPhaseActive.ExecuteIfBound(PhaseTag); 
+	}
+}
+
+void UOWGamePhaseSubsystem::WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FOWGamePhaseTagDelegate& WhenPhaseEnd)
+{
+	// Declare PhaseObserver and Set Phase Information 
+	FPhaseObserver PhaseObserver;
+	PhaseObserver.PhaseTag = PhaseTag;
+	PhaseObserver.MatchType = MatchType;
+	PhaseObserver.PhaseCallback = WhenPhaseEnd;
+
+	// Add it to Phase End Observers Array 
+	PhaseEndObservers.Add(PhaseObserver);
 }
 
 void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle)
@@ -60,10 +82,9 @@ void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbi
 
 	UE_LOG(LogTemp, Log, TEXT("Beginning Phase '%s' (%s)"), *IncomingGamePhaseTag.ToString(), *GetNameSafe(GamePhaseAbility));
 
-	if (GetWorld())
+	if (UWorld* World = GetWorld())
 	{
-		UOWAbilitySystemComponent* GameStateASC = GetWorld()->GetGameState()->FindComponentByClass<UOWAbilitySystemComponent>();
-		if (GameStateASC)
+		if (UOWAbilitySystemComponent* GameStateASC = World->GetGameState()->FindComponentByClass<UOWAbilitySystemComponent>())
 		{
 			TArray<FGameplayAbilitySpec*> ActivePhases;
 			for (const TPair<FGameplayAbilitySpecHandle, FOWGamePhaseEntry>& ActivePhasePair : ActivePhaseMap)
@@ -94,6 +115,15 @@ void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbi
 
 			FOWGamePhaseEntry& GamePhaseEntry = ActivePhaseMap.FindOrAdd(GamePhaseAbilitySpecHandle);
 			GamePhaseEntry.GamePhaseTag = IncomingGamePhaseTag;
+
+			// Notify All observers of this phase that it has started. 
+			for (const FPhaseObserver& PhaseStartObserver : PhaseStartObservers)
+			{
+				if (PhaseStartObserver.IsMatch(IncomingGamePhaseTag))
+				{
+					PhaseStartObserver.PhaseCallback.ExecuteIfBound(IncomingGamePhaseTag); 
+				}
+			}
 		}
 	}
 }
@@ -107,4 +137,13 @@ void UOWGamePhaseSubsystem::OnEndPhase(const UOWGamePhaseAbility* GamePhaseAbili
 	GamePhaseEntry.PhaseEndedCallback.ExecuteIfBound(GamePhaseAbility); 
 
 	ActivePhaseMap.Remove(GamePhaseAbilitySpecHandle); 
+
+	// Notify all observers of this phase that it has ended.
+	for (const FPhaseObserver& PhaseEndObserver : PhaseEndObservers)
+	{
+		if (PhaseEndObserver.IsMatch(EndedGamePhaseTag))
+		{
+			PhaseEndObserver.PhaseCallback.ExecuteIfBound(EndedGamePhaseTag);
+		}
+	}
 }
