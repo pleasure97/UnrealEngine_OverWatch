@@ -16,6 +16,7 @@
 // Sets default values
 AAssaultPoint::AAssaultPoint()
 {
+	bReplicates = true; 
 	PrimaryActorTick.bCanEverTick = true;
 
 	Box = CreateDefaultSubobject<UBoxComponent>("Box"); 
@@ -45,7 +46,6 @@ void AAssaultPoint::BeginPlay()
 			MatchScoringComponent->RegisterAssaultPoint(this); 
 		}
 	}
-	
 }
 
 void AAssaultPoint::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -55,8 +55,9 @@ void AAssaultPoint::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(AAssaultPoint, NumAttackers);
 	DOREPLIFETIME(AAssaultPoint, NumDefenders);
 	DOREPLIFETIME(AAssaultPoint, OccupationProgress); 
+	DOREPLIFETIME(AAssaultPoint, OccupationState); 
 
-	DOREPLIFETIME(AAssaultPoint, OverlappingPawns);
+	DOREPLIFETIME(AAssaultPoint, OverlappingPawns);	
 }
 
 void AAssaultPoint::Tick(float DeltaSeconds)
@@ -89,6 +90,19 @@ void AAssaultPoint::Tick(float DeltaSeconds)
 			// TODO - Update Match Scoring Component 
 		}
 	}
+
+	AccumulatedDebugTime += DeltaSeconds; 
+	if (AccumulatedDebugTime >= Interval)
+	{
+		AccumulatedDebugTime = 0.f; 
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Num Attackers = %d"), NumAttackers));
+			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Num Defenders = %d"), NumDefenders));
+			GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Green, FString::Printf(TEXT("Occupation Progress = %f"), OccupationProgress));
+		}
+	}
 }
 
 void AAssaultPoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -107,12 +121,12 @@ void AAssaultPoint::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 		UOWGamePhaseSubsystem* OWGamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>();
 		if (OWGamePhaseSubsystem)
 		{
-			// Check Current Game Phase is "Playing"
-			bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_MatchInProgress);
-			if (!PlayingPhaseActive)
-			{
-				return;
-			}
+			//// Check Current Game Phase is "Playing"
+			//bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_MatchInProgress);
+			//if (!PlayingPhaseActive)
+			//{
+			//	return;
+			//}
 		}
 
 		// Cast Actor to Pawn
@@ -160,12 +174,12 @@ void AAssaultPoint::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActo
 		UOWGamePhaseSubsystem* OWGamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>();
 		if (OWGamePhaseSubsystem)
 		{
-			// Check Current Game Phase is "Playing"
-			bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_MatchInProgress);
-			if (!PlayingPhaseActive)
-			{
-				return;
-			}
+			//// Check Current Game Phase is "Playing"
+			//bool PlayingPhaseActive = OWGamePhaseSubsystem->IsPhaseActive(FOWGameplayTags::Get().GamePhase_MatchInProgress);
+			//if (!PlayingPhaseActive)
+			//{
+			//	return;
+			//}
 		}
 
 		// Cast Actor to Pawn 
@@ -199,7 +213,7 @@ void AAssaultPoint::OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActo
 void AAssaultPoint::UpdateAssaultPoint(int32 NewNumAttackers, int32 NewNumDefenders)
 {
 	// Early Return if Occupation State is Complete 
-	if (OccupationState = EOccupationState::Complete)
+	if (OccupationState == EOccupationState::Complete)
 	{
 		return;
 	}
@@ -228,9 +242,26 @@ void AAssaultPoint::UpdateAssaultPoint(int32 NewNumAttackers, int32 NewNumDefend
 	}
 }
 
+void AAssaultPoint::OnRep_NumAttackers()
+{
+	OnNumAttackersChanged.Broadcast(NumAttackers); 
+}
+
+void AAssaultPoint::OnRep_NumDefenders()
+{
+	if (NumAttackers > 0)
+	{
+		OnNumDefendersChanged.Broadcast(NumDefenders); 
+	}
+}
+
 void AAssaultPoint::OnRep_OccupationProgress()
 {
-	MakeOccupationMessage();
+	if (FMath::Abs(OccupationProgress - LastBroadcastedOccupationProgress) > 0.01f)
+	{
+		LastBroadcastedOccupationProgress = OccupationProgress;
+		OnOccupationProgressChanged.Broadcast(OccupationProgress); 
+	}
 }
 
 void AAssaultPoint::OnRep_OccupationState()
@@ -240,9 +271,8 @@ void AAssaultPoint::OnRep_OccupationState()
 		return;
 	}
 
+	OnOccupationStateChanged.Broadcast(OccupationState); 
 	LastOccupationState = OccupationState; 
-
-	MakeOccupationMessage(); 
 }
 
 void AAssaultPoint::MakeOccupationMessage()

@@ -11,6 +11,8 @@
 class AAssaultPoint; 
 class UOWGamePhaseAbility; 
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAssaultPointRegistered, AAssaultPoint* AssaultPoint); 
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class FPSTEMPLATE_API UMatchScoringComponent : public UActorComponent
 {
@@ -28,7 +30,7 @@ public:
 
 	int32 GetTeamScore(int32 TeamId) const; 
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_AssaultPoints)
 	TArray<AAssaultPoint*> AssaultPoints;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -36,6 +38,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UOWGamePhaseAbility> PostMatch; 
+
+	FOnAssaultPointRegistered OnAssaultPointRegistered;
 
 protected:
 	virtual void BeginPlay() override; 
@@ -55,6 +59,9 @@ private:
 	void ActivateMatchDecidedGameplayCue(FGameplayTag GameplayCueTag, FGameplayCueParameters& GameplayCueParameters); 
 
 	void ClearMatchDecidedGameplayCue(); 
+
+	UFUNCTION()
+	void OnRep_AssaultPoints(); 
 
 	UPROPERTY()
 	int32 WinningTeamID = -1; 

@@ -12,13 +12,11 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
 #include "Team/OWTeamSubsystem.h"
-#include "AbilitySystemBlueprintLibrary.h"
 
 
 UMatchScoringComponent::UMatchScoringComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 void UMatchScoringComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -54,7 +52,7 @@ void UMatchScoringComponent::BeginPlay()
 		if (GamePhaseSubsystem)
 		{
 			// Initialize Game Phase Delegate 
-			FOWGamePhaseDynamicDelegate HeroSelectionDelegate; 
+			FOWGamePhaseDelegate HeroSelectionDelegate; 
 			// Bind Game Phase Delegate to Callback
 			HeroSelectionDelegate.BindUFunction(this, FName("OnHeroSelectionStarted"));
 			// Start Phase 
@@ -65,7 +63,7 @@ void UMatchScoringComponent::BeginPlay()
 
 void UMatchScoringComponent::RegisterAssaultPoint(AAssaultPoint* AssaultPoint)
 {
-	AssaultPoints.Add(AssaultPoint); 
+	AssaultPoints.Add(AssaultPoint);
 }
 
 void UMatchScoringComponent::ContestPoint(AAssaultPoint* AssaultPoint)
@@ -148,7 +146,7 @@ void UMatchScoringComponent::HandleVictory(int32 TeamID)
 	if (GamePhaseSubsystem)
 	{
 		// Start Post Match Phase 
-		FOWGamePhaseDynamicDelegate PostMatchEndedDelegate; 
+		FOWGamePhaseDelegate PostMatchEndedDelegate; 
 		GamePhaseSubsystem->StartPhase(PostMatch, PostMatchEndedDelegate); 
 	}
 }
@@ -161,6 +159,14 @@ void UMatchScoringComponent::ActivateMatchDecidedGameplayCue(FGameplayTag Gamepl
 void UMatchScoringComponent::ClearMatchDecidedGameplayCue()
 {
 
+}
+
+void UMatchScoringComponent::OnRep_AssaultPoints()
+{
+	for (AAssaultPoint* AssaultPoint : AssaultPoints)
+	{
+		OnAssaultPointRegistered.Broadcast(AssaultPoint);
+	}
 }
 
 
