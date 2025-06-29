@@ -15,7 +15,8 @@ class UPlayerWeaponStatus;
 class UUltimateGauge; 
 class UHitIndicatorPool; 
 class UCombatLogPool; 
-class UKillLogPool; 
+class UKillLogPool;
+class UAssaultOverlay; 
 class UTextBlock; 
 
 /**
@@ -27,6 +28,7 @@ class FPSTEMPLATE_API UPlayerOverlay : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
+	/* Subwidgets */
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UHealthBarPool> WBP_PlayerHealthBarPool; 
 
@@ -50,6 +52,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UKillLogPool> WBP_KillLogPool;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UAssaultOverlay> WBP_AssaultOverlay; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_GameplayMessage; 

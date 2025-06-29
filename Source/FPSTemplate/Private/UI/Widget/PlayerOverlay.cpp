@@ -12,6 +12,7 @@
 #include "UI/Widget/HitIndicatorPool.h"
 #include "UI/Widget/CombatLogPool.h"
 #include "UI/Widget/KillLogPool.h"
+#include "UI/Widget/Assault/AssaultOverlay.h"
 #include "Components/TextBlock.h"
 
 void UPlayerOverlay::NativeConstruct()
@@ -60,12 +61,13 @@ void UPlayerOverlay::SetChildWidgetControllers()
 	{
 		WBP_PlayerHealthBarPool->SetWidgetController(OverlayWidgetController); 
 		WBP_PlayerHealthStatus->SetWidgetController(OverlayWidgetController);
-		WBP_PlayerSkills->SetWidgetController(OverlayWidgetController); 
-		WBP_PlayerWeaponStatus->SetWidgetController(OverlayWidgetController); 
-		WBP_UltimateGauge->SetWidgetController(OverlayWidgetController); 
-		WBP_HitIndicatorPool->SetWidgetController(OverlayWidgetController); 
-		WBP_CombatLogPool->SetWidgetController(OverlayWidgetController); 
-		WBP_KillLogPool->SetWidgetController(OverlayWidgetController); 
+		WBP_PlayerSkills->SetWidgetController(OverlayWidgetController);
+		WBP_PlayerWeaponStatus->SetWidgetController(OverlayWidgetController);
+		WBP_UltimateGauge->SetWidgetController(OverlayWidgetController);
+		WBP_HitIndicatorPool->SetWidgetController(OverlayWidgetController);
+		WBP_CombatLogPool->SetWidgetController(OverlayWidgetController);
+		WBP_KillLogPool->SetWidgetController(OverlayWidgetController);
+		WBP_AssaultOverlay->SetWidgetController(OverlayWidgetController);
 	}
 }
 
