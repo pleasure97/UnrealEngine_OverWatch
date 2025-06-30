@@ -61,33 +61,27 @@ void AOWPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent(); 
 
-	UE_LOG(LogTemp, Warning, TEXT(">> [%s] SetupInputComponent called on %s"),
-		*GetName(), IsLocalController() ? TEXT("LOCAL") : TEXT("REMOTE"));
-
 	if (IsLocalController())
 	{
 		check(OWContext);
 
 		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+
 		if (Subsystem)
 		{
 			Subsystem->AddMappingContext(OWContext, 1);
 		}
 	}
 	
-	UOWInputComponent* OWInputComponent = CastChecked<UOWInputComponent>(InputComponent); 
-	OWInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
-	OWInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
-	OWInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Crouch);
-	OWInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Jump);
-
-	ensure(IsLocalController()); 
-
-	OWInputComponent->BindAbilityActions(InputConfig, this, 
-		&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagHeld);
-
-	UE_LOG(LogTemp, Warning, TEXT(">> [%s] SetupInputComponent called on %s"),
-		*GetName(), IsLocalController() ? TEXT("LOCAL") : TEXT("REMOTE"));
+	if (UOWInputComponent* OWInputComponent = CastChecked<UOWInputComponent>(InputComponent))
+	{
+		OWInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
+		OWInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
+		OWInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Crouch);
+		OWInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Jump);
+		OWInputComponent->BindAbilityActions(InputConfig, this,
+			&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagHeld);
+	}
 }
 
 void AOWPlayerController::InitPlayerState()

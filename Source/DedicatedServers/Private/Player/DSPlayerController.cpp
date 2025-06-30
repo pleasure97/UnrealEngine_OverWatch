@@ -26,10 +26,12 @@ void ADSPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState(); 
 
+#if !WITH_EDITOR
 	if (IsLocalController())
 	{
 		DisableInput(this); 
 	}
+#endif 
 }
 
 void ADSPlayerController::PostSeamlessTravel()
@@ -39,7 +41,9 @@ void ADSPlayerController::PostSeamlessTravel()
 	if (IsLocalPlayerController())
 	{
 		Server_Ping(GetWorld()->GetTimeSeconds()); 
+#if !WITH_EDITOR
 		DisableInput(this); 
+#endif
 	}
 }
 
@@ -55,6 +59,7 @@ void ADSPlayerController::BeginPlay()
 
 void ADSPlayerController::Client_SetInputEnabled_Implementation(bool bEnabled)
 {
+#if !WITH_EDITOR
 	if (bEnabled)
 	{
 		EnableInput(this); 
@@ -63,6 +68,7 @@ void ADSPlayerController::Client_SetInputEnabled_Implementation(bool bEnabled)
 	{
 		DisableInput(this); 
 	}
+#endif 
 }
 
 void ADSPlayerController::Client_TimerUpdated_Implementation(float CountTime, ECountTimerDirection Direction, ECountTimerType Type) const
