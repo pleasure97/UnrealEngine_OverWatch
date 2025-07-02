@@ -17,6 +17,7 @@ class UHitIndicatorPool;
 class UCombatLogPool; 
 class UKillLogPool;
 class UAssaultOverlay; 
+class UDamageMarker; 
 class UTextBlock; 
 
 /**
@@ -55,6 +56,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UAssaultOverlay> WBP_AssaultOverlay; 
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UDamageMarker> WBP_DamageMarker; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_GameplayMessage; 
