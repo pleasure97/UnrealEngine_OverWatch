@@ -20,6 +20,8 @@
 #include "Game/OWGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Message/OWMessageTypes.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -295,10 +297,31 @@ void AOWCharacter::InitAbilityActorInfo()
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>(); 
 	check(OWPlayerState); 
-	OWPlayerState->GetAbilitySystemComponent()->InitAbilityActorInfo(OWPlayerState, this); 
-	Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent())->AbilityActorInfoSet(); 
-	AbilitySystemComponent = OWPlayerState->GetAbilitySystemComponent(); 
-	AttributeSet = OWPlayerState->GetAttributeSet(); 
+
+	UOWAbilitySystemComponent* OWPlayerStateASC = Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent()); 
+	check(OWPlayerStateASC);
+
+	if (OWPlayerStateASC)
+	{
+		OWPlayerStateASC->InitAbilityActorInfo(OWPlayerState, this); 
+		OWPlayerStateASC->AbilityActorInfoSet(); 
+		AbilitySystemComponent = OWPlayerStateASC; 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Ability System Component is not initialized properly in AOWCharacter::InitAbilityActorInfo()")); 
+	}
+
+	AttributeSet = Cast<UOWAttributeSet>(OWPlayerState->GetAttributeSet()); 
+	check(AttributeSet);
+	if (AttributeSet)
+	{
+		AttributeSet->OnDeath.AddUObject(this, &AOWCharacter::HandleDeath); 
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Attribute Set is not initialized properly in AOWCharacter::InitAbilityActorInfo()"));
+	}
 
 	OnASCRegistered.Broadcast(AbilitySystemComponent); 
 	AbilitySystemComponent->RegisterGameplayTagEvent(
@@ -354,6 +377,43 @@ void AOWCharacter::UninitAndDestroy()
 	// TODO - Uninitialize Ability System
 
 	SetActorHiddenInGame(true); 
+}
+
+void AOWCharacter::HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude)
+{
+#if WITH_SERVER_CODE 
+	if (AbilitySystemComponent && DamageEffectSpec)
+	{
+		// Get GameplayTag Singleton Class
+		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+
+		// Send Death Gameplay Event 
+		FGameplayEventData GameplayEventData; 
+		GameplayEventData.EventTag = GameplayTags.Event_Death;
+		GameplayEventData.Instigator = DamageInstigator; 
+		GameplayEventData.Target = AbilitySystemComponent->GetAvatarActor(); 
+		GameplayEventData.OptionalObject = DamageEffectSpec->Def; 
+		GameplayEventData.ContextHandle = DamageEffectSpec->GetEffectContext(); 
+		GameplayEventData.InstigatorTags = *DamageEffectSpec->CapturedSourceTags.GetAggregatedTags(); 
+		GameplayEventData.TargetTags = *DamageEffectSpec->CapturedTargetTags.GetAggregatedTags(); 
+		GameplayEventData.EventMagnitude = DamageMagnitude; 
+
+		FScopedPredictionWindow NewScopedWindow(AbilitySystemComponent, true); 
+		AbilitySystemComponent->HandleGameplayEvent(GameplayEventData.EventTag, &GameplayEventData); 
+
+		// Initialize Death Gameplay Message
+		FOWVerbMessage OWVerbMessage; 
+		OWVerbMessage.Verb = GameplayTags.Event_Death; 
+		OWVerbMessage.Instigator = DamageInstigator; 
+		OWVerbMessage.InstigatorTags = *DamageEffectSpec->CapturedSourceTags.GetAggregatedTags(); 
+		OWVerbMessage.Target = UOWAbilitySystemLibrary::GetPlayerStateFromObject(AbilitySystemComponent->GetAvatarActor()); 
+		OWVerbMessage.TargetTags = *DamageEffectSpec->CapturedTargetTags.GetAggregatedTags(); 
+
+		// Broadcast Death Gameplay Message 
+		UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(GetWorld()); 
+		GameplayMessageSubsystem.BroadcastMessage(OWVerbMessage.Verb, OWVerbMessage); 
+	}
+#endif 
 }
 
 void AOWCharacter::MulticastLevelUp_Implementation() const

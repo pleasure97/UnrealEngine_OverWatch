@@ -14,6 +14,7 @@
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName) \
 
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnDamageReceived, AActor*, /* DamageEffectCauser */ AActor*, /* Owner Actor */ float /* Damage */);
+DECLARE_MULTICAST_DELEGATE_FourParams(FOWAttributeEvent, AActor* /* Effect Instigator */, AActor* /* Effect Causer */, const FGameplayEffectSpec* /* Effect Spec */, float /* Effect Magnitude*/); 
 
 USTRUCT()
 struct FEffectProperties
@@ -23,6 +24,11 @@ struct FEffectProperties
 	FEffectProperties() {}
 
 	FGameplayEffectContextHandle EffectContextHandle; 
+
+	const FGameplayEffectSpec* EffectSpec = nullptr; 
+
+	UPROPERTY()
+	float Magnitude; 
 
 	UPROPERTY()
 	UAbilitySystemComponent* SourceASC = nullptr; 
@@ -78,6 +84,7 @@ public:
 	TMap<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>> TagsToAttributes; 
 
 	FOnDamageReceived OnDamageReceived; 
+	FOWAttributeEvent OnDeath; 
 
 	/* 
 	 * Defensive Attributes

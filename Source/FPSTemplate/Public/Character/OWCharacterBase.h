@@ -12,8 +12,8 @@
 #include "OWCharacterBase.generated.h"
 
 
-class UAbilitySystemComponent;
-class UAttributeSet;
+class UOWAbilitySystemComponent;
+class UOWAttributeSet;
 class UAnimMontage; 
 class UGameplayAbility; 
 class UDebuffNiagaraComponent; 
@@ -114,10 +114,10 @@ protected:
 	TObjectPtr<USkeletalMeshComponent> Weapon; 
 
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet; 
+	TObjectPtr<UOWAttributeSet> AttributeSet; 
 
 	/* Attributes */
 	virtual void InitializeDefaultAttributes() const; 

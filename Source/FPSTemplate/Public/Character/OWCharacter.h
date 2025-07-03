@@ -12,6 +12,8 @@ class UCameraComponent;
 class UCameraTransitionComponent; 
 class UInputComponent; 
 class UScreenEffectComponent; 
+struct FGameplayEffectSpec; 
+
 
 /**
  * 
@@ -68,6 +70,8 @@ private:
 	void DisableMovementAndCollision(); 
 
 	void UninitAndDestroy(); 
+
+	void HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude); 
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> FirstPersonSpringArm; 

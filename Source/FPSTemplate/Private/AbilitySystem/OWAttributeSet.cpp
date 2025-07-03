@@ -52,7 +52,6 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Match_TotalDamage, GetTotalDamageAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Match_TotalHeal, GetTotalHealAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Match_TotalMitigatedDamage, GetTotalMitigatedDamageAttribute);
-
 }
 
 void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -135,7 +134,7 @@ bool UOWAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& D
 			Data.EvaluatedData.Magnitude = 0.f; 
 			return false; 
 		}
-		// TODO - May need to deal with when damage comes in, even though character's dead?
+		// TODO - May need to deal with when damage comes in, even when character's dead?
 	}
 
 	return true; 
@@ -319,6 +318,8 @@ void UOWAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& 
 	// Target = Target of the Effect, Owner of the Attribute Set 
 
 	EffectProperties.EffectContextHandle = Data.EffectSpec.GetContext(); 
+	EffectProperties.EffectSpec = &Data.EffectSpec;
+	EffectProperties.Magnitude = Data.EvaluatedData.Magnitude; 
 	EffectProperties.SourceASC = EffectProperties.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent(); 
 
 	if (IsValid(EffectProperties.SourceASC) && 
@@ -435,10 +436,10 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 
 		const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle); 
 
-		if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
+		/*if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
 		{
 			Debuff(EffectProperties); 
-		}
+		}*/
 	}
 	// Process Negative Incoming Damage as Healing 
 	else if (LocalIncomingDamage < 0.f)
@@ -522,6 +523,11 @@ void UOWAttributeSet::HandleIncomingXP(const FEffectProperties& EffectProperties
 
 void UOWAttributeSet::SendHeroKilledEvent(const FEffectProperties& EffectProperties)
 {
+	// Send Death Gameplay Event 
+	AActor* EffectInstigator = EffectProperties.EffectContextHandle.Get()->GetOriginalInstigator(); 
+	AActor* EffectCauser = EffectProperties.EffectContextHandle.Get()->GetEffectCauser(); 
+	OnDeath.Broadcast(EffectInstigator, EffectCauser, EffectProperties.EffectSpec, EffectProperties.Magnitude);
+
 	// Broadcast HeroKilled Message Using Gameplay Message Subsystem 
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	FGameplayTag HeroKilledTag = FOWGameplayTags::Get().Gameplay_Message_HeroKilled;

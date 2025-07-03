@@ -124,6 +124,28 @@ void UOWAbilitySystemLibrary::GetIndividualHeroInfo(const UObject* WorldContextO
 	OutHeroInfo = HeroInfo->HeroInformation[HeroName]; 
 }
 
+APlayerState* UOWAbilitySystemLibrary::GetPlayerStateFromObject(UObject* Object)
+{
+	if (APlayerController* PC = Cast<APlayerController>(Object))
+	{
+		return PC->PlayerState;
+	}
+
+	if (APlayerState* TargetPlayerState = Cast<APlayerState>(Object))
+	{
+		return TargetPlayerState;
+	}
+
+	if (APawn* TargetPawn = Cast<APawn>(Object))
+	{
+		if (APlayerState* TargetPlayerState = TargetPawn->GetPlayerState())
+		{
+			return TargetPlayerState;
+		}
+	}
+	return nullptr;
+}
+
 UOmnicInfo* UOWAbilitySystemLibrary::GetOmnicInfo(const UObject* WorldContextObject)
 {
 	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject)); 

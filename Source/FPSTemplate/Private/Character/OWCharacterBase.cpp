@@ -177,11 +177,13 @@ FOnTeamIndexChangedDelegate* AOWCharacterBase::GetOnTeamIndexChangedDelegate()
 
 void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
+	// Implement the Falling of the Weapon through Death 
 	Weapon->SetSimulatePhysics(true); 
 	Weapon->SetEnableGravity(true); 
 	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); 
 	Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true); 
 
+	// Implement the Death Motion 
 	GetMesh()->SetEnableGravity(true); 
 	GetMesh()->SetSimulatePhysics(true); 
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); 
@@ -190,6 +192,8 @@ void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true); 
 
 	bDead = true; 
+
+	// TODO - May need to delete FOnDeath Delegate of Combat Interface 
 	OnDeath.Broadcast(this); 
 }
 

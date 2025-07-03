@@ -51,6 +51,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static void GetIndividualHeroInfo(const UObject* WorldContextObject, EHeroName HeroName, FOWHeroInfo& OutHeroInfo); 
 
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static APlayerState* GetPlayerStateFromObject(UObject* Object);
+
 	/*
 	 * Omnic Info Defaults
 	 */
