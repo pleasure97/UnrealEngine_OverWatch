@@ -39,7 +39,7 @@ void AOWGameModeBase::ChangeHero(APlayerController* PlayerController, EHeroName 
 		CurrentHero->Destroy(); 
 	}
 
-	TSubclassOf<AOWCharacter>* NewHeroClass = HeroMap.Find(NewHeroName); 
+	/*TSubclassOf<AOWCharacter>* NewHeroClass = HeroMap.Find(NewHeroName); 
 	if (NewHeroClass && *NewHeroClass)
 	{
 		FActorSpawnParameters SpawnParams; 
@@ -52,7 +52,7 @@ void AOWGameModeBase::ChangeHero(APlayerController* PlayerController, EHeroName 
 		{
 			PlayerController->Possess(NewCharacter); 
 		}
-	}
+	}*/
 
 	if (AOWPlayerState* OWPlayerState = PlayerController->GetPlayerState<AOWPlayerState>())
 	{

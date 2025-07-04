@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Game/DS_MatchGameMode.h"
 #include "AbilitySystem/Data/HeroInfo.h"
-#include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWGameModeBase.generated.h"
 
 class AOWCharacter; 
@@ -22,16 +21,6 @@ class FPSTEMPLATE_API AOWGameModeBase : public ADS_MatchGameMode
 	GENERATED_BODY()
 	
 public:
-	/* Data Asset */
-	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
-	TObjectPtr<UHeroInfo> HeroInfo;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
-	TMap<EHeroName, TSubclassOf<AOWCharacter>> HeroMap; 
-
-	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
-	TObjectPtr<UOmnicInfo> OmnicInfo;
-
 	virtual void BeginPlay() override; 
 
 	/** AGameModeBase Interface **/

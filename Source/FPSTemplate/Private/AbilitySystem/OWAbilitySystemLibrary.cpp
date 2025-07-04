@@ -13,6 +13,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Engine/OverlapResult.h"
 #include "Interface/CombatInterface.h"
+#include "Game/OWGameState.h"
 
 /* Widget Controller */
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
@@ -101,12 +102,12 @@ void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextOb
 
 UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObject)
 {
-	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject)); 
-	if (OWGameMode == nullptr)
+	const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject)); 
+	if (OWGameState == nullptr)
 	{
 		return nullptr; 
 	}
-	return OWGameMode->HeroInfo;
+	return OWGameState->HeroInfo;
 }
 
 EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject)
@@ -148,13 +149,13 @@ APlayerState* UOWAbilitySystemLibrary::GetPlayerStateFromObject(UObject* Object)
 
 UOmnicInfo* UOWAbilitySystemLibrary::GetOmnicInfo(const UObject* WorldContextObject)
 {
-	const AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject)); 
-	if (OWGameMode == nullptr)
+	const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject)); 
+	if (OWGameState == nullptr)
 	{
 		return nullptr; 
 	}
 
-	return OWGameMode->OmnicInfo;
+	return OWGameState->OmnicInfo;
 }
 
 /* Effect Context Getter */

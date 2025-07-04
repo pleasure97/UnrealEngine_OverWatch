@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
+#include "AbilitySystem/Data/HeroInfo.h"
+#include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWGameState.generated.h"
 
 class UTeamCreationComponent; 
@@ -30,6 +32,13 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void MulticastReliableMessageToClients(const FOWVerbMessage Message); 
+
+	/* Data Asset - Info */
+	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
+	TObjectPtr<UHeroInfo> HeroInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
+	TObjectPtr<UOmnicInfo> OmnicInfo;
 
 	/* Components - Team Creation */
 	UPROPERTY()
