@@ -29,7 +29,7 @@ void UDamageMarker::NativeConstruct()
 		GameplayMessageSubsystem.RegisterListener<FHeroDamagedInfo>(GameplayTags.Gameplay_Message_HeroDamaged, this, &UDamageMarker::OnEnemyDamaged);
 
 	KillListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FHeroKilledInfo>(GameplayTags.Gameplay_Message_HeroKilled, this, &UDamageMarker::OnEnemyKilled);
+		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(GameplayTags.Gameplay_Message_HeroKilled, this, &UDamageMarker::OnEnemyKilled);
 }
 
 void UDamageMarker::NativeDestruct()
@@ -61,18 +61,21 @@ void UDamageMarker::OnEnemyDamaged(FGameplayTag Channel, const FHeroDamagedInfo&
 	}
 }
 
-void UDamageMarker::OnEnemyKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload)
+void UDamageMarker::OnEnemyKilled(FGameplayTag Channel, const FOWVerbMessage& Payload)
 {
 	// Check if Instigator is Owner
-	if ((Payload.SourcePlayerState == GetOwningPlayerState()))
+	if (APlayerState* InstiagtorPlayerState = Cast<APlayerState>(Payload.Instigator))
 	{
-		// Reset Kill Animation if Kill Animation was already playing
-		if (KillAnimation && IsAnimationPlayingForward(KillAnimation))
+		if (InstiagtorPlayerState == GetOwningPlayerState())
 		{
-			StopAnimation(KillAnimation);
-			SetAnimationCurrentTime(KillAnimation, 0.f);
+			// Reset Kill Animation if Kill Animation was already playing
+			if (KillAnimation && IsAnimationPlayingForward(KillAnimation))
+			{
+				StopAnimation(KillAnimation);
+				SetAnimationCurrentTime(KillAnimation, 0.f);
+			}
+			PlayAnimationForward(KillAnimation);
 		}
-		PlayAnimationForward(KillAnimation);
 	}
 }
 

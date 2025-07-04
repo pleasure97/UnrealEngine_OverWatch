@@ -55,8 +55,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnKillLogExpired OnKillLogExpired;
 
-	void HoldThenPlayEnd();
-
 	/* Animation */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* KillLogAnimation;

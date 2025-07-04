@@ -2,13 +2,12 @@
 
 
 #include "UI/Widget/CombatLogPool.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
 #include "OWGameplayTags.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
 #include "Message/OWMessageTypes.h"
 #include "Player/OWPlayerState.h"
 #include "Team/OWTeamSubsystem.h"
 #include "Components/ListView.h"
+#include "UI/Data/KillFeedEntry.h"
 
 void UCombatLogPool::NativeConstruct()
 {
@@ -19,70 +18,46 @@ void UCombatLogPool::NativeConstruct()
 	// Get Gameplay Message Subsystem 
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	// Listen Hero Killed Gameplay Tag
-	FGameplayTag HeroKilledTag = FOWGameplayTags::Get().Gameplay_Message_HeroKilled;
-	FGameplayMessageListenerHandle HealthPlateAddListener =
-		GameplayMessageSubsystem.RegisterListener<FHeroKilledInfo>(HeroKilledTag, this, &UCombatLogPool::OnHeroKilled);
+	FGameplayTag HeroKilledTag = FOWGameplayTags::Get().Gameplay_Message_KillFeed;
+	HeroKilledListener = GameplayMessageSubsystem.RegisterListener<FHeroKilledInfo>(HeroKilledTag, this, &UCombatLogPool::OnHeroKilled);
+}
+
+void UCombatLogPool::NativeDestruct()
+{
+	if (HeroKilledListener.IsValid())
+	{
+		HeroKilledListener.Unregister();
+	}
+
+	Super::NativeDestruct(); 
 }
 
 void UCombatLogPool::OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload)
 {
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	UKillFeedEntry* KillFeedEntry = NewObject<UKillFeedEntry>(this);
+	if (KillFeedEntry)
 	{
-		AOWPlayerState* OwnerPlayerState = Cast<AOWPlayerState>(OverlayWidgetController->PlayerState); 
-		FString OwnerPlayerName = OwnerPlayerState->GetPlayerName(); 
-
-		AOWPlayerState* SourcePlayerState = Cast<AOWPlayerState>(Payload.SourcePlayerState);
-		AOWPlayerState* TargetPlayerState = Cast<AOWPlayerState>(Payload.TargetPlayerState);
-
-		FString SourcePlayerName = SourcePlayerState->GetPlayerName();
-		FString TargetPlayerName = TargetPlayerState->GetPlayerName();
-
-		UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>(); 
-
-		// Owner is Killed
-		if (TargetPlayerName == OwnerPlayerName)
+		KillFeedEntry->Message = Payload;
+		if (ListView_CombatLog)
 		{
-			AddNewItem(ECombatLogType::Death, SourcePlayerName); 
-		}
-		// Other Hero on Diffrent Team is Killed
-		else if ((TeamSubsystem->CompareTeams(SourcePlayerState, OwnerPlayerState) == EOWTeamComparison::OnSameTeam) &&
-			(TeamSubsystem->CompareTeams(TargetPlayerState, OwnerPlayerState) == EOWTeamComparison::DifferentTeams))
-		{
-			AddNewItem(ECombatLogType::Kill, TargetPlayerName); 
+			ListView_CombatLog->AddItem(KillFeedEntry);
+
+			UpdateDisplayVisibility();
 		}
 	}
 }
 
-void UCombatLogPool::AddNewItem(ECombatLogType CombatLogType, const FString& PlayerName)
+void UCombatLogPool::UpdateDisplayVisibility()
 {
-	// Check that ListView and List Item Class are set
-	if (!ListView_CombatLog || !ListItemClass)
+	if (ListView_CombatLog)
 	{
-		return; 
-	}
-
-	// Remove the Oldest Item if the Number of items in the ListView is at its maximum
-	TArray<UObject*> CurrentItems = ListView_CombatLog->GetListItems(); 
-	if (CurrentItems.Num() >= MaxItems)
-	{
-		if (UCombatLog* OldestCombatLog = Cast<UCombatLog>(CurrentItems[0]))
+		if (ListView_CombatLog->GetNumItems() > 0)
 		{
-			OldestCombatLog->OnCombatLogFinished.BindLambda([this](UCombatLog* InCombatLog)
-				{
-					ListView_CombatLog->RemoveItem(InCombatLog); 
-				}); 
-			OldestCombatLog->HoldThenPlayEnd();
+			ListView_CombatLog->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			ListView_CombatLog->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
-
-	// Create New Combat Log Listening Gameplay Message 
-	UCombatLog* NewCombatLog = NewObject<UCombatLog>(this);
-	NewCombatLog->ShowCombatLog(CombatLogType, PlayerName); 
-
-	NewCombatLog->OnCombatLogFinished.BindLambda([this](UCombatLog* InCombatLog)
-		{
-			ListView_CombatLog->RemoveItem(InCombatLog);
-		}); 
-
-	ListView_CombatLog->AddItem(NewCombatLog);
 }

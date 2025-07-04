@@ -50,11 +50,6 @@ void UKillLogPool::UpdateDisplayVisibility()
 
 void UKillLogPool::OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload)
 {
-	AOWPlayerState* OwnerPlayerState = Cast<AOWPlayerState>(GetOwningPlayerState());
-
-	AOWPlayerState* InstigatorPlayerState = Cast<AOWPlayerState>(Payload.InstigatorPlayerState);
-	AOWPlayerState* VictimPlayerState = Cast<AOWPlayerState>(Payload.TargetPlayerState);
-
 	UKillFeedEntry* KillFeedEntry = NewObject<UKillFeedEntry>(this);
 	if (KillFeedEntry)
 	{

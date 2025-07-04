@@ -44,5 +44,5 @@ private:
 	void OnEnemyDamaged(FGameplayTag Channel, const FHeroDamagedInfo& Payload); 
 
 	UFUNCTION()
-	void OnEnemyKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload);
+	void OnEnemyKilled(FGameplayTag Channel, const FOWVerbMessage& Payload);
 };

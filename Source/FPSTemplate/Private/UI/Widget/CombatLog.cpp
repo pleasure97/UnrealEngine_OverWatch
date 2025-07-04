@@ -3,38 +3,12 @@
 #include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
-
-void UCombatLog::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	if (StartAnimation)
-	{
-		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
-		AnimationFinishedEvent.BindUFunction(this, FName("OnStartAnimationFinished"));
-		BindToAnimationFinished(StartAnimation, AnimationFinishedEvent);
-	}
-
-	if (EndAnimation)
-	{
-		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
-		AnimationFinishedEvent.BindUFunction(this, FName("OnEndAnimationFinished"));
-		BindToAnimationFinished(EndAnimation, AnimationFinishedEvent);
-	}
-}
+#include "UI/Data/KillFeedEntry.h"
+#include "Player/OWPlayerState.h"
+#include "Team/OWTeamSubsystem.h"
 
 void UCombatLog::NativeDestruct()
 {
-	if (StartAnimation)
-	{
-		UnbindAllFromAnimationFinished(StartAnimation);
-	}
-
-	if (EndAnimation)
-	{
-		UnbindAllFromAnimationFinished(EndAnimation);
-	}
-
 	if (HoldTimerHandle.IsValid())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(HoldTimerHandle); 
@@ -43,77 +17,109 @@ void UCombatLog::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-void UCombatLog::ShowCombatLog(ECombatLogType CombatLogType, const FString& PlayerName)
+void UCombatLog::NativeOnListItemObjectSet(UObject* ListItem)
 {
-	check(!IconMap.IsEmpty()); 
+	if (UKillFeedEntry* KillFeedEntry = Cast<UKillFeedEntry>(ListItem))
+	{
+		ShowCombatLog(KillFeedEntry->Message);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Kill Feed Entry is not casted in UKillLog::NativeOnListItemObjectSet()"));
+	}
+}
 
-	switch (CombatLogType)
+void UCombatLog::ShowCombatLog(FHeroKilledInfo& HeroKilledInfo)
+{
+	AOWPlayerState* InstigatorPlayerState = Cast<AOWPlayerState>(HeroKilledInfo.InstigatorPlayerState); 
+	AOWPlayerState* TargetPlayerState = Cast<AOWPlayerState>(HeroKilledInfo.TargetPlayerState);
+
+	if (InstigatorPlayerState == GetOwningPlayerState())
 	{
-	case ECombatLogType::Kill:
-	{
+		ECombatLogType KillTypeLog = ECombatLogType::Kill;
 		if (Border_CombatLog)
 		{
-			Border_CombatLog->SetBrushColor(CombatLogColors::Red);
+			Border_CombatLog->SetBrushColor(CombatLogInfoMap[KillTypeLog].CombatLogColor);
 		}
-		if (UTexture2D** FoundIcon = IconMap.Find(ECombatLogType::Kill))
+		if (Image_CombatLog)
 		{
-			if (Image_CombatLog)
-			{
-				Image_CombatLog->SetBrushFromTexture(*FoundIcon, true);
-			}
+			Image_CombatLog->SetBrushFromTexture(CombatLogInfoMap[KillTypeLog].CombatLogIcon, true);
 		}
 		if (TextBlock_Username)
 		{
-			TextBlock_Username->SetText(FText::FromString(PlayerName));
+			FString TargetPlayerName = TargetPlayerState->GetPlayerName();
+			if (TargetPlayerName.Len() > 12)
+			{
+				TargetPlayerName = TargetPlayerName.Left(12);
+				TextBlock_Username->SetText(FText::FromString(TargetPlayerName)); 
+			}
 		}
-		if (TextBlock_KillLog)
+		if (TextBlock_AdditionalLog)
 		{
-			TextBlock_KillLog->SetVisibility(ESlateVisibility::Collapsed);
+			if (!CombatLogInfoMap[KillTypeLog].CombatLogText.IsEmpty())
+			{
+				TextBlock_AdditionalLog->SetVisibility(ESlateVisibility::Visible);
+				TextBlock_AdditionalLog->SetText(CombatLogInfoMap[KillTypeLog].CombatLogText);
+			}
+			else
+			{
+				TextBlock_AdditionalLog->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
-		break;
 	}
-	case ECombatLogType::Death:
+	else if (TargetPlayerState == GetOwningPlayerState())
 	{
+		ECombatLogType DeathTypeLog = ECombatLogType::Death;
+
 		if (Border_CombatLog)
 		{
-			Border_CombatLog->SetBrushColor(CombatLogColors::Gray);
+			Border_CombatLog->SetBrushColor(CombatLogInfoMap[DeathTypeLog].CombatLogColor);
 		}
-		if (UTexture2D** FoundIcon = IconMap.Find(ECombatLogType::Death))
+		if (Image_CombatLog)
 		{
-			if (Image_CombatLog)
-			{
-				Image_CombatLog->SetBrushFromTexture(*FoundIcon, true);
-			}
+			Image_CombatLog->SetBrushFromTexture(CombatLogInfoMap[DeathTypeLog].CombatLogIcon, true);
 		}
 		if (TextBlock_Username)
 		{
-			TextBlock_Username->SetText(FText::FromString(PlayerName));
+			FString InstigatorPlayerName = InstigatorPlayerState->GetPlayerName();
+			if (InstigatorPlayerName.Len() > 12)
+			{
+				InstigatorPlayerName = InstigatorPlayerName.Left(12);
+				TextBlock_Username->SetText(FText::FromString(InstigatorPlayerName));
+			}
 		}
-		if (TextBlock_KillLog)
+		if (TextBlock_AdditionalLog)
 		{
-			TextBlock_KillLog->SetVisibility(ESlateVisibility::Visible);
+			if (!CombatLogInfoMap[DeathTypeLog].CombatLogText.IsEmpty())
+			{
+				TextBlock_AdditionalLog->SetVisibility(ESlateVisibility::Visible);
+				TextBlock_AdditionalLog->SetText(CombatLogInfoMap[DeathTypeLog].CombatLogText);
+			}
+			else
+			{
+				TextBlock_AdditionalLog->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
-		break;
 	}
-	}
-
-	PlayAnimation(StartAnimation); 
-}
-
-void UCombatLog::OnStartAnimationFinished()
-{
-	GetWorld()->GetTimerManager().SetTimer(HoldTimerHandle, this, &UCombatLog::HoldThenPlayEnd, 3.f, false); 
-}
-
-void UCombatLog::OnEndAnimationFinished()
-{
-	if (OnCombatLogFinished.IsBound())
+	else
 	{
-		OnCombatLogFinished.Execute(this); 
+		return;
+	}
+
+	// Play Kill Log Animation 
+	if (CombatLogAnimation)
+	{
+		PlayAnimation(CombatLogAnimation);
+		GetWorld()->GetTimerManager().SetTimer(HoldTimerHandle, this, &UCombatLog::OnLogExpired, 3.f, false);
 	}
 }
 
-void UCombatLog::HoldThenPlayEnd()
+void UCombatLog::OnLogExpired()
 {
-	PlayAnimation(EndAnimation); 
+	// Get Kill Log Entry as List Item Object 
+	UObject* KillLogEntry = UUserObjectListEntryLibrary::GetListItemObject(this);
+	if (KillLogEntry)
+	{
+		OnCombatLogExpired.Broadcast(KillLogEntry);
+	}
 }

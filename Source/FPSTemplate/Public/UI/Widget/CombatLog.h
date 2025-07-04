@@ -4,19 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "Blueprint/IUserObjectListEntry.h"
 #include "CombatLog.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnCombatLogFinished, UCombatLog*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCombatLogExpired, UObject*, ListItemObject);
 
 class UBorder;
 class UImage;
 class UTextBlock;
-
-namespace CombatLogColors
-{
-	constexpr FLinearColor Gray(0.520833f, 0.520833f, 0.520833f, 1.f);
-	constexpr FLinearColor Red(0.520833f, 0.005426f, 0.032740f, 1.f);
-}; 
 
 UENUM(BlueprintType)
 enum class ECombatLogType : uint8
@@ -25,15 +20,35 @@ enum class ECombatLogType : uint8
 	Death  UMETA(DisplayName = "Death"),
 };
 
+USTRUCT(BlueprintType)
+struct FCombatLogInfo
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UTexture2D> CombatLogIcon;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor CombatLogColor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText CombatLogText;
+};
+
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API UCombatLog : public UOWUserWidget
+class FPSTEMPLATE_API UCombatLog : public UOWUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 	
 public:
+	/* Data */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Icons")
+	TMap<ECombatLogType, FCombatLogInfo> CombatLogInfoMap;
+
 	/* Widget */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> Border_CombatLog;
@@ -45,36 +60,29 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_Username;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_KillLog;
+	TObjectPtr<UTextBlock> TextBlock_AdditionalLog;
 
 	/* Animation */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* StartAnimation; 
+	UWidgetAnimation* CombatLogAnimation; 
 
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* EndAnimation; 
-
-	FOnCombatLogFinished OnCombatLogFinished; 
-
-	void HoldThenPlayEnd();
-
-	/* Icon */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Icons")
-	TMap<ECombatLogType, UTexture2D*> IconMap;
+	UPROPERTY(BlueprintAssignable)
+	FOnCombatLogExpired OnCombatLogExpired;
 
 	UFUNCTION(BlueprintCallable)
-	void ShowCombatLog(ECombatLogType CombatLogType, const FString& PlayerName); 
+	void ShowCombatLog(FHeroKilledInfo& HeroKilledInfo);
 
 protected:
-	virtual void NativeConstruct() override; 
+	/* User Widget */
 	virtual void NativeDestruct() override; 
 
+	/* User Object List Entry */
+	virtual void NativeOnListItemObjectSet(UObject* ListItem) override;
+
+private:
 	/* Animation */
 	UFUNCTION()
-	void OnStartAnimationFinished();
-
-	UFUNCTION()
-	void OnEndAnimationFinished();
+	void OnLogExpired();
 
 	FTimerHandle HoldTimerHandle; 
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "UI/Widget/CombatLog.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "CombatLogPool.generated.h"
 
 class UListView; 
@@ -20,21 +21,19 @@ class FPSTEMPLATE_API UCombatLogPool : public UOWUserWidget
 
 public:
 	/* List View */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UListView> ListView_CombatLog; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ListView")
-	TSubclassOf<UCombatLog> ListItemClass; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ListView")
-	int32 MaxItems = 3; 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UListView> ListView_CombatLog;
+	
+protected:
+	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
+	
+private:
+	UFUNCTION(BlueprintCallable)
+	void UpdateDisplayVisibility(); 
 
 	UFUNCTION()
 	void OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload);
 
-	UFUNCTION(BlueprintCallable)
-	void AddNewItem(ECombatLogType CombatLogType, const FString& PlayerName);
-	
-protected:
-	virtual void NativeConstruct() override; 
+	FGameplayMessageListenerHandle HeroKilledListener; 
 };
