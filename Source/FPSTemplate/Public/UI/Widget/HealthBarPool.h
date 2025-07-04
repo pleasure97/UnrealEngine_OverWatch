@@ -12,28 +12,10 @@ class USizeBox;
 class UBorder;
 class UHorizontalBox;
 
-namespace HealthBarColors
-{
-	constexpr FLinearColor None(0.f, 0.f, 0.f, 0.f); 
-	constexpr FLinearColor White(1.f, 1.f, 1.f, 1.f);
-	constexpr FLinearColor Yellow(1.f, 0.8588f, 0.1804f, 1.f);
-	constexpr FLinearColor Sky(0.1765f, 0.6706f, 0.9608f, 1.f);
-	constexpr FLinearColor Orange(0.9568f, 0.2067f, 0.0439f, 1.f);
-	constexpr FLinearColor Blue(0.f, 0.1647f, 0.7843f, 1.f);
-	constexpr FLinearColor Green(0.2392f, 0.8941f, 0.2392f, 1.f);
-}
-
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FHealthBarPoolInfo
 {
 	GENERATED_BODY()
-
-	FHealthBarPoolInfo() {}
-	
-	FHealthBarPoolInfo(UBorder* InBorder, UHorizontalBox* InHorizontalBox, FLinearColor InHealthBarColor)
-		: Border(InBorder)
-		, HorizontalBox(InHorizontalBox)
-		, HealthBarColor(InHealthBarColor){}
 
 	UPROPERTY()
 	TObjectPtr<UBorder> Border; 
@@ -101,6 +83,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HorizontalBox_OverHealth; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FName, FLinearColor> HealthBarColors;
 
 	UPROPERTY()
 	TMap<FGameplayTag, FHealthBarPoolInfo> TagsToHealthBarInfos;

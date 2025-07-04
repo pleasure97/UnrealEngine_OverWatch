@@ -13,19 +13,19 @@ struct FDebuffInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Debuff")
-	FGameplayTag DebuffTag; 
+	FGameplayTag DebuffTag = FGameplayTag(); 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
-	float DebuffChance; 
+	float DebuffChance = 0.f; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
-	float DebuffDamage; 
+	float DebuffDamage = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
-	float DebuffDuration; 
+	float DebuffDuration = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff")
-	float DebuffFrequency; 
+	float DebuffFrequency = 0.f;
 };
 /**
  * 

@@ -28,7 +28,7 @@ struct FEffectProperties
 	const FGameplayEffectSpec* EffectSpec = nullptr; 
 
 	UPROPERTY()
-	float Magnitude; 
+	float Magnitude = 0.f; 
 
 	UPROPERTY()
 	UAbilitySystemComponent* SourceASC = nullptr; 

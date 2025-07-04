@@ -62,22 +62,22 @@ void UHealthBarPool::NativeDestruct()
 void UHealthBarPool::InitializeHealthBarPoolInfos()
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Sky));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Shield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::Sky));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors[FName("Green")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors[FName("Orange")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors[FName("Blue")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")]));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Shield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")]));
 
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors::White));
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors::Orange));
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors::None));
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors::Green));
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors::Orange));
-	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors::Blue));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")]));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")]));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")]));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors[FName("Green")]));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors[FName("Orange")]));
+	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors[FName("Blue")]));
 }
 
 void UHealthBarPool::BindWidgetControllerEvents()

@@ -48,7 +48,7 @@ void UUltimateGauge::NativeConstruct()
 		{
 			UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
 			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), UltimateGaugeColor::Orange);
-			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 40.f);
+			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 100.f);
 
 			Image_UltimateGauge->SetBrushFromMaterial(UltimateGaugeMID);
 		}
@@ -91,6 +91,12 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 {
 	// Check if Max Ultimate Gauge is Broadcasted 
 	if (MaxUltimateGauge == 0)
+	{
+		return;
+	}
+
+	// Early return When the difference between the new value and the current ultimate gauge does not exceed 1%
+	if (FMath::Abs(NewValue - CurrentUltimateGauge) < MaxUltimateGauge * 0.01f)
 	{
 		return;
 	}
@@ -149,7 +155,7 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 			{
 				UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
 				UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), UltimateGaugeColor::Orange);
-				UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 40.f);
+				UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 100.f);
 			}
 
 			if (Image_UltimateIcon)
