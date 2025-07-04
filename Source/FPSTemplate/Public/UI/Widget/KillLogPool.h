@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "KillLogPool.generated.h"
 
 class UListView; 
@@ -20,21 +21,19 @@ class FPSTEMPLATE_API UKillLogPool : public UOWUserWidget
 	
 public:
 	/* List View */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UListView> ListView_KillLog; 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ListView")
-	TSubclassOf<UKillLog> ListItemClass;
+protected:
+	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ListView")
-	int32 MaxItems = 5;
+private:
+	UFUNCTION(BlueprintCallable)
+	void UpdateDisplayVisibility(); 
 
 	UFUNCTION()
 	void OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload);
 
-	UFUNCTION(BlueprintCallable)
-	void AddNewItem(EKillLogType KillLogType, const AOWPlayerState* InstigatorPlayerState, const AOWPlayerState* VictimPlayerState);
-
-protected:
-	virtual void NativeConstruct() override; 
+	FGameplayMessageListenerHandle HeroKilledListener; 
 };

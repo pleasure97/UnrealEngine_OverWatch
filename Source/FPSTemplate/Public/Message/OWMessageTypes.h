@@ -108,16 +108,14 @@ struct FHeroKilledInfo
 
 	FHeroKilledInfo() {}
 
-	FHeroKilledInfo(APlayerState* InSourcePlayerState, APlayerState* InTargetPlayerState)
-		: SourcePlayerState(InSourcePlayerState), TargetPlayerState(InTargetPlayerState)
-	{
-	}
-
 	UPROPERTY()
-	TObjectPtr<APlayerState> SourcePlayerState = nullptr;
+	TObjectPtr<APlayerState> InstigatorPlayerState = nullptr;
 
 	UPROPERTY()
 	TObjectPtr<APlayerState> TargetPlayerState = nullptr;
+
+	UPROPERTY()
+	FGameplayTagContainer InstigatorTags; 
 };
 
 USTRUCT(BlueprintType)

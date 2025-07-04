@@ -527,12 +527,6 @@ void UOWAttributeSet::SendHeroKilledEvent(const FEffectProperties& EffectPropert
 	AActor* EffectInstigator = EffectProperties.EffectContextHandle.Get()->GetOriginalInstigator(); 
 	AActor* EffectCauser = EffectProperties.EffectContextHandle.Get()->GetEffectCauser(); 
 	OnDeath.Broadcast(EffectInstigator, EffectCauser, EffectProperties.EffectSpec, EffectProperties.Magnitude);
-
-	// Broadcast HeroKilled Message Using Gameplay Message Subsystem 
-	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
-	FGameplayTag HeroKilledTag = FOWGameplayTags::Get().Gameplay_Message_HeroKilled;
-	FHeroKilledInfo HeroKilledInfo = FHeroKilledInfo(EffectProperties.SourcePlayerState, EffectProperties.TargetPlayerState);
-	GameplayMessageSubsystem.BroadcastMessage(HeroKilledTag, HeroKilledInfo);
 }
 
 void UOWAttributeSet::SendXPEvent(const FEffectProperties& EffectProperties)

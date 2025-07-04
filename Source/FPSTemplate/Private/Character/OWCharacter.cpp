@@ -403,7 +403,7 @@ void AOWCharacter::HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, c
 
 		// Initialize Death Gameplay Message
 		FOWVerbMessage OWVerbMessage; 
-		OWVerbMessage.Verb = GameplayTags.Event_Death; 
+		OWVerbMessage.Verb = GameplayTags.Gameplay_Message_HeroKilled; 
 		OWVerbMessage.Instigator = DamageInstigator; 
 		OWVerbMessage.InstigatorTags = *DamageEffectSpec->CapturedSourceTags.GetAggregatedTags(); 
 		OWVerbMessage.Target = UOWAbilitySystemLibrary::GetPlayerStateFromObject(AbilitySystemComponent->GetAvatarActor()); 

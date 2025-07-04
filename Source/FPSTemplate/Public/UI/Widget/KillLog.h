@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "Blueprint/IUserObjectListEntry.h"
 #include "KillLog.generated.h"
 
-DECLARE_DELEGATE_OneParam(FOnKillLogFinished, UKillLog*);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnKillLogExpired, UObject*, ListItemObject);
 
 class UBorder; 
 class UTextBlock; 
@@ -19,18 +20,11 @@ namespace KillLogColors
 	constexpr FLinearColor Red(0.520833f, 0.005426f, 0.032740f, 1.f);
 };
 
-UENUM(BlueprintType)
-enum class EKillLogType : uint8
-{
-	AllyKill   UMETA(DisplayName = "AllyKill"),
-	EnemyKill  UMETA(DisplayName = "EnemyKill"),
-};
-
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API UKillLog : public UOWUserWidget
+class FPSTEMPLATE_API UKillLog : public UOWUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 
@@ -58,30 +52,29 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Portrait_Dead;
 
-	FOnKillLogFinished OnKillLogFinished;
+	UPROPERTY(BlueprintAssignable)
+	FOnKillLogExpired OnKillLogExpired;
 
 	void HoldThenPlayEnd();
 
 	/* Animation */
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* StartAnimation;
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* EndAnimation;
+	UWidgetAnimation* KillLogAnimation;
 
 	UFUNCTION(BlueprintCallable)
-	void ShowKillLog(EKillLogType KillLogType, const AOWPlayerState* InstigatorPlayerState, const AOWPlayerState* VictimPlayerState);
+	void ShowKillLog(FHeroKilledInfo& HeroKilledInfo);
 
 protected:
-	virtual void NativeConstruct() override; 
+	/* User Widget */
 	virtual void NativeDestruct() override; 
 
+	/* User Object List Entry */
+	virtual void NativeOnListItemObjectSet(UObject* ListItem) override; 
+
+private:
 	/* Animation */
 	UFUNCTION()
-	void OnStartAnimationFinished();
-
-	UFUNCTION()
-	void OnEndAnimationFinished();
+	void OnLogExpired(); 
 
 	FTimerHandle HoldTimerHandle;
 };
