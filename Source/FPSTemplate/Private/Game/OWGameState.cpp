@@ -5,6 +5,7 @@
 #include "Team/TeamCreationComponent.h"
 #include "Game/PlayerSpawningManagerComponent.h"
 #include "Game/MatchScoringComponent.h"
+#include "Game/PlayerPerformanceComponent.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "Message/OWMessageTypes.h"
 #include "Net/UnrealNetwork.h"
@@ -19,6 +20,9 @@ AOWGameState::AOWGameState()
 	OWAbilitySystemComponent = CreateDefaultSubobject<UOWAbilitySystemComponent>("OWAbilitySystemComponent");
 	OWAbilitySystemComponent->SetIsReplicated(true);
 	OWAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+	PlayerPerformanceComponent = CreateDefaultSubobject<UPlayerPerformanceComponent>("PlayerPerformanceComponent"); 
+	PlayerPerformanceComponent->SetIsReplicated(true); 
 }
 
 void AOWGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -41,21 +45,20 @@ void AOWGameState::PostInitializeComponents()
 			TeamCreationComponent->RegisterComponent();
 		}
 
-		if (PlayerSpawningManagerComponentClass)
-		{
-			// Create New Object, Replicate, and Register
-			PlayerSpawningManagerComponent = NewObject<UPlayerSpawningManagerComponent>(this, PlayerSpawningManagerComponentClass);
-			PlayerSpawningManagerComponent->SetIsReplicated(true); 
-			PlayerSpawningManagerComponent->RegisterComponent();
-		}
+		// Create New Object, Replicate, and Register
+		PlayerSpawningManagerComponent = NewObject<UPlayerSpawningManagerComponent>(this);
+		PlayerSpawningManagerComponent->SetIsReplicated(true);
+		PlayerSpawningManagerComponent->RegisterComponent();
 	}
 
-	if (MatchScoringComponentClass)
+	// Create New Object, Replicate, and Register
+	MatchScoringComponent = NewObject<UMatchScoringComponent>(this);
+	MatchScoringComponent->SetIsReplicated(true);
+	MatchScoringComponent->RegisterComponent();
+
+	if (OWAbilitySystemComponent)
 	{
-		// Create New Object, Replicate, and Register
-		MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
-		MatchScoringComponent->SetIsReplicated(true); 
-		MatchScoringComponent->RegisterComponent(); 
+		OWAbilitySystemComponent->InitAbilityActorInfo(this, this); 
 	}
 }
 

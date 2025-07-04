@@ -9,6 +9,7 @@
 class UTeamCreationComponent; 
 class UPlayerSpawningManagerComponent; 
 class UMatchScoringComponent; 
+class UPlayerPerformanceComponent; 
 class UOWAbilitySystemComponent; 
 struct FOWVerbMessage; 
 
@@ -38,18 +39,15 @@ public:
 	TSubclassOf<UTeamCreationComponent> TeamCreationComponentClass;
 
 	/* Components - Player Spawning */
-	UPROPERTY()
 	TObjectPtr<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponent; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponentClass; 
 
 	/* Components - Match Scoring */
 	UPROPERTY()
 	TObjectPtr<UMatchScoringComponent> MatchScoringComponent;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UMatchScoringComponent> MatchScoringComponentClass;
+	/* Components - Player Performance */
+	UPROPERTY()
+	TObjectPtr<UPlayerPerformanceComponent> PlayerPerformanceComponent;
 
 	/* Ability System Component */
 	UPROPERTY()

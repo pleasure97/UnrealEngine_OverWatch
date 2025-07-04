@@ -150,6 +150,7 @@ public:
 	FGameplayTag Gameplay_Message_HeroDamaged; 
 	FGameplayTag Gameplay_Message_HeroDebuffed;
 	FGameplayTag Gameplay_Message_HeroKilled; 
+	FGameplayTag Gameplay_Message_KillFeed; 
 	FGameplayTag Gameplay_Message_Respawn; 
 	FGameplayTag Gameplay_Message_MatchBeginCountdown; 
 	FGameplayTag Gameplay_Message_AssaultProgress; 

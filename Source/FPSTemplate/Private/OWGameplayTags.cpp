@@ -407,6 +407,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.HeroKilled"),
 		FString("Gameplay Message for Event Hero Killed")); 
 
+	GameplayTags.Gameplay_Message_KillFeed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.KillFeed"),
+		FString("Gameplay Message for Updating Kill Feed"));
+
 	GameplayTags.Gameplay_Message_Respawn = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.Respawn"),
 		FString("Gameplay Message for Event Hero Respawning"));
