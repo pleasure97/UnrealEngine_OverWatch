@@ -90,17 +90,6 @@ public:
 	FGameplayTag Attributes_Match_TotalHeal;
 	FGameplayTag Attributes_Match_TotalMitigatedDamage;
 
-	/* Cooldown Types */
-	FGameplayTag Cooldown_Illiari_Outburst;
-	FGameplayTag Cooldown_Illiari_HealingPylon;
-	FGameplayTag Cooldown_Illiari_SolarRifle; 
-	FGameplayTag Cooldown_Illiari_HealingRay; 
-
-	FGameplayTag Cooldown_Reinhardt_RocketHammer; 
-	FGameplayTag Cooldown_Reinhardt_BarrierField; 
-	FGameplayTag Cooldown_Reinhardt_Charge; 
-	FGameplayTag Cooldown_Reinhardt_FireStrike; 
-
 	/* Cost Types */
 	FGameplayTag Cost_Illiari_SolarRifle; 
 	FGameplayTag Cost_Illiari_HealingRay; 
@@ -133,6 +122,7 @@ public:
 
 	/* Gameplay Cue */
 	FGameplayTag GameplayCue_HeroSelection;
+	FGameplayTag GameplayCue_HeroDeath; 
 	FGameplayTag GameplayCue_SwitchInning; 
 	FGameplayTag GameplayCue_MatchDecided; 
 
@@ -190,6 +180,11 @@ public:
 	FGameplayTag Abilities_Illiari_SolarRifle; 
 	FGameplayTag Abilities_Illiari_HealingRay; 
 
+	FGameplayTag Cooldown_Illiari_Outburst;
+	FGameplayTag Cooldown_Illiari_HealingPylon;
+	FGameplayTag Cooldown_Illiari_SolarRifle;
+	FGameplayTag Cooldown_Illiari_HealingRay;
+
 	FGameplayTag Event_Montage_Outburst; 
 	FGameplayTag Event_Montage_HealingRay; 
 
@@ -200,7 +195,21 @@ public:
 	FGameplayTag Abilities_Reinhardt_BarrierField;
 	FGameplayTag Abilities_Reinhardt_RocketHammer; 
 
+	FGameplayTag Cooldown_Reinhardt_RocketHammer;
+	FGameplayTag Cooldown_Reinhardt_BarrierField;
+	FGameplayTag Cooldown_Reinhardt_Charge;
+	FGameplayTag Cooldown_Reinhardt_FireStrike;
+
 	FGameplayTag Event_Montage_BarrierField;
+
+	/* Hero GameplayTags - Tracer */
+	FGameplayTag Abilities_Tracer_PulsePistols; 
+	FGameplayTag Abilities_Tracer_Blink; 
+	FGameplayTag Abilities_Tracer_Recall; 
+	FGameplayTag Abilities_Tracer_PulseBomb; 
+
+	FGameplayTag Cooldown_Tracer_Blink;
+	FGameplayTag Cooldown_Tracer_Recall;
 
 private:
 	static FOWGameplayTags GameplayTags; 

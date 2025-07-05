@@ -232,41 +232,6 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Match.TotalMitigatedDamage"),
 		FString("Total Mitigated Damage"));
 
-	/* Cooldown Types - Illiari */
-	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Illiari.Outburst"),
-		FString("Cooldown of Outburst"));
-
-	GameplayTags.Cooldown_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Illiari.HealingPylon"),
-		FString("Cooldown of HealingPylon"));
-
-	GameplayTags.Cooldown_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Illiari.SolarRifle"),
-		FString("Cooldown of SolarRifle"));
-
-	GameplayTags.Cooldown_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Illiari.HealingRay"),
-		FString("Cooldown of HealingRay"));
-
-	/* Cooldown Types - Reinhardt */
-
-	GameplayTags.Cooldown_Reinhardt_RocketHammer = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Reinhardt.RocketHammer"),
-		FString("Cooldown of RocketHammer"));
-
-	GameplayTags.Cooldown_Reinhardt_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Reinhardt.BarrierField"),
-		FString("Cooldown of BarrierField"));
-
-	GameplayTags.Cooldown_Reinhardt_Charge = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Reinhardt.Charge"),
-		FString("Cooldown of Charge"));
-
-	GameplayTags.Cooldown_Reinhardt_FireStrike = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Cooldown.Reinhardt.FireStrike"),
-		FString("Cooldown of FireStrike"));
-
 	/* Cost Types */
 	GameplayTags.Cost_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cost.Illiari.SolarRifle"),
@@ -352,6 +317,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.GameplayCue_HeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.HeroSelection"),
 		FString("GameplayCue When Hero Selection Phase is Active")); 
+
+	GameplayTags.GameplayCue_HeroDeath = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.HeroDeath"),
+		FString("GameplayCue When Hero is Dead"));
 
 	GameplayTags.GameplayCue_SwitchInning = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.SwitchInning"),
@@ -531,6 +500,22 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Event.Montage.HealingRay"),
 		FString("Illiari's Healing Ray Montage Event Tag"));
 
+	GameplayTags.Cooldown_Illiari_Outburst = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.Outburst"),
+		FString("Cooldown of Outburst"));
+
+	GameplayTags.Cooldown_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.HealingPylon"),
+		FString("Cooldown of HealingPylon"));
+
+	GameplayTags.Cooldown_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.SolarRifle"),
+		FString("Cooldown of SolarRifle"));
+
+	GameplayTags.Cooldown_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Illiari.HealingRay"),
+		FString("Cooldown of HealingRay"));
+
 	/* Hero GameplayTags - Reinhardt */
 	GameplayTags.Abilities_Reinhardt_Charge= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Reinhardt.Charge"),
@@ -552,8 +537,48 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Reinhardt.RocketHammer"),
 		FString("Reinhardt's RocketHammer Ability"));
 
+	GameplayTags.Cooldown_Reinhardt_RocketHammer = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.RocketHammer"),
+		FString("Cooldown of RocketHammer"));
+
+	GameplayTags.Cooldown_Reinhardt_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.BarrierField"),
+		FString("Cooldown of BarrierField"));
+
+	GameplayTags.Cooldown_Reinhardt_Charge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.Charge"),
+		FString("Cooldown of Charge"));
+
+	GameplayTags.Cooldown_Reinhardt_FireStrike = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Reinhardt.FireStrike"),
+		FString("Cooldown of FireStrike"));
+
 	GameplayTags.Event_Montage_BarrierField= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.BarrierField"),
 		FString("Reinhardt's BarrierField Montage Event Tag"));
 
+	/* Hero GameplayTags - Tracer */
+	GameplayTags.Abilities_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Tracer.PulsePistols"),
+		FString("Tracer's Pulse Pistols Ability"));
+
+	GameplayTags.Abilities_Tracer_Blink = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Tracer.Blink"),
+		FString("Tracer's Blink Ability"));
+
+	GameplayTags.Abilities_Tracer_Recall = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Tracer.Recall"),
+		FString("Tracer's Recall Ability"));
+
+	GameplayTags.Abilities_Tracer_PulseBomb = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Tracer.PulseBomb"),
+		FString("Tracer's Pulse Bomb Ability"));
+
+	GameplayTags.Cooldown_Tracer_Blink = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Tracer.Blink"),
+		FString("Cooldown of Blink"));
+
+	GameplayTags.Cooldown_Tracer_Recall = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Tracer.Recall"),
+		FString("Cooldown of Recall"));
 }

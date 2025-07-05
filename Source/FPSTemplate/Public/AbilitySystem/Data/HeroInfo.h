@@ -16,6 +16,7 @@ enum class EHeroName : uint8
 	None       UMETA(DisplayName = "None"),
 	ILLIARI    UMETA(DisplayName = "Illiari"),
 	REINHARDT  UMETA(DisplayName = "Reinhardt"),
+	TRACER	   UMETA(DisplayName = "Tracer")
 };
 
 UENUM(BlueprintType)
