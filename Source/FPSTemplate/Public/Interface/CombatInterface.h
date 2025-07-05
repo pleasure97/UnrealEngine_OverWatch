@@ -18,7 +18,7 @@ enum EAttackDirection : uint8
 	Right  UMETA(DisplayName = "Right"),
 	Up     UMETA(DisplayName = "Up"),
 	Down   UMETA(DisplayName = "Down"),
-	None   UMETA(DisplayName = "None"),
+	NotSet UMETA(DisplayName = "NotSet")
 };
 
 

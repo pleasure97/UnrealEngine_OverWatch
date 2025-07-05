@@ -35,10 +35,16 @@ void UPlayerWeaponStatus::UpdateWeaponStatus(const FOWAbilityInfo& Info)
 
 void UPlayerWeaponStatus::UpdateNumCurrentBullets(float NewValue)
 {
-	TextBlock_NumCurrentBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue)));
+	if (TextBlock_NumCurrentBullets)
+	{
+		TextBlock_NumCurrentBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue))); 
+	}
 }
 
 void UPlayerWeaponStatus::UpdateNumMaxBullets(float NewValue)
 {
-	TextBlock_NumMaxBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue))); 
+	if (TextBlock_NumMaxBullets)
+	{
+		TextBlock_NumMaxBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue)));
+	}
 }

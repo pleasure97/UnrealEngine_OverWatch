@@ -18,27 +18,31 @@ void USolarRifle::ActivateAbility(
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData); 
 
-	// Check Ability Cost 
-	check(CurrentActorInfo); 
-	if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo))
-	{
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-		return;
-	}
-	
-	// To Hit Scan, Get Weapon's Muzzle Flash Socket Location 
-	if (GetAvatarActorFromActorInfo() && GetAvatarActorFromActorInfo()->Implements<UCombatInterface>())
-	{
-		const USkeletalMeshComponent* SolarRifle = ICombatInterface::Execute_GetWeapon(GetAvatarActorFromActorInfo());
-		const FTransform SocketTransform = SolarRifle->GetSocketTransform("MuzzleFlash");
+	//// Check Ability Cost 
+	//check(CurrentActorInfo); 
+	//if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo))
+	//{
+	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
+	//	return;
+	//}
+	//
+	//// To Hit Scan, Get Weapon's Muzzle Flash Socket Location 
+	//if (GetAvatarActorFromActorInfo() && GetAvatarActorFromActorInfo()->Implements<UCombatInterface>())
+	//{
+	//	const USkeletalMeshComponent* SolarRifle = ICombatInterface::Execute_GetWeapon(GetAvatarActorFromActorInfo());
+	//	const FTransform SocketTransform = SolarRifle->GetSocketTransform("MuzzleFlash");
 
-		CommitAbility(Handle, ActorInfo, ActivationInfo); 
+	//	CommitAbility(Handle, ActorInfo, ActivationInfo); 
 
-		// Fire (Spawn Muzzle Flash, Solar Projectile, and Impact Effect if Hit)
-		HitScan(SocketTransform);
+	//	// Fire (Spawn Muzzle Flash, Solar Projectile, and Impact Effect if Hit)
+	//	HitScan(SocketTransform);
 
-		EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	}
+	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
+	//}
+
+	CommitAbility(Handle, ActorInfo, ActivationInfo);
+
+	EndAbility(Handle, ActorInfo, ActivationInfo, true, false); 
 }
 
 void USolarRifle::HitScan(const FTransform& SocketTransform)
