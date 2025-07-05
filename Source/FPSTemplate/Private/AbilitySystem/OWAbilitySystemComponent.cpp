@@ -46,16 +46,31 @@ void UOWAbilitySystemComponent::AddHeroAbilities()
 {
     UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this); 
     EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
-    const TArray<FOWAbilityInfo>& DefaultAbilities = HeroInfo->HeroInformation[HeroName].Abilities; 
-    for (const FOWAbilityInfo& DefaultAbility : DefaultAbilities)
+    const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+
+    // Add Common Abilities
+    for (const TSubclassOf<UGameplayAbility> CommonAbilityClass : HeroInfo->CommonAbilities)
     {
-        const TSubclassOf<UGameplayAbility>& AbilityClass = DefaultAbility.Ability;
-        FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1 /*int32 InLevel*/);
-        if (const UOWGameplayAbility* OWAbility = Cast<UOWGameplayAbility>(AbilitySpec.Ability))
+        FGameplayAbilitySpec CommonAbilitySpec = FGameplayAbilitySpec(CommonAbilityClass, 1 /*int32 InLevel*/);
+        if (const UOWGameplayAbility* CommonGameplayAbility = Cast<UOWGameplayAbility>(CommonAbilitySpec.Ability))
         {
-            AbilitySpec.DynamicAbilityTags.AddTag(OWAbility->DefaultInputTag); 
-            AbilitySpec.DynamicAbilityTags.AddTag(FOWGameplayTags::Get().Abilities_Status_Equipped); 
-            GiveAbility(AbilitySpec); 
+            CommonAbilitySpec.DynamicAbilityTags.AddTag(CommonGameplayAbility->DefaultInputTag);
+        }
+        CommonAbilitySpec.DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
+        GiveAbility(CommonAbilitySpec);
+    }
+
+    // Add Hero's Unique Abilities 
+    const TArray<FOWAbilityInfo>& UniqueAbilities = HeroInfo->HeroInformation[HeroName].Abilities; 
+    for (const FOWAbilityInfo& UniqueAbility : UniqueAbilities)
+    {
+        const TSubclassOf<UGameplayAbility>& UniqueAbilityClass = UniqueAbility.Ability;
+        FGameplayAbilitySpec UniqueAbilitySpec = FGameplayAbilitySpec(UniqueAbilityClass, 1 /*int32 InLevel*/);
+        if (const UOWGameplayAbility* UniqueGameplayAbility = Cast<UOWGameplayAbility>(UniqueAbilitySpec.Ability))
+        {
+            UniqueAbilitySpec.DynamicAbilityTags.AddTag(UniqueGameplayAbility->DefaultInputTag);
+            UniqueAbilitySpec.DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
+            GiveAbility(UniqueAbilitySpec);
         }
     }
     bDefaultAbilitiesGiven = true; 

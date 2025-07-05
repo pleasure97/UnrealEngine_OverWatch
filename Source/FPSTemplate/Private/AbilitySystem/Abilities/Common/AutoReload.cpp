@@ -2,54 +2,54 @@
 
 
 #include "AbilitySystem/Abilities/Common/AutoReload.h"
+#include "AbilitySystemComponent.h"
 #include "AbilitySystem/OWAttributeSet.h"
-#include "Abilities/Tasks/AbilityTask_WaitDelay.h"
-#include "OWGameplayTags.h"
 
-bool UAutoReload::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, FGameplayTagContainer* OptionalRelevantTags) const
-{
-	// Check Num Max Bullets is Greater than 0 
-	// If not, Auto Reload is not Activated
-	float NumMaxBullets = ActorInfo->AbilitySystemComponent->GetNumericAttribute(UOWAttributeSet::GetNumMaxBulletsAttribute());
-	
-	return (NumMaxBullets > 0.f) && Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags); 
-}
-
-void UAutoReload::ActivateAbility(
-	const FGameplayAbilitySpecHandle Handle,
-	const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo,
-	const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData); 
-
-	PeriodicCheck(); 
-}
-
-void UAutoReload::PeriodicCheck()
-{
-	WaitDelayTask = UAbilityTask_WaitDelay::WaitDelay(this, PollInterval);
-	WaitDelayTask->OnFinish.AddDynamic(this, &UAutoReload::Reload);
-	WaitDelayTask->ReadyForActivation();
-}
-
-void UAutoReload::Reload()
+bool UAutoReload::CheckBulletsState()
 {
 	check(CurrentActorInfo); 
-
-	float NumCurrentBullets = CurrentActorInfo->AbilitySystemComponent->GetNumericAttribute(UOWAttributeSet::GetNumCurrentBulletsAttribute());
-
-	if (NumCurrentBullets > 0.f)
+	
+	if (CurrentActorInfo->AbilitySystemComponent.IsValid())
 	{
-		return;
+		float NumCurrentBullets = CurrentActorInfo->AbilitySystemComponent->GetNumericAttribute(UOWAttributeSet::GetNumCurrentBulletsAttribute());
+		return NumCurrentBullets <= 0.f;
 	}
 
-	if (!CurrentActorInfo->AbilitySystemComponent->HasMatchingGameplayTag(FOWGameplayTags::Get().Event_Movement_Reload))
-	{
-		FGameplayEventData Payload;
-		SendGameplayEvent(FOWGameplayTags::Get().InputTag_Reload, Payload);
-	}
-
-	PeriodicCheck(); 
+	return false;
 }
 
+void UAutoReload::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	Super::OnGiveAbility(ActorInfo, Spec); 
+
+	TryActivateAbilityOnSpawn(ActorInfo, Spec); 
+}
+
+void UAutoReload::TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	const bool bIsPredicting = (Spec.ActivationInfo.ActivationMode == EGameplayAbilityActivationMode::Predicting); 
+
+	if (ActorInfo && !Spec.IsActive() && !bIsPredicting)
+	{
+		UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get(); 
+		const AActor* AvatarActor = ActorInfo->AvatarActor.Get(); 
+
+		// Don't Activate if Avatar Actor is torn off or about to die
+		if (ASC && AvatarActor && !AvatarActor->GetTearOff() && (AvatarActor->GetLifeSpan() <= 0.f))
+		{
+			// Check if Ability has Local Net Execution Policy - Local Predicted or Local Only 
+			const bool bIsLocalExeuction = (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalPredicted) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::LocalOnly);
+			// Check if Ability has Server Net Execution Policy - Server Initiated or Local Only 
+			const bool bIsServerExecution = (NetExecutionPolicy == EGameplayAbilityNetSecurityPolicy::ServerOnly) || (NetExecutionPolicy == EGameplayAbilityNetExecutionPolicy::ServerInitiated);
+
+			// Check Actor Authority 
+			const bool bClientShouldActivate = ActorInfo->IsLocallyControlled() && bIsLocalExeuction;
+			const bool bServerShouldActivate = ActorInfo->IsNetAuthority() && bIsServerExecution;
+
+			if (bClientShouldActivate || bServerShouldActivate)
+			{
+				ASC->TryActivateAbility(Spec.Handle); 
+			}
+		}
+	}
+}

@@ -6,8 +6,6 @@
 #include "Abilities/GameplayAbility.h"
 #include "AutoReload.generated.h"
 
-class UAbilityTask_WaitDelay; 
-
 /**
  * 
  */
@@ -18,28 +16,17 @@ class FPSTEMPLATE_API UAutoReload : public UGameplayAbility
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float PollInterval = 0.25f; 
-	
-protected:
-	bool CanActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayTagContainer* SourceTags,
-		const FGameplayTagContainer* TargetTags,
-		FGameplayTagContainer* OptionalRelevantTags) const override; 
+	float CheckInterval = 0.25f; 
 
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float EventDelayInterval = 3.f;
+
+	UFUNCTION(BlueprintCallable)
+	bool CheckBulletsState(); 
+
+protected:
+	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override; 
 
 private:
-	UPROPERTY()
-	TObjectPtr<UAbilityTask_WaitDelay> WaitDelayTask;
-
-	void PeriodicCheck();
-
-	UFUNCTION()
-	void Reload(); 
+	void TryActivateAbilityOnSpawn(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec); 
 };
