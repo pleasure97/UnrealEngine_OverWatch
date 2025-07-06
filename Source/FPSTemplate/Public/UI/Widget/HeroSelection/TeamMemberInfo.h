@@ -33,6 +33,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_Nickname;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_HeroSelected; 
+
 	void HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName); 
 
 private:

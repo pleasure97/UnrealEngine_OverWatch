@@ -27,12 +27,19 @@ void UHeroSelection::NativeConstruct()
 		{
 			TextBlock_HeroName->SetVisibility(ESlateVisibility::Collapsed);
 		}
+		if (Image_HeroSelected)
+		{
+			Image_HeroSelected->SetVisibility(ESlateVisibility::Collapsed); 
+		}
 
 		// Bind Each Button Delegate to Callback
-		Button_HeroSelection->OnPressed.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonPressed);
-		Button_HeroSelection->OnHovered.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonHovered); 
-		Button_HeroSelection->OnUnhovered.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonUnhovered); 
-		Button_HeroSelection->OnReleased.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonReleased); 
+		if (Button_HeroSelection)
+		{
+			Button_HeroSelection->OnClicked.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonClicked);
+			Button_HeroSelection->OnHovered.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonHovered);
+			Button_HeroSelection->OnUnhovered.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonUnhovered);
+			Button_HeroSelection->OnReleased.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonReleased);
+		}
 	}
 }
 
@@ -41,7 +48,7 @@ void UHeroSelection::NativeDestruct()
 	if (Button_HeroSelection)
 	{
 		// Unbind Each Button Delegate
-		Button_HeroSelection->OnPressed.RemoveAll(this); 
+		Button_HeroSelection->OnClicked.RemoveAll(this);
 		Button_HeroSelection->OnHovered.RemoveAll(this); 
 		Button_HeroSelection->OnUnhovered.RemoveAll(this); 
 		Button_HeroSelection->OnReleased.RemoveAll(this); 
@@ -72,7 +79,7 @@ void UHeroSelection::SetHeroInfo(EHeroName InHeroName)
 	}
 }
 
-void UHeroSelection::OnHeroSelectionButtonPressed()
+void UHeroSelection::OnHeroSelectionButtonClicked()
 {
 	// Button Visual Effect
 	if (Overlay_HeroSelection)
@@ -87,7 +94,10 @@ void UHeroSelection::OnHeroSelectionButtonPressed()
 		Border_HeroSelection->SetBrushColor(HeroSelectionButtonColors::Orange);
 	}
 
-	// Camera Lens Effect
+	if (Image_HeroSelected)
+	{
+		Image_HeroSelected->SetVisibility(ESlateVisibility::Visible); 
+	}
 
 	// Broadcast Hero Name 
 	OnHeroSelected.Broadcast(HeroName); 

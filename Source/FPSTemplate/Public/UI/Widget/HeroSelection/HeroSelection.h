@@ -49,6 +49,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_HeroName; 
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_HeroSelected; 
 
 	UPROPERTY(BlueprintAssignable)
 	FOnHeroSelected OnHeroSelected; 
@@ -67,7 +70,7 @@ private:
 	EHeroName HeroName;
 
 	UFUNCTION()
-	void OnHeroSelectionButtonPressed(); 
+	void OnHeroSelectionButtonClicked(); 
 
 	UFUNCTION()
 	void OnHeroSelectionButtonHovered();

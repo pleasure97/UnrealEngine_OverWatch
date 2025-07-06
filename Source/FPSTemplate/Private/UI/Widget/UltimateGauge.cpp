@@ -21,6 +21,11 @@ void UUltimateGauge::NativePreConstruct()
 	{
 		Image_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed); 
 	}
+
+	if (Image_UltimateRay)
+	{
+		Image_UltimateRay->SetVisibility(ESlateVisibility::Collapsed); 
+	}
 }
 
 void UUltimateGauge::NativeConstruct()
@@ -132,6 +137,11 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 			TextBlock_Percent->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
+		if (Image_UltimateRay)
+		{
+			Image_UltimateRay->SetVisibility(ESlateVisibility::Visible); 
+		}
+
 		bAlreadyUpdated = true;
 	}
 	else
@@ -161,6 +171,11 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 			if (Image_UltimateIcon)
 			{
 				Image_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed);
+			}
+
+			if (Image_UltimateRay)
+			{
+				Image_UltimateRay->SetVisibility(ESlateVisibility::Collapsed);
 			}
 			
 			// Reset Ultimate Update Status

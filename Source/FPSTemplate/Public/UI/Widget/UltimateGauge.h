@@ -38,6 +38,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_UltimateIcon;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_UltimateRay; 
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> UltimateGaugeMID; 
