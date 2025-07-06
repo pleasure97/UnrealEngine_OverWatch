@@ -7,7 +7,6 @@
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
-#include "Interface/PlayerInterface.h"
 #include "Player/OWPlayerState.h"
 #include "Team/OWTeamSubsystem.h"
 #include "Materials/MaterialParameterCollection.h"
@@ -77,8 +76,6 @@ void AOWPlayerController::SetupInputComponent()
 	{
 		OWInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
 		OWInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
-		OWInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Crouch);
-		OWInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &AOWPlayerController::Input_Jump);
 		OWInputComponent->BindAbilityActions(InputConfig, this,
 			&AOWPlayerController::AbilityInputTagPressed, &AOWPlayerController::AbilityInputTagReleased, &AOWPlayerController::AbilityInputTagHeld);
 	}
@@ -138,20 +135,6 @@ void AOWPlayerController::Input_Look(const FInputActionValue& InputActionValue)
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>(); 
 	AddYawInput(InputAxisVector.X);
 	AddPitchInput(InputAxisVector.Y);
-}
-
-void AOWPlayerController::Input_Crouch()
-{
-	if (!bPlayerAlive) return; 
-	if (GetPawn() == nullptr || !GetPawn()->Implements<UPlayerInterface>()) return; 
-	IPlayerInterface::Execute_Initiate_Crouch(GetPawn()); 
-}
-
-void AOWPlayerController::Input_Jump()
-{
-	if (!bPlayerAlive) return; 
-	if (GetPawn() == nullptr || !GetPawn()->Implements<UPlayerInterface>()) return;
-	IPlayerInterface::Execute_Initiate_Jump(GetPawn());
 }
 
 void AOWPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)

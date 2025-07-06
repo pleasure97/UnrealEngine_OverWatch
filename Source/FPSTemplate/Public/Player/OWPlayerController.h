@@ -59,12 +59,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputAction> LookAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> CrouchAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	TObjectPtr<UInputAction> JumpAction;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UOWInputConfig> InputConfig; 
 
@@ -84,8 +78,6 @@ private:
 
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_Look(const FInputActionValue& InputActionValue);
-	void Input_Crouch();
-	void Input_Jump();
 
 	void AbilityInputTagPressed(FGameplayTag InputTag); 
 	void AbilityInputTagReleased(FGameplayTag InputTag); 
