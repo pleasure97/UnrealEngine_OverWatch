@@ -8,6 +8,7 @@
 
 class UBorder; 
 class UTextBlock; 
+class UTimerWidget; 
 
 /**
  * 
@@ -25,14 +26,15 @@ public:
 	TObjectPtr<UBorder> Border_AssaultProgress; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_Time; 
+	TObjectPtr<UTimerWidget> WBP_FirstMatchTimer; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTimerWidget> WBP_SecondMatchTimer;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_AssaultProgress;
 
 	void UpdateTeamColor(FLinearColor TeamColor);
-
-	void UpdateCountdown(float CountdownLeft);
 
 	void UpdateAssaultProgress(float InAssaultProgress); 
 };
