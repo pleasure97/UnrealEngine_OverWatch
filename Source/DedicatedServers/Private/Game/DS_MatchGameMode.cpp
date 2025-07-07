@@ -10,8 +10,14 @@ ADS_MatchGameMode::ADS_MatchGameMode()
 {
 	bUseSeamlessTravel = true; 
 	MatchStatus = EMatchStatus::WaitingForPlayers; 
-	PreMatchTimer.Type = ECountTimerType::PreMatch; 
-	MatchTimer.Type = ECountTimerType::Match; 
+
+	FirstHeroSelectionTimer.Type = ECountTimerType::FirstHeroSelection; 
+	FirstMatchPreparationTimer.Type = ECountTimerType::FirstMatchPreparation;
+	FirstMatchTimer.Type = ECountTimerType::FirstMatch; 
+	SwitchInningTimer.Type = ECountTimerType::SwitchInning;
+	SecondHeroSelectionTimer.Type = ECountTimerType::SecondHeroSelection;
+	SecondMatchPreparationTimer.Type = ECountTimerType::SecondMatchPreparation;
+	SecondMatchTimer.Type = ECountTimerType::SecondMatch;
 	PostMatchTimer.Type = ECountTimerType::PostMatch; 
 }
 
@@ -21,8 +27,8 @@ void ADS_MatchGameMode::PostLogin(APlayerController* NewPlayer)
 
 	if (MatchStatus == EMatchStatus::WaitingForPlayers)
 	{
-		MatchStatus = EMatchStatus::PreMatch; 
-		StartCountTimer(PreMatchTimer); 
+		MatchStatus = EMatchStatus::FirstHeroSelection;
+		StartCountTimer(FirstHeroSelectionTimer);
 	}
 }
 
@@ -39,8 +45,8 @@ void ADS_MatchGameMode::InitSeamlessTravelPlayer(AController* NewController)
 
 	if (MatchStatus == EMatchStatus::WaitingForPlayers)
 	{
-		MatchStatus = EMatchStatus::PreMatch;
-		StartCountTimer(PreMatchTimer);
+		MatchStatus = EMatchStatus::FirstHeroSelection;
+		StartCountTimer(FirstHeroSelectionTimer);
 	}
 }
 
@@ -56,26 +62,66 @@ void ADS_MatchGameMode::OnCountTimerFinished(ECountTimerType Type)
 {
 	Super::OnCountTimerFinished(Type); 
 
-	if (Type == ECountTimerType::PreMatch)
+	switch (Type)
 	{
-		StopCountTimer(PreMatchTimer); 
-		MatchStatus = EMatchStatus::Match; 
-		StartCountTimer(MatchTimer); 
-		SetClientInputEnabled(true); 
-	}
-	if (Type == ECountTimerType::Match)
+	case ECountTimerType::FirstHeroSelection:
 	{
-		StopCountTimer(MatchTimer);
-		MatchStatus = EMatchStatus::PostMatch; 
-		StartCountTimer(PostMatchTimer); 
-		SetClientInputEnabled(false); 
-		OnMatchEnded(); 
+		StopCountTimer(FirstHeroSelectionTimer);
+		MatchStatus = EMatchStatus::FirstMatchPreparation;
+		StartCountTimer(FirstMatchPreparationTimer);
+		return;
 	}
-	if (Type == ECountTimerType::PostMatch)
+	case ECountTimerType::FirstMatchPreparation:
+	{
+		StopCountTimer(FirstMatchPreparationTimer);
+		MatchStatus = EMatchStatus::FirstMatch;
+		StartCountTimer(FirstMatchTimer);
+		return;
+	}
+	case ECountTimerType::FirstMatch:
+	{
+		StopCountTimer(FirstMatchTimer);
+		MatchStatus = EMatchStatus::SwitchInning;
+		StartCountTimer(SwitchInningTimer);
+		return;
+	}
+	case ECountTimerType::SwitchInning:
+	{
+		StopCountTimer(SwitchInningTimer);
+		MatchStatus = EMatchStatus::SecondHeroSelection;
+		StartCountTimer(SecondHeroSelectionTimer);
+		return;
+	}
+	case ECountTimerType::SecondHeroSelection:
+	{
+		StopCountTimer(SecondHeroSelectionTimer);
+		MatchStatus = EMatchStatus::SecondMatchPreparation;
+		StartCountTimer(SecondMatchPreparationTimer);
+		return;
+	}
+	case ECountTimerType::SecondMatchPreparation:
+	{
+		StopCountTimer(SecondMatchPreparationTimer);
+		MatchStatus = EMatchStatus::SecondMatch;
+		StartCountTimer(SecondMatchTimer);
+		return;
+	}
+	case ECountTimerType::SecondMatch:
+	{
+		StopCountTimer(SecondMatchTimer);
+		MatchStatus = EMatchStatus::PostMatch;
+		StartCountTimer(PostMatchTimer);
+		SetClientInputEnabled(false);
+		OnMatchEnded();
+		return;
+	}
+	case ECountTimerType::PostMatch:
 	{
 		StopCountTimer(PostMatchTimer);
-		MatchStatus = EMatchStatus::SeamlessTravelling; 
-		TrySeamlessTravel(LobbyMap); 
+		MatchStatus = EMatchStatus::SeamlessTravelling;
+		TrySeamlessTravel(LobbyMap);
+		return;
+	}
 	}
 }
 

@@ -21,6 +21,7 @@ class DEDICATEDSERVERS_API UTimerWidget : public UUserWidget
 public:
 	virtual void NativeOnInitialized() override; 
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override; 
+	virtual void NativeDestruct() override; 
 protected:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	ECountTimerDirection TimerDirection = ECountTimerDirection::Countdown; 
@@ -35,13 +36,13 @@ protected:
 	bool bActive = false;
 
 	UPROPERTY(EditDefaultsOnly)
-	bool bCanBeNegative = false;
-
-	UPROPERTY(EditDefaultsOnly)
-	bool bShowCentiSeconds = true; 
+	bool bAlwaysShowMinutes = false; 
 
 	UPROPERTY(EditDefaultsOnly)
 	bool bHiddenWhenInactive = true;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bShowDecimalIfUnderTenSeconds = true; 
 
 	UFUNCTION()
 	virtual void OnTimerUpdated(float CountTime, ECountTimerDirection Direction, ECountTimerType Type);

@@ -19,7 +19,10 @@ void UTimerWidget::NativeOnInitialized()
 
 	if (bHiddenWhenInactive)
 	{
-		TextBlock_Time->SetRenderOpacity(0.f); 
+		if (TextBlock_Time)
+		{
+			TextBlock_Time->SetVisibility(ESlateVisibility::Collapsed); 
+		}
 	}
 }
 
@@ -42,6 +45,15 @@ void UTimerWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 			break;
 		}
 		}
+	}
+}
+void UTimerWidget::NativeDestruct()
+{
+	OwningPlayerController = Cast<ADSPlayerController>(GetOwningPlayer());
+	if (IsValid(OwningPlayerController))
+	{
+		OwningPlayerController->OnTimerUpdated.RemoveAll(this);
+		OwningPlayerController->OnTimerStopped.RemoveAll(this);
 	}
 }
 
@@ -68,22 +80,37 @@ void UTimerWidget::OnTimerStopped(float CountdownTimeLeft, ECountTimerDirection 
 
 FString UTimerWidget::FormatTimeAsString(float TimeSeconds) const
 {
-	TimeSeconds = bCanBeNegative ? TimeSeconds : FMath::Abs(TimeSeconds); 
-	FString DisplayTimeString; 
-	if (bShowCentiSeconds)
+	if (TimeSeconds < 0.f)
 	{
-		DisplayTimeString = UKismetStringLibrary::TimeSecondsToString(TimeSeconds);
+		TimeSeconds = 0.f; 
 	}
-	else
-	{
-		const TCHAR* NegativeModifier = TimeSeconds < 0.f ? TEXT("-") : TEXT("");
-		TimeSeconds = FMath::Abs(TimeSeconds);
 
-		const int32 NumMinutes = FMath::FloorToInt(TimeSeconds / 60.f);
-		const int32 NumSeconds = FMath::FloorToInt(TimeSeconds - (NumMinutes * 60.f));
-		DisplayTimeString = FString::Printf(TEXT("%s%02d:%02d"), NegativeModifier, NumMinutes, NumSeconds);
+	// Format Example - 4:00 ~ 0:00
+	if (bAlwaysShowMinutes)
+	{
+		const int32 Min = FMath::FloorToInt(TimeSeconds / 60.f);
+		const int32 Sec = FMath::FloorToInt(TimeSeconds) % 60;
+		return FString::Printf(TEXT("%d:%02d"), Min, Sec);
 	}
-	return DisplayTimeString; 
+
+	// Format Example - 0:45 ~ 0:10 -> 10.0 -> 0.0
+	if (bShowDecimalIfUnderTenSeconds && TimeSeconds < 10.f)
+	{
+		const float Rounded = FMath::RoundToFloat(TimeSeconds * 10.f) / 10.f;
+		return FString::Printf(TEXT("%.1f"), Rounded);
+	}
+
+	// Format Example  - 45 -> 0 
+	if (!bShowDecimalIfUnderTenSeconds)
+	{
+		const int32 WholeSec = FMath::FloorToInt(TimeSeconds);
+		return FString::Printf(TEXT("%d"), WholeSec);
+	}
+
+	// Format Example - 4:00 ~ 0:00
+	const int32 Min = FMath::FloorToInt(TimeSeconds / 60.f);
+	const int32 Sec = FMath::FloorToInt(TimeSeconds) % 60;
+	return FString::Printf(TEXT("%d:%02d"), Min, Sec);
 }
 
 void UTimerWidget::TimerStarted(float InitialTime)
@@ -91,7 +118,7 @@ void UTimerWidget::TimerStarted(float InitialTime)
 	bActive = true; 
 	if (TextBlock_Time)
 	{
-		TextBlock_Time->SetRenderOpacity(1.f);
+		TextBlock_Time->SetVisibility(ESlateVisibility::Visible); 
 	}
 	K2_OnTimerStarted(InitialTime, TimerDirection, TimerType); 
 }
@@ -104,7 +131,7 @@ void UTimerWidget::TimerStopped()
 	{
 		if (TextBlock_Time)
 		{
-			TextBlock_Time->SetRenderOpacity(0.f);
+			TextBlock_Time->SetVisibility(ESlateVisibility::Collapsed); 
 		}
 	}
 }
@@ -113,5 +140,8 @@ void UTimerWidget::UpdateCountTime(float TimeSeconds)
 {
 	InternalCountTime = TimeSeconds;
 	const FText TimeText = FText::FromString(FormatTimeAsString(InternalCountTime));
-	TextBlock_Time->SetText(TimeText);
+	if (TextBlock_Time)
+	{
+		TextBlock_Time->SetText(TimeText);
+	}
 }

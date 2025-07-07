@@ -184,8 +184,3 @@ bool AOWGameModeBase::ControllerCanRestart(AController* Controller)
 
 	return true;
 }
-
-void AOWGameModeBase::PlayerDied(ACharacter* DeadCharacter)
-{
-
-}

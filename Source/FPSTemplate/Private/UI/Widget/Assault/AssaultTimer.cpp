@@ -17,21 +17,6 @@ void UAssaultTimer::UpdateTeamColor(FLinearColor TeamColor)
 	}
 }
 
-void UAssaultTimer::UpdateCountdown(float CountdownLeft)
-{
-	if (TextBlock_Time)
-	{
-		const int32 TotalSeconds = FMath::Max(0, FMath::FloorToInt(CountdownLeft));
-
-		const int32 MinutesLeft = TotalSeconds / 60;
-		const int32 SecondsLeft = TotalSeconds % 60;
-
-		const FString TimeString = FString::Printf(TEXT("%d:%02d"), MinutesLeft, SecondsLeft);
-
-		TextBlock_Time->SetText(FText::FromString(TimeString)); 
-	}
-}
-
 void UAssaultTimer::UpdateAssaultProgress(float InAssaultProgress)
 {
 	if (TextBlock_AssaultProgress)

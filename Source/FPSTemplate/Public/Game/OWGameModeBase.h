@@ -43,8 +43,6 @@ public:
 
 	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName);
 
-	void PlayerDied(ACharacter* DeadCharacter);
-
 	FOnGameModePlayerInitialized OnGameModePlayerInitialized; 
 
 	FOnGameplayReady OnGameplayReady; 

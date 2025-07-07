@@ -23,8 +23,13 @@ enum class ECountTimerType : uint8
 {
 	LobbyCountdown UMETA(DisplayName = "Lobby Countdown"), 
 	LobbyCountup UMETA(DisplayName = "Lobby Countup"), 
-	PreMatch UMETA(DisplayName = "Pre Match"), 
-	Match UMETA(DisplayName = "Match"), 
+	FirstHeroSelection UMETA(DisplayName = "First Hero Selection"), 
+	FirstMatchPreparation UMETA(DisplayName = "First Match Preparation"),
+	FirstMatch UMETA(DisplayName = "First Match"), 
+	SwitchInning UMETA(DisplayName = "Switch Inning"),
+	SecondHeroSelection UMETA(DisplayName = "Second Hero Selection"),
+	SecondMatchPreparation UMETA(DisplayName = "Second Match Preparation"),
+	SecondMatch UMETA(DisplayName = "Second Match"),
 	PostMatch UMETA(DisplayName = "Post Match"), 
 	None UMETA(DisplayName = "None")
 };
@@ -33,8 +38,13 @@ UENUM()
 enum class EMatchStatus : uint8
 {
 	WaitingForPlayers, 
-	PreMatch, 
-	Match, 
+	FirstHeroSelection, 
+	FirstMatchPreparation,
+	FirstMatch, 
+	SwitchInning, 
+	SecondHeroSelection, 
+	SecondMatchPreparation, 
+	SecondMatch,
 	PostMatch, 
 	SeamlessTravelling
 };

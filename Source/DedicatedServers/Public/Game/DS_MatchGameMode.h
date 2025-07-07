@@ -38,10 +38,25 @@ protected:
 	virtual void OnCountTimerFinished(ECountTimerType Type) override; 
 
 	UPROPERTY(EditDefaultsOnly)
-	FCountTimerHandle PreMatchTimer;
+	FCountTimerHandle FirstHeroSelectionTimer;
 
 	UPROPERTY(EditDefaultsOnly)
-	FCountTimerHandle MatchTimer;
+	FCountTimerHandle FirstMatchPreparationTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	FCountTimerHandle FirstMatchTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	FCountTimerHandle SwitchInningTimer; 
+
+	UPROPERTY(EditDefaultsOnly)
+	FCountTimerHandle SecondHeroSelectionTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	FCountTimerHandle SecondMatchPreparationTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	FCountTimerHandle SecondMatchTimer;
 
 	UPROPERTY(EditDefaultsOnly)
 	FCountTimerHandle PostMatchTimer;
