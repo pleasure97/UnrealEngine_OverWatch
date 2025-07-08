@@ -8,14 +8,6 @@
 #include "HeroSelection.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHeroSelected, EHeroName, HeroName); 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHeroUnselected); 
-
-namespace HeroSelectionButtonColors
-{
-	constexpr FLinearColor Orange(1.f, 0.295461f, 0.f, 1.f);
-	constexpr FLinearColor Gray(0.1f, 0.1f, 0.1f, 1.f);
-	constexpr FLinearColor White(0.9f, 0.9f, 0.9f, 1.f); 
-}
 
 class UOverlay; 
 class UButton; 
@@ -32,6 +24,7 @@ class FPSTEMPLATE_API UHeroSelection : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
+	/* Widgets */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOverlay> Overlay_HeroSelection;
 
@@ -42,7 +35,7 @@ public:
 	TObjectPtr<UBorder> Border_HeroSelection; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> Image_HeroPortrait2D;	
+	TObjectPtr<UImage> Image_HeroPortrait3D;	
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> Border_HeroName; 
@@ -53,13 +46,22 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_HeroSelected; 
 
+	/* Color Settings */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor OrangeColor = FLinearColor(1.f, 0.295461f, 0.f, 1.f); 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor GrayColor = FLinearColor(0.05f, 0.05f, 0.05f, 1.f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor WhiteColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnHeroSelected OnHeroSelected; 
 
-	UPROPERTY(BlueprintAssignable)
-	FOnHeroUnselected OnHeroUnselected;
-
 	void SetHeroInfo(EHeroName InHeroName);
+
+	void DeselectHero();
 
 protected:
 	virtual void NativeConstruct() override; 
@@ -78,6 +80,5 @@ private:
 	UFUNCTION()
 	void OnHeroSelectionButtonUnhovered();
 
-	UFUNCTION()
-	void OnHeroSelectionButtonReleased();
+	bool bClicked = false;
 };

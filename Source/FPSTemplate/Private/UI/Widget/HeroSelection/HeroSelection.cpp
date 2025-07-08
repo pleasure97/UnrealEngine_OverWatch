@@ -17,7 +17,7 @@ void UHeroSelection::NativeConstruct()
 		// Button Visual Effect
 		if (Border_HeroSelection)
 		{
-			Border_HeroSelection->SetBrushColor(HeroSelectionButtonColors::Gray);
+			Border_HeroSelection->SetBrushColor(GrayColor);
 		}
 		if (Overlay_HeroSelection)
 		{
@@ -38,7 +38,6 @@ void UHeroSelection::NativeConstruct()
 			Button_HeroSelection->OnClicked.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonClicked);
 			Button_HeroSelection->OnHovered.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonHovered);
 			Button_HeroSelection->OnUnhovered.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonUnhovered);
-			Button_HeroSelection->OnReleased.AddDynamic(this, &UHeroSelection::OnHeroSelectionButtonReleased);
 		}
 	}
 }
@@ -51,7 +50,6 @@ void UHeroSelection::NativeDestruct()
 		Button_HeroSelection->OnClicked.RemoveAll(this);
 		Button_HeroSelection->OnHovered.RemoveAll(this); 
 		Button_HeroSelection->OnUnhovered.RemoveAll(this); 
-		Button_HeroSelection->OnReleased.RemoveAll(this); 
 	}
 
 	Super::NativeDestruct(); 
@@ -62,41 +60,57 @@ void UHeroSelection::SetHeroInfo(EHeroName InHeroName)
 	HeroName = InHeroName; 
 
 	// Get Hero Info from Using Custom Ability System Library 
-	FOWHeroInfo OWHeroInfo;
-	UOWAbilitySystemLibrary::GetIndividualHeroInfo(this, HeroName, OWHeroInfo);
+	FOWHeroInfo HeroInfo;
+	UOWAbilitySystemLibrary::GetIndividualHeroInfo(this, HeroName, HeroInfo);
 
 	// Set Hero Name Text
-	FText HeroNameText = StaticEnum<EHeroName>()->GetDisplayNameTextByValue((int64)HeroName);
 	if (TextBlock_HeroName)
 	{
-		TextBlock_HeroName->SetText(HeroNameText);
+		TextBlock_HeroName->SetText(HeroInfo.HeroDisplayName);
 	}
 
 	// Set Hero Portrait
-	if (Image_HeroPortrait2D)
+	if (Image_HeroPortrait3D)
 	{
-		Image_HeroPortrait2D->SetBrushFromTexture(const_cast<UTexture2D*>(OWHeroInfo.HeroPortrait2D.Get()), true);
+		Image_HeroPortrait3D->SetBrushFromTexture(const_cast<UTexture2D*>(HeroInfo.HeroPortrait3D.Get()), true);
 	}
+}
+
+void UHeroSelection::DeselectHero()
+{
+
 }
 
 void UHeroSelection::OnHeroSelectionButtonClicked()
 {
+	if (bClicked)
+	{
+		return;
+	}
+
+	bClicked = true; 
+
 	// Button Visual Effect
 	if (Overlay_HeroSelection)
 	{
 		FWidgetTransform WidgetTransform = Overlay_HeroSelection->RenderTransform;
-		WidgetTransform.Scale = FVector2D(1.1f, 1.1f);
+		WidgetTransform.Scale = FVector2D(1.2f, 1.2f);
 		Overlay_HeroSelection->SetRenderTransform(WidgetTransform);
 	}
 	
 	if (Border_HeroSelection)
 	{
-		Border_HeroSelection->SetBrushColor(HeroSelectionButtonColors::Orange);
+		Border_HeroSelection->SetBrushColor(OrangeColor);
 	}
 
 	if (Image_HeroSelected)
 	{
 		Image_HeroSelected->SetVisibility(ESlateVisibility::Visible); 
+	}
+
+	if (TextBlock_HeroName)
+	{
+		TextBlock_HeroName->SetVisibility(ESlateVisibility::Visible); 
 	}
 
 	// Broadcast Hero Name 
@@ -108,18 +122,23 @@ void UHeroSelection::OnHeroSelectionButtonHovered()
 	if (Overlay_HeroSelection)
 	{
 		FWidgetTransform WidgetTransform = Overlay_HeroSelection->RenderTransform;
-		WidgetTransform.Scale = FVector2D(1.1f, 1.1f);
+		WidgetTransform.Scale = FVector2D(1.2f, 1.2f);
 		Overlay_HeroSelection->SetRenderTransform(WidgetTransform);
 	}
 	
 	if (Border_HeroSelection)
 	{
-		Border_HeroSelection->SetBrushColor(HeroSelectionButtonColors::White);
+		Border_HeroSelection->SetBrushColor(WhiteColor);
 	}
 }
 
 void UHeroSelection::OnHeroSelectionButtonUnhovered()
 {
+	if (bClicked)
+	{
+		return; 
+	}
+
 	if (Overlay_HeroSelection)
 	{
 		FWidgetTransform WidgetTransform = Overlay_HeroSelection->RenderTransform;
@@ -129,18 +148,7 @@ void UHeroSelection::OnHeroSelectionButtonUnhovered()
 	
 	if (Border_HeroSelection)
 	{
-		Border_HeroSelection->SetBrushColor(HeroSelectionButtonColors::Gray);
+		Border_HeroSelection->SetBrushColor(GrayColor);
 	}
 }
-
-void UHeroSelection::OnHeroSelectionButtonReleased()
-{
-	if (Border_HeroSelection)
-	{
-		Border_HeroSelection->SetBrushColor(HeroSelectionButtonColors::Gray);
-	}
-
-	OnHeroUnselected.Broadcast(); 
-}
-
 

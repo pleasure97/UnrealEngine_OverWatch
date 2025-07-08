@@ -47,7 +47,4 @@ private:
 
 	UFUNCTION()
 	void OnHeroSelected(EHeroName HeroName); 
-
-	UFUNCTION()
-	void OnHeroUnselected(); 
 };

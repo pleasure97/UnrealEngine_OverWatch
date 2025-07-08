@@ -3,77 +3,93 @@
 
 #include "UI/Widget/HeroSelection/HeroSelectionList.h"
 #include "UI/Widget/HeroSelection/RoleGroupList.h"
+#include "UI/Widget/HeroSelection/HeroSelection.h"
 #include "Components/Button.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
-#include "AbilitySystemComponent.h"
-#include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "OWGameplayTags.h"
+#include "Player/OWPlayerController.h"
+#include "AbilitySystem/OWAbilitySystemLibrary.h"
 
 void UHeroSelectionList::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
+	// Initialize that Hero is not Selected. 
 	bHeroSelected = false; 
 	SelectedHeroName = EHeroName::None; 
+}
 
-	check(WidgetController); 
-
-	if (WBP_TankGroupList)
+void UHeroSelectionList::NativeDestruct()
+{
+	// Remove All Bindings of Role Group List Delegates
+	if (HorizontalBox_HeroSelectionList)
 	{
-		WBP_TankGroupList->SetRoleGroupList(EHeroClass::Tank);
-		WBP_TankGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected); 
-		WBP_TankGroupList->HeroUnselectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroUnselected); 
+		for (UWidget* ChildWidget : HorizontalBox_HeroSelectionList->GetAllChildren())
+		{
+			if (URoleGroupList* RoleGroupListWidget = Cast<URoleGroupList>(ChildWidget))
+			{
+				RoleGroupListWidget->HeroSelectedSignature.RemoveAll(this);
+				RoleGroupListWidget->HeroUnselectedSignature.RemoveAll(this); 
+			}
+		}
 	}
-	if (WBP_DamageGroupList)
-	{
-		WBP_DamageGroupList->SetRoleGroupList(EHeroClass::Damage);
-		WBP_DamageGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected);
-		WBP_DamageGroupList->HeroUnselectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroUnselected);
-	}
-	if (WBP_SupportGroupList)
-	{
-		WBP_SupportGroupList->SetRoleGroupList(EHeroClass::Support);
-		WBP_SupportGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected);
-		WBP_SupportGroupList->HeroUnselectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroUnselected);
-	}
-
+	
+	// Remove Hero Select Button Binding 
 	if (Button_HeroSelect)
 	{
-		Button_HeroSelect->OnPressed.AddDynamic(this, &UHeroSelectionList::OnHeroSelectButtonPressed); 
+		Button_HeroSelect->OnClicked.RemoveAll(this); 
+	}
+
+	Super::NativeDestruct(); 
+}
+
+void UHeroSelectionList::InitializeHeroSelectionList()
+{
+	// Get Hero Info using Custom Ability System Library 
+	UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this); 
+	if (HeroInfo)
+	{
+		// Iterate All Hero Classes from Hero Info Data Asset 
+		for (EHeroClass HeroClass : HeroInfo->GetAllHeroClasses())
+		{
+			// Create New Role Group List Widget 
+			URoleGroupList* NewRoleGroupList = CreateWidget<URoleGroupList>(this, RoleGroupListClass);
+			if (NewRoleGroupList)
+			{
+				// Set Role Group List's Hero Class
+				NewRoleGroupList->SetRoleGroupList(HeroClass);
+				// Bind Role Group List's Delegates 
+				NewRoleGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected);
+				NewRoleGroupList->HeroUnselectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroUnselected);
+				if (HorizontalBox_HeroSelectionList)
+				{
+					// Add New Role Group List to Horizontal Box 
+					if (UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox_HeroSelectionList->AddChildToHorizontalBox(NewRoleGroupList))
+					{
+						// Fill New Role Group List 
+						FSlateChildSize SlateChildSize; 
+						SlateChildSize.SizeRule = ESlateSizeRule::Fill; 
+						SlateChildSize.Value = 1.f; 
+						HorizontalBoxSlot->SetSize(SlateChildSize);
+					}
+				}
+			}
+		}
+	}
+	
+	// Add Hero Select Button's Binding 
+	if (Button_HeroSelect)
+	{
+		Button_HeroSelect->OnClicked.AddDynamic(this, &UHeroSelectionList::OnHeroSelectButtonClicked);
 	}
 }
 
-void UHeroSelectionList::OnHeroSelectButtonPressed()
+void UHeroSelectionList::OnHeroSelectButtonClicked()
 {
-	if (bHeroSelected)
+	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetOwningPlayer()))
 	{
-		// TODO - Get Player State and Change Hero Name
-		
-	}
-	else
-	{
-		FGameplayTag ChangeHeroTag = FOWGameplayTags::Get().Event_ChangeHero;
-		UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this);
-		TSubclassOf<UGameplayAbility> ChangeHeroAbilityClass = nullptr;
-
-		if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
-		{
-			for (TSubclassOf<UGameplayAbility>& AbilityClass : HeroInfo->CommonAbilities)
-			{
-				UGameplayAbility* Ability = AbilityClass->GetDefaultObject<UGameplayAbility>();
-				if (Ability->AbilityTags.HasTag(ChangeHeroTag))
-				{
-					ChangeHeroAbilityClass = AbilityClass;
-					break;
-				}
-			}
-
-			FGameplayEventData EventData;
-			EventData.EventTag = ChangeHeroTag;
-			EventData.EventMagnitude = static_cast<float>(SelectedHeroName);
-
-			OverlayWidgetController->AbilitySystemComponent->HandleGameplayEvent(ChangeHeroTag, &EventData);
-		}
+		OWPlayerController->ServerChooseHero(SelectedHeroName); 
 	}
 }
 
@@ -95,4 +111,8 @@ void UHeroSelectionList::OnHeroUnselected()
 	SelectedHeroName = EHeroName::None; 
 }
 
+void UHeroSelectionList::ChooseNewHero()
+{
+
+}
 

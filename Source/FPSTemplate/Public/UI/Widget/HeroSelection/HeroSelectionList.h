@@ -7,9 +7,11 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "HeroSelectionList.generated.h"
 
-class URoleGroupList; 
-class UWidgetSwitcher; 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeroButtonClicked, EHeroName, HeroID, UHeroSelection*, ClickedButton);
+
+class UHorizontalBox; 
 class UButton; 
+class URoleGroupList;
 
 /**
  * 
@@ -21,23 +23,25 @@ class FPSTEMPLATE_API UHeroSelectionList : public UOWUserWidget
 	
 public:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<URoleGroupList> WBP_TankGroupList; 
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<URoleGroupList> WBP_DamageGroupList;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<URoleGroupList> WBP_SupportGroupList;
+	TObjectPtr<UHorizontalBox> HorizontalBox_HeroSelectionList; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_HeroSelect; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<URoleGroupList> RoleGroupListClass; 
+
+	void ChooseNewHero(); 
+
+	void InitializeHeroSelectionList();
+
 protected:
-	virtual void NativeConstruct() override; 
+	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override; 
 
 private:
 	UFUNCTION()
-	void OnHeroSelectButtonPressed();
+	void OnHeroSelectButtonClicked();
 
 	UFUNCTION()
 	void OnHeroSelected(EHeroName HeroName); 

@@ -18,7 +18,10 @@ void URoleGroupList::SetRoleGroupList(EHeroClass InHeroClass)
 	{
 		// Set Image Role Group 
 		const UTexture2D* HeroClassIcon = HeroInfo->CommonClassInformation[HeroClass].ClassIcon;
-		Image_RoleGroup->SetBrushFromTexture(const_cast<UTexture2D*>(HeroClassIcon), true);
+		if (Image_RoleGroup)
+		{
+			Image_RoleGroup->SetBrushFromTexture(const_cast<UTexture2D*>(HeroClassIcon), true);
+		}
 
 		// Iterate Hero Information and Find Hero that Fits Defined Role Group 
 		for (const TPair<EHeroName, FOWHeroInfo>& Pair : HeroInfo->HeroInformation)
@@ -32,7 +35,6 @@ void URoleGroupList::SetRoleGroupList(EHeroClass InHeroClass)
 					// Set Information and Bind Selection Delegate to Callback 
 					HeroSelectionWidget->SetHeroInfo(Pair.Key);
 					HeroSelectionWidget->OnHeroSelected.AddDynamic(this, &URoleGroupList::OnHeroSelected); 
-					HeroSelectionWidget->OnHeroUnselected.AddDynamic(this, &URoleGroupList::OnHeroUnselected); 
 
 					HorizontalBox_HeroList->AddChild(HeroSelectionWidget); 
 				}
@@ -43,13 +45,8 @@ void URoleGroupList::SetRoleGroupList(EHeroClass InHeroClass)
 
 void URoleGroupList::OnHeroSelected(EHeroName HeroName)
 {
-	// Broadcast 
+	// Broadcast Hero Name 
 	HeroSelectedSignature.Broadcast(HeroName); 
-}
-
-void URoleGroupList::OnHeroUnselected()
-{
-	HeroUnselectedSignature.Broadcast(); 
 }
 
 
