@@ -34,6 +34,9 @@ public:
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
 	/** Team Interface End **/
 
+	UFUNCTION(Server, Reliable)
+	void ServerChooseHero(EHeroName ChosenHero); 
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UHealthPlateManagerComponent> HealthPlateManagerComponent;
 protected:

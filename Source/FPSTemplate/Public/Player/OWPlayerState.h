@@ -15,6 +15,7 @@ class UAttributeSet;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStateChanged, int32 /* Stat Value */)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnLevelChanged, int32 /*Stat Value*/, bool /*bLevelUp*/)
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHeroNameChanged, AOWPlayerState*, /*OWPlayerState */ EHeroName /*HeroName*/)
 
 /**
  * 
@@ -50,6 +51,7 @@ public:
 	FOnLevelChanged OnLevelChangedDelegate; 
 	FOnPlayerStateChanged OnAttributePointsChangedDelegate; 
 	FOnPlayerStateChanged OnSpellPointsChangedDelegate; 
+	FOnHeroNameChanged OnHeroNameChangedDelegate; 
 
 	/* Level Up Info */ 
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }

@@ -34,15 +34,7 @@ void AOWPlayerState::SetHeroName(EHeroName NewHeroName)
 
 void AOWPlayerState::OnRep_HeroName()
 {
-	if (const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EHeroName"), true))
-	{
-		FString HeroNameString = EnumPtr->GetNameStringByValue(static_cast<int64>(GetHeroName()));
-		UE_LOG(LogTemp, Log, TEXT("Hero Name Changed to %s!"), *HeroNameString);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to find UEnum for EHeroName"));
-	}
+	OnHeroNameChangedDelegate.Broadcast(this, HeroName); 
 }
 
 void AOWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

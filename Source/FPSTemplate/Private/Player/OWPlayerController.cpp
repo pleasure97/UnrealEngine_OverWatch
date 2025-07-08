@@ -9,8 +9,6 @@
 #include "OWGameplayTags.h"
 #include "Player/OWPlayerState.h"
 #include "Team/OWTeamSubsystem.h"
-#include "Materials/MaterialParameterCollection.h"
-#include "Materials/MaterialParameterCollectionInstance.h"
 #include "Component/HealthPlateManagerComponent.h"
 #include "Component/IndicatorManagerComponent.h"
 
@@ -42,6 +40,14 @@ FGenericTeamId AOWPlayerController::GetGenericTeamId() const
 FOnTeamIndexChangedDelegate* AOWPlayerController::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate; 
+}
+
+void AOWPlayerController::ServerChooseHero_Implementation(EHeroName ChosenHero)
+{
+	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState))
+	{
+		OWPlayerState->HeroName = ChosenHero; 
+	}
 }
 
 void AOWPlayerController::OnPossess(APawn* InPawn)
