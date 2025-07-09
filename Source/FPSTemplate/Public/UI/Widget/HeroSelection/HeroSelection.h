@@ -61,7 +61,9 @@ public:
 
 	void SetHeroInfo(EHeroName InHeroName);
 
-	void DeselectHero();
+	void UpdateUnclicked();
+
+	EHeroName GetHeroName() const; 
 
 protected:
 	virtual void NativeConstruct() override; 

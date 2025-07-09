@@ -3,6 +3,13 @@
 
 #include "AbilitySystem/Data/HeroInfo.h"
 
+TArray<EHeroClass> UHeroInfo::GetAllHeroClasses() const
+{
+    TArray<EHeroClass> Keys;
+    CommonClassInformation.GenerateKeyArray(Keys);
+    return Keys;
+}
+
 FOWAbilityInfo UHeroInfo::FindAbilityInfoForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag, bool bLogNotFound) const
 {
     const FOWHeroInfo& OWHeroInfo = HeroInformation[HeroName]; 

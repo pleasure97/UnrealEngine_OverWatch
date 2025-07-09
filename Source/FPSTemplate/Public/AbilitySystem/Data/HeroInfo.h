@@ -63,6 +63,9 @@ struct FOWHeroInfo
 	GENERATED_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText HeroDisplayName; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EHeroClass HeroClass; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -107,6 +110,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Common Class Defaults")
 	TArray<TSubclassOf<UGameplayEffect>> CommonAttributes; 
+
+	UFUNCTION(BlueprintCallable, Category = "Common Class Defaults")
+	TArray<EHeroClass> GetAllHeroClasses() const; 
 
 	FOWAbilityInfo FindAbilityInfoForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag, bool bLogNotFound = false) const;
 };

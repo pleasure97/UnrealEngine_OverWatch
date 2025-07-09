@@ -8,7 +8,7 @@
 #include "RoleGroupList.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeroSelectedSignature, EHeroName, HeroName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FHeroUnselectedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeroSelectionInitialized, EHeroName, HeroName, UHeroSelection*, HeroSelectionButton);
 
 class UImage; 
 class UHorizontalBox; 
@@ -39,7 +39,12 @@ public:
 	FHeroSelectedSignature HeroSelectedSignature;
 
 	UPROPERTY(BlueprintAssignable)
-	FHeroUnselectedSignature HeroUnselectedSignature;
+	FOnHeroSelectionInitialized OnHeroSelectionInitialized; 
+
+	EHeroClass GetHeroClass() const; 
+
+protected:
+	virtual void NativeDestruct() override; 
 
 private:
 	UPROPERTY()
@@ -47,4 +52,6 @@ private:
 
 	UFUNCTION()
 	void OnHeroSelected(EHeroName HeroName); 
+
+	TMap<EHeroName, UHeroSelection*> HeroSelectButtonMap; 
 };

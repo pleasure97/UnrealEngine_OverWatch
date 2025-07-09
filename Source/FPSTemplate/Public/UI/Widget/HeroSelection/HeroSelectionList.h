@@ -7,10 +7,11 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "HeroSelectionList.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeroButtonClicked, EHeroName, HeroID, UHeroSelection*, ClickedButton);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeroButtonClicked, EHeroName, HeroName, UHeroSelection*, ClickedButton);
 
 class UHorizontalBox; 
 class UButton; 
+class UTextBlock; 
 class URoleGroupList;
 
 /**
@@ -28,10 +29,17 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> Button_HeroSelect; 
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_HeroSelect; 
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<URoleGroupList> RoleGroupListClass; 
 
-	void ChooseNewHero(); 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText HeroSelectText; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText HeroChangeText; 
 
 	void InitializeHeroSelectionList();
 
@@ -47,11 +55,17 @@ private:
 	void OnHeroSelected(EHeroName HeroName); 
 
 	UFUNCTION()
-	void OnHeroUnselected(); 
+	void OnHeroSelectionInitialized(EHeroName HeroName, UHeroSelection* HeroSelection);
 
-	UPROPERTY()
-	bool bHeroSelected = false; 
+	void MakeHeroSelectionButtonsInvisible(bool bInvisible); 
 
 	UPROPERTY()
 	EHeroName SelectedHeroName; 
+
+	TMap<EHeroName, UHeroSelection*> HeroSelectionButtonMap; 
+	
+	TMap<EHeroClass, URoleGroupList*> RoleGroupListMap; 
+
+	bool bHeroAlreadyChosen = false; 
+	bool bHeroSelectConfirmed = false; 
 };

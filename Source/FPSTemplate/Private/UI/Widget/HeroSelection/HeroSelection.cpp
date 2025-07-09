@@ -76,9 +76,36 @@ void UHeroSelection::SetHeroInfo(EHeroName InHeroName)
 	}
 }
 
-void UHeroSelection::DeselectHero()
+void UHeroSelection::UpdateUnclicked()
 {
+	if (Overlay_HeroSelection)
+	{
+		FWidgetTransform WidgetTransform = Overlay_HeroSelection->GetRenderTransform();
+		WidgetTransform.Scale = FVector2D(1.f, 1.f);
+		Overlay_HeroSelection->SetRenderTransform(WidgetTransform);
+	}
 
+	if (Border_HeroSelection)
+	{
+		Border_HeroSelection->SetBrushColor(GrayColor);
+	}
+
+	if (Image_HeroSelected)
+	{
+		Image_HeroSelected->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (TextBlock_HeroName)
+	{
+		TextBlock_HeroName->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	bClicked = false; 
+}
+
+EHeroName UHeroSelection::GetHeroName() const
+{
+	return HeroName;
 }
 
 void UHeroSelection::OnHeroSelectionButtonClicked()
@@ -93,7 +120,7 @@ void UHeroSelection::OnHeroSelectionButtonClicked()
 	// Button Visual Effect
 	if (Overlay_HeroSelection)
 	{
-		FWidgetTransform WidgetTransform = Overlay_HeroSelection->RenderTransform;
+		FWidgetTransform WidgetTransform = Overlay_HeroSelection->GetRenderTransform();
 		WidgetTransform.Scale = FVector2D(1.2f, 1.2f);
 		Overlay_HeroSelection->SetRenderTransform(WidgetTransform);
 	}
@@ -121,7 +148,7 @@ void UHeroSelection::OnHeroSelectionButtonHovered()
 {
 	if (Overlay_HeroSelection)
 	{
-		FWidgetTransform WidgetTransform = Overlay_HeroSelection->RenderTransform;
+		FWidgetTransform WidgetTransform = Overlay_HeroSelection->GetRenderTransform();
 		WidgetTransform.Scale = FVector2D(1.2f, 1.2f);
 		Overlay_HeroSelection->SetRenderTransform(WidgetTransform);
 	}
@@ -141,7 +168,7 @@ void UHeroSelection::OnHeroSelectionButtonUnhovered()
 
 	if (Overlay_HeroSelection)
 	{
-		FWidgetTransform WidgetTransform = Overlay_HeroSelection->RenderTransform;
+		FWidgetTransform WidgetTransform = Overlay_HeroSelection->GetRenderTransform();
 		WidgetTransform.Scale = FVector2D(1.f, 1.f);
 		Overlay_HeroSelection->SetRenderTransform(WidgetTransform);
 	}

@@ -7,6 +7,7 @@
 #include "Components/Button.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/TextBlock.h"
 #include "OWGameplayTags.h"
 #include "Player/OWPlayerController.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
@@ -16,7 +17,6 @@ void UHeroSelectionList::NativeConstruct()
 	Super::NativeConstruct(); 
 
 	// Initialize that Hero is not Selected. 
-	bHeroSelected = false; 
 	SelectedHeroName = EHeroName::None; 
 }
 
@@ -25,23 +25,26 @@ void UHeroSelectionList::NativeDestruct()
 	// Remove All Bindings of Role Group List Delegates
 	if (HorizontalBox_HeroSelectionList)
 	{
-		for (UWidget* ChildWidget : HorizontalBox_HeroSelectionList->GetAllChildren())
+		for (TPair<EHeroClass, URoleGroupList*>& RoleGroupListPair : RoleGroupListMap)
 		{
-			if (URoleGroupList* RoleGroupListWidget = Cast<URoleGroupList>(ChildWidget))
+			if (RoleGroupListPair.Value)
 			{
-				RoleGroupListWidget->HeroSelectedSignature.RemoveAll(this);
-				RoleGroupListWidget->HeroUnselectedSignature.RemoveAll(this); 
+				RoleGroupListPair.Value->OnHeroSelectionInitialized.RemoveAll(this); 
+				RoleGroupListPair.Value->HeroSelectedSignature.RemoveAll(this);
 			}
 		}
 	}
-	
+
 	// Remove Hero Select Button Binding 
 	if (Button_HeroSelect)
 	{
 		Button_HeroSelect->OnClicked.RemoveAll(this); 
 	}
 
-	Super::NativeDestruct(); 
+	RoleGroupListMap.Empty(); 
+	HeroSelectionButtonMap.Empty(); 
+
+	Super::NativeDestruct();
 }
 
 void UHeroSelectionList::InitializeHeroSelectionList()
@@ -57,11 +60,12 @@ void UHeroSelectionList::InitializeHeroSelectionList()
 			URoleGroupList* NewRoleGroupList = CreateWidget<URoleGroupList>(this, RoleGroupListClass);
 			if (NewRoleGroupList)
 			{
+				NewRoleGroupList->OnHeroSelectionInitialized.AddDynamic(this, &UHeroSelectionList::OnHeroSelectionInitialized);
 				// Set Role Group List's Hero Class
 				NewRoleGroupList->SetRoleGroupList(HeroClass);
 				// Bind Role Group List's Delegates 
 				NewRoleGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected);
-				NewRoleGroupList->HeroUnselectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroUnselected);
+				RoleGroupListMap.Add(NewRoleGroupList->GetHeroClass(), NewRoleGroupList); 
 				if (HorizontalBox_HeroSelectionList)
 				{
 					// Add New Role Group List to Horizontal Box 
@@ -77,7 +81,7 @@ void UHeroSelectionList::InitializeHeroSelectionList()
 			}
 		}
 	}
-	
+
 	// Add Hero Select Button's Binding 
 	if (Button_HeroSelect)
 	{
@@ -87,32 +91,73 @@ void UHeroSelectionList::InitializeHeroSelectionList()
 
 void UHeroSelectionList::OnHeroSelectButtonClicked()
 {
-	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetOwningPlayer()))
+	if (bHeroSelectConfirmed)
 	{
-		OWPlayerController->ServerChooseHero(SelectedHeroName); 
+		if (TextBlock_HeroSelect)
+		{
+			TextBlock_HeroSelect->SetText(HeroSelectText);
+		}
+		MakeHeroSelectionButtonsInvisible(false);
+		bHeroSelectConfirmed = false;
+		return;
+	}
+
+	if (!bHeroAlreadyChosen)
+	{
+		if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetOwningPlayer()))
+		{
+			OWPlayerController->ServerChooseHero(SelectedHeroName);
+			if (TextBlock_HeroSelect)
+			{
+				TextBlock_HeroSelect->SetText(HeroChangeText); 
+			}
+			MakeHeroSelectionButtonsInvisible(true); 
+			bHeroSelectConfirmed = true;
+		}
 	}
 }
 
 void UHeroSelectionList::OnHeroSelected(EHeroName HeroName)
 {
-	// TODO - Get Player State and Change Hero Name
-
-	bHeroSelected = true;
-
-	SelectedHeroName = HeroName;
+	if (SelectedHeroName == HeroName)
+	{
+		bHeroAlreadyChosen = true; 
+	}
+	else
+	{
+		if (HeroSelectionButtonMap.Find(SelectedHeroName))
+		{
+			HeroSelectionButtonMap[SelectedHeroName]->UpdateUnclicked();
+		}
+		SelectedHeroName = HeroName; 
+		bHeroAlreadyChosen = false;
+	}
 }
 
-void UHeroSelectionList::OnHeroUnselected()
+void UHeroSelectionList::OnHeroSelectionInitialized(EHeroName HeroName, UHeroSelection* HeroSelection)
 {
-	// TODO - Get Player State and Change Hero Name
-
-	bHeroSelected = false; 
-
-	SelectedHeroName = EHeroName::None; 
+	if ((HeroName != EHeroName::None) && (HeroSelection != nullptr))
+	{
+		HeroSelectionButtonMap.Add(HeroName, HeroSelection); 
+	}
 }
 
-void UHeroSelectionList::ChooseNewHero()
+void UHeroSelectionList::MakeHeroSelectionButtonsInvisible(bool bInvisible)
 {
-
+	for (TPair<EHeroName, UHeroSelection*>& HeroSelectionButtonPair : HeroSelectionButtonMap)
+	{
+		if (HeroSelectionButtonPair.Value)
+		{
+			if (bInvisible)
+			{
+				HeroSelectionButtonPair.Value->SetVisibility(ESlateVisibility::HitTestInvisible);
+			}
+			else
+			{
+				HeroSelectionButtonPair.Value->SetVisibility(ESlateVisibility::Visible);
+			}
+		}
+	}
 }
+
 
