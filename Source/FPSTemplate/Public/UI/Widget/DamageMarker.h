@@ -20,17 +20,17 @@ class FPSTEMPLATE_API UDamageMarker : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> DamageAnimation;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> KillAnimation;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_DamageMarker; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_KillIcon; 
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> DamageAnimation; 
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> KillAnimation;
 
 protected:
 	virtual void NativeConstruct() override; 

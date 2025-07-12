@@ -41,10 +41,18 @@ void UHitIndicator::SetHitInfo(AActor* InDamageCauser, AActor* InOwnerActor, flo
 
 void UHitIndicator::OnStartAnimationFinished()
 {
-	PlayAnimationForward(EndAnimation);
+	if (EndAnimation)
+	{
+		PlayAnimationForward(EndAnimation);
+	}
 }
 
 void UHitIndicator::OnEndAnimationFinished()
+{
+	ClearHitIndicator();
+}
+
+void UHitIndicator::ClearHitIndicator()
 {
 	RemoveFromParent();
 
@@ -58,11 +66,29 @@ void UHitIndicator::OnEndAnimationFinished()
 		UnbindAllFromAnimationFinished(EndAnimation);
 	}
 
-	MID_HitIndicator = nullptr;
+	if (MID_HitIndicator)
+	{
+		MID_HitIndicator = nullptr;
+	}
 }
 
 void UHitIndicator::NativeDestruct()
 {
+	if (StartAnimation)
+	{
+		UnbindAllFromAnimationFinished(StartAnimation);
+	}
+
+	if (EndAnimation)
+	{
+		UnbindAllFromAnimationFinished(EndAnimation);
+	}
+
+	if (MID_HitIndicator)
+	{
+		MID_HitIndicator = nullptr;
+	}
+
 	Super::NativeDestruct(); 
 }
 

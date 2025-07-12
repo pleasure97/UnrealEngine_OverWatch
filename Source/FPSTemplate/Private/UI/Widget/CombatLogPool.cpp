@@ -13,7 +13,7 @@ void UCombatLogPool::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
-	check(WidgetController); 
+	ClearCombatLogPool(); 
 
 	// Get Gameplay Message Subsystem 
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
@@ -28,6 +28,8 @@ void UCombatLogPool::NativeDestruct()
 	{
 		HeroKilledListener.Unregister();
 	}
+
+	ClearCombatLogPool();
 
 	Super::NativeDestruct(); 
 }
@@ -44,6 +46,14 @@ void UCombatLogPool::OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& P
 
 			UpdateDisplayVisibility();
 		}
+	}
+}
+
+void UCombatLogPool::ClearCombatLogPool()
+{
+	if (ListView_CombatLog)
+	{
+		ListView_CombatLog->ClearListItems(); 
 	}
 }
 

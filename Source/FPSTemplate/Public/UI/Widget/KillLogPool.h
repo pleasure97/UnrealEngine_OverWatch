@@ -35,5 +35,7 @@ private:
 	UFUNCTION()
 	void OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Payload);
 
+	void ClearKillLogPool(); 
+
 	FGameplayMessageListenerHandle HeroKilledListener; 
 };

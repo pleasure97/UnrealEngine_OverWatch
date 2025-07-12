@@ -22,15 +22,6 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UHitIndicator> HitIndicatorClass; 
 
-	/*UPROPERTY(EditDefaultsOnly)
-	FVector2D ViewportSize = FVector2D(250.f, 250.f);
-
-	UPROPERTY(EditDefaultsOnly)
-	FVector2D ViewportPosition = FVector2D(0.f, 0.f);
-
-	UPROPERTY(EditDefaultsOnly)
-	FAnchors ViewportAnchor = FAnchors(0.5f, 0.5f, 0.5f, 0.5f);*/
-
 	UFUNCTION()
 	void ProcessDamageReceived(AActor* DamageCauser, AActor* OwnerActor, float Damage); 
 

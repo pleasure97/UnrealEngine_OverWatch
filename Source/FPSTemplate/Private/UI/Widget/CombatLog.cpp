@@ -107,6 +107,12 @@ void UCombatLog::ShowCombatLog(FHeroKilledInfo& HeroKilledInfo)
 	}
 
 	// Play Kill Log Animation 
+	if (CombatLogAnimation && IsAnimationPlayingForward(CombatLogAnimation))
+	{
+		StopAnimation(CombatLogAnimation);
+		SetAnimationCurrentTime(CombatLogAnimation, 0.f);
+	}
+
 	if (CombatLogAnimation)
 	{
 		PlayAnimation(CombatLogAnimation);
@@ -117,9 +123,9 @@ void UCombatLog::ShowCombatLog(FHeroKilledInfo& HeroKilledInfo)
 void UCombatLog::OnLogExpired()
 {
 	// Get Kill Log Entry as List Item Object 
-	UObject* KillLogEntry = UUserObjectListEntryLibrary::GetListItemObject(this);
-	if (KillLogEntry)
+	UObject* CombatLogEntry = UUserObjectListEntryLibrary::GetListItemObject(this);
+	if (CombatLogEntry)
 	{
-		OnCombatLogExpired.Broadcast(KillLogEntry);
+		OnCombatLogExpired.Broadcast(CombatLogEntry);
 	}
 }

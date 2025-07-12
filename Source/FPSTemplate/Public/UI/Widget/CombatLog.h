@@ -45,6 +45,13 @@ class FPSTEMPLATE_API UCombatLog : public UOWUserWidget, public IUserObjectListE
 	GENERATED_BODY()
 	
 public:
+	/* Animation */
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* CombatLogAnimation;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCombatLogExpired OnCombatLogExpired;
+
 	/* Data */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Icons")
 	TMap<ECombatLogType, FCombatLogInfo> CombatLogInfoMap;
@@ -61,13 +68,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_AdditionalLog;
-
-	/* Animation */
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* CombatLogAnimation; 
-
-	UPROPERTY(BlueprintAssignable)
-	FOnCombatLogExpired OnCombatLogExpired;
 
 	UFUNCTION(BlueprintCallable)
 	void ShowCombatLog(FHeroKilledInfo& HeroKilledInfo);

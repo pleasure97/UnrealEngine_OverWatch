@@ -14,7 +14,7 @@ void UKillLogPool::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
-	check(WidgetController);
+	ClearKillLogPool(); 
 
 	// Get Gameplay Message Subsystem 
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
@@ -29,6 +29,8 @@ void UKillLogPool::NativeDestruct()
 	{
 		HeroKilledListener.Unregister(); 
 	}
+
+	ClearKillLogPool();
 
 	Super::NativeDestruct(); 
 }
@@ -60,6 +62,14 @@ void UKillLogPool::OnHeroKilled(FGameplayTag Channel, const FHeroKilledInfo& Pay
 
 			UpdateDisplayVisibility(); 
 		}
+	}
+}
+
+void UKillLogPool::ClearKillLogPool()
+{
+	if (ListView_KillLog)
+	{
+		ListView_KillLog->ClearListItems(); 
 	}
 }
 

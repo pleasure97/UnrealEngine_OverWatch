@@ -137,4 +137,5 @@ private:
 	void UpdateProgressBars(const float& NewValue, const FHealthBarPoolInfo& HealthBarPoolInfo);
 	void UpdateBorderVisibility();
 	void DistributeFillSize(); 
+	void ClearHealthBarPool(); 
 };

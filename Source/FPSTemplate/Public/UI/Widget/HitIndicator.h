@@ -18,6 +18,12 @@ class FPSTEMPLATE_API UHitIndicator : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* StartAnimation;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	UWidgetAnimation* EndAnimation;
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> Border_HitIndicator; 
 
@@ -27,17 +33,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Damage")
 	float MaxDamage = 120.f;
 
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* StartAnimation;
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* EndAnimation;
-
 	UFUNCTION()
 	void OnStartAnimationFinished(); 
 
 	UFUNCTION()
 	void OnEndAnimationFinished();
+
+	void ClearHitIndicator();
 
 	float CalculateHitDirectionNormalized(AActor* InOwnerActor, const FVector& InDamageCauserLocation);
 

@@ -15,6 +15,8 @@ void UHealthBarPool::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	ClearHealthBarPool(); 
+
 	InitializeHealthBarPoolInfos();
 
 	BindWidgetControllerEvents();
@@ -55,6 +57,8 @@ void UHealthBarPool::NativeDestruct()
 		HealingSunStone->OnHealthChanged.RemoveAll(this);
 		HealingSunStone->OnShieldChanged.RemoveAll(this);
 	}
+
+	ClearHealthBarPool();
 
 	Super::NativeDestruct(); 
 }
@@ -329,4 +333,37 @@ void UHealthBarPool::SetHealthBarColor(FLinearColor Color)
 {
 	FHealthBarPoolInfo HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health];
 	HealthBarPoolInfo.HealthBarColor = Color; 
+}
+
+void UHealthBarPool::ClearHealthBarPool()
+{
+	if (HorizontalBox_Health)
+	{
+		HorizontalBox_Health->ClearChildren(); 
+	}
+
+	if (HorizontalBox_Armor)
+	{
+		HorizontalBox_Armor->ClearChildren();
+	}
+
+	if (HorizontalBox_TempArmor)
+	{
+		HorizontalBox_TempArmor->ClearChildren();
+	}
+
+	if (HorizontalBox_Shield)
+	{
+		HorizontalBox_Shield->ClearChildren();
+	}
+
+	if (HorizontalBox_TempShield)
+	{
+		HorizontalBox_TempShield->ClearChildren();
+	}
+
+	if (HorizontalBox_OverHealth)
+	{
+		HorizontalBox_OverHealth->ClearChildren();
+	}
 }

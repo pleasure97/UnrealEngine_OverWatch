@@ -25,6 +25,13 @@ class FPSTEMPLATE_API UAssaultProgress : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
+	/* Contesting */
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> Contesting;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UHorizontalBox> HorizontalBox_Contesting;
+
 	/* Assault Point Default Information */
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_AssaultProgress;
@@ -59,13 +66,6 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_NumOccupiedDefenders;
-
-	/* Contesting */
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UHorizontalBox> HorizontalBox_Contesting;
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> Contesting; 
 
 	void UpdateNumAttackers(int32 NumAttackers);
 	void UpdateNumDefenders(int32 NumDefenders);

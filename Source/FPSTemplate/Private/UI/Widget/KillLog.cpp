@@ -126,18 +126,25 @@ void UKillLog::ShowKillLog(FHeroKilledInfo& HeroKilledInfo)
                 UE_LOG(LogTemp, Warning, TEXT("Find invalid team relationship when Comparing Teams in UKillLog::ShowKillLog()")); 
                 return;
             }
-
-            // Play Kill Log Animation 
-            if (KillLogAnimation)
-            {
-                PlayAnimation(KillLogAnimation);
-                GetWorld()->GetTimerManager().SetTimer(HoldTimerHandle, this, &UKillLog::OnLogExpired, 5.f, false);
-            }
         }
     }
     else
     {
         UE_LOG(LogTemp, Error, TEXT("Instigator and Target Player State is not casted in UKillLog::ShowKillLog()"));
+        return;
+    }
+
+    // Play Kill Log Animation 
+    if (KillLogAnimation && IsAnimationPlayingForward(KillLogAnimation))
+    {
+        StopAnimation(KillLogAnimation);
+        SetAnimationCurrentTime(KillLogAnimation, 0.f);
+    }
+
+    if (KillLogAnimation)
+    {
+        PlayAnimation(KillLogAnimation);
+        GetWorld()->GetTimerManager().SetTimer(HoldTimerHandle, this, &UKillLog::OnLogExpired, 5.f, false);
     }
 }
 

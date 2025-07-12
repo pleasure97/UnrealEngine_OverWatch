@@ -48,6 +48,9 @@ void UHitIndicatorPool::ProcessDamageReceived(AActor* DamageCauser, AActor* Owne
 	if (!DamageCauser || !OwnerActor || !HitIndicatorClass) { return; }
 	
 	UHitIndicator* HitIndicator = CreateWidget<UHitIndicator>(GetOwningPlayer(), HitIndicatorClass);
-	HitIndicator->SetHitInfo(DamageCauser, OwnerActor, Damage); 
-	HitIndicator->AddToViewport(); 
+	if (HitIndicator)
+	{
+		HitIndicator->SetHitInfo(DamageCauser, OwnerActor, Damage);
+		HitIndicator->AddToViewport();
+	}
 }
