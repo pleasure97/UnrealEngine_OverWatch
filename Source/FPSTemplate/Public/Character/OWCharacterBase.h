@@ -172,4 +172,6 @@ private:
 
 	UFUNCTION()
 	void OnRep_MyTeamID(FGenericTeamId OldTeamID); 
+
+	void UpdateTeamColor(); 
 };

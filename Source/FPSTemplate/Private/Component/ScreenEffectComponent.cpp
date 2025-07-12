@@ -8,10 +8,12 @@
 
 void UScreenEffectComponent::ApplyPostProcessMaterials(UCameraComponent* CameraComponent)
 {
-	if (PostProcessMaterials.IsEmpty() || !MaterialInstanceDynamics.IsEmpty())
+	if (PostProcessMaterials.IsEmpty())
 	{
 		return;
 	}
+
+	MaterialInstanceDynamics.Empty(); 
 
 	for (UMaterialInterface* PostProcessMaterial : PostProcessMaterials)
 	{

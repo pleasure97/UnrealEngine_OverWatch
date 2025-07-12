@@ -27,6 +27,7 @@ AOWCharacter::AOWCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true; 
 
+	// First Person Spring Arm 
 	FirstPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("FirstPersonSpringArm");
 	FirstPersonSpringArm->SetupAttachment(GetRootComponent());
 	FirstPersonSpringArm->TargetArmLength = 0.f;
@@ -34,27 +35,33 @@ AOWCharacter::AOWCharacter()
 	FirstPersonSpringArm->CameraLagSpeed = 15.f;
 	FirstPersonSpringArm->bUsePawnControlRotation = true;
 
+	// First Person Camera
 	FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCamera");
 	FirstPersonCamera->SetupAttachment(FirstPersonSpringArm);
 	FirstPersonCamera->bUsePawnControlRotation = false;
 
+	// First Person Mesh 
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>("FirstPersonMesh");
 	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
 
+	// Third Person Spring Arm 
 	ThirdPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("ThirdPersonSpringArm"); 
 	ThirdPersonSpringArm->SetupAttachment(GetRootComponent());
 
+	// Third Person Camera
 	ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>("ThirdPersonCamera"); 
 	ThirdPersonCamera->SetupAttachment(ThirdPersonSpringArm);
 	ThirdPersonCamera->SetRelativeLocation(FVector(0., 10., 53.));
 	ThirdPersonCamera->bUsePawnControlRotation = true;
 
+	// Camera Transition Component
 	CameraTransitionComponent = CreateDefaultSubobject<UCameraTransitionComponent>("CameraTransitionComponent");
 	CameraTransitionComponent->FirstPersonSpringArm = FirstPersonSpringArm;
 	CameraTransitionComponent->FirstPersonCamera = FirstPersonCamera;
 	CameraTransitionComponent->ThirdPersonSpringArm = ThirdPersonSpringArm; 
 	CameraTransitionComponent->ThirdPersonCamera = ThirdPersonCamera;
 
+	// Screen Effect Component
 	ScreenEffectComponent = CreateDefaultSubobject<UScreenEffectComponent>("ScreenEffectComponent");
 
 	// Show ThirdPersonMesh visible to other clients, invisible to the user 
@@ -76,6 +83,12 @@ void AOWCharacter::BeginPlay()
 	{
 		FirstPersonMesh->bOnlyOwnerSee = true;
 		FirstPersonMesh->bOwnerNoSee = false;
+		if (ScreenEffectComponent)
+		{
+			ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera);
+			ScreenEffectComponent->ApplyPostProcessMaterials(ThirdPersonCamera);
+			ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
+		}
 	}
 	else
 	{
@@ -101,13 +114,6 @@ void AOWCharacter::PossessedBy(AController* NewController)
 	{
 		MyTeamID = ControllerWithTeamInterface->GetGenericTeamId();
 		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacter::OnTeamChanged);
-	}
-
-	if (IsLocallyControlled())
-	{
-		ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera);
-		ScreenEffectComponent->ApplyPostProcessMaterials(ThirdPersonCamera);
-		ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
 	}
 
 	InitAbilityActorInfo(); 
@@ -248,19 +254,10 @@ void AOWCharacter::Die(const FVector& DeathImpulse)
 {
 	Super::Die(DeathImpulse); 
 
-	CameraTransitionComponent->ActiveThirdPersonCamera(); 
-
-	FTimerDelegate DeathTimerDelegate; 
-	DeathTimerDelegate.BindLambda(
-		[this]()
-		{
-			AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(UGameplayStatics::GetGameMode(this));
-			if (OWGameMode)
-			{
-				OWGameMode->PlayerDied(this);
-			}
-		}); 
-	GetWorldTimerManager().SetTimer(DeathTimer, DeathTimerDelegate, DeathTime, false);
+	if (CameraTransitionComponent)
+	{
+		CameraTransitionComponent->ActiveThirdPersonCamera();
+	}
 }
 
 UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() const
@@ -270,7 +267,10 @@ UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() con
 
 void AOWCharacter::TransitionCamera_Implementation(bool bSmoothTransition)
 {
-	CameraTransitionComponent->TransitionCamera(bSmoothTransition); 
+	if (CameraTransitionComponent)
+	{
+		CameraTransitionComponent->TransitionCamera(bSmoothTransition);
+	}
 }
 
 EAttackDirection AOWCharacter::GetAttackDirection_Implementation() const

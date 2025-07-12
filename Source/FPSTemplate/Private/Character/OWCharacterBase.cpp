@@ -24,10 +24,12 @@ AOWCharacterBase::AOWCharacterBase()
 	PrimaryActorTick.bCanEverTick = false;
 	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get();
 
+	// Weapon Component
 	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon"); 
 	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket")); 
 	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
 
+	// Stun Debuff Component
 	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>(TEXT("StunDebuffComponent")); 
 	StunDebuffComponent->SetupAttachment(GetRootComponent()); 
 	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
@@ -223,13 +225,6 @@ void AOWCharacterBase::PossessedBy(AController* NewController)
 		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacterBase::OnControllerChangedTeam); 
 		BroadcastTeamChanged(this, OldTeamID, MyTeamID);
 	}
-
-	// Highlight the Outline of Character's Mesh depending on team (e.g., Blue or Red)
-	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(NewController->PlayerState))
-	{
-		GetMesh()->SetRenderCustomDepth(true); 
-		GetMesh()->SetCustomDepthStencilValue(OWPlayerState->GetTeamId()); 
-	}
 }
 
 void AOWCharacterBase::UnPossessed()
@@ -248,6 +243,7 @@ void AOWCharacterBase::UnPossessed()
 	// Broadcast that the Team has Changed 
 	MyTeamID = DetermineNewTeamAfterPossessionEnds(OldTeamID);
 	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
+	UpdateTeamColor();
 }
 
 FOnAttributeChangedSignature* AOWCharacterBase::GetDelegateForTag(const FGameplayTag& Tag)
@@ -299,6 +295,18 @@ void AOWCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewC
 void AOWCharacterBase::OnRep_MyTeamID(FGenericTeamId OldTeamID)
 {
 	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
+	// Highlight the Outline of Character's Mesh depending on team (e.g., Blue or Red)
+	UpdateTeamColor();
+}
+
+void AOWCharacterBase::UpdateTeamColor()
+{
+	const int32 TeamID = GenericTeamIdToInteger(MyTeamID);
+	if (GetMesh())
+	{
+		GetMesh()->SetRenderCustomDepth(true);
+		GetMesh()->SetCustomDepthStencilValue(TeamID);
+	}
 }
 
 void AOWCharacterBase::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
