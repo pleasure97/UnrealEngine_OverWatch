@@ -21,6 +21,9 @@ class FPSTEMPLATE_API UTeamMemberInfo : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 NicknameMaxLength = 12; 
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_HeroPortrait3D; 
 
@@ -38,7 +41,18 @@ public:
 
 	void HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName); 
 
+	void InitializeTeamMemberInfo(AOWPlayerState* InOwnerPlayerState); 
+
+	AOWPlayerState* GetOWPlayerState() const; 
+
+protected:
+	virtual void NativeConstruct() override; 
+
 private:
+	void UpdateNickName();
+
+	bool bAlreadyChosen = true; 
+
 	UPROPERTY()
-	bool bInfoSet = false; 
+	AOWPlayerState* OwnerPlayerState = nullptr; 
 };
