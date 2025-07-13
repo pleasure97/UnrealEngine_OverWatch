@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "TeamMemberInfoList.generated.h"
 
 class UTeamMemberInfo; 
+class UHorizontalBox; 
 class AOWPlayerState; 
 
 /**
@@ -18,30 +20,31 @@ class FPSTEMPLATE_API UTeamMemberInfoList : public UOWUserWidget
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTeamMemberInfo> TeamMember1; 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 NumTeamMembers = 5; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UTeamMemberInfo> TeamMemberInfoClass; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FMargin IntervalBetweenTeamMemberInfo = FMargin(0.f, 0.f, 62.5f, 0.f); 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTeamMemberInfo> TeamMember2;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTeamMemberInfo> TeamMember3;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTeamMemberInfo> TeamMember4;
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTeamMemberInfo> TeamMember5;
-
-	void SetTeamMemberInfoList(); 
+	TObjectPtr<UHorizontalBox> HorizontalBox_TeamMemberInfoList; 
 
 protected:
 	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
+
+private:
+	UFUNCTION()
+	void OnTeamMemberHeroChanged(AOWPlayerState* OWPlayerState, EHeroName HeroName);
 
 	UFUNCTION()
-	void HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName); 
+	void OnClientTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID);
 
-	TArray<UTeamMemberInfo*> MemberWidgets; 
+	int32 MyTeamID = -1; 
 
-	TArray<AOWPlayerState*> TeamPlayerStates; 
+	TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>> Team1MemberInfoArray; 
+	TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>> Team2MemberInfoArray; 
 };

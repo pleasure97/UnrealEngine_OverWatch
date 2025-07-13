@@ -2,62 +2,232 @@
 
 
 #include "UI/Widget/HeroSelection/TeamMemberInfoList.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Player/OWPlayerState.h"
 #include "Game/OWGameState.h"
 #include "UI/Widget/HeroSelection/TeamMemberInfo.h"
+#include "Team/OWTeamSubsystem.h"
 
 void UTeamMemberInfoList::NativeConstruct()
 {
-	Super::NativeConstruct(); 
+	Super::NativeConstruct();
 
-	MemberWidgets.Empty(); 
-	MemberWidgets.Add(TeamMember1); 
-	MemberWidgets.Add(TeamMember2); 
-	MemberWidgets.Add(TeamMember3); 
-	MemberWidgets.Add(TeamMember4); 
-	MemberWidgets.Add(TeamMember5); 
-}
-
-void UTeamMemberInfoList::SetTeamMemberInfoList()
-{
-	check(WidgetController); 
-
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	// Create Team Member Info Widget Dynamically as many as the Number of Team Members
+	for (int32 i = 0; i < NumTeamMembers; ++i)
 	{
-		if (AOWGameState* OWGameState = GetWorld()->GetGameState<AOWGameState>())
+		UTeamMemberInfo* NewTeamMemberInfo = CreateWidget<UTeamMemberInfo>(this, TeamMemberInfoClass);
+		if (HorizontalBox_TeamMemberInfoList && NewTeamMemberInfo)
 		{
-			AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(OverlayWidgetController->PlayerState);
-			const int32 MyTeam = OWPlayerState->GetTeamId();
-
-			for (APlayerState* PlayerState : OWGameState->PlayerArray)
+			// Add Team Member Info Widget as the child of Horizontal Box 
+			UHorizontalBoxSlot* NewHorizontalBoxSlot = HorizontalBox_TeamMemberInfoList->AddChildToHorizontalBox(NewTeamMemberInfo);
+			// Set Padding between Team Member Info Widgets 
+			if (i != NumTeamMembers - 1)
 			{
-				if (AOWPlayerState* MemberPlayerState = Cast<AOWPlayerState>(PlayerState))
+				NewHorizontalBoxSlot->SetPadding(IntervalBetweenTeamMemberInfo);
+			}
+			// Assign the generated team member info widget to Team1 and Team2 Member Info Arrays
+			Team1MemberInfoArray.Emplace(nullptr, NewTeamMemberInfo);
+			Team2MemberInfoArray.Emplace(nullptr, NewTeamMemberInfo);
+		}
+	}
+
+	// Get Game State 
+	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
+	{
+		// Get Player Array of Game State
+		for (APlayerState* PlayerState : GameStateBase->PlayerArray)
+		{
+			// Bind All Player's Team Changed Delegate and Hero Name Changed Delegate 
+			if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState))
+			{
+				OWPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UTeamMemberInfoList::OnClientTeamChanged);
+				OWPlayerState->OnHeroNameChangedDelegate.AddUObject(this, &UTeamMemberInfoList::OnTeamMemberHeroChanged);
+				// Call if Team ID has already been Assigned to the PlayerState
+				if ((OWPlayerState->GetTeamId() == 1) || (OWPlayerState->GetTeamId() == 2))
 				{
-					if (MemberPlayerState->GetTeamId() == MyTeam)
-					{
-						TeamPlayerStates.Add(MemberPlayerState); 
-						MemberPlayerState->OnHeroNameChangedDelegate.AddUObject(this, &UTeamMemberInfoList::HandleHeroNameChanged); 
-						HandleHeroNameChanged(MemberPlayerState, MemberPlayerState->GetHeroName()); 
-					}
+					OnClientTeamChanged(OWPlayerState, -1, OWPlayerState->GetTeamId());
 				}
 			}
 		}
 	}
 }
 
-void UTeamMemberInfoList::HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName)
+void UTeamMemberInfoList::NativeDestruct()
 {
-	int32 TeamMemberIndex = TeamPlayerStates.IndexOfByKey(OWPlayerState); 
-	if (TeamMemberIndex == INDEX_NONE || !MemberWidgets.IsValidIndex(TeamMemberIndex))
+	// Get Owning Player State 
+	if (AOWPlayerState* OwnerPlayerState = Cast<AOWPlayerState>(GetOwningPlayerState()))
+	{
+		// Get Player Array of Game State 
+		if (AOWGameState* OWGameState = GetWorld()->GetGameState<AOWGameState>())
+		{
+			for (APlayerState* PlayerState : OWGameState->PlayerArray)
+			{
+				if (AOWPlayerState* MemberPlayerState = Cast<AOWPlayerState>(PlayerState))
+				{
+					// Remove Bindings of Team Member's Delegates 
+					if (MemberPlayerState->GetTeamId() == OwnerPlayerState->GetTeamId())
+					{
+						MemberPlayerState->GetTeamChangedDelegate().RemoveAll(this);
+						MemberPlayerState->OnHeroNameChangedDelegate.RemoveAll(this);
+					}
+				}
+			}
+		}
+	}
+
+	// Empty Team 1 and Team 2 Member Info Array 
+	Team1MemberInfoArray.Empty();
+	Team2MemberInfoArray.Empty(); 
+
+	Super::NativeDestruct();
+}
+
+void UTeamMemberInfoList::OnClientTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID)
+{
+	// New Team ID should be only 1 or 2 
+	if ((NewTeamID != 1) && (NewTeamID != 2))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Team ID is not 0 or 1 in UTeamMemberInfoList::OnTeamChanged()")); 
+		return; 
+	}
+
+	// Cast to Custom Player State 
+	if (AOWPlayerState* ClientPlayerState = Cast<AOWPlayerState>(ObjectChangingTeam))
+	{
+		// Get Owning Player State and Cast it to Custom Player State 
+		AOWPlayerState* OwnerPlayerState = Cast<AOWPlayerState>(GetOwningPlayerState()); 
+		// Check if Team Changed Player State is Mine 
+		if (ClientPlayerState == OwnerPlayerState)
+		{
+			MyTeamID = ClientPlayerState->GetTeamId(); 
+			if (MyTeamID == 1)
+			{
+				// Initialize Ally Team Member Info 
+				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team1MemberInfo : Team1MemberInfoArray)
+				{
+					if (Team1MemberInfo.Value->GetOWPlayerState() == nullptr)
+					{
+						Team1MemberInfo.Key = ClientPlayerState;
+						Team1MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						break;
+					}
+				}
+
+				// Remove Enemy Team Member Infos
+				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team2MemberInfo : Team2MemberInfoArray)
+				{
+					// Remove Bindings of Enemies' Delegates 
+					if (Team2MemberInfo.Key != nullptr)
+					{
+						Team2MemberInfo.Key->GetTeamChangedDelegate().RemoveAll(this);
+						Team2MemberInfo.Key->OnHeroNameChangedDelegate.RemoveAll(this);
+					}
+				}
+				// Clear Enemy Member Info Array 
+				Team2MemberInfoArray.Empty(); 
+			}
+			else if (MyTeamID == 2)
+			{
+				// Initialize Ally Team Member Info 
+				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team2MemberInfo : Team2MemberInfoArray)
+				{
+					if (Team2MemberInfo.Value->GetOWPlayerState() == nullptr)
+					{
+						Team2MemberInfo.Key = ClientPlayerState;
+						Team2MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						break;
+					}
+				}
+
+				// Remove Enemy Team Member Infos
+				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team1MemberInfo : Team1MemberInfoArray)
+				{
+					// Remove Bindings of Enemies' Delegates 
+					if (Team1MemberInfo.Key != nullptr)
+					{
+						Team1MemberInfo.Key->GetTeamChangedDelegate().RemoveAll(this);
+						Team1MemberInfo.Key->OnHeroNameChangedDelegate.RemoveAll(this);
+					}
+				}
+				// Clear Enemy Member Info Array 
+				Team1MemberInfoArray.Empty(); 
+			}
+			else
+			{
+				return; 
+			}
+		}
+		// Initialize Ally Team Member Info 
+		else
+		{
+			if (NewTeamID == 1)
+			{
+				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team1MemberInfo : Team1MemberInfoArray)
+				{
+					if (Team1MemberInfo.Value->GetOWPlayerState() == nullptr)
+					{
+						Team1MemberInfo.Key = ClientPlayerState;
+						Team1MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						break;
+					}
+				}
+			}
+			else if (NewTeamID == 2)
+			{
+				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team2MemberInfo : Team2MemberInfoArray)
+				{
+					if (Team2MemberInfo.Value->GetOWPlayerState() == nullptr)
+					{
+						Team2MemberInfo.Key = ClientPlayerState;
+						Team2MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						break;
+					}
+				}
+			}
+			else
+			{
+				return; 
+			}
+		}
+	}
+}
+
+void UTeamMemberInfoList::OnTeamMemberHeroChanged(AOWPlayerState* OWPlayerState, EHeroName HeroName)
+{
+	// Check if Team Was Assigned 
+	if (MyTeamID < 0)
 	{
 		return;
 	}
 
-	UTeamMemberInfo* TeamMemberInfo = MemberWidgets[TeamMemberIndex];
-	TeamMemberInfo->HandleHeroNameChanged(OWPlayerState, NewHeroName);
+	// Check whether My Team ID is 1 or 2 
+	if (MyTeamID == 1)
+	{
+		for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team1MemberInfo : Team1MemberInfoArray)
+		{
+			// Find Ally Player State and Team Member Info 
+			if (OWPlayerState == Team1MemberInfo.Key)
+			{
+				// Change Team Member Info 
+				Team1MemberInfo.Value->HandleHeroNameChanged(OWPlayerState, OWPlayerState->GetHeroName()); 
+			}
+		}
+	}
+	else if (MyTeamID == 2)
+	{
+		for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team2MemberInfo : Team2MemberInfoArray)
+		{
+			// Find Ally Player State and Team Member Info 
+			if (OWPlayerState == Team2MemberInfo.Key)
+			{
+				// Change Team Member Info 
+				Team2MemberInfo.Value->HandleHeroNameChanged(OWPlayerState, OWPlayerState->GetHeroName());
+			}
+		}
+	}
+	else
+	{
+		return;
+	}
 }
-
-
-
-
