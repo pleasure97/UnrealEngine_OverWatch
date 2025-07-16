@@ -8,13 +8,19 @@
 
 void UScreenEffectComponent::ApplyPostProcessMaterials(UCameraComponent* CameraComponent)
 {
-	if (PostProcessMaterials.IsEmpty())
+	if ((PostProcessMaterials.IsEmpty()) || (CameraComponent == nullptr))
 	{
 		return;
 	}
 
+	// Reset Camera Component - Remove Blendable MID if it exists 
+	for (UMaterialInstanceDynamic* OldMaterialInstanceDynamic : MaterialInstanceDynamics)
+	{
+		CameraComponent->RemoveBlendable(OldMaterialInstanceDynamic); 
+	}
 	MaterialInstanceDynamics.Empty(); 
 
+	// Update Camera Component - Add or Update Blendable MID if it exists 
 	for (UMaterialInterface* PostProcessMaterial : PostProcessMaterials)
 	{
 		UMaterialInstanceDynamic* MID = UMaterialInstanceDynamic::Create(PostProcessMaterial, this);

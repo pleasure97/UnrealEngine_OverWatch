@@ -58,4 +58,7 @@ private:
 	FVector OwnerActorForwardVector; 
 	FVector OwnerActorLocation; 
 	FVector DamageCauserLocation; 
+
+	FWidgetAnimationDynamicEvent OnStartAnimationFinishedDelegate; 
+	FWidgetAnimationDynamicEvent OnEndAnimationFinishedDelegate; 
 };

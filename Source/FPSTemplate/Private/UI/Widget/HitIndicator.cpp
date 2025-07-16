@@ -18,17 +18,15 @@ void UHitIndicator::NativeConstruct()
 
 	if (StartAnimation)
 	{
-		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
-		AnimationFinishedEvent.BindUFunction(this, FName("OnStartAnimationFinished"));
-		BindToAnimationFinished(StartAnimation, AnimationFinishedEvent);
+		OnStartAnimationFinishedDelegate.BindUFunction(this, FName("OnStartAnimationFinished"));
+		BindToAnimationFinished(StartAnimation, OnStartAnimationFinishedDelegate);
 		PlayAnimationForward(StartAnimation); 
 	}
 
 	if (EndAnimation)
 	{
-		FWidgetAnimationDynamicEvent AnimationFinishedEvent;
-		AnimationFinishedEvent.BindUFunction(this, FName("OnEndAnimationFinished"));
-		BindToAnimationFinished(EndAnimation, AnimationFinishedEvent);
+		OnEndAnimationFinishedDelegate.BindUFunction(this, FName("OnEndAnimationFinished"));
+		BindToAnimationFinished(EndAnimation, OnEndAnimationFinishedDelegate);
 	}
 }
 
@@ -54,7 +52,7 @@ void UHitIndicator::OnEndAnimationFinished()
 
 void UHitIndicator::ClearHitIndicator()
 {
-	RemoveFromParent();
+	StopAllAnimations();
 
 	if (StartAnimation)
 	{
@@ -70,6 +68,8 @@ void UHitIndicator::ClearHitIndicator()
 	{
 		MID_HitIndicator = nullptr;
 	}
+
+	RemoveFromParent();
 }
 
 void UHitIndicator::NativeDestruct()
