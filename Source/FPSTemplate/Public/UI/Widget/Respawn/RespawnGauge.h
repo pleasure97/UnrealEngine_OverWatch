@@ -23,4 +23,24 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_RespawnTime; 
+
+	void InitializeRespawnGauge(float RespawnWaitingDuration);
+
+	void FinishTimer(); 
+
+protected:
+	virtual void NativeConstruct() override; 
+	virtual void NativeDestruct() override; 
+
+private:
+	UFUNCTION()
+	void UpdateRespawnGauge();
+
+	float StartTime;
+	float Duration; 
+	float TimeUntilRespawn; 
+
+	FTimerHandle RespawnWaitingTimerHandle; 
+
+	TObjectPtr<UMaterialInstanceDynamic> MID_RespawnGauge;
 };
