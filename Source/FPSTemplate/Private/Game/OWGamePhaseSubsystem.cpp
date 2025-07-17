@@ -45,6 +45,17 @@ void UOWGamePhaseSubsystem::StartPhase(TSubclassOf<UOWGamePhaseAbility> GamePhas
 	}
 }
 
+void UOWGamePhaseSubsystem::K2_StartPhase(TSubclassOf<UOWGamePhaseAbility> Phase, const FOWGamePhaseDynamicDelegate& PhaseEnded)
+{
+	const FOWGamePhaseDelegate EndedDelegate = FOWGamePhaseDelegate::CreateWeakLambda(
+		const_cast<UObject*>(PhaseEnded.GetUObject()),
+		[PhaseEnded](const UOWGamePhaseAbility* PhaseAbility) {
+			PhaseEnded.ExecuteIfBound(PhaseAbility);
+		});
+
+	StartPhase(Phase, EndedDelegate);
+}
+
 void UOWGamePhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FOWGamePhaseTagDelegate& WhenPhaseActive)
 {
 	// Declare PhaseObserver and Set Phase Information 
@@ -64,6 +75,18 @@ void UOWGamePhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPh
 	}
 }
 
+void UOWGamePhaseSubsystem::K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FOWGamePhaseTagDynamicDelegate WhenPhaseActive)
+{
+	const FOWGamePhaseTagDelegate ActiveDelegate = FOWGamePhaseTagDelegate::CreateWeakLambda(
+		WhenPhaseActive.GetUObject(), 
+		[WhenPhaseActive](const FGameplayTag& PhaseTag) 
+		{
+			WhenPhaseActive.ExecuteIfBound(PhaseTag);
+		});
+
+	WhenPhaseStartsOrIsActive(PhaseTag, MatchType, ActiveDelegate);
+}
+
 void UOWGamePhaseSubsystem::WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FOWGamePhaseTagDelegate& WhenPhaseEnd)
 {
 	// Declare PhaseObserver and Set Phase Information 
@@ -74,6 +97,18 @@ void UOWGamePhaseSubsystem::WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchT
 
 	// Add it to Phase End Observers Array 
 	PhaseEndObservers.Add(PhaseObserver);
+}
+
+void UOWGamePhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FOWGamePhaseTagDynamicDelegate WhenPhaseEnd)
+{
+	const FOWGamePhaseTagDelegate EndedDelegate = FOWGamePhaseTagDelegate::CreateWeakLambda(
+		WhenPhaseEnd.GetUObject(), 
+		[WhenPhaseEnd](const FGameplayTag& PhaseTag) 
+		{
+			WhenPhaseEnd.ExecuteIfBound(PhaseTag);
+		});
+
+	WhenPhaseEnds(PhaseTag, MatchType, EndedDelegate);
 }
 
 void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle)

@@ -11,7 +11,9 @@
 class UOWGamePhaseAbility; 
 
 DECLARE_DELEGATE_OneParam(FOWGamePhaseDelegate, const UOWGamePhaseAbility* GamePhase);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOWGamePhaseDynamicDelegate, const UOWGamePhaseAbility*, GamePhase);
 DECLARE_DELEGATE_OneParam(FOWGamePhaseTagDelegate, const FGameplayTag& PhaseTag); 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOWGamePhaseTagDynamicDelegate, const FGameplayTag&, PhaseTag);
 
 UENUM(BlueprintType)
 enum class EPhaseTagMatchType : uint8
@@ -37,8 +39,18 @@ public:
 
 	void StartPhase(TSubclassOf<UOWGamePhaseAbility> GamePhaseAbility, FOWGamePhaseDelegate PhaseEndedDelegate = FOWGamePhaseDelegate());
 
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Game Phase", meta = (DisplayName = "Start Phase", AutoCreateRefTerm = "PhaseEnded"))
+	void K2_StartPhase(TSubclassOf<UOWGamePhaseAbility> Phase, const FOWGamePhaseDynamicDelegate& PhaseEnded);
+
 	void WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FOWGamePhaseTagDelegate& WhenPhaseActive);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Game Phase", meta = (DisplayName = "When Phase Starts or Is Active", AutoCreateRefTerm = "WhenPhaseActive"))
+	void K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FOWGamePhaseTagDynamicDelegate WhenPhaseActive);
+
 	void WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, const FOWGamePhaseTagDelegate& WhenPhaseEnd);
+
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Game Phase", meta = (DisplayName = "When Phase Ends", AutoCreateRefTerm = "WhenPhaseEnd"))
+	void K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FOWGamePhaseTagDynamicDelegate WhenPhaseEnd);
 
 private:
 	struct FOWGamePhaseEntry
