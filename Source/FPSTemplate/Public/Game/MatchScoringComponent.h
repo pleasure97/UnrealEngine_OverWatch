@@ -13,7 +13,7 @@ class UOWGamePhaseAbility;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAssaultPointRegistered, AAssaultPoint* AssaultPoint); 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), Blueprintable, meta = (BlueprintSpawnableComponent))
 class FPSTEMPLATE_API UMatchScoringComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -41,23 +41,23 @@ public:
 
 	FOnAssaultPointRegistered OnAssaultPointRegistered;
 
-protected:
-	virtual void BeginPlay() override; 
-
 private:
 	UFUNCTION()
 	void OnHeroSelectionStarted(UOWGamePhaseAbility* GamePhase); 
 
+	UFUNCTION(BlueprintCallable)
 	void ResetAllActivePlayers();
 
+	UFUNCTION(BlueprintCallable)
 	void ScorePoints(); 
 
-	void GetPointStatus(int32 TeamID);
-
+	UFUNCTION(BlueprintCallable)
 	void HandleVictory(int32 TeamID); 
 
+	UFUNCTION(BlueprintCallable)
 	void ActivateMatchDecidedGameplayCue(FGameplayTag GameplayCueTag, FGameplayCueParameters& GameplayCueParameters); 
 
+	UFUNCTION(BlueprintCallable)
 	void ClearMatchDecidedGameplayCue(); 
 
 	UFUNCTION()
@@ -68,4 +68,6 @@ private:
 
 	FTimerHandle MatchPreparationTimerHandle; 
 	FTimerHandle MatchInProgressTimerHandle; 
+
+	FGameplayTag MatchDecidedTag; 
 };

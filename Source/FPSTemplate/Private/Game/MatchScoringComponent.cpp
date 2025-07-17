@@ -4,12 +4,14 @@
 #include "Game/MatchScoringComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "GameFramework/GameStateBase.h"
 #include "Message/OWMessageTypes.h"
 #include "Game/OWGamePhaseSubsystem.h"
 #include "AbilitySystem/Abilities/Common/GamePhase/OWGamePhaseAbility.h"
 #include "Character/OWCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayCueFunctionLibrary.h"
 #include "OWGameplayTags.h"
 #include "Team/OWTeamSubsystem.h"
 
@@ -24,41 +26,6 @@ void UMatchScoringComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UMatchScoringComponent, AssaultPoints);
-}
-
-void UMatchScoringComponent::BeginPlay()
-{
-	Super::BeginPlay(); 
-
-	// Check if Game State Has Authority 
-	if (GetOwner()->HasAuthority())
-	{
-		// Listen for Hero Killed Gameplay Message 
-
-		UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
-
-		FGameplayTag RespawnTag = FOWGameplayTags::Get().Gameplay_Message_Respawn;
-
-		/*FGameplayMessageListenerHandle ListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FHeroRespawnInfo>(RespawnTag, this, &UMatchScoringComponent::);*/
-
-		// Check if World exists
-		if (!GetWorld())
-		{
-			return;
-		}
-		// Get Game Phase Subsystem
-		UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>(); 
-		if (GamePhaseSubsystem)
-		{
-			// Initialize Game Phase Delegate 
-			FOWGamePhaseDelegate HeroSelectionDelegate; 
-			// Bind Game Phase Delegate to Callback
-			HeroSelectionDelegate.BindUFunction(this, FName("OnHeroSelectionStarted"));
-			// Start Phase 
-			GamePhaseSubsystem->StartPhase(HeroSelection, HeroSelectionDelegate);
-		}
-	}
 }
 
 void UMatchScoringComponent::RegisterAssaultPoint(AAssaultPoint* AssaultPoint)
@@ -125,11 +92,7 @@ void UMatchScoringComponent::ResetAllActivePlayers()
 
 void UMatchScoringComponent::ScorePoints()
 {
-}
-
-void UMatchScoringComponent::GetPointStatus(int32 TeamID)
-{
-
+	// gameplay message subsystem - 
 }
 
 void UMatchScoringComponent::HandleVictory(int32 TeamID)
@@ -137,6 +100,7 @@ void UMatchScoringComponent::HandleVictory(int32 TeamID)
 	// Set Winning Team 
 	WinningTeamID = TeamID; 
 	
+	// Replace Ability Level of the GameplayCueParameters with Team ID. 
 	FGameplayCueParameters GameplayCueParameters; 
 	GameplayCueParameters.AbilityLevel = WinningTeamID;
 	ActivateMatchDecidedGameplayCue(FOWGameplayTags::Get().GameplayCue_MatchDecided, GameplayCueParameters);
@@ -153,12 +117,33 @@ void UMatchScoringComponent::HandleVictory(int32 TeamID)
 
 void UMatchScoringComponent::ActivateMatchDecidedGameplayCue(FGameplayTag GameplayCueTag, FGameplayCueParameters& GameplayCueParameters)
 {
+	ClearMatchDecidedGameplayCue(); 
 
+	// Check if GameplayCueTag is Valid 
+	if (GameplayCueTag.IsValid())
+	{
+		MatchDecidedTag = GameplayCueTag;
+		// Add Match Decided Gameplay Cue to Gameplay State using Gameplay Cue Function Library 
+		if (AGameStateBase* GameStateBase = UGameplayStatics::GetGameState(this))
+		{
+			UGameplayCueFunctionLibrary::AddGameplayCueOnActor(GameStateBase, MatchDecidedTag, GameplayCueParameters);
+		}
+	}
 }
 
 void UMatchScoringComponent::ClearMatchDecidedGameplayCue()
 {
-
+	// Check if Match Decided Tag Member Variable is Valid 
+	if (MatchDecidedTag.IsValid())
+	{
+		// Remove Match Decided Gameplay Cue to Gameplay State using Gameplay Cue Function Library 
+		if (AGameStateBase* GameStateBase = UGameplayStatics::GetGameState(this))
+		{
+			UGameplayCueFunctionLibrary::RemoveGameplayCueOnActor(GameStateBase, MatchDecidedTag, FGameplayCueParameters()); 
+			// Reset Match Decided Tag that is the Member Variable 
+			MatchDecidedTag = FGameplayTag(); 
+		}
+	}
 }
 
 void UMatchScoringComponent::OnRep_AssaultPoints()

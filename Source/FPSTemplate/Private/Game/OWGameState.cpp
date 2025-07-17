@@ -52,7 +52,7 @@ void AOWGameState::PostInitializeComponents()
 	}
 
 	// Create New Object, Replicate, and Register
-	MatchScoringComponent = NewObject<UMatchScoringComponent>(this);
+	MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
 	MatchScoringComponent->SetIsReplicated(true);
 	MatchScoringComponent->RegisterComponent();
 

@@ -48,11 +48,15 @@ public:
 	TSubclassOf<UTeamCreationComponent> TeamCreationComponentClass;
 
 	/* Components - Player Spawning */
+	UPROPERTY()
 	TObjectPtr<UPlayerSpawningManagerComponent> PlayerSpawningManagerComponent; 
 
 	/* Components - Match Scoring */
 	UPROPERTY()
 	TObjectPtr<UMatchScoringComponent> MatchScoringComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UMatchScoringComponent> MatchScoringComponentClass;
 
 	/* Components - Player Performance */
 	UPROPERTY()
