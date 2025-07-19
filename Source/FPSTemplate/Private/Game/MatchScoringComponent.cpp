@@ -31,6 +31,7 @@ void UMatchScoringComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 void UMatchScoringComponent::RegisterAssaultPoint(AAssaultPoint* AssaultPoint)
 {
 	AssaultPoints.Add(AssaultPoint);
+	OnAssaultPointRegistered.Broadcast(AssaultPoint); 
 }
 
 void UMatchScoringComponent::ContestPoint(AAssaultPoint* AssaultPoint)

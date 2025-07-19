@@ -37,10 +37,6 @@ void AAssaultPoint::BeginPlay()
 	if (AGameStateBase* GameState = UGameplayStatics::GetGameState(this))
 	{
 		MatchScoringComponent = GameState->GetComponentByClass<UMatchScoringComponent>();
-	}
-
-	if (HasAuthority())
-	{
 		if (MatchScoringComponent)
 		{
 			MatchScoringComponent->RegisterAssaultPoint(this); 
@@ -227,17 +223,28 @@ void AAssaultPoint::UpdateAssaultPoint(int32 NewNumAttackers, int32 NewNumDefend
 		NumAttackers = NewNumAttackers; 
 		NumDefenders = NewNumDefenders; 
 
-		if (OldNumAttackers >= 1 && NewNumAttackers == 0)
+		if (NewNumDefenders > 0)
 		{
-			OccupationState = EOccupationState::Stop;
+			if (NewNumAttackers > 0)
+			{
+				OccupationState = EOccupationState::Contesting; 
+			}
+			else
+			{
+				OccupationState = EOccupationState::Stop;	
+			}
 		}
-		else if (OldNumAttackers == 0 && NewNumAttackers >= 1 && NewNumDefenders == 0)
+		// The Number of New Defenders is 0 
+		else
 		{
-			OccupationState = EOccupationState::Start;
-		}
-		else if (NewNumAttackers >= 1 && NewNumDefenders >= 1)
-		{
-			OccupationState = EOccupationState::Contesting;
+			if (NewNumAttackers > 0)
+			{
+				OccupationState = EOccupationState::Start;
+			}
+			else
+			{
+				OccupationState = EOccupationState::Stop; 
+			}
 		}
 	}
 }
