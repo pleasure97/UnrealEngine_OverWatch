@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "Message/OWMessageTypes.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "AssaultOverlay.generated.h"
 
 class UMatchScoringComponent;
@@ -107,4 +108,9 @@ private:
 
 	UFUNCTION()
 	void OnOccupationStateChanged(EOccupationState NewOccupationState);
+
+	UFUNCTION()
+	void OnMatchScoringComponentRegistered(FGameplayTag Channel, const FOWVerbMessage& Payload); 
+
+	FGameplayMessageListenerHandle MatchScoringComponentListener; 
 };

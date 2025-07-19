@@ -46,10 +46,10 @@ public:
 	TObjectPtr<UTexture2D> RedAssaultRhombus;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FLinearColor BlueTeamColor;
+	FLinearColor BlueTeamColor = FLinearColor(0.041667f, 0.6407f, 1.f, 1.f);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FLinearColor RedTeamColor;
+	FLinearColor RedTeamColor = FLinearColor(0.65625f, 0.f, 0.f, 1.f);
 
 	/* Assault Point Occupation */
 	UPROPERTY(meta = (BindWidget))

@@ -36,7 +36,7 @@ void UAssaultProgress::HideAssaultWidgets()
 	// Hide NumOccupied UI 
 	if (HorizontalBox_NumOccupied)
 	{
-		HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Hidden);
+		HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Collapsed);
 	}
 
 	// Collapse Contesting UI 
@@ -57,7 +57,7 @@ void UAssaultProgress::UpdateNumAttackers(int32 NumAttackers)
 	{
 		if (Border_NumOccupiedAttackers)
 		{
-			Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Hidden); 
+			Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Collapsed); 
 		}
 	}
 	else
@@ -85,7 +85,7 @@ void UAssaultProgress::UpdateNumDefenders(int32 NumDefenders)
 	{
 		if (Border_NumOccupiedDefenders)
 		{
-			Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Hidden); 
+			Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Collapsed); 
 		}
 	}
 	else
@@ -97,15 +97,15 @@ void UAssaultProgress::UpdateNumDefenders(int32 NumDefenders)
 
 		if (Border_NumOccupiedDefenders)
 		{
-			if (Border_NumOccupiedAttackers->GetVisibility() != ESlateVisibility::Visible)
+			if (Border_NumOccupiedDefenders->GetVisibility() != ESlateVisibility::Visible)
 			{
-				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Visible);
+				Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Visible);
 			}
 		}
 
 		if (TextBlock_NumOccupiedDefenders)
 		{
-			TextBlock_NumOccupiedAttackers->SetText(FText::AsNumber(NumDefenders)); 
+			TextBlock_NumOccupiedDefenders->SetText(FText::AsNumber(NumDefenders));
 		}
 	}
 }
@@ -130,11 +130,18 @@ void UAssaultProgress::UpdateOccupationState(EOccupationState OccupationState)
 	case EOccupationState::Start:
 	{
 		// Set Num Occupied Visibility
-		if (HorizontalBox_NumOccupied && (HorizontalBox_NumOccupied->GetVisibility() == ESlateVisibility::Visible))
+		if (HorizontalBox_NumOccupied && (HorizontalBox_NumOccupied->GetVisibility() != ESlateVisibility::Visible))
 		{
 			HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Visible); 
+			if (Border_NumOccupiedAttackers && (Border_NumOccupiedAttackers->GetVisibility() != ESlateVisibility::Visible))
+			{
+				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Visible);
+			}
+			if (Border_NumOccupiedDefenders && (Border_NumOccupiedDefenders->GetVisibility() == ESlateVisibility::Visible))
+			{
+				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Collapsed);
+			}
 		}
-
 		StopContestingAnimation();
 		break;
 	}
@@ -144,8 +151,15 @@ void UAssaultProgress::UpdateOccupationState(EOccupationState OccupationState)
 		if (HorizontalBox_NumOccupied && (HorizontalBox_NumOccupied->GetVisibility() != ESlateVisibility::Visible))
 		{
 			HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Visible);
+			if (Border_NumOccupiedAttackers && (Border_NumOccupiedAttackers->GetVisibility() != ESlateVisibility::Visible))
+			{
+				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Visible);
+			}
+			if (Border_NumOccupiedDefenders && (Border_NumOccupiedDefenders->GetVisibility() != ESlateVisibility::Visible))
+			{
+				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Visible);
+			}
 		}
-
 		PlayContestingAnimation();
 		break;
 	}
@@ -156,7 +170,7 @@ void UAssaultProgress::UpdateOccupationState(EOccupationState OccupationState)
 		// Set Num Occupied Visibility
 		if (HorizontalBox_NumOccupied && (HorizontalBox_NumOccupied->GetVisibility() != ESlateVisibility::Visible))
 		{
-			HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Hidden);
+			HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Collapsed);
 		}
 		break;
 	}
@@ -183,7 +197,7 @@ void UAssaultProgress::PlayContestingAnimation()
 void UAssaultProgress::StopContestingAnimation()
 {
 	// Stop Widget Animation 
-	if (HorizontalBox_Contesting && Contesting && IsAnimationPlaying(Contesting))
+	if (HorizontalBox_Contesting && Contesting)
 	{
 		StopAnimation(Contesting);
 		HorizontalBox_Contesting->SetVisibility(ESlateVisibility::Collapsed);
@@ -202,10 +216,16 @@ void UAssaultProgress::UpdateProgressDesign(int32 OffenseTeamID)
 	{
 		if (Border_NumOccupiedAttackers)
 		{
+			FSlateBrush SlateBrush; 
+			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
+			Border_NumOccupiedAttackers->SetBrush(SlateBrush);
 			Border_NumOccupiedAttackers->SetBrushColor(BlueTeamColor); 
 		}
 		if (Border_NumOccupiedDefenders)
 		{
+			FSlateBrush SlateBrush;
+			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox; 
+			Border_NumOccupiedDefenders->SetBrush(SlateBrush);
 			Border_NumOccupiedDefenders->SetBrushColor(RedTeamColor); 
 		}
 		if (Image_AssaultRhombus)
@@ -217,10 +237,16 @@ void UAssaultProgress::UpdateProgressDesign(int32 OffenseTeamID)
 	{
 		if (Border_NumOccupiedAttackers)
 		{
+			FSlateBrush SlateBrush;
+			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
+			Border_NumOccupiedAttackers->SetBrush(SlateBrush);
 			Border_NumOccupiedAttackers->SetBrushColor(RedTeamColor);
 		}
 		if (Border_NumOccupiedDefenders)
 		{
+			FSlateBrush SlateBrush;
+			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
+			Border_NumOccupiedDefenders->SetBrush(SlateBrush);
 			Border_NumOccupiedDefenders->SetBrushColor(BlueTeamColor);
 		}
 		if (Image_AssaultRhombus)

@@ -350,6 +350,22 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Illiari.Laceration"),
 		FString("Illiari's Laceration GameplayCue"));
 
+	GameplayTags.GameplayCue_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Tracer.PulsePistols"),
+		FString("Tracer's Pulse Pistols GameplayCue"));
+
+	GameplayTags.GameplayCue_Tracer_Blink = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Tracer.Blink"),
+		FString("Tracer's Blink GameplayCue"));
+
+	GameplayTags.GameplayCue_Tracer_Recall = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Tracer.Recall"),
+		FString("Tracer's Recall GameplayCue"));
+
+	GameplayTags.GameplayCue_Tracer_PulseBomb = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Tracer.PulseBomb"),
+		FString("Tracer's Pulse Bomb GameplayCue"));
+
 	/* Gameplay Message */
 
 	GameplayTags.Gameplay_Message_HealthPlate_Add = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -380,9 +396,13 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.KillFeed"),
 		FString("Gameplay Message for Updating Kill Feed"));
 
-	GameplayTags.Gameplay_Message_Respawn = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Gameplay.Message.Respawn"),
-		FString("Gameplay Message for Event Hero Respawning"));
+	GameplayTags.Gameplay_Message_RespawnWaiting = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.RespawnWaiting"),
+		FString("Gameplay Message about Waiting for Respawning Hero"));
+
+	GameplayTags.Gameplay_Message_RespawnCompleted = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.RespawnCompleted"),
+		FString("Gameplay Message that Hero Respawning is Completed"));
 
 	GameplayTags.Gameplay_Message_MatchBeginCountdown = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Gameplay.Message.MatchBeginCountdown"),
@@ -392,6 +412,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Gameplay.Message.AssaultProgress"),
 		FString("Gameplay Message for Assault Progress"));
 
+	GameplayTags.Gameplay_Message_MatchScoringComponent = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Gameplay.Message.MatchScoringComponent"),
+		FString("Gameplay Message for Match Scoring Component"));
+	
 	/* Game Phase */
 	GameplayTags.GamePhase_HeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GamePhase.HeroSelection"),

@@ -10,6 +10,7 @@
 #include "Message/OWMessageTypes.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "OWGameplayTags.h"
 
 
 AOWGameState::AOWGameState()
@@ -55,6 +56,10 @@ void AOWGameState::PostInitializeComponents()
 	MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
 	MatchScoringComponent->SetIsReplicated(true);
 	MatchScoringComponent->RegisterComponent();
+	// Broadcast Message that Match Scoring Component has been registered
+	FOWVerbMessage MatchScoringComponentRegisteredMessage; 
+	MatchScoringComponentRegisteredMessage.Instigator = this; 
+	UGameplayMessageSubsystem::Get(this).BroadcastMessage(FOWGameplayTags::Get().Gameplay_Message_MatchScoringComponent, MatchScoringComponentRegisteredMessage); 
 
 	if (OWAbilitySystemComponent)
 	{

@@ -133,6 +133,11 @@ public:
 	FGameplayTag GameplayCue_Illiari_Outburst;
 	FGameplayTag GameplayCue_Illiari_Laceration; 
 
+	FGameplayTag GameplayCue_Tracer_PulsePistols; 
+	FGameplayTag GameplayCue_Tracer_Blink; 
+	FGameplayTag GameplayCue_Tracer_Recall; 
+	FGameplayTag GameplayCue_Tracer_PulseBomb; 
+
 	/* Gameplay Message */
 	FGameplayTag Gameplay_Message_HealthPlate_Add; 
 	FGameplayTag Gameplay_Message_HealthPlate_Remove; 
@@ -141,9 +146,11 @@ public:
 	FGameplayTag Gameplay_Message_HeroDebuffed;
 	FGameplayTag Gameplay_Message_HeroKilled; 
 	FGameplayTag Gameplay_Message_KillFeed; 
-	FGameplayTag Gameplay_Message_Respawn; 
+	FGameplayTag Gameplay_Message_RespawnWaiting; 
+	FGameplayTag Gameplay_Message_RespawnCompleted; 
 	FGameplayTag Gameplay_Message_MatchBeginCountdown; 
 	FGameplayTag Gameplay_Message_AssaultProgress; 
+	FGameplayTag Gameplay_Message_MatchScoringComponent; 
 
 	/* Game Phase */
 	FGameplayTag GamePhase_HeroSelection; 

@@ -2,7 +2,6 @@
 
 
 #include "UI/Widget/Assault/AssaultOverlay.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
 #include "Game/MatchScoringComponent.h"
 #include "Actor/AssaultPoint.h"
 #include "OWGameplayTags.h"
@@ -23,19 +22,9 @@ void UAssaultOverlay::NativeConstruct()
 
 	check(WidgetController);
 
-	// Cast Widget Controller to Overlay Widget Controller
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
-	{
-		SetWidgetController(OverlayWidgetController); 
-		// Get Match Scoring Component from Overlay Widget Controller 
-		MatchScoringComponent = OverlayWidgetController->GetMatchScoringComponent(); 
-		// Bind Assault Point Registered Delegate
-		if (MatchScoringComponent)
-		{
-			MatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered); 
-			// TODO - Synchronize Assault Timer (Match Preparation Time / Match In Progress Time) 
-		}
-	}
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this); 
+	MatchScoringComponentListener = GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
+		FOWGameplayTags::Get().Gameplay_Message_MatchScoringComponent, this, &UAssaultOverlay::OnMatchScoringComponentRegistered);
 
 	// Get Game Phase Subsystem
 	UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>(); 
@@ -80,12 +69,8 @@ void UAssaultOverlay::NativeConstruct()
 
 void UAssaultOverlay::NativeDestruct()
 {
-	// Cast Widget Controller to Overlay Widget Controller 
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	if (MatchScoringComponent)
 	{
-		// Get Match Scoring Component from Overlay Widget Controller
-		MatchScoringComponent = OverlayWidgetController->GetMatchScoringComponent();
-
 		// Iterate Match Scoring Component's Assault Points Array and Remove Related Bindings 
 		for (AAssaultPoint* AssaultPoint : MatchScoringComponent->AssaultPoints)
 		{
@@ -93,6 +78,11 @@ void UAssaultOverlay::NativeDestruct()
 			AssaultPoint->OnNumDefendersChanged.RemoveAll(this);
 			AssaultPoint->OnOccupationProgressChanged.RemoveAll(this);
 			AssaultPoint->OnOccupationStateChanged.RemoveAll(this);
+		}
+
+		if (MatchScoringComponentListener.IsValid())
+		{
+			MatchScoringComponentListener.Unregister();
 		}
 	}
 	// Remove the Async Action Observe Team Binding 
@@ -321,4 +311,17 @@ void UAssaultOverlay::OnOccupationStateChanged(EOccupationState NewOccupationSta
 	{
 		WBP_AssaultProgress->UpdateOccupationState(NewOccupationState);
 	}
+}
+
+void UAssaultOverlay::OnMatchScoringComponentRegistered(FGameplayTag Channel, const FOWVerbMessage& Payload)
+{
+	if (Payload.Instigator)
+	{
+		if (UMatchScoringComponent* RegisteredMatchScoringComponent = Payload.Instigator->GetComponentByClass<UMatchScoringComponent>())
+		{
+			MatchScoringComponent = RegisteredMatchScoringComponent; 
+			MatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered);
+		}
+	}
+
 }
