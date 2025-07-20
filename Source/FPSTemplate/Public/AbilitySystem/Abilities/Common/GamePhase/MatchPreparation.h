@@ -23,22 +23,4 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> DamageImmuneGamelayEffectClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UOWGamePhaseAbility> MatchInProgress; 
-
-protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
-
-private:
-	int32 RemainingCountdown = 0; 
-
-	FTimerHandle BeforeCountdownTimerHandle; 
-	FTimerHandle CountdownTimerHandle; 
-
-	void BroadcastCountdownMessage(); 
 };
