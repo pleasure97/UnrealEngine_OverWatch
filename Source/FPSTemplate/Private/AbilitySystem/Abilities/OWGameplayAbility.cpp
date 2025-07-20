@@ -32,3 +32,8 @@ float UOWGameplayAbility::GetCooldown(float InLevel)
 
     return Cooldown;
 }
+
+void UOWGameplayAbility::OnHeroSet()
+{
+    K2_OnHeroSet();
+}

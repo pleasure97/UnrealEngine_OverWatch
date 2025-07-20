@@ -32,6 +32,31 @@ void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActo
         {
             OWAnimInstance->InitializeWithAbilitySystem(this); 
         } 
+
+        // Notify all abilities that a new pawn avatar has been set
+        for (const FGameplayAbilitySpec& AbilitySpec : ActivatableAbilities.Items)
+        {
+            UOWGameplayAbility* OWGameplayAbility = CastChecked<UOWGameplayAbility>(AbilitySpec.Ability);
+
+            // Check if Instancing Policy of Gameplay Ability is Non Instanced, Instanced Per Actor, or Instanced Per Execution
+            if (OWGameplayAbility->GetInstancingPolicy() != EGameplayAbilityInstancingPolicy::NonInstanced)
+            {
+                TArray<UGameplayAbility*> Instances = AbilitySpec.GetAbilityInstances();
+                for (UGameplayAbility* AbilityInstance : Instances)
+                {
+                    UOWGameplayAbility* OWAbilityInstance = Cast<UOWGameplayAbility>(AbilityInstance);
+                    if (OWAbilityInstance)
+                    {
+                        // Ability instances may be missing for replays
+                        OWAbilityInstance->OnHeroSet();
+                    }
+                }
+            }
+            else
+            {
+                OWGameplayAbility->OnHeroSet();
+            }
+        }
     }
 }
 

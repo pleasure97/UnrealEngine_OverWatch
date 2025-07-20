@@ -18,10 +18,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	FGameplayTag DefaultInputTag; 
 
+	virtual void OnHeroSet();
+
 protected:
 	float GetSkillCost(float InLevel = 1.f) const; 
 
 	float GetCooldown(float InLevel = 1.f); 
-	
-	
+
+	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPawnAvatarSet")
+	void K2_OnHeroSet();
 };
