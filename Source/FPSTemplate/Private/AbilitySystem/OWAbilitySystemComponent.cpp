@@ -104,7 +104,10 @@ void UOWAbilitySystemComponent::AddHeroAbilities()
 
 void UOWAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
-    if (!InputTag.IsValid()) return;
+    if (!InputTag.IsValid() || HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputPressed))
+    {
+        return;
+    }
 
     FScopedAbilityListLock ActiveScopeLock(*this); 
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
@@ -122,7 +125,10 @@ void UOWAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& Input
 
 void UOWAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
-    if (!InputTag.IsValid()) return; 
+    if (!InputTag.IsValid() || HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputHeld))
+    {
+        return;
+    }
 
     FScopedAbilityListLock ActiveScopeLock(*this); 
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
@@ -140,7 +146,10 @@ void UOWAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag
 
 void UOWAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
 {
-    if (!InputTag.IsValid()) return; 
+    if (!InputTag.IsValid() || HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputReleased))
+    {
+        return;
+    }
 
     for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {

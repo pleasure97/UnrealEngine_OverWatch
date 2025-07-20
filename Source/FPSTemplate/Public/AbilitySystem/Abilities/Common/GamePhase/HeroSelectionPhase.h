@@ -7,6 +7,8 @@
 #include "GameplayTagContainer.h"
 #include "HeroSelectionPhase.generated.h"
 
+class UHeroSelectionOverlay; 
+
 /**
  * 
  */
@@ -18,22 +20,4 @@ class FPSTEMPLATE_API UHeroSelectionPhase : public UOWGamePhaseAbility
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float HeroSelectionTime = 30.f; 
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UOWGamePhaseAbility> MatchPreparation; 
-	
-protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
-
-private:
-	void ClearHeroSelectionCue(); 
-	void ActivateHeroSelectionCue(const FGameplayTag GameplayCueTag, FGameplayCueParameters& GameplayCueParameters);
-
-	FGameplayTag ActiveHeroSelectionCue; 
-
-	FTimerHandle HeroSelectionTimerHandle; 
 };
