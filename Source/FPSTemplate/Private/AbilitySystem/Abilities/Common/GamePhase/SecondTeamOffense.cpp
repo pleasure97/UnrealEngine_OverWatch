@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "AbilitySystem/Abilities/Common/GamePhase/MatchInProgress.h"
+#include "AbilitySystem/Abilities/Common/GamePhase/SecondTeamOffense.h"
 
 
 
