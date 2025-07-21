@@ -19,7 +19,7 @@ class UGameplayAbility;
 class UDebuffNiagaraComponent; 
 class UGameplayEffect; 
 class UWidgetComponent;
-class UHealthPlateSourceComponent; 
+//class UHealthPlateSourceComponent; 
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface, public ITeamInterface
@@ -64,38 +64,6 @@ public:
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
 	/** Team Interface End **/
 
-	/** Attribute Value Changed Delegate **/
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnMaxHealthChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnMaxArmorChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnMaxShieldChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnHealthChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnArmorChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnShieldChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnTempArmorChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnTempShieldChanged;
-	
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnOverHealthChanged;
-
-	FOnAttributeChangedSignature* GetDelegateForTag(const FGameplayTag& Tag); 
-
-	/** Attribute Value Changed Delegate End **/
-
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse); 
 
@@ -120,8 +88,6 @@ protected:
 	TObjectPtr<UOWAttributeSet> AttributeSet; 
 
 	/* Attributes */
-	virtual void InitializeDefaultAttributes() const; 
-
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const; 
 
 	/* State - Death */
@@ -148,8 +114,8 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UWidgetComponent> WidgetComponent;
 
-	UPROPERTY()
-	TObjectPtr<UHealthPlateSourceComponent> HealthPlateSourceComponent; 
+	//UPROPERTY()
+	//TObjectPtr<UHealthPlateSourceComponent> HealthPlateSourceComponent; 
 
 	/* Team */
 	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)

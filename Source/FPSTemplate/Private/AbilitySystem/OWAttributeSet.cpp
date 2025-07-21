@@ -21,15 +21,15 @@ UOWAttributeSet::UOWAttributeSet()
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
 	/* Defensive Attributes */
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxHealth, GetMaxHealthAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxArmor, GetMaxArmorAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_MaxShield, GetMaxShieldAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Health, GetHealthAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Armor, GetArmorAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_Shield, GetShieldAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute);
-	TagsToAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_MaxHealth, GetMaxHealthAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_MaxArmor, GetMaxArmorAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_MaxShield, GetMaxShieldAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_Health, GetHealthAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_Armor, GetArmorAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_Shield, GetShieldAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_TempArmor, GetTempArmorAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_TempShield, GetTempShieldAttribute);
+	TagsToDefensiveAttributes.Add(GameplayTags.Attributes_Defense_OverHealth, GetOverHealthAttribute);
 
 	/* Secondary Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute); 

@@ -120,20 +120,6 @@ void AOWCharacter::PossessedBy(AController* NewController)
 	AddHeroAbilities(); 
 
 	InitializeDefaultAttributes();
-
-	// TODO - Give Default Abilities, Give Default Effects 
-
-	if (UOWAttributeSet* OWAttributeSet = Cast<UOWAttributeSet>(AttributeSet))
-	{
-		OnMaxHealthChanged.Broadcast(OWAttributeSet->GetMaxHealth());
-		OnMaxArmorChanged.Broadcast(OWAttributeSet->GetMaxArmor());
-		OnMaxShieldChanged.Broadcast(OWAttributeSet->GetMaxShield());
-		OnHealthChanged.Broadcast(OWAttributeSet->GetHealth());
-		OnArmorChanged.Broadcast(OWAttributeSet->GetArmor());
-		OnShieldChanged.Broadcast(OWAttributeSet->GetShield());
-		OnTempArmorChanged.Broadcast(OWAttributeSet->GetTempArmor());
-		OnTempShieldChanged.Broadcast(OWAttributeSet->GetTempShield());
-	}
 }
 
 void AOWCharacter::InitializeDefaultAttributes() const

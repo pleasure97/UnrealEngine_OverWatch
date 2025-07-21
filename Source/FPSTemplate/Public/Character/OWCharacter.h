@@ -62,7 +62,7 @@ public:
 	void Reset();
 
 protected:
-	virtual void InitializeDefaultAttributes() const override; 
+	virtual void InitializeDefaultAttributes() const; 
 
 private:
 	void InitAbilityActorInfo(); 

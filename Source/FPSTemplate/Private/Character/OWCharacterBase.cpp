@@ -34,14 +34,7 @@ AOWCharacterBase::AOWCharacterBase()
 	StunDebuffComponent->SetupAttachment(GetRootComponent()); 
 	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
 
-	// Widget Component 
-	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("WidgetComponent");
-	WidgetComponent->SetupAttachment(GetRootComponent());
-	WidgetComponent->SetOnlyOwnerSee(false);
-	WidgetComponent->SetOwnerNoSee(false);
-	WidgetComponent->SetIsReplicated(true); 
-
-	HealthPlateSourceComponent = CreateDefaultSubobject<UHealthPlateSourceComponent>("HealthPlateSourceComponent"); 
+	//HealthPlateSourceComponent = CreateDefaultSubobject<UHealthPlateSourceComponent>("HealthPlateSourceComponent"); 
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
@@ -202,12 +195,6 @@ void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 void AOWCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (UHealthBarPool* HealthBarPool = Cast<UHealthBarPool>(WidgetComponent->GetUserWidgetObject()))
-	{
-		HealthBarPool->SetWidgetController(this); 
-		HealthBarPool->BindWidgetControllerEvents(); 
-	}
 }
 
 void AOWCharacterBase::PossessedBy(AController* NewController)
@@ -246,21 +233,6 @@ void AOWCharacterBase::UnPossessed()
 	UpdateTeamColor();
 }
 
-FOnAttributeChangedSignature* AOWCharacterBase::GetDelegateForTag(const FGameplayTag& Tag)
-{
-	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
-	if (Tag == GameplayTags.Attributes_Defense_Health) return &OnHealthChanged;
-	if (Tag == GameplayTags.Attributes_Defense_MaxHealth) return &OnMaxHealthChanged;
-	if (Tag == GameplayTags.Attributes_Defense_Armor) return &OnArmorChanged;
-	if (Tag == GameplayTags.Attributes_Defense_MaxArmor) return &OnMaxArmorChanged;
-	if (Tag == GameplayTags.Attributes_Defense_Shield) return &OnShieldChanged;
-	if (Tag == GameplayTags.Attributes_Defense_MaxShield) return &OnMaxShieldChanged;
-	if (Tag == GameplayTags.Attributes_Defense_TempArmor) return &OnTempArmorChanged;
-	if (Tag == GameplayTags.Attributes_Defense_TempShield) return &OnTempShieldChanged;
-
-	return nullptr;
-}
-
 void AOWCharacterBase::AddHeroAbilities()
 {
 	UOWAbilitySystemComponent* OWASC = CastChecked<UOWAbilitySystemComponent>(AbilitySystemComponent); 
@@ -268,11 +240,6 @@ void AOWCharacterBase::AddHeroAbilities()
 	if (!HasAuthority()) return; 
 
 	OWASC->AddHeroAbilities(); 
-}
-
-void AOWCharacterBase::InitializeDefaultAttributes() const
-{
-
 }
 
 void AOWCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
