@@ -11,6 +11,11 @@ class UHealthBar;
 class USizeBox; 
 class UBorder;
 class UHorizontalBox;
+class UOWAbilitySystemComponent; 
+class UOWAttributeSet;
+struct FOnAttributeChangeData;
+struct FGameplayTag;
+struct FGameplayAttribute;
 
 USTRUCT(BlueprintType)
 struct FHealthBarPoolInfo
@@ -25,6 +30,17 @@ struct FHealthBarPoolInfo
 
 	UPROPERTY()
 	FLinearColor HealthBarColor; 
+
+	// Member Function Pointer of Health Bar Pool 
+	void (UHealthBarPool::* UpdateFunc)(float) = nullptr; 
+
+	void ExecuteUpdate(UHealthBarPool* HealthBarPool, float NewValue) const
+	{
+		if (HealthBarPool && UpdateFunc)
+		{
+			(HealthBarPool->*UpdateFunc)(NewValue); 
+		}
+	}
 };
 /**
  * 
@@ -94,9 +110,12 @@ public:
 	TArray<FHealthBarPoolInfo> HealthBarInfos; 
 
 	UFUNCTION()
-	void BindWidgetControllerEvents();
+	void BindDefensiveAttributeChange();
 
 	/* Update Attributes */
+	UFUNCTION()
+	void OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue); 
+
 	UFUNCTION()
 	void UpdateHealthBars(float NewValue);
 
@@ -138,4 +157,9 @@ private:
 	void UpdateBorderVisibility();
 	void DistributeFillSize(); 
 	void ClearHealthBarPool(); 
+
+	UPROPERTY()
+	TObjectPtr<UOWAbilitySystemComponent> OwnerAbilitySystemComponent; 
+	UPROPERTY()
+	TObjectPtr<UOWAttributeSet> OwnerAttributeSet; 
 };

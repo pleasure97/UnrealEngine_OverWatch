@@ -2,14 +2,14 @@
 
 
 #include "UI/Widget/HealthBarPool.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
-#include "Character/OWCharacterBase.h"
-#include "Actor/HealingSunStone.h"
+#include "Player/OWPlayerState.h"
+#include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "AbilitySystem/OWAttributeSet.h"
 
 void UHealthBarPool::NativeConstruct()
 {
@@ -19,43 +19,21 @@ void UHealthBarPool::NativeConstruct()
 
 	InitializeHealthBarPoolInfos();
 
-	BindWidgetControllerEvents();
+	BindDefensiveAttributeChange();
 }
 
 void UHealthBarPool::NativeDestruct()
 {
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	// Remove Binding of Gameplay Attribute Value Change Delegate of Ability System Component 
+	if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
 	{
-		OverlayWidgetController->OnMaxHealthChanged.RemoveAll(this); 
-		OverlayWidgetController->OnMaxArmorChanged.RemoveAll(this);
-		OverlayWidgetController->OnMaxShieldChanged.RemoveAll(this);
-		OverlayWidgetController->OnHealthChanged.RemoveAll(this);
-		OverlayWidgetController->OnArmorChanged.RemoveAll(this);
-		OverlayWidgetController->OnShieldChanged.RemoveAll(this);
-		OverlayWidgetController->OnTempArmorChanged.RemoveAll(this);
-		OverlayWidgetController->OnTempShieldChanged.RemoveAll(this);
-		OverlayWidgetController->OnOverHealthChanged.RemoveAll(this);
-	}
+		for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+		{
+			const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
+			const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
 
-	if (AOWCharacterBase* OWCharacterBase = Cast<AOWCharacterBase>(WidgetController))
-	{
-		OWCharacterBase->OnMaxHealthChanged.RemoveAll(this);
-		OWCharacterBase->OnMaxArmorChanged.RemoveAll(this);
-		OWCharacterBase->OnMaxShieldChanged.RemoveAll(this);
-		OWCharacterBase->OnHealthChanged.RemoveAll(this);
-		OWCharacterBase->OnArmorChanged.RemoveAll(this);
-		OWCharacterBase->OnShieldChanged.RemoveAll(this);
-		OWCharacterBase->OnTempArmorChanged.RemoveAll(this);
-		OWCharacterBase->OnTempShieldChanged.RemoveAll(this);
-		OWCharacterBase->OnOverHealthChanged.RemoveAll(this);
-	}
-
-	if (AHealingSunStone* HealingSunStone = Cast<AHealingSunStone>(WidgetController))
-	{
-		HealingSunStone->OnMaxHealthChanged.RemoveAll(this);
-		HealingSunStone->OnMaxShieldChanged.RemoveAll(this);
-		HealingSunStone->OnHealthChanged.RemoveAll(this);
-		HealingSunStone->OnShieldChanged.RemoveAll(this);
+			OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this); 
+		}
 	}
 
 	ClearHealthBarPool();
@@ -66,15 +44,27 @@ void UHealthBarPool::NativeDestruct()
 void UHealthBarPool::InitializeHealthBarPoolInfos()
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors[FName("Green")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors[FName("Orange")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors[FName("Blue")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health, FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")]));
-	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Shield, FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")]));
+
+	// Initialize the Mapping between Defensive Attribute Gameplay Tag and Health Bar Pool Info 
+	// (Defensive Attribute Gameplay Tag - Border, Horizontal Box, Color, UpdateBars())
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth, 
+		FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")], &UHealthBarPool::UpdateMaxHealthBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxArmor,
+		FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")], &UHealthBarPool::UpdateMaxArmorBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxShield, 
+		FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")], &UHealthBarPool::UpdateMaxShieldBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_OverHealth, 
+		FHealthBarPoolInfo(Border_OverHealth, HorizontalBox_OverHealth, HealthBarColors[FName("Green")], &UHealthBarPool::UpdateOverHealthBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempArmor, 
+		FHealthBarPoolInfo(Border_TempArmor, HorizontalBox_TempArmor, HealthBarColors[FName("Orange")], &UHealthBarPool::UpdateTempArmorBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_TempShield, 
+		FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors[FName("Blue")], &UHealthBarPool::UpdateTempShieldBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health, 
+		FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")], &UHealthBarPool::UpdateHealthBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Armor, 
+		FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")], &UHealthBarPool::UpdateArmorBars));
+	TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Shield, 
+		FHealthBarPoolInfo(Border_Shield, HorizontalBox_Shield, HealthBarColors[FName("Sky")], &UHealthBarPool::UpdateShieldBars));
 
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("White")]));
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_Armor, HorizontalBox_Armor, HealthBarColors[FName("Orange")]));
@@ -84,51 +74,52 @@ void UHealthBarPool::InitializeHealthBarPoolInfos()
 	HealthBarInfos.Add(FHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors[FName("Blue")]));
 }
 
-void UHealthBarPool::BindWidgetControllerEvents()
+void UHealthBarPool::BindDefensiveAttributeChange()
 {
-	if (TagsToHealthBarInfos.IsEmpty() || HealthBarInfos.IsEmpty())
+	// Cast Owning Player State to Custom Player State
+	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetOwningPlayerState()))
 	{
-		InitializeHealthBarPoolInfos(); 
+		// Get Ability System Component from Custom Player State and Cast it to Custom Ability System Component
+		if (UOWAbilitySystemComponent* InAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent()))
+		{
+			// Assign Owner Ability System Component Member Variable 
+			OwnerAbilitySystemComponent = InAbilitySystemComponent;
+			// Get Attribute Set from Owner Ability System Component and Cast it to Custom Attribute Set
+			if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(OwnerAbilitySystemComponent->GetSet<UOWAttributeSet>()))
+			{
+				// Assign Owner Attribute Set Member Variable 
+				OwnerAttributeSet = InAttributeSet; 
+				// Check Owner Ability System Component and Attribute Set are Valid 
+				if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
+				{
+					// Iterate Defensive Attribute Map of Owner Attribute Set
+					for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+					{
+						const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
+						const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
+
+						// Bind Gameplay Attribute Value Change Delegate of Owner Ability System Component
+						OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddLambda(
+							[this, DefensiveTag](const FOnAttributeChangeData& Data)
+							{
+								OnDefensiveAttributeChanged(DefensiveTag, Data.NewValue);
+							}
+						);
+						// Call in advance to Initilaize Health Bar Pool 
+						OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(OwnerAttributeSet)); 
+					}
+				}
+			}
+		}
 	}
+}
 
-	// TODO - Change Repetitive and Inefficient Codes 
-
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+void UHealthBarPool::OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue)
+{
+	if (FHealthBarPoolInfo* HealthBarPoolInfo = TagsToHealthBarInfos.Find(AttributeTag))
 	{
-		SetWidgetController(OverlayWidgetController);
-
-		OverlayWidgetController->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
-		OverlayWidgetController->OnMaxArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxArmorBars);
-		OverlayWidgetController->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
-		OverlayWidgetController->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars);
-		OverlayWidgetController->OnArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateArmorBars);
-		OverlayWidgetController->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars);
-		OverlayWidgetController->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars);
-		OverlayWidgetController->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars);
-		OverlayWidgetController->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars);
-	}
-
-	if (AOWCharacterBase* OWCharacterBase = Cast<AOWCharacterBase>(WidgetController))
-	{
-		SetWidgetController(OWCharacterBase);
-
-		OWCharacterBase->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
-		OWCharacterBase->OnMaxArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxArmorBars);
-		OWCharacterBase->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
-		OWCharacterBase->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars);
-		OWCharacterBase->OnArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateArmorBars);
-		OWCharacterBase->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars);
-		OWCharacterBase->OnTempArmorChanged.AddDynamic(this, &UHealthBarPool::UpdateTempArmorBars);
-		OWCharacterBase->OnTempShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateTempShieldBars);
-		OWCharacterBase->OnOverHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateOverHealthBars);
-	}
-
-	if (AHealingSunStone* HealingSunStone = Cast<AHealingSunStone>(WidgetController))
-	{
-		HealingSunStone->OnMaxHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxHealthBars);
-		HealingSunStone->OnMaxShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateMaxShieldBars);
-		HealingSunStone->OnHealthChanged.AddDynamic(this, &UHealthBarPool::UpdateHealthBars);
-		HealingSunStone->OnShieldChanged.AddDynamic(this, &UHealthBarPool::UpdateShieldBars);
+		// e.g., AttributeTag = MaxHealth, ExecuteUpdate = UpdateMaxHealthBars()
+		HealthBarPoolInfo->ExecuteUpdate(this, NewValue); 
 	}
 }
 

@@ -19,24 +19,18 @@ class FPSTEMPLATE_API UHealthBar : public UOWUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UProgressBar> ProgressBar;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Style")
-	FLinearColor PendingFillColor;
-
+	// Must Declare Bound Widget Animations before Any Other Widgets 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	UWidgetAnimation* ProgressZeroAnimation;
 
-	UPROPERTY()
-	float CurrentPercentValue = 1.f; 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UProgressBar> ProgressBar;
 
 	void UpdateProgressBar(const FLinearColor& FillColor, const float& NewPercentValue); 
 
-	UFUNCTION()
-	void OnProgressZeroAnimationFinished(); 
-
 protected:
-	virtual void NativeConstruct() override; 
 	virtual void NativeDestruct() override; 
+
+private:
+	float CurrentPercentValue = 1.f;
 };
