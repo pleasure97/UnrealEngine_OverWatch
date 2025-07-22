@@ -10,10 +10,8 @@
 #include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
-#include "UI/Widget/HealthBarPool.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Player/OWPlayerState.h"
-#include "Component/HealthPlateSourceComponent.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
@@ -190,11 +188,6 @@ void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 
 	// TODO - May need to delete FOnDeath Delegate of Combat Interface 
 	OnDeath.Broadcast(this); 
-}
-
-void AOWCharacterBase::BeginPlay()
-{
-	Super::BeginPlay();
 }
 
 void AOWCharacterBase::PossessedBy(AController* NewController)

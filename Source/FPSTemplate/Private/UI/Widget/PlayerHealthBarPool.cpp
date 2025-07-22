@@ -372,13 +372,5 @@ void UPlayerHealthBarPool::ClearHealthBarPool()
 	}
 }
 
-void UPlayerHealthBarPool::OnTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID)
-{
-	if (NewTeamID == 1 || NewTeamID == 2)
-	{
-		UpdateTeamColors(); 
-	}
-}
-
 
 

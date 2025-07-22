@@ -31,7 +31,9 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	virtual void OnRep_PlayerState() override; 
+	virtual void OnRep_PlayerState() override;
+	void InitializeHealthPlate();
+
 
 	/* LevelUp Interface */
 	virtual int32 FindLevelForXP_Implementation(int32 InXP) const override; 

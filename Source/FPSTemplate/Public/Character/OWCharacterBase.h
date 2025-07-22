@@ -8,7 +8,6 @@
 #include "Interface/CombatInterface.h"
 #include "Interface/TeamInterface.h"
 #include "GameplayTagContainer.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
 #include "OWCharacterBase.generated.h"
 
 
@@ -18,8 +17,6 @@ class UAnimMontage;
 class UGameplayAbility; 
 class UDebuffNiagaraComponent; 
 class UGameplayEffect; 
-class UWidgetComponent;
-//class UHealthPlateSourceComponent; 
 
 UCLASS(ABSTRACT)
 class FPSTEMPLATE_API AOWCharacterBase : public ACharacter, public IAbilitySystemInterface, public ICombatInterface, public ITeamInterface
@@ -71,8 +68,6 @@ public:
 	bool bIsStunned = false;
 
 protected:
-	virtual void BeginPlay() override;
-
 	virtual void PossessedBy(AController* NewController) override; 
 	virtual void UnPossessed() override; 
 	
@@ -109,13 +104,6 @@ protected:
 	/* State - Heal */
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsBeingHealed = false;
-
-	/* Widget Component */
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UWidgetComponent> WidgetComponent;
-
-	//UPROPERTY()
-	//TObjectPtr<UHealthPlateSourceComponent> HealthPlateSourceComponent; 
 
 	/* Team */
 	UPROPERTY(ReplicatedUsing = OnRep_MyTeamID)

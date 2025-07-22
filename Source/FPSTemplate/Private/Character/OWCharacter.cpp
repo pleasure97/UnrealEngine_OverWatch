@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "Component/CameraTransitionComponent.h"
 #include "Component/ScreenEffectComponent.h"
+#include "Components/WidgetComponent.h"
+#include "UI/Widget/HealthPlate.h"
 #include "EnhancedInputComponent.h"
 #include "Player/OWPlayerState.h"
 #include "Player/OWPlayerController.h"
@@ -105,6 +107,8 @@ void AOWCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); 
 
+	OnRep_PlayerState(); 
+
 	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
 	{
 		OWPlayerState->OnRep_HeroName(); 
@@ -147,8 +151,25 @@ void AOWCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState(); 
 
-	// Init ability actor info for the client. 
+	// Init ability actor info for the client
 	InitAbilityActorInfo(); 
+
+	// Init Health Plate Widget Components of the Clients
+	InitializeHealthPlate();
+}
+
+void AOWCharacter::InitializeHealthPlate()
+{
+	if (UWidgetComponent* FoundWidgetComponent = FindComponentByClass<UWidgetComponent>())
+	{
+		if (UHealthPlate* HealthPlate = Cast<UHealthPlate>(FoundWidgetComponent->GetUserWidgetObject()))
+		{
+			if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
+			{
+				HealthPlate->SetPlayerState(OWPlayerState);
+			}
+		}
+	}
 }
 
 int32 AOWCharacter::FindLevelForXP_Implementation(int32 InXP) const
