@@ -33,23 +33,42 @@ void UTeamMemberInfoList::NativeConstruct()
 	}
 
 	// Get Game State 
-	if (AGameStateBase* GameStateBase = GetWorld()->GetGameState())
+	if (AOWGameState* OWGameState = Cast<AOWGameState>(GetWorld()->GetGameState()))
 	{
+		OWGameState->OnPlayerStateAdded.AddDynamic(this, &UTeamMemberInfoList::HandleNewPlayerState); 
+		OWGameState->OnPlayerStateRemoved.AddDynamic(this, &UTeamMemberInfoList::HandleRemovedPlayerState); 
 		// Get Player Array of Game State
-		for (APlayerState* PlayerState : GameStateBase->PlayerArray)
+		for (APlayerState* PlayerState : OWGameState->PlayerArray)
 		{
-			// Bind All Player's Team Changed Delegate and Hero Name Changed Delegate 
-			if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState))
-			{
-				OWPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UTeamMemberInfoList::OnClientTeamChanged);
-				OWPlayerState->OnHeroNameChangedDelegate.AddUObject(this, &UTeamMemberInfoList::OnTeamMemberHeroChanged);
-				// Call if Team ID has already been Assigned to the PlayerState
-				if ((OWPlayerState->GetTeamId() == 1) || (OWPlayerState->GetTeamId() == 2))
-				{
-					OnClientTeamChanged(OWPlayerState, -1, OWPlayerState->GetTeamId());
-				}
-			}
+			HandleNewPlayerState(PlayerState);
 		}
+	}
+}
+
+void UTeamMemberInfoList::HandleNewPlayerState(APlayerState* PlayerState)
+{
+	// Bind All Player's Team Changed Delegate and Hero Name Changed Delegate 
+	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState))
+	{
+		OWPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UTeamMemberInfoList::OnClientTeamChanged);
+		OWPlayerState->OnHeroNameChangedDelegate.AddUObject(this, &UTeamMemberInfoList::OnTeamMemberHeroChanged);
+		// Call if Team ID has already been Assigned to the PlayerState
+		if ((OWPlayerState->GetTeamId() == 1) || (OWPlayerState->GetTeamId() == 2))
+		{
+			OnClientTeamChanged(OWPlayerState, -1, OWPlayerState->GetTeamId());
+		}
+	}
+}
+
+void UTeamMemberInfoList::HandleRemovedPlayerState(APlayerState* PlayerState)
+{
+	// Remove All Player's Team Changed Delegate and Hero Name Changed Delegate 
+	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState))
+	{
+		OWPlayerState->GetTeamChangedDelegate().RemoveAll(this); 
+		OWPlayerState->OnHeroNameChangedDelegate.RemoveAll(this); 
+
+		// TODO - Change UI, e.g., Portrait, Nickname, ...
 	}
 }
 
@@ -72,6 +91,9 @@ void UTeamMemberInfoList::NativeDestruct()
 						MemberPlayerState->OnHeroNameChangedDelegate.RemoveAll(this);
 					}
 				}
+				// Remove Bindings of Custom Game State's Player State Delegates
+				OWGameState->OnPlayerStateAdded.RemoveAll(this); 
+				OWGameState->OnPlayerStateRemoved.RemoveAll(this); 
 			}
 		}
 	}

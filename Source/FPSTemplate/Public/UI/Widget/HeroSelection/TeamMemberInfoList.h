@@ -38,6 +38,12 @@ protected:
 
 private:
 	UFUNCTION()
+	void HandleNewPlayerState(APlayerState* PlayerState);
+
+	UFUNCTION()
+	void HandleRemovedPlayerState(APlayerState* PlayerState); 
+
+	UFUNCTION()
 	void OnTeamMemberHeroChanged(AOWPlayerState* OWPlayerState, EHeroName HeroName);
 
 	UFUNCTION()

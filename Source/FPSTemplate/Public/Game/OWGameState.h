@@ -8,6 +8,9 @@
 #include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWGameState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateAdded, APlayerState*, NewPlayerState); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateRemoved, APlayerState*, OldPlayerState); 
+
 class UTeamCreationComponent; 
 class UPlayerSpawningManagerComponent; 
 class UMatchScoringComponent; 
@@ -29,6 +32,18 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override; 
 
 	virtual void PostInitializeComponents() override; 
+
+	/* Adding and Removing Player State */
+	virtual void AddPlayerState(APlayerState* PlayerState) override; 
+	virtual void RemovePlayerState(APlayerState* PlayerState) override; 
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerStateAdded OnPlayerStateAdded; 
+
+	UPROPERTY(BlueprintAssignable)
+	FOnPlayerStateRemoved OnPlayerStateRemoved; 
+
+	/* Adding and Removing Player State End */
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 	void MulticastReliableMessageToClients(const FOWVerbMessage Message); 

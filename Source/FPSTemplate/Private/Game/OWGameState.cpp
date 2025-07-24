@@ -67,6 +67,20 @@ void AOWGameState::PostInitializeComponents()
 	}
 }
 
+void AOWGameState::AddPlayerState(APlayerState* PlayerState)
+{
+	Super::AddPlayerState(PlayerState);
+
+	OnPlayerStateAdded.Broadcast(PlayerState); 
+}
+
+void AOWGameState::RemovePlayerState(APlayerState* PlayerState)
+{
+	Super::RemovePlayerState(PlayerState);
+
+	OnPlayerStateRemoved.Broadcast(PlayerState); 
+}
+
 void AOWGameState::MulticastReliableMessageToClients_Implementation(const FOWVerbMessage Message)
 {
 	if (GetNetMode() == NM_Client)
