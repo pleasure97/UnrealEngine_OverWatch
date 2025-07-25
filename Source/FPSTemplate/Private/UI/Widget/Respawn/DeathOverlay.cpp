@@ -8,7 +8,6 @@
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
 #include "Team/OWTeamSubsystem.h"
-#include "Message/OWMessageTypes.h"
 #include "OWGameplayTags.h"
 
 void UDeathOverlay::NativeConstruct()
@@ -21,14 +20,13 @@ void UDeathOverlay::NativeConstruct()
 		Button_ChangeSpectator->OnClicked.AddDynamic(this, &UDeathOverlay::ChangeSpectator); 
 	}
 
-	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
-	RespawnWaitingListener = 
-		GameplayMessageSubsystem.RegisterListener<FInteractionDurationInfo>(
-			FOWGameplayTags::Get().Gameplay_Message_RespawnWaiting, this, &UDeathOverlay::OnRespawnWaitStarted); 
-
-	RespawnCompletedListener =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			FOWGameplayTags::Get().Gameplay_Message_RespawnCompleted, this, &UDeathOverlay::OnRespawnWaitCompleted);
+	if (RespawnTime > 0.f)
+	{
+		if (WBP_RespawnGauge)
+		{
+			WBP_RespawnGauge->InitializeRespawnGauge(RespawnTime);
+		}
+	}
 }
 
 void UDeathOverlay::NativeDestruct()
@@ -37,16 +35,6 @@ void UDeathOverlay::NativeDestruct()
 	if (Button_ChangeSpectator)
 	{
 		Button_ChangeSpectator->OnClicked.RemoveAll(this); 
-	}
-
-	if (RespawnWaitingListener.IsValid())
-	{
-		RespawnWaitingListener.Unregister(); 
-	}
-
-	if (RespawnCompletedListener.IsValid())
-	{
-		RespawnCompletedListener.Unregister();
 	}
 
 	Super::NativeDestruct();
@@ -65,31 +53,6 @@ void UDeathOverlay::ChangeSpectator()
 	}
 }
 
-void UDeathOverlay::OnRespawnWaitStarted(FGameplayTag Channel, const FInteractionDurationInfo& Payload)
-{
-	if (GetOwningPlayerState() == Payload.PlayerState)
-	{
-		if (WBP_RespawnGauge)
-		{
-			WBP_RespawnGauge->InitializeRespawnGauge(Payload.InteractionDuration); 
-		}
-	}
-}
-
-void UDeathOverlay::OnRespawnWaitCompleted(FGameplayTag Channel, const FOWVerbMessage& Payload)
-{
-	if (GetOwningPlayerState() == Payload.Instigator)
-	{
-		if (WBP_RespawnGauge)
-		{
-			WBP_RespawnGauge->FinishTimer();
-		}
-		SetVisibility(ESlateVisibility::Collapsed); 
-		
-		RemoveFromParent();
-	}
-}
-
 void UDeathOverlay::WatchLiveTeamMember()
 {
 	// Get Game State 
@@ -100,7 +63,7 @@ void UDeathOverlay::WatchLiveTeamMember()
 		{
 			if (APawn* EachPawn = PlayerState->GetPawn())
 			{
-				if (EachPawn != CurrentlyFollowingTeamMember)
+				if (EachPawn && (EachPawn != CurrentlyFollowingTeamMember))
 				{
 					if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
 					{

@@ -11,8 +11,6 @@ class UTextBlock;
 class URespawnGauge; 
 class UButton; 
 class APawn; 
-struct FInteractionDurationInfo; 
-struct FOWVerbMessage; 
 
 /**
  * 
@@ -35,6 +33,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<APawn> SpectatorClass; 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
+	float RespawnTime = 10.f; 
+
 protected:
 	virtual void NativeConstruct() override; 
 	virtual void NativeDestruct() override; 
@@ -43,19 +44,10 @@ private:
 	UFUNCTION()
 	void ChangeSpectator();
 
-	UFUNCTION()
-	void OnRespawnWaitStarted(FGameplayTag Channel, const FInteractionDurationInfo& Payload);
-
-	UFUNCTION()
-	void OnRespawnWaitCompleted(FGameplayTag Channel, const FOWVerbMessage& Payload);
-
 	void WatchLiveTeamMember(); 
 	void BecomeSpectator(); 
 	void AttachToLiveTeamMember(APawn* TeamMember, APawn* SpectatorPawn);
 
 	TObjectPtr<APawn> Spectator; 
 	TObjectPtr<APawn> CurrentlyFollowingTeamMember; 
-
-	FGameplayMessageListenerHandle RespawnWaitingListener; 
-	FGameplayMessageListenerHandle RespawnCompletedListener;
 };
