@@ -71,7 +71,17 @@ void UOWGamePhaseSubsystem::WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, EPh
 	if (IsPhaseActive(PhaseTag))
 	{
 		// Call Phase Active Callback
-		WhenPhaseActive.ExecuteIfBound(PhaseTag); 
+		float FoundDuration = 0.f; 
+		for (const TPair<FGameplayAbilitySpecHandle, FOWGamePhaseEntry>& ActivePhasePair : ActivePhaseMap)
+		{
+			const FOWGamePhaseEntry& Entry = ActivePhasePair.Value;
+			if (Entry.GamePhaseTag.MatchesTag(PhaseTag))
+			{
+				FoundDuration = Entry.GamePhaseDuration;
+				break;
+			}
+		}
+		WhenPhaseActive.ExecuteIfBound(PhaseTag, FoundDuration); 
 	}
 }
 
@@ -79,9 +89,9 @@ void UOWGamePhaseSubsystem::K2_WhenPhaseStartsOrIsActive(FGameplayTag PhaseTag, 
 {
 	const FOWGamePhaseTagDelegate ActiveDelegate = FOWGamePhaseTagDelegate::CreateWeakLambda(
 		WhenPhaseActive.GetUObject(), 
-		[WhenPhaseActive](const FGameplayTag& PhaseTag) 
+		[WhenPhaseActive](const FGameplayTag& PhaseTag, const float PhaseDuration) 
 		{
-			WhenPhaseActive.ExecuteIfBound(PhaseTag);
+			WhenPhaseActive.ExecuteIfBound(PhaseTag, PhaseDuration);
 		});
 
 	WhenPhaseStartsOrIsActive(PhaseTag, MatchType, ActiveDelegate);
@@ -103,9 +113,9 @@ void UOWGamePhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMat
 {
 	const FOWGamePhaseTagDelegate EndedDelegate = FOWGamePhaseTagDelegate::CreateWeakLambda(
 		WhenPhaseEnd.GetUObject(), 
-		[WhenPhaseEnd](const FGameplayTag& PhaseTag) 
+		[WhenPhaseEnd](const FGameplayTag& PhaseTag, const float PhaseDuration) 
 		{
-			WhenPhaseEnd.ExecuteIfBound(PhaseTag);
+			WhenPhaseEnd.ExecuteIfBound(PhaseTag, PhaseDuration);
 		});
 
 	WhenPhaseEnds(PhaseTag, MatchType, EndedDelegate);
@@ -114,8 +124,10 @@ void UOWGamePhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMat
 void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle)
 {
 	const FGameplayTag& IncomingGamePhaseTag = GamePhaseAbility->GetGamePhaseTag(); 
+	const float IncomingGamePhaseDuration = GamePhaseAbility->GetGamePhaseDuration(); 
 
-	UE_LOG(LogTemp, Log, TEXT("Beginning Phase '%s' (%s)"), *IncomingGamePhaseTag.ToString(), *GetNameSafe(GamePhaseAbility));
+	UE_LOG(LogTemp, Log, TEXT("Beginning Phase '%s' (%s) - Duration : %.1f"), 
+		*IncomingGamePhaseTag.ToString(), *GetNameSafe(GamePhaseAbility), IncomingGamePhaseDuration);
 
 	if (UWorld* World = GetWorld())
 	{
@@ -150,13 +162,14 @@ void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbi
 
 			FOWGamePhaseEntry& GamePhaseEntry = ActivePhaseMap.FindOrAdd(GamePhaseAbilitySpecHandle);
 			GamePhaseEntry.GamePhaseTag = IncomingGamePhaseTag;
+			GamePhaseEntry.GamePhaseDuration = IncomingGamePhaseDuration; 
 
 			// Notify All observers of this phase that it has started. 
 			for (const FPhaseObserver& PhaseStartObserver : PhaseStartObservers)
 			{
 				if (PhaseStartObserver.IsMatch(IncomingGamePhaseTag))
 				{
-					PhaseStartObserver.PhaseCallback.ExecuteIfBound(IncomingGamePhaseTag); 
+					PhaseStartObserver.PhaseCallback.ExecuteIfBound(IncomingGamePhaseTag, IncomingGamePhaseDuration); 
 				}
 			}
 		}
@@ -166,6 +179,7 @@ void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbi
 void UOWGamePhaseSubsystem::OnEndPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle)
 {
 	const FGameplayTag& EndedGamePhaseTag = GamePhaseAbility->GetGamePhaseTag(); 
+	const float EndedGamePhaseDuration = GamePhaseAbility->GetGamePhaseDuration();
 	UE_LOG(LogTemp, Log, TEXT("Ended Phase '%s' (%s)"), *EndedGamePhaseTag.ToString(), *GetNameSafe(GamePhaseAbility));
 
 	const FOWGamePhaseEntry& GamePhaseEntry = ActivePhaseMap.FindChecked(GamePhaseAbilitySpecHandle); 
@@ -178,7 +192,7 @@ void UOWGamePhaseSubsystem::OnEndPhase(const UOWGamePhaseAbility* GamePhaseAbili
 	{
 		if (PhaseEndObserver.IsMatch(EndedGamePhaseTag))
 		{
-			PhaseEndObserver.PhaseCallback.ExecuteIfBound(EndedGamePhaseTag);
+			PhaseEndObserver.PhaseCallback.ExecuteIfBound(EndedGamePhaseTag, EndedGamePhaseDuration);
 		}
 	}
 }

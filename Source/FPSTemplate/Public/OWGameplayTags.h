@@ -153,7 +153,8 @@ public:
 	FGameplayTag Gameplay_Message_MatchScoringComponent; 
 
 	/* Game Phase */
-	FGameplayTag GamePhase_HeroSelection; 
+	FGameplayTag GamePhase_HeroSelection_FirstHeroSelection; 
+	FGameplayTag GamePhase_HeroSelection_SecondHeroSelection; 
 	FGameplayTag GamePhase_MatchPreparation_FirstTeamOffense; 
 	FGameplayTag GamePhase_MatchPreparation_SecondTeamOffense; 
 	FGameplayTag GamePhase_SwitchInning;
@@ -178,6 +179,7 @@ public:
 	FGameplayTag Event_ReloadDone; 
 	FGameplayTag Event_Death; 
 	FGameplayTag Event_ResetHero; 
+	FGameplayTag Event_RespawnHero; 
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

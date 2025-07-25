@@ -12,8 +12,8 @@ class UOWGamePhaseAbility;
 
 DECLARE_DELEGATE_OneParam(FOWGamePhaseDelegate, const UOWGamePhaseAbility* GamePhase);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOWGamePhaseDynamicDelegate, const UOWGamePhaseAbility*, GamePhase);
-DECLARE_DELEGATE_OneParam(FOWGamePhaseTagDelegate, const FGameplayTag& PhaseTag); 
-DECLARE_DYNAMIC_DELEGATE_OneParam(FOWGamePhaseTagDynamicDelegate, const FGameplayTag&, PhaseTag);
+DECLARE_DELEGATE_TwoParams(FOWGamePhaseTagDelegate, const FGameplayTag& PhaseTag, const float PhaseDuration); 
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FOWGamePhaseTagDynamicDelegate, const FGameplayTag&, PhaseTag, const float, PhaseDuration);
 
 UENUM(BlueprintType)
 enum class EPhaseTagMatchType : uint8
@@ -58,6 +58,7 @@ private:
 	public:
 		FGameplayTag GamePhaseTag; 
 		FOWGamePhaseDelegate PhaseEndedCallback; 
+		float GamePhaseDuration; 
 	};
 
 	TMap<FGameplayAbilitySpecHandle, FOWGamePhaseEntry> ActivePhaseMap;

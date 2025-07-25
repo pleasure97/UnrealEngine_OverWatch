@@ -18,6 +18,7 @@ public:
 	UOWGamePhaseAbility(); 
 
 	const FGameplayTag& GetGamePhaseTag() const { return GamePhaseTag; }
+	float GetGamePhaseDuration() const { return GamePhaseDuration; }
 	
 protected:
 	virtual void ActivateAbility(
@@ -35,4 +36,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Phase")
 	FGameplayTag GamePhaseTag; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Game Phase")
+	float GamePhaseDuration;
 };

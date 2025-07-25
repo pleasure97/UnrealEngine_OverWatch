@@ -417,9 +417,13 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FString("Gameplay Message for Match Scoring Component"));
 	
 	/* Game Phase */
-	GameplayTags.GamePhase_HeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("GamePhase.HeroSelection"),
-		FString("Game Phase When Selecting a Hero"));
+	GameplayTags.GamePhase_HeroSelection_FirstHeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.HeroSelection.FirstHeroSelection"),
+		FString("First Game Phase When Selecting a Hero"));
+
+	GameplayTags.GamePhase_HeroSelection_SecondHeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GamePhase.HeroSelection.SecondHeroSelection"),
+		FString("Second Game Phase When Selecting a Hero"));
 
 	GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GamePhase.MatchPreparation.FirstTeamOffense"),
@@ -489,6 +493,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_ResetHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.ResetHero"),
 		FString("Reset Hero Tag"));
+
+	GameplayTags.Event_RespawnHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.RespawnHero"),
+		FString("Respawn Hero Tag"));
 
 	/* Hero GameplayTags - Illiari */
 
