@@ -35,15 +35,11 @@ void ULoadingScreenWidget::OnLoadingScreenWidgetChanged(TSubclassOf<UUserWidget>
 	if (IsValid(ContentWidgetClass))
 	{
 		UUserWidget* CreatedWidget = CreateWidget(GetOwningPlayer(), ContentWidgetClass); 
-		CreatedWidget->AddToViewport(); 
-		return; 
 	}
 	// If not, Create Default Loading Screen Widget 
 	else
 	{
 		UUserWidget* CreatedWidget = CreateWidget(GetOwningPlayer(), DefaultLoadingScreenWidgetClass); 
-		CreatedWidget->AddToViewport();
-		return; 
 	}
 }
 

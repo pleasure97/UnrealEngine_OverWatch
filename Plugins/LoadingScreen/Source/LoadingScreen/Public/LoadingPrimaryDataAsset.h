@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, meta = (DisplayName = "LoadingPrimaryDataAsset"))
 class LOADINGSCREEN_API ULoadingPrimaryDataAsset : public UPrimaryDataAsset
 {
 	GENERATED_BODY()
@@ -17,5 +17,4 @@ class LOADINGSCREEN_API ULoadingPrimaryDataAsset : public UPrimaryDataAsset
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<UWorld> LoadingLevel; 
-
 };

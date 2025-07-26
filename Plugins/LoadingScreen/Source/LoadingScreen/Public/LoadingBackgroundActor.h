@@ -7,6 +7,8 @@
 #include "LoadingBackgroundActor.generated.h"
 
 class ULoadingTask; 
+class UAsyncLoadPrimaryAsset; 
+class ULevelStreamingDynamic; 
 
 UCLASS()
 class LOADINGSCREEN_API ALoadingBackgroundActor : public AActor
@@ -21,10 +23,17 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	
 private:
 	UPROPERTY()
 	TObjectPtr<ULoadingTask> LoadingTask;
+
+	UPROPERTY()
+	TObjectPtr<UAsyncLoadPrimaryAsset> AsyncLoadPrimaryAsset;
+
+	UPROPERTY()
+	TObjectPtr<ULevelStreamingDynamic> LevelStreamingDynamic;
 
 	void ShowLoadingScreen(); 
 

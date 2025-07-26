@@ -27,14 +27,31 @@ void ALoadingBackgroundActor::BeginPlay()
 		{
 			ShowLoadingScreen(); 
 			TArray<FName> LoadedBundles; 
-			UAsyncLoadPrimaryAsset* AsyncLoadPrimaryAsset = UAsyncLoadPrimaryAsset::AsyncLoadPrimaryAsset(this, LoadingBackground, LoadedBundles); 
+			AsyncLoadPrimaryAsset = UAsyncLoadPrimaryAsset::AsyncLoadPrimaryAsset(this, LoadingBackground, LoadedBundles); 
 			AsyncLoadPrimaryAsset->Completed.AddDynamic(this, &ALoadingBackgroundActor::OnLoadingCompleted); 
+			AsyncLoadPrimaryAsset->Activate(); 
 		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("No Backgrounds Found!")); 
 	}
+}
+
+void ALoadingBackgroundActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (AsyncLoadPrimaryAsset)
+	{
+		AsyncLoadPrimaryAsset->Completed.RemoveAll(this); 
+	}
+
+	if (LevelStreamingDynamic)
+	{
+		LevelStreamingDynamic->OnLevelLoaded.RemoveAll(this); 
+		LevelStreamingDynamic->OnLevelShown.RemoveAll(this); 
+	}
+
+	Super::EndPlay(EndPlayReason); 
 }
 
 void ALoadingBackgroundActor::ShowLoadingScreen()
@@ -64,7 +81,7 @@ void ALoadingBackgroundActor::OnLoadingCompleted(UObject* Loaded)
 	if (ULoadingPrimaryDataAsset* LoadingPrimaryDataAsset = Cast<ULoadingPrimaryDataAsset>(Loaded))
 	{
 		bool bSuccess; 
-		ULevelStreamingDynamic* LevelStreamingDynamic = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
+		LevelStreamingDynamic = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
 			this, 
 			LoadingPrimaryDataAsset->LoadingLevel,
 			GetActorLocation(), 
