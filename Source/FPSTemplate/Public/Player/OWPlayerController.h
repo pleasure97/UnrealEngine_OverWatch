@@ -14,8 +14,7 @@ class UOWInputConfig;
 class UOWAbilitySystemComponent; 
 struct FInputActionValue; 
 class AOWPlayerState; 
-class UHealthPlateManagerComponent; 
-class UIndicatorManagerComponent; 
+class UUserWidget; 
 
 /**
  * 
@@ -37,8 +36,12 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerChooseHero(EHeroName ChosenHero); 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UHealthPlateManagerComponent> HealthPlateManagerComponent;
+	UFUNCTION(BlueprintCallable)
+	void ShowWidget(TSubclassOf<UUserWidget> InUserWidget); 
+
+	UFUNCTION(BlueprintCallable)
+	void CollapseWidget(TSubclassOf<UUserWidget> InUserWidget); 
+
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void BeginPlay() override; 
@@ -73,9 +76,6 @@ private:
 
 	UPROPERTY()
 	FOnTeamIndexChangedDelegate OnTeamChangedDelegate; 
-
-	UPROPERTY()
-	TObjectPtr<UIndicatorManagerComponent> IndicatorManagerComponent;
 
 	UOWAbilitySystemComponent* GetAbilitySystemComponent();
 

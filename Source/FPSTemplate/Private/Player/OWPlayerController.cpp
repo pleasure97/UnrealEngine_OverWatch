@@ -9,17 +9,13 @@
 #include "OWGameplayTags.h"
 #include "Player/OWPlayerState.h"
 #include "Team/OWTeamSubsystem.h"
-#include "Component/HealthPlateManagerComponent.h"
-#include "Component/IndicatorManagerComponent.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/UserWidget.h"
 
 AOWPlayerController::AOWPlayerController()
 {
 	bReplicates = true; 
 	bPlayerAlive = true; 
-
-	// InputComponentClass = UOWInputComponent::StaticClass(); 
-	HealthPlateManagerComponent = CreateDefaultSubobject<UHealthPlateManagerComponent>("HealthPlateManagerComponent"); 
-	IndicatorManagerComponent = CreateDefaultSubobject<UIndicatorManagerComponent>("IndicatorManagerComponent"); 
 }
 
 void AOWPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
@@ -40,6 +36,26 @@ FGenericTeamId AOWPlayerController::GetGenericTeamId() const
 FOnTeamIndexChangedDelegate* AOWPlayerController::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate; 
+}
+
+void AOWPlayerController::ShowWidget(TSubclassOf<UUserWidget> InUserWidget)
+{
+	TArray<UUserWidget*> CollapsedWidgets; 
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, CollapsedWidgets, InUserWidget); 
+	for (UUserWidget* CollapsedWidget : CollapsedWidgets)
+	{
+		CollapsedWidget->SetVisibility(ESlateVisibility::Visible); 
+	}
+}
+
+void AOWPlayerController::CollapseWidget(TSubclassOf<UUserWidget> InUserWidget)
+{
+	TArray<UUserWidget*> VisibleWidgets;
+	UWidgetBlueprintLibrary::GetAllWidgetsOfClass(this, VisibleWidgets, InUserWidget);
+	for (UUserWidget* VisibleWidget : VisibleWidgets)
+	{
+		VisibleWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void AOWPlayerController::ServerChooseHero_Implementation(EHeroName ChosenHero)
