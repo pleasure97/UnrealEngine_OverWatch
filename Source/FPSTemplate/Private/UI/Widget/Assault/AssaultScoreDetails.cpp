@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/Widget/Assault/AssaultTimer.h"
+#include "UI/Widget/Assault/AssaultScoreDetails.h"
 #include "Components/Border.h"
 #include "Components/TextBlock.h"
 
-void UAssaultTimer::UpdateTeamColor(FLinearColor TeamColor)
+void UAssaultScoreDetails::UpdateTeamColor(FLinearColor TeamColor)
 {
 	if (Border_AssaultProgress)
 	{
@@ -17,7 +17,7 @@ void UAssaultTimer::UpdateTeamColor(FLinearColor TeamColor)
 	}
 }
 
-void UAssaultTimer::UpdateAssaultProgress(float InAssaultProgress)
+void UAssaultScoreDetails::UpdateAssaultProgress(float InAssaultProgress)
 {
 	if (TextBlock_AssaultProgress)
 	{
@@ -25,5 +25,13 @@ void UAssaultTimer::UpdateAssaultProgress(float InAssaultProgress)
 		const FString AssaultProgressString = FString::Printf(TEXT("%.2f"), AssaultProgressPercent); 
 
 		TextBlock_AssaultProgress->SetText(FText::FromString(AssaultProgressString));
+	}
+}
+
+void UAssaultScoreDetails::UpdateRemainingTime(FText RemainingTimeText)
+{
+	if (TextBlock_RemainingTime)
+	{
+		TextBlock_RemainingTime->SetText(RemainingTimeText); 
 	}
 }

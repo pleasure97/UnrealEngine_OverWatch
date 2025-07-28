@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
-#include "AssaultTimer.generated.h"
+#include "AssaultScoreDetails.generated.h"
 
 class UBorder; 
 class UTextBlock; 
@@ -14,7 +14,7 @@ class UTimerWidget;
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API UAssaultTimer : public UOWUserWidget
+class FPSTEMPLATE_API UAssaultScoreDetails : public UOWUserWidget
 {
 	GENERATED_BODY()
 	
@@ -26,10 +26,7 @@ public:
 	TObjectPtr<UBorder> Border_AssaultProgress; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTimerWidget> WBP_FirstMatchTimer; 
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTimerWidget> WBP_SecondMatchTimer;
+	TObjectPtr<UTextBlock> TextBlock_RemainingTime; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_AssaultProgress;
@@ -37,4 +34,6 @@ public:
 	void UpdateTeamColor(FLinearColor TeamColor);
 
 	void UpdateAssaultProgress(float InAssaultProgress); 
+
+	void UpdateRemainingTime(FText RemainingTimeText); 
 };
