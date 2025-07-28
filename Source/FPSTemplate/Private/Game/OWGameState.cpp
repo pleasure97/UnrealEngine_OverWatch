@@ -31,9 +31,9 @@ void AOWGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
 }
 
-void AOWGameState::PostInitializeComponents()
+void AOWGameState::PreInitializeComponents()
 {
-	Super::PostInitializeComponents(); 
+	Super::PreInitializeComponents(); 
 
 	// Server-only Component 
 	if (HasAuthority())
@@ -52,14 +52,13 @@ void AOWGameState::PostInitializeComponents()
 		PlayerSpawningManagerComponent->RegisterComponent();
 	}
 
-	// Create New Object, Replicate, and Register
-	MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
-	MatchScoringComponent->SetIsReplicated(true);
-	MatchScoringComponent->RegisterComponent();
-	// Broadcast Message that Match Scoring Component has been registered
-	FOWVerbMessage MatchScoringComponentRegisteredMessage; 
-	MatchScoringComponentRegisteredMessage.Instigator = this; 
-	UGameplayMessageSubsystem::Get(this).BroadcastMessage(FOWGameplayTags::Get().Gameplay_Message_MatchScoringComponent, MatchScoringComponentRegisteredMessage); 
+	if (MatchScoringComponentClass)
+	{
+		// Create New Object, Replicate, and Register
+		MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
+		MatchScoringComponent->SetIsReplicated(true);
+		MatchScoringComponent->RegisterComponent();
+	}
 
 	if (OWAbilitySystemComponent)
 	{

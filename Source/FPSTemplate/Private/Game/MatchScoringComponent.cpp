@@ -5,8 +5,6 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "GameFramework/GameStateBase.h"
-#include "Message/OWMessageTypes.h"
-#include "Game/OWGamePhaseSubsystem.h"
 #include "AbilitySystem/Abilities/Common/GamePhase/OWGamePhaseAbility.h"
 #include "Character/OWCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,11 +12,13 @@
 #include "GameplayCueFunctionLibrary.h"
 #include "OWGameplayTags.h"
 #include "Team/OWTeamSubsystem.h"
+#include "Game/OWGameState.h"
 
 
 UMatchScoringComponent::UMatchScoringComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true); 
 }
 
 void UMatchScoringComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -26,6 +26,60 @@ void UMatchScoringComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UMatchScoringComponent, AssaultPoints);
+	DOREPLIFETIME(UMatchScoringComponent, CountdownTime);
+}
+
+void UMatchScoringComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GetWorld()->GetTimerManager().SetTimer(
+		DelayTimerHandle,
+		this,
+		&UMatchScoringComponent::ConnectToGamePhase,
+		3.f,
+		false);
+}
+
+void UMatchScoringComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(DelayTimerHandle); 
+		World->GetTimerManager().ClearTimer(CountdownTimerHandle); 
+	}
+
+	if (FirstTeamOffensePhaseDelegate.IsBound())
+	{
+		FirstTeamOffensePhaseDelegate.Unbind();
+	}
+
+	if (FirstMatchPreparationDelegate.IsBound())
+	{
+		FirstMatchPreparationDelegate.Unbind();
+	}
+
+	if (FirstTeamOffensePhaseDelegate.IsBound())
+	{
+		FirstTeamOffensePhaseDelegate.Unbind();
+	}
+
+	if (SecondHeroSelectionGamePhaseDelegate.IsBound())
+	{
+		SecondHeroSelectionGamePhaseDelegate.Unbind();
+	}
+
+	if (SecondMatchPreparationDelegate.IsBound())
+	{
+		SecondMatchPreparationDelegate.Unbind();
+	}
+
+	if (SecondTeamOffensePhaseDelegate.IsBound())
+	{
+		SecondTeamOffensePhaseDelegate.Unbind();
+	}
+
+	Super::EndPlay(EndPlayReason); 
 }
 
 void UMatchScoringComponent::RegisterAssaultPoint(AAssaultPoint* AssaultPoint)
@@ -34,29 +88,146 @@ void UMatchScoringComponent::RegisterAssaultPoint(AAssaultPoint* AssaultPoint)
 	OnAssaultPointRegistered.Broadcast(AssaultPoint); 
 }
 
-void UMatchScoringComponent::ContestPoint(AAssaultPoint* AssaultPoint)
+void UMatchScoringComponent::OnRep_AssaultPoints()
 {
-	if (GetOwner()->HasAuthority())
+	for (AAssaultPoint* AssaultPoint : AssaultPoints)
 	{
-		AssaultPoints.Find(AssaultPoint); 
+		OnAssaultPointRegistered.Broadcast(AssaultPoint);
 	}
 }
 
+void UMatchScoringComponent::OnRep_CountdownTime()
+{
+	OnPhaseRemainingTime.Broadcast(CurrentGamePhaseTag, CountdownTime); 
+}
+
+void UMatchScoringComponent::ConnectToGamePhase()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(DelayTimerHandle);
+	}
+
+	if (GetOwner()->HasAuthority())
+	{
+		if (UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>())
+		{
+			const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+
+			// Start First Hero Selection Game Phase
+			GamePhaseSubsystem->StartPhase(FirstHeroSelectionGamePhaseAbility); 
+
+			// Connect to When First Hero Selection Game Phase Starts
+			FirstHeroSelectionGamePhaseDelegate =
+				FOWGamePhaseTagDelegate::CreateUObject(this, &UMatchScoringComponent::HandleFirstHeroSelectionPhase);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(
+				FOWGameplayTags::Get().GamePhase_HeroSelection_FirstHeroSelection, EPhaseTagMatchType::ExactMatch, FirstHeroSelectionGamePhaseDelegate); 
+
+			// Connect to When First Match Preparation Game Phase Starts
+			FirstMatchPreparationDelegate =
+				FOWGamePhaseTagDelegate::CreateUObject(this, &UMatchScoringComponent::HandleFirstMatchPreparationPhase);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(
+				FOWGameplayTags::Get().GamePhase_MatchPreparation_FirstTeamOffense, EPhaseTagMatchType::ExactMatch, FirstMatchPreparationDelegate);
+
+			// Connect to When First Team Offesnse Game Phase Starts
+			FirstTeamOffensePhaseDelegate =
+				FOWGamePhaseTagDelegate::CreateUObject(this, &UMatchScoringComponent::HandleFirstTeamOffensePhase);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(
+				FOWGameplayTags::Get().GamePhase_MatchInProgress_FirstTeamOffense, EPhaseTagMatchType::ExactMatch, FirstTeamOffensePhaseDelegate);
+
+			// Connect to When Second Hero Selection Game Phase Starts
+			SecondHeroSelectionGamePhaseDelegate =
+				FOWGamePhaseTagDelegate::CreateUObject(this, &UMatchScoringComponent::HandleSecondHeroSelectionPhase);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(
+				FOWGameplayTags::Get().GamePhase_HeroSelection_SecondHeroSelection, EPhaseTagMatchType::ExactMatch, SecondHeroSelectionGamePhaseDelegate);
+
+			// Connect to When Second Match Preparation Game Phase Starts
+			SecondMatchPreparationDelegate =
+				FOWGamePhaseTagDelegate::CreateUObject(this, &UMatchScoringComponent::HandleSecondMatchPreparationPhase);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(
+				FOWGameplayTags::Get().GamePhase_MatchPreparation_SecondTeamOffense, EPhaseTagMatchType::ExactMatch, SecondMatchPreparationDelegate);
+
+			// Connect to When Second Team Offesnse Game Phase Starts
+			SecondTeamOffensePhaseDelegate =
+				FOWGamePhaseTagDelegate::CreateUObject(this, &UMatchScoringComponent::HandleSecondTeamOffensePhase);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(
+				FOWGameplayTags::Get().GamePhase_MatchInProgress_SecondTeamOffense, EPhaseTagMatchType::ExactMatch, SecondTeamOffensePhaseDelegate);
+		}
+	}
+}
+
+void UMatchScoringComponent::Countdown()
+{
+	--CountdownTime; 
+
+	if (AOWGameState* OWGameState = Cast<AOWGameState>(GetOwner()))
+	{
+		FOWVerbMessage OWVerbMessage; 
+		OWVerbMessage.Verb = CurrentGamePhaseTag; 
+		OWVerbMessage.Magnitude = CountdownTime;
+		OWGameState->MulticastReliableMessageToClients(OWVerbMessage); 
+	}
+
+	if (CountdownTime <= 0.f)
+	{
+		if (UWorld* World = GetWorld())
+		{
+			World->GetTimerManager().ClearTimer(CountdownTimerHandle); 
+		}
+	}
+}
+
+void UMatchScoringComponent::GamePhaseStarted(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	CurrentGamePhaseTag = PhaseTag;
+	CountdownTime = PhaseDuration;
+
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(CountdownTimerHandle, this, &UMatchScoringComponent::Countdown, 1.f, true);
+	}
+}
+
+void UMatchScoringComponent::HandleFirstHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	GamePhaseStarted(PhaseTag, PhaseDuration);
+}
+
+void UMatchScoringComponent::HandleFirstMatchPreparationPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	GamePhaseStarted(PhaseTag, PhaseDuration);
+}
+
+void UMatchScoringComponent::HandleFirstTeamOffensePhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	GamePhaseStarted(PhaseTag, PhaseDuration);
+}
+
+void UMatchScoringComponent::HandleSecondHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	GamePhaseStarted(PhaseTag, PhaseDuration);
+}
+
+void UMatchScoringComponent::HandleSecondMatchPreparationPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	GamePhaseStarted(PhaseTag, PhaseDuration);
+}
+
+void UMatchScoringComponent::HandleSecondTeamOffensePhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	GamePhaseStarted(PhaseTag, PhaseDuration);
+}
+
+
 int32 UMatchScoringComponent::GetTeamScore(int32 TeamId) const
 {
-	UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>(); 
-	if (TeamSubsystem)
+	if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
 	{
 		int32 TeamScore = TeamSubsystem->GetTeamTagStackCount(TeamId, FOWGameplayTags::Get().BattleField_Assault_TeamScore); 
 		return TeamScore; 
 	}
 
 	return 0; 
-}
-
-void UMatchScoringComponent::OnHeroSelectionStarted(UOWGamePhaseAbility* GamePhase)
-{
-	ResetAllActivePlayers(); 
 }
 
 void UMatchScoringComponent::ResetAllActivePlayers()
@@ -91,9 +262,20 @@ void UMatchScoringComponent::ResetAllActivePlayers()
 	}
 }
 
-void UMatchScoringComponent::ScorePoints()
+void UMatchScoringComponent::ScoreAssaultPoint(FOccupationInfo OccupationInfo)
 {
-	// gameplay message subsystem - 
+	if ((OccupationInfo.OccupationTeamID != 1) && (OccupationInfo.OccupationTeamID != 2))
+	{
+		return;
+	}
+
+	if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
+	{
+		if (OccupationInfo.OccupationProgress >= 1.f)
+		{
+			TeamSubsystem->AddTeamTagStack(OccupationInfo.OccupationTeamID, FOWGameplayTags::Get().BattleField_Assault_TeamScore, 1); 
+		}
+	}
 }
 
 void UMatchScoringComponent::HandleVictory(int32 TeamID)
@@ -105,15 +287,6 @@ void UMatchScoringComponent::HandleVictory(int32 TeamID)
 	FGameplayCueParameters GameplayCueParameters; 
 	GameplayCueParameters.AbilityLevel = WinningTeamID;
 	ActivateMatchDecidedGameplayCue(FOWGameplayTags::Get().GameplayCue_MatchDecided, GameplayCueParameters);
-
-	// Get Game Phase Subsystem
-	UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>();
-	if (GamePhaseSubsystem)
-	{
-		// Start Post Match Phase 
-		FOWGamePhaseDelegate PostMatchEndedDelegate; 
-		GamePhaseSubsystem->StartPhase(PostMatch, PostMatchEndedDelegate); 
-	}
 }
 
 void UMatchScoringComponent::ActivateMatchDecidedGameplayCue(FGameplayTag GameplayCueTag, FGameplayCueParameters& GameplayCueParameters)
@@ -146,14 +319,3 @@ void UMatchScoringComponent::ClearMatchDecidedGameplayCue()
 		}
 	}
 }
-
-void UMatchScoringComponent::OnRep_AssaultPoints()
-{
-	for (AAssaultPoint* AssaultPoint : AssaultPoints)
-	{
-		OnAssaultPointRegistered.Broadcast(AssaultPoint);
-	}
-}
-
-
-

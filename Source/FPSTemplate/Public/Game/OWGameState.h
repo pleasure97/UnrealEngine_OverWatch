@@ -31,7 +31,7 @@ public:
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override; 
 
-	virtual void PostInitializeComponents() override; 
+	virtual void PreInitializeComponents() override; 
 
 	/* Adding and Removing Player State */
 	virtual void AddPlayerState(APlayerState* PlayerState) override; 
