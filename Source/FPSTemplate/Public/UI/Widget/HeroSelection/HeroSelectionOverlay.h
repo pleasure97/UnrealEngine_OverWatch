@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "AbilitySystem/Data/HeroInfo.h"
+#include "Message/OWMessageTypes.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 #include "HeroSelectionOverlay.generated.h"
 
 class UImage; 
@@ -12,7 +14,6 @@ class UTextBlock;
 class UOverlay; 
 class UTeamMemberInfoList; 
 class UHeroSelectionList; 
-class UTimerWidget;
 class AOWPlayerState; 
 
 /**
@@ -34,10 +35,7 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_MissionDescription; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTimerWidget> WBP_FirstHeroSelectionTimer; 
-
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTimerWidget> WBP_SecondHeroSelectionTimer; 
+	TObjectPtr<UTextBlock> TextBlock_RemainingTime; 
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_HeroName; 
@@ -57,6 +55,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHeroSelectionList> WBP_HeroSelectionList; 
 
+	/* Design and Localization Settings */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FLinearColor BlueColor = FLinearColor(0.041667f, 0.6407f, 1.f, 1.f); 
 
@@ -64,16 +63,59 @@ public:
 	FLinearColor RedColor = FLinearColor(0.609375f, 0.f, 0.f, 0.8f);
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText WaitingForTeamConstructionText;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText AttackMissionText; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText DefendMissionText; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText AttackPreparationMissionText;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText DefendPreparationMissionText;
+
 protected:
-	virtual void NativeConstruct() override; 
+	virtual void NativeConstruct() override;
 	virtual void NativeDestruct() override; 
 
 private:
 	UFUNCTION()
-	void OnHeroNameChanged(AOWPlayerState* PlayerState, EHeroName HeroName);
+	void OnTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID); 
+
+	UFUNCTION()
+	void OnHeroSelectButtonClicked(EHeroName HeroName, bool bConfirmed);
+
+	/* Game Phase*/
+	UFUNCTION(BlueprintCallable)
+	void ProcessPhaseRemainingTime(const FGameplayTag& PhaseTag, const float RemainingTime); 
+
+	FText ConvertTimeText(float RemainingCountdownTime);
+
+	UFUNCTION()
+	void HandleCountdownTime(FGameplayTag Channel, const FOWVerbMessage& Payload); 
+
+	UPROPERTY()
+	FGameplayTag CurrentGamePhaseTag; 
+
+	UPROPERTY()
+	EHeroName SelectedHeroName; 
+
+	UPROPERTY()
+	int32 OwnerTeamID = -1; 
+
+	UPROPERTY()
+	TObjectPtr<AOWPlayerState> OwnerPlayerState; 
+
+	bool bMissionDescriptionUpdated = false; 
+
+	FGameplayMessageListenerHandle FirstHeroSelectionListenerHandle;
+	FGameplayMessageListenerHandle FirstMatchPreparationListenerHandle;
+	FGameplayMessageListenerHandle FirstTeamOffenseListenerHandle;
+	FGameplayMessageListenerHandle SecondHeroSelectionListenerHandle;
+	FGameplayMessageListenerHandle SecondMatchPreparationListenerHandle;
+	FGameplayMessageListenerHandle SecondTeamOffenseListenerHandle;
+	FGameplayMessageListenerHandle PostMatchListenerHandle;
 };

@@ -49,8 +49,8 @@ void UHeroSelectionList::NativeDestruct()
 
 void UHeroSelectionList::InitializeHeroSelectionList()
 {
-	// Get Hero Info using Custom Ability System Library 
-	UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this); 
+	// Get Hero Info using Custom Ability System Library
+	UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
 	if (HeroInfo)
 	{
 		// Iterate All Hero Classes from Hero Info Data Asset 
@@ -99,6 +99,7 @@ void UHeroSelectionList::OnHeroSelectButtonClicked()
 		}
 		MakeHeroSelectionButtonsInvisible(false);
 		bHeroSelectConfirmed = false;
+		HeroSelectButtonDelegate.Broadcast(EHeroName::None, false);
 		return;
 	}
 
@@ -113,6 +114,7 @@ void UHeroSelectionList::OnHeroSelectButtonClicked()
 			}
 			MakeHeroSelectionButtonsInvisible(true); 
 			bHeroSelectConfirmed = true;
+			HeroSelectButtonDelegate.Broadcast(SelectedHeroName, true); 
 		}
 	}
 }

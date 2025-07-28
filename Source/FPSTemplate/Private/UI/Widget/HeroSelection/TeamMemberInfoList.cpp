@@ -33,7 +33,8 @@ void UTeamMemberInfoList::NativeConstruct()
 	}
 
 	// Get Game State 
-	if (AOWGameState* OWGameState = Cast<AOWGameState>(GetWorld()->GetGameState()))
+	UWorld* World = GetOwningPlayer() ? GetOwningPlayer()->GetWorld() : nullptr; 
+	if (AOWGameState* OWGameState = Cast<AOWGameState>(World->GetGameState()))
 	{
 		OWGameState->OnPlayerStateAdded.AddDynamic(this, &UTeamMemberInfoList::HandleNewPlayerState); 
 		OWGameState->OnPlayerStateRemoved.AddDynamic(this, &UTeamMemberInfoList::HandleRemovedPlayerState); 

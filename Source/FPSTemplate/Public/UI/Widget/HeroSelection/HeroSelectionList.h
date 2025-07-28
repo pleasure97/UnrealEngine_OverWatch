@@ -7,7 +7,7 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "HeroSelectionList.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeroButtonClicked, EHeroName, HeroName, UHeroSelection*, ClickedButton);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHeroSelectButtonClicked, EHeroName, HeroName, bool, bConfirmed);
 
 class UHorizontalBox; 
 class UButton; 
@@ -40,6 +40,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText HeroChangeText; 
+
+	FOnHeroSelectButtonClicked HeroSelectButtonDelegate; 
 
 	void InitializeHeroSelectionList();
 
