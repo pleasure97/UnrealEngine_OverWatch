@@ -472,6 +472,10 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 		}
 	}
 
+	// Increase ultimate gauge by 1 for damage or healing amount
+	SetUltimateGauge(GetUltimateGauge() + FMath::Abs(LocalIncomingDamage));
+
+	// TODO - May need to change to general delegate from gameplay message subsystem 
 	// Get Gameplay Message Subsystem and Damage Message GameplayTag 
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 

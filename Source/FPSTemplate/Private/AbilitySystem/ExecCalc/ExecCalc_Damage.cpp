@@ -140,13 +140,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	const float DamageDone = Damage * DamageAllowedMultiplier; 
 	const FGameplayModifierEvaluatedData EvaluatedDamage(UOWAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, DamageDone); 
 	OutExecutionOutput.AddOutputModifier(EvaluatedDamage); 
-
-	// Calculate Ultimate Gauge
-	if (UAbilitySystemComponent* SourceAbilitySystemComponent = ExecutionParams.GetSourceAbilitySystemComponent())
-	{
-		const float DamageAbsolute = FMath::Abs(DamageDone);
-		SourceAbilitySystemComponent->ApplyModToAttribute(UOWAttributeSet::GetUltimateGaugeAttribute(), EGameplayModOp::Additive, DamageAbsolute);
-	}
 }
 
 void UExecCalc_Damage::DetermineDebuff(
