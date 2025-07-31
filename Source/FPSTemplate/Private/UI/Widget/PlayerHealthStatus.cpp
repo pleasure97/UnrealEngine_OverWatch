@@ -71,6 +71,7 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 {
 	switch (HealthStatus)
 	{
+		// Current Attribute Value is Changed (e.g., Health, Armor, Shield)
 		case EHealthStatus::Current:
 		{
 			float& ValueToChange = CurrentHealthStatusMap[Tag]; 
@@ -85,6 +86,7 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 			}
 			break; 
 		}
+		// Max Attribute Value is Changed (e.g., Max Health, Max Armor, Max Shield)
 		case EHealthStatus::Max:
 		{
 			float& ValueToChange = MaxHealthStatusMap[Tag];
@@ -98,6 +100,7 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 			}
 			break; 
 		}
+		// Both Attribute Values are Changed (e.g., Health & Max Health)
 		case EHealthStatus::All:
 		{
 			float& CurrentValueToChange = CurrentHealthStatusMap[Tag];
@@ -135,7 +138,7 @@ void UPlayerHealthStatus::CheckDamagedOrHealed(float OldValue, float NewValue)
 
 	// Damaged 
 	// TODO - Consider How to Show Fatal State in Another Client's HUD 
-	if (CurrentHealth < MaxHealth * FatalPercentage)
+	if ((CurrentHealth < MaxHealth * FatalPercentage) && (CurrentHealth > 0.f))
 	{
 		CachedMPCInstance->SetScalarParameterValue(TEXT("Damage"), 1.f); 
 	}

@@ -9,7 +9,6 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "Game/OWGameState.h"
-#include "Game/MatchScoringComponent.h"
 
 void UOWWidgetController::SetWidgetControllerParams(const FWidgetControllerParams& WCParams)
 {
@@ -64,20 +63,4 @@ UOWAttributeSet* UOWWidgetController::GetOW_AS()
 	}
 
 	return OWAttributeSet; 
-}
-
-UMatchScoringComponent* UOWWidgetController::GetMatchScoringComponent()
-{
-	if (PlayerController)
-	{
-		if (UWorld* World = PlayerController->GetWorld())
-		{
-			if (AOWGameState* OWGameState = World->GetGameState<AOWGameState>())
-			{
-				MatchScoringComponent = OWGameState->FindComponentByClass<UMatchScoringComponent>(); 
-			}
-		}
-	}
-	
-	return MatchScoringComponent;
 }

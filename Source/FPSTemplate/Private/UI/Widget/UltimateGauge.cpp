@@ -2,6 +2,7 @@
 
 
 #include "UI/Widget/UltimateGauge.h"
+#include "Components/Border.h"
 #include "Components/Image.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -16,6 +17,11 @@ void UUltimateGauge::NativePreConstruct()
 
 	// Initialize Percent to 0 and Make Ultimate Icon not visible 
 	Percent = 0.f; 
+
+	if (Border_UltimateIcon)
+	{
+		Border_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed);
+	}
 
 	if (Image_UltimateIcon)
 	{
@@ -52,7 +58,7 @@ void UUltimateGauge::NativeConstruct()
 		if (UltimateGaugeMID)
 		{
 			UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
-			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), UltimateGaugeColor::Orange);
+			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), OrangeColor);
 			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 100.f);
 
 			Image_UltimateGauge->SetBrushFromMaterial(UltimateGaugeMID);
@@ -118,8 +124,13 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 		
 		if (UltimateGaugeMID)
 		{
-			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), UltimateGaugeColor::Blue);
+			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), SkyColor);
 			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 0.f);
+		}
+
+		if (Border_UltimateIcon)
+		{
+			Border_UltimateIcon->SetVisibility(ESlateVisibility::Visible); 
 		}
 		
 		if (Image_UltimateIcon)
@@ -164,8 +175,13 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 			if (UltimateGaugeMID)
 			{
 				UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
-				UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), UltimateGaugeColor::Orange);
+				UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), OrangeColor);
 				UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 100.f);
+			}
+
+			if (Border_UltimateIcon)
+			{
+				Border_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed); 
 			}
 
 			if (Image_UltimateIcon)

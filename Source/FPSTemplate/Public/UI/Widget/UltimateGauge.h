@@ -7,15 +7,10 @@
 #include "UltimateGauge.generated.h"
 
 class UImage; 
+class UBorder; 
 class UTextBlock; 
 class UMaterialInstanceDynamic; 
 
-namespace UltimateGaugeColor
-{
-	constexpr FLinearColor None(0.f, 0.f, 0.f, 0.f);
-	constexpr FLinearColor Orange(0.9568f, 0.2067f, 0.044f, 1.f);
-	constexpr FLinearColor Blue(0.f, 0.2f, 1.f, 1.f);
-}
 
 
 /**
@@ -37,13 +32,23 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_Percent;
 
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> Border_UltimateIcon; 
+
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_UltimateIcon;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_UltimateRay; 
 
 	UPROPERTY()
-	TObjectPtr<UMaterialInstanceDynamic> UltimateGaugeMID; 
+	TObjectPtr<UMaterialInstanceDynamic> UltimateGaugeMID;
+
+	/* Settings */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FLinearColor OrangeColor = FLinearColor(0.9568f, 0.2067f, 0.044f, 1.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FLinearColor SkyColor = FLinearColor(0.133824f, 0.988235f, 0.983409f, 1.f);
 
 	UFUNCTION()
 	void ReceiveAbilityInfo(const FOWAbilityInfo& Info);
