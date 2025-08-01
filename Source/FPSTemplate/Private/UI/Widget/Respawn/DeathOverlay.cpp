@@ -6,9 +6,13 @@
 #include "GameFramework/Pawn.h"
 #include "GameFramework/GameStateBase.h"
 #include "GameFramework/PlayerState.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Team/OWTeamSubsystem.h"
 #include "OWGameplayTags.h"
+#include "Interface/CombatInterface.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "UI/Widget/HeroSelection/HeroSelectionOverlay.h"
 
 void UDeathOverlay::NativeConstruct()
 {
@@ -18,6 +22,7 @@ void UDeathOverlay::NativeConstruct()
 	if (Button_ChangeSpectator)
 	{
 		Button_ChangeSpectator->OnClicked.AddDynamic(this, &UDeathOverlay::ChangeSpectator); 
+		ChangeSpectator(); 
 	}
 
 	if (RespawnTime > 0.f)
@@ -42,89 +47,63 @@ void UDeathOverlay::NativeDestruct()
 
 void UDeathOverlay::ChangeSpectator()
 {
-	if (IsValid(Spectator))
+	TArray<APlayerController*> LiveTeamMembers; 
+	GetAllLiveTeamMembers(LiveTeamMembers);
+
+	// If All Team Members are dead, Show Hero Selection Overlay to Cover Up the State of Nothing 
+	if (LiveTeamMembers.Num() == 0)
 	{
-		WatchLiveTeamMember(); 
+		TArray<UUserWidget*> HeroSelectionWidgets; 
+		UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), HeroSelectionWidgets, HeroSelectionOverlayWidgetClass); 
+		
+		for (UUserWidget* HeroSelectionWidget : HeroSelectionWidgets)
+		{
+			HeroSelectionWidget->SetVisibility(ESlateVisibility::Visible); 
+		}
+		return; 
 	}
-	else
+
+	// Rotate Current Watch Index to See Another Live Team Members 
+	CurrentWatchIndex = (CurrentWatchIndex + 1) % LiveTeamMembers.Num(); 
+
+	// Set View Target to Next Player Controller 
+	APlayerController* NextPlayerController = LiveTeamMembers[CurrentWatchIndex]; 
+	if (NextPlayerController)
 	{
-		BecomeSpectator(); 
-		WatchLiveTeamMember(); 
+		GetOwningPlayer()->SetViewTargetWithBlend(NextPlayerController); 
 	}
 }
 
-void UDeathOverlay::WatchLiveTeamMember()
+void UDeathOverlay::GetAllLiveTeamMembers(TArray<APlayerController*>& OutControllers) const
 {
-	// Get Game State 
-	if (AGameStateBase* GameState = UGameplayStatics::GetGameState(this))
+	OutControllers.Reset(); 
+
+	if (UWorld* World = GetWorld())
 	{
-		// Get Player Array from Game State
-		for (APlayerState* PlayerState : GameState->PlayerArray)
+		// Get Game State 
+		if (AGameStateBase* GameState = UGameplayStatics::GetGameState(World))
 		{
-			if (APawn* EachPawn = PlayerState->GetPawn())
+			// Get Player Array from Game State
+			for (APlayerState* PlayerState : GameState->PlayerArray)
 			{
-				if (EachPawn && (EachPawn != CurrentlyFollowingTeamMember))
+				// Get Team Subsystem 
+				if (UOWTeamSubsystem* TeamSubsystem = World->GetSubsystem<UOWTeamSubsystem>())
 				{
-					if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
+					// Check if Another Player State is on Same Team 
+					if (TeamSubsystem->CompareTeams(PlayerState, GetOwningPlayerState()) == EOWTeamComparison::OnSameTeam)
 					{
-						if (TeamSubsystem->CompareTeams(EachPawn, GetOwningPlayerState()) == EOWTeamComparison::OnSameTeam)
+						// Check Player State is not my own 
+						if (PlayerState != GetOwningPlayerState())
 						{
-							CurrentlyFollowingTeamMember = EachPawn; 
-							AttachToLiveTeamMember(CurrentlyFollowingTeamMember, Spectator);
-							break;
+							// Check Owning Pawn is not Dead
+							if (!ICombatInterface::Execute_IsDead(PlayerState->GetPawn()))
+							{
+								OutControllers.Add(PlayerState->GetPlayerController());
+							}
 						}
 					}
 				}
-				else
-				{
-					UE_LOG(LogTemp, Log, TEXT("Currently Following Pawn in UDeathOverlay::WatchLiveTeamMember()")); 
-				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("Cannot Get Pawn from Player State in UDeathOverlay::WatchLiveTeamMember()")); 
 			}
 		}
-
-	}
-}
-
-void UDeathOverlay::BecomeSpectator()
-{
-	if (GetOwningPlayer())
-	{
-		// Unpossess Dead Hero 
-		GetOwningPlayer()->UnPossess();
-
-		// Initialize Spectator's Actor Spawn Parameters, Spawn Location, and Rotation 
-		FActorSpawnParameters SpawnParameters; 
-		SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn; 
-
-		FVector SpawnLocation = FVector::ZeroVector; 
-		FRotator SpawnRotation = FRotator::ZeroRotator; 
-
-		// Spawn Spectator 
-		Spectator = GetWorld()->SpawnActor<APawn>(SpectatorClass, SpawnLocation, SpawnRotation, SpawnParameters);
-
-		// Possess Spectator 
-		if (IsValid(Spectator))
-		{
-			GetOwningPlayer()->Possess(Spectator);
-		}
-	}
-}
-
-void UDeathOverlay::AttachToLiveTeamMember(APawn* TeamMember, APawn* SpectatorPawn)
-{
-	if (SpectatorPawn)
-	{
-		FDetachmentTransformRules DetachmentTransformRules 
-			= FDetachmentTransformRules(EDetachmentRule::KeepRelative, EDetachmentRule::KeepRelative, EDetachmentRule::KeepRelative, true);
-
-		SpectatorPawn->DetachFromActor(DetachmentTransformRules); 
-
-		FAttachmentTransformRules AttachmentTransformRules
-			= FAttachmentTransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepRelative, true); 
-		SpectatorPawn->AttachToActor(TeamMember, AttachmentTransformRules); 
 	}
 }

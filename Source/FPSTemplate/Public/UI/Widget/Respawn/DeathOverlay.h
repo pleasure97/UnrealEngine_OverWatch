@@ -11,6 +11,8 @@ class UTextBlock;
 class URespawnGauge; 
 class UButton; 
 class APawn; 
+class APlayerController; 
+class UHeroSelectionOverlay; 
 
 /**
  * 
@@ -30,11 +32,11 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<URespawnGauge> WBP_RespawnGauge;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<APawn> SpectatorClass; 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ExposeOnSpawn = "true"))
 	float RespawnTime = 10.f; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UHeroSelectionOverlay> HeroSelectionOverlayWidgetClass; 
 
 protected:
 	virtual void NativeConstruct() override; 
@@ -44,10 +46,10 @@ private:
 	UFUNCTION()
 	void ChangeSpectator();
 
-	void WatchLiveTeamMember(); 
-	void BecomeSpectator(); 
-	void AttachToLiveTeamMember(APawn* TeamMember, APawn* SpectatorPawn);
+	void GetAllLiveTeamMembers(TArray<APlayerController*>& OutControllers) const;
 
-	TObjectPtr<APawn> Spectator; 
-	TObjectPtr<APawn> CurrentlyFollowingTeamMember; 
+	void WatchLiveTeamMember(); 
+
+	UPROPERTY()
+	int32 CurrentWatchIndex = -1; 
 };
