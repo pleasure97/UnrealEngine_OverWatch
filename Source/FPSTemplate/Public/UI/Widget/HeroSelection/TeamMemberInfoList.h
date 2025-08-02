@@ -49,6 +49,8 @@ private:
 	UFUNCTION()
 	void OnClientTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID);
 
+	void SortTeamMemberInfoArray(TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>>& TeamMemberInfoArray); 
+
 	int32 MyTeamID = -1; 
 
 	TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>> Team1MemberInfoArray; 

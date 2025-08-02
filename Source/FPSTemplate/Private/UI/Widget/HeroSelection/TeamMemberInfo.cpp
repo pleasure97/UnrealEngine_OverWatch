@@ -32,17 +32,15 @@ void UTeamMemberInfo::NativeConstruct()
 	{
 		TextBlock_Nickname->SetVisibility(ESlateVisibility::Collapsed); 
 	}
+
+	UpdateNickName(); 
 }
 
-void UTeamMemberInfo::InitializeTeamMemberInfo(AOWPlayerState* InOwnerPlayerState)
+void UTeamMemberInfo::RefreshTeamMemberInfo(AOWPlayerState* InOwnerPlayerState)
 {
-	// Check if Owner Player State is not assigned and New Player State is not nullptr 
-	if ((InOwnerPlayerState != nullptr) && (OwnerPlayerState == nullptr))
-	{
-		OwnerPlayerState = InOwnerPlayerState; 
+	OwnerPlayerState = InOwnerPlayerState;
 
-		UpdateNickName(); 
-	}
+	UpdateNickName();
 }
 
 void UTeamMemberInfo::UpdateNickName()
@@ -82,7 +80,7 @@ void UTeamMemberInfo::HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHero
 {
 	// Check if Hero Name is None
 	// If there is No Hero Name, Client May be Disconnected or Deselectg Hero 
-	if (HeroName == EHeroName::None)
+	if (!OWPlayerState || HeroName == EHeroName::None)
 	{
 		if (Throbber_WaitingTeamMember)
 		{

@@ -41,7 +41,7 @@ public:
 
 	void HandleHeroNameChanged(AOWPlayerState* OWPlayerState, EHeroName NewHeroName); 
 
-	void InitializeTeamMemberInfo(AOWPlayerState* InOwnerPlayerState); 
+	void RefreshTeamMemberInfo(AOWPlayerState* InOwnerPlayerState); 
 
 	AOWPlayerState* GetOWPlayerState() const; 
 

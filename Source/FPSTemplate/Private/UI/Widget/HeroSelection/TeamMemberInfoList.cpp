@@ -36,9 +36,10 @@ void UTeamMemberInfoList::NativeConstruct()
 	UWorld* World = GetOwningPlayer() ? GetOwningPlayer()->GetWorld() : nullptr; 
 	if (AOWGameState* OWGameState = Cast<AOWGameState>(World->GetGameState()))
 	{
+		// Call Callback Function when Player State is Added or Removed 
 		OWGameState->OnPlayerStateAdded.AddDynamic(this, &UTeamMemberInfoList::HandleNewPlayerState); 
 		OWGameState->OnPlayerStateRemoved.AddDynamic(this, &UTeamMemberInfoList::HandleRemovedPlayerState); 
-		// Get Player Array of Game State
+		// Get Player Array of Game State and Take Care of Every Player State
 		for (APlayerState* PlayerState : OWGameState->PlayerArray)
 		{
 			HandleNewPlayerState(PlayerState);
@@ -129,10 +130,11 @@ void UTeamMemberInfoList::OnClientTeamChanged(UObject* ObjectChangingTeam, int32
 				// Initialize Ally Team Member Info 
 				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team1MemberInfo : Team1MemberInfoArray)
 				{
+					// Find Empty Team Member Info Element and Initialize Team Member Info in it 
 					if (Team1MemberInfo.Value->GetOWPlayerState() == nullptr)
 					{
 						Team1MemberInfo.Key = ClientPlayerState;
-						Team1MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						Team1MemberInfo.Value->RefreshTeamMemberInfo(ClientPlayerState);
 						break;
 					}
 				}
@@ -152,13 +154,13 @@ void UTeamMemberInfoList::OnClientTeamChanged(UObject* ObjectChangingTeam, int32
 			}
 			else if (MyTeamID == 2)
 			{
-				// Initialize Ally Team Member Info 
+				// Find Empty Team Member Info Element and Initialize Team Member Info in it 
 				for (TPair<AOWPlayerState*, UTeamMemberInfo*>& Team2MemberInfo : Team2MemberInfoArray)
 				{
 					if (Team2MemberInfo.Value->GetOWPlayerState() == nullptr)
 					{
 						Team2MemberInfo.Key = ClientPlayerState;
-						Team2MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						Team2MemberInfo.Value->RefreshTeamMemberInfo(ClientPlayerState);
 						break;
 					}
 				}
@@ -191,7 +193,7 @@ void UTeamMemberInfoList::OnClientTeamChanged(UObject* ObjectChangingTeam, int32
 					if (Team1MemberInfo.Value->GetOWPlayerState() == nullptr)
 					{
 						Team1MemberInfo.Key = ClientPlayerState;
-						Team1MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						Team1MemberInfo.Value->RefreshTeamMemberInfo(ClientPlayerState);
 						break;
 					}
 				}
@@ -203,7 +205,7 @@ void UTeamMemberInfoList::OnClientTeamChanged(UObject* ObjectChangingTeam, int32
 					if (Team2MemberInfo.Value->GetOWPlayerState() == nullptr)
 					{
 						Team2MemberInfo.Key = ClientPlayerState;
-						Team2MemberInfo.Value->InitializeTeamMemberInfo(ClientPlayerState);
+						Team2MemberInfo.Value->RefreshTeamMemberInfo(ClientPlayerState);
 						break;
 					}
 				}
@@ -211,6 +213,46 @@ void UTeamMemberInfoList::OnClientTeamChanged(UObject* ObjectChangingTeam, int32
 			else
 			{
 				return; 
+			}
+		}
+	}
+
+	// If Team1 Member Info Array is not Removed, Sort Team1 Member Info Array 
+	if (!Team1MemberInfoArray.IsEmpty())
+	{
+		SortTeamMemberInfoArray(Team1MemberInfoArray);
+	}
+	
+	// If Team2 Member Info Array is not Removed, Sort Team2 Member Info Array 
+	if (!Team2MemberInfoArray.IsEmpty())
+	{
+		SortTeamMemberInfoArray(Team2MemberInfoArray); 
+	}
+}
+
+void UTeamMemberInfoList::SortTeamMemberInfoArray(TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>>& TeamMemberInfoArray)
+{
+	// Sort the array so that the key that is not nullptr is at the front
+	TeamMemberInfoArray.Sort(
+		[](const TPair<AOWPlayerState*, UTeamMemberInfo*>& A, const TPair<AOWPlayerState*, UTeamMemberInfo*>& B)
+		{
+			return (A.Key != nullptr) && (B.Key == nullptr);
+		}
+	);
+
+	if (HorizontalBox_TeamMemberInfoList)
+	{
+		// Empty Horizontal Box 
+		HorizontalBox_TeamMemberInfoList->ClearChildren();
+		// Iterate Team Member Info Array 
+		for (int32 i = 0; i < TeamMemberInfoArray.Num(); ++i) 
+		{
+			// If Player State of Team Member Info Array is nullptr, Set Nickname Visibility to be Collapsed 
+			TeamMemberInfoArray[i].Value->RefreshTeamMemberInfo(TeamMemberInfoArray[i].Key);
+			UHorizontalBoxSlot* SortedHorizontalBoxSlot = HorizontalBox_TeamMemberInfoList->AddChildToHorizontalBox(TeamMemberInfoArray[i].Value);
+			if (i != (TeamMemberInfoArray.Num() - 1))
+			{
+				SortedHorizontalBoxSlot->SetPadding(IntervalBetweenTeamMemberInfo);
 			}
 		}
 	}
