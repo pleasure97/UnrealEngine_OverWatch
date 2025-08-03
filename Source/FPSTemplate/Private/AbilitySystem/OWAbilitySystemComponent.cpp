@@ -9,6 +9,32 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/OWGlobalAbilitySystem.h"
 
+bool UOWAbilitySystemComponent::BatchRPCTryActivateAbility(FGameplayAbilitySpecHandle InAbilityHandle, bool bEndAbilityImmediately)
+{
+    bool bAbilityActivated = false; 
+    // Check if Gameplay Ability Spec Handle is Valid 
+    if (InAbilityHandle.IsValid())
+    {
+        // Should Use FScopedServerAbilityRPCBatcher for Ability Batching
+        FScopedServerAbilityRPCBatcher ScopedServerAbilityRPCBatcher(this, InAbilityHandle); 
+        // Try Activate Ability and Return bool Value 
+        bAbilityActivated = TryActivateAbility(InAbilityHandle, true); 
+
+        if (bEndAbilityImmediately)
+        {
+            FGameplayAbilitySpec* AbilitySpec = FindAbilitySpecFromHandle(InAbilityHandle);
+            // Get Gameplay Ability Spec, Cast Primary Instance to Custom Gameplay Ability, and End Ability Externally  
+            if (AbilitySpec)
+            {
+                UOWGameplayAbility* OWGameplayAbility = Cast<UOWGameplayAbility>(AbilitySpec->GetPrimaryInstance()); 
+                OWGameplayAbility->ExternalEndAbility(); 
+            }
+        }
+        return bAbilityActivated; 
+    }
+    return bAbilityActivated; 
+}
+
 void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
     FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get(); 

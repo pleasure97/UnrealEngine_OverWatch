@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "AbilitySystem/OWAttributeSet.h"
+#include "AbilitySystem/OWAbilitySystemComponent.h"
 
 float UOWGameplayAbility::GetSkillCost(float InLevel) const
 {
@@ -36,4 +37,21 @@ float UOWGameplayAbility::GetCooldown(float InLevel)
 void UOWGameplayAbility::OnHeroSet()
 {
     K2_OnHeroSet();
+}
+
+bool UOWGameplayAbility::BatchRPCTryActivateAbility(FGameplayAbilitySpecHandle InAbilityHandle, bool bEndAbilityImmediately)
+{
+    UOWAbilitySystemComponent* OWAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo()); 
+    if (OWAbilitySystemComponent)
+    {
+        return OWAbilitySystemComponent->BatchRPCTryActivateAbility(InAbilityHandle, bEndAbilityImmediately); 
+    }
+    return false;
+}
+
+void UOWGameplayAbility::ExternalEndAbility()
+{
+    check(CurrentActorInfo); 
+
+    EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true /* bReplicateEndAbility */, false /* bWasCancelled*/); 
 }

@@ -19,7 +19,7 @@ UCLASS()
 class FPSTEMPLATE_API UOWAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
+
 public:
 	FEffectAssetTags EffectAssetTags;
 	FAbilitiesGiven AbilitiesGivenDelegate; 
@@ -27,6 +27,10 @@ public:
 	FAbilityEquipped AbilityEquipped; 
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
+
+	/* Ability Batching */
+	virtual bool ShouldDoServerAbilityRPCBatch() const override { return true; }
+	virtual bool BatchRPCTryActivateAbility(FGameplayAbilitySpecHandle InAbilityHandle, bool bEndAbilityImmediately); 
 
 	/* Ability Initialization */
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override; 

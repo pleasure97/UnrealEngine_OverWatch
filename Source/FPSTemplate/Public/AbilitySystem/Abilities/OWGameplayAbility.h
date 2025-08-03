@@ -20,6 +20,12 @@ public:
 
 	virtual void OnHeroSet();
 
+	/* Ability Batching */
+	UFUNCTION(BlueprintCallable)
+	virtual bool BatchRPCTryActivateAbility(FGameplayAbilitySpecHandle InAbilityHandle, bool bEndAbilityImmediately); 
+
+	virtual void ExternalEndAbility(); 
+
 protected:
 	float GetSkillCost(float InLevel = 1.f) const; 
 
