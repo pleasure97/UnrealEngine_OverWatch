@@ -8,6 +8,12 @@ void UHealthBar::NativeDestruct()
 {
     StopAllAnimations(); 
 
+    // Prevent the Issue of Animation Sequence Player Crashing Again
+    if (ProgressZeroAnimation && IsAnimationPlayingForward(ProgressZeroAnimation))
+    {
+        StopAnimation(ProgressZeroAnimation);
+    }
+
     Super::NativeDestruct(); 
 }
 
@@ -29,7 +35,7 @@ void UHealthBar::UpdateProgressBar(const FLinearColor& FillColor, const float& N
 
             if (ProgressZeroAnimation)
             {
-                PlayAnimationForward(ProgressZeroAnimation, 1.f, true);
+                PlayAnimation(ProgressZeroAnimation);
             }
         }
 

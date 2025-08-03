@@ -21,7 +21,7 @@ class FPSTEMPLATE_API UHealthBar : public UOWUserWidget
 public:
 	// Must Declare Bound Widget Animations before Any Other Widgets 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	UWidgetAnimation* ProgressZeroAnimation;
+	TObjectPtr<UWidgetAnimation> ProgressZeroAnimation;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> ProgressBar;

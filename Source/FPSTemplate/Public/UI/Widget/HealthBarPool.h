@@ -159,6 +159,15 @@ private:
 	void ClearHealthBarPool(); 
 
 	UPROPERTY()
+	float SavedHealth = 0.f; 
+
+	UPROPERTY()
+	float SavedArmor = 0.f; 
+
+	UPROPERTY()
+	float SavedShield = 0.f; 
+
+	UPROPERTY()
 	TObjectPtr<UOWAbilitySystemComponent> OwnerAbilitySystemComponent; 
 	UPROPERTY()
 	TObjectPtr<UOWAttributeSet> OwnerAttributeSet; 

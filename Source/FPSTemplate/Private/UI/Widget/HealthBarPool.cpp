@@ -138,10 +138,6 @@ void UHealthBarPool::InitializeProgressBars(const float& NewValue, const FHealth
 	for (int i = 0; i < NumHealthBars; ++i)
 	{
 		UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-		if (HealthBar)
-		{
-			HealthBar->UpdateProgressBar(HealthBarPoolInfo.HealthBarColor, 1.f);
-		}
 
 		UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
 		if (HorizontalBoxSlot)
@@ -184,6 +180,13 @@ void UHealthBarPool::UpdateMaxHealthBars(float NewValue)
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
 
+	if (SavedHealth > 0.f)
+	{
+		UpdateProgressBars(SavedHealth, HealthBarPoolInfo); 
+
+		SavedHealth = 0.f; 
+	}
+
 	UpdateBorderVisibility(); 
 
 	DistributeFillSize(); 
@@ -194,6 +197,13 @@ void UHealthBarPool::UpdateMaxArmorBars(float NewValue)
 	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	if (SavedArmor > 0.f)
+	{
+		UpdateProgressBars(SavedArmor, HealthBarPoolInfo);
+
+		SavedArmor = 0.f;
+	}
 
 	UpdateBorderVisibility();
 
@@ -206,6 +216,13 @@ void UHealthBarPool::UpdateMaxShieldBars(float NewValue)
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
 
+	if (SavedShield)
+	{
+		UpdateProgressBars(SavedShield, HealthBarPoolInfo);
+
+		SavedShield = 0.f;
+	}
+
 	UpdateBorderVisibility();
 
 	DistributeFillSize();
@@ -214,7 +231,11 @@ void UHealthBarPool::UpdateMaxShieldBars(float NewValue)
 void UHealthBarPool::UpdateHealthBars(float NewValue)
 {
 	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health]; 
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return; 
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+	{
+		SavedHealth = NewValue;
+		return;
+	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo); 
 }
@@ -222,7 +243,10 @@ void UHealthBarPool::UpdateHealthBars(float NewValue)
 void UHealthBarPool::UpdateArmorBars(float NewValue)
 {
 	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+	{
+		SavedArmor = NewValue; 
+	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
@@ -230,7 +254,10 @@ void UHealthBarPool::UpdateArmorBars(float NewValue)
 void UHealthBarPool::UpdateShieldBars(float NewValue)
 {
 	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+	{
+		SavedShield = NewValue; 
+	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }

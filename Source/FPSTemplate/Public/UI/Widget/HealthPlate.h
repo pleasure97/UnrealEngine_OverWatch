@@ -32,17 +32,17 @@ public:
 	TObjectPtr<UImage> Image_PlayerArrow; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FLinearColor EnemyHealthColor = FLinearColor(0.520833f, 0.005426f, 0.032740f, 1.f);
+	FLinearColor EnemyColor = FLinearColor(0.520833f, 0.005426f, 0.032740f, 1.f);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor AllyColor = FLinearColor(0.f, 0.f, 1.f, 1.f);
 
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(AOWPlayerState* InOWPlayerState);
 
-	void UpdatePlayerHealthBarPool();
-
-	void UpdatePlayerName();
+	AOWPlayerState* GetOWPlayerState() const; 
 
 protected:
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void NativeDestruct() override; 
 
 private:
@@ -51,4 +51,11 @@ private:
 
 	UFUNCTION()
 	void OnTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID); 
+
+	void UpdatePlayerInfo(bool bAlly);
+	void UpdatePlayerName(bool bAlly);
+	void UpdatePlayerArrow(bool bAlly); 
+	void UpdatePlayerHealthBarPool(bool bAlly);
+
+	int32 OwnerTeamID = -1; 
 };

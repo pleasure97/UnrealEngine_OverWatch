@@ -87,6 +87,36 @@ void UPlayerHealthBarPool::SetPlayerState(AOWPlayerState* NewOWPlayerState)
 	}
 }
 
+void UPlayerHealthBarPool::SetIsEnemy(bool bEnemy)
+{
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+
+	if (TagsToHealthBarInfos.IsEmpty())
+	{
+		if (bEnemy)
+		{
+			TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth,
+				FPlayerHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("Red")], &UPlayerHealthBarPool::UpdateMaxHealthBars));
+			TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health,
+				FPlayerHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("Red")], &UPlayerHealthBarPool::UpdateHealthBars));
+		}
+	}
+	else
+	{
+		if (bEnemy)
+		{
+			if (FPlayerHealthBarPoolInfo* MaxHealthBarInfo = TagsToHealthBarInfos.Find(GameplayTags.Attributes_Defense_MaxHealth))
+			{
+				MaxHealthBarInfo->HealthBarColor = HealthBarColors[FName("Red")];
+			}
+			if (FPlayerHealthBarPoolInfo* HealthBarInfo = TagsToHealthBarInfos.Find(GameplayTags.Attributes_Defense_Health))
+			{
+				HealthBarInfo->HealthBarColor = HealthBarColors[FName("Red")];
+			}
+		}
+	}
+}
+
 void UPlayerHealthBarPool::BindDefensiveAttributeChange(AOWPlayerState* NewOWPlayerState)
 {
 	// Cast Owning Player State to Custom Player State
@@ -129,6 +159,11 @@ void UPlayerHealthBarPool::BindDefensiveAttributeChange(AOWPlayerState* NewOWPla
 
 void UPlayerHealthBarPool::OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue)
 {
+	if (TagsToHealthBarInfos.IsEmpty())
+	{
+		InitializeHealthBarPoolInfos(); 
+	}
+
 	if (FPlayerHealthBarPoolInfo* HealthBarPoolInfo = TagsToHealthBarInfos.Find(AttributeTag))
 	{
 		// e.g., AttributeTag = MaxHealth, ExecuteUpdate = UpdateMaxHealthBars()
@@ -151,10 +186,6 @@ void UPlayerHealthBarPool::InitializeProgressBars(const float& NewValue, const F
 	for (int i = 0; i < NumHealthBars; ++i)
 	{
 		UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-		if (HealthBar)
-		{
-			HealthBar->UpdateProgressBar(HealthBarPoolInfo.HealthBarColor, 1.f);
-		}
 
 		UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
 		if (HorizontalBoxSlot)
@@ -197,6 +228,13 @@ void UPlayerHealthBarPool::UpdateMaxHealthBars(float NewValue)
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
 
+	if (SavedHealth > 0.f)
+	{
+		UpdateProgressBars(SavedHealth, HealthBarPoolInfo); 
+
+		SavedHealth = 0.f;
+	}
+
 	UpdateBorderVisibility();
 
 	DistributeFillSize();
@@ -207,6 +245,13 @@ void UPlayerHealthBarPool::UpdateMaxArmorBars(float NewValue)
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+
+	if (SavedArmor > 0.f)
+	{
+		UpdateProgressBars(SavedArmor, HealthBarPoolInfo);
+
+		SavedArmor = 0.f;
+	}
 
 	UpdateBorderVisibility();
 
@@ -219,6 +264,13 @@ void UPlayerHealthBarPool::UpdateMaxShieldBars(float NewValue)
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
 
+	if (SavedShield > 0.f)
+	{
+		UpdateProgressBars(SavedShield, HealthBarPoolInfo);
+
+		SavedShield = 0.f;
+	}
+
 	UpdateBorderVisibility();
 
 	DistributeFillSize();
@@ -227,7 +279,11 @@ void UPlayerHealthBarPool::UpdateMaxShieldBars(float NewValue)
 void UPlayerHealthBarPool::UpdateHealthBars(float NewValue)
 {
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+	{
+		SavedHealth = NewValue;
+		return;
+	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
@@ -235,7 +291,11 @@ void UPlayerHealthBarPool::UpdateHealthBars(float NewValue)
 void UPlayerHealthBarPool::UpdateArmorBars(float NewValue)
 {
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+	{
+		SavedArmor = NewValue; 
+		return;
+	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
@@ -243,7 +303,11 @@ void UPlayerHealthBarPool::UpdateArmorBars(float NewValue)
 void UPlayerHealthBarPool::UpdateShieldBars(float NewValue)
 {
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0) return;
+	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+	{
+		SavedShield = NewValue; 
+		return;
+	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
@@ -331,12 +395,6 @@ void UPlayerHealthBarPool::DistributeFillSize()
 			HorizontalBoxSlot->SetSize(ChildSize);
 		}
 	}
-}
-
-void UPlayerHealthBarPool::SetHealthBarColor(FLinearColor Color)
-{
-	FPlayerHealthBarPoolInfo HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health];
-	HealthBarPoolInfo.HealthBarColor = Color;
 }
 
 void UPlayerHealthBarPool::ClearHealthBarPool()
