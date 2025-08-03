@@ -75,6 +75,9 @@ struct FOWHeroInfo
 	TObjectPtr<const UTexture2D> HeroPortrait3D = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<APawn> HeroPawnClass; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

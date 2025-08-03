@@ -26,7 +26,7 @@ public:
 
 protected:
 	virtual AActor* OnChoosePlayerStart(AController* Player, TArray<AOWPlayerStart*>& PlayerStarts); 
-	virtual void OnFinishRestartPlayer(AController* Player, const FRotator& StartRotation) { return; }
+	virtual void OnFinishRestartPlayer(AController* Player, const FRotator& StartRotation) { }
 
 	AOWPlayerStart* GetFirstRandomUnoccupiedPlayerStart(AController* Controller, const TArray<AOWPlayerStart*>& FoundStartPoints) const; 
 
