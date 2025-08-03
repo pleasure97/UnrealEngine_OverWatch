@@ -10,7 +10,7 @@
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "OWPlayerState.generated.h"
 
-class UAbilitySystemComponent; 
+class UOWAbilitySystemComponent; 
 class UAttributeSet; 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStateChanged, int32 /* Stat Value */)
@@ -78,9 +78,10 @@ public:
 	int32 GetTeamId() const { return GenericTeamIdToInteger(MyTeamID);  }
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void PostInitializeComponents() override; 
 protected:
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UAttributeSet> AttributeSet; 

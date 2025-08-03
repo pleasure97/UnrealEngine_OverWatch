@@ -4,6 +4,7 @@
 #include "Player/OWPlayerState.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "AbilitySystem/OWAttributeSet.h"
+#include "AbilitySystem/OWGlobalAbilitySystem.h"
 #include "Net/UnrealNetwork.h"
 
 AOWPlayerState::AOWPlayerState()
@@ -13,8 +14,6 @@ AOWPlayerState::AOWPlayerState()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); 
 
 	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
-
-	SetHeroName(EHeroName::ILLIARI); 
 
 	NetUpdateFrequency = 100.f; 
 
@@ -34,7 +33,9 @@ void AOWPlayerState::SetHeroName(EHeroName NewHeroName)
 
 void AOWPlayerState::OnRep_HeroName()
 {
-	OnHeroNameChangedDelegate.Broadcast(this, HeroName); 
+	FString EnumName = UEnum::GetValueAsString(HeroName);
+	UE_LOG(LogTemp, Log, TEXT("Hero Changed to %s"), *EnumName);
+	OnHeroNameChangedDelegate.Broadcast(this, HeroName);
 }
 
 void AOWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -46,6 +47,19 @@ void AOWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AOWPlayerState, XP); 
 	DOREPLIFETIME(AOWPlayerState, AttributePoints); 
 	DOREPLIFETIME(AOWPlayerState, SpellPoints); 
+}
+
+void AOWPlayerState::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (AbilitySystemComponent)
+	{
+		if (UOWGlobalAbilitySystem* GlobalAbilitySystem = UWorld::GetSubsystem<UOWGlobalAbilitySystem>(GetWorld()))
+		{
+			GlobalAbilitySystem->RegisterASC(AbilitySystemComponent);
+		}
+	}
 }
 
 void AOWPlayerState::AddToXP(int32 InXP)
@@ -146,4 +160,3 @@ void AOWPlayerState::OnRep_MyTeamID(FGenericTeamId OldTeamID)
 {
 	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
 }
-

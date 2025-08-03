@@ -10,10 +10,8 @@
 class USpringArmComponent; 
 class UCameraComponent;
 class UCameraTransitionComponent; 
-class UInputComponent; 
 class UScreenEffectComponent; 
 struct FGameplayEffectSpec; 
-
 
 /**
  * 
@@ -29,11 +27,9 @@ public:
 	virtual void BeginPlay() override; 
 
 	virtual void PossessedBy(AController* NewController) override;
+	virtual void UnPossessed() override; 
 
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	virtual void OnRep_PlayerState() override;
-	void InitializeHealthPlate();
-
 
 	/* LevelUp Interface */
 	virtual int32 FindLevelForXP_Implementation(int32 InXP) const override; 
@@ -68,6 +64,10 @@ protected:
 
 private:
 	void InitAbilityActorInfo(); 
+
+	void InitializeOverlay();
+
+	void InitializeHealthPlate();
 
 	void DisableMovementAndCollision(); 
 
@@ -105,4 +105,6 @@ private:
 	float DeathTime = 9.f; 
 
 	EAttackDirection AttackDirection = EAttackDirection::NotSet; 
+
+	bool bPossessed = false; 
 };

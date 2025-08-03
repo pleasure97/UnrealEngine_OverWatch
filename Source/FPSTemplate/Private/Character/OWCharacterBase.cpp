@@ -3,7 +3,6 @@
 
 #include "Character/OWCharacterBase.h"
 #include "OWGameplayTags.h"
-#include "AbilitySystemComponent.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
@@ -221,6 +220,7 @@ void AOWCharacterBase::UnPossessed()
 	Super::UnPossessed(); 
 
 	// Broadcast that the Team has Changed 
+	// TODO - Maintain Team ID 
 	MyTeamID = DetermineNewTeamAfterPossessionEnds(OldTeamID);
 	BroadcastTeamChanged(this, OldTeamID, MyTeamID); 
 	UpdateTeamColor();

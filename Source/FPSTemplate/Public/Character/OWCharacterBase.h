@@ -111,7 +111,7 @@ protected:
 
 	virtual FGenericTeamId DetermineNewTeamAfterPossessionEnds(FGenericTeamId OldTeamId) const
 	{
-		return FGenericTeamId::NoTeam; 
+		return OldTeamId;
 	}
 
 	UFUNCTION()

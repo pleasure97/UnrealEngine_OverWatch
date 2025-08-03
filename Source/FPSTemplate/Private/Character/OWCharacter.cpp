@@ -8,22 +8,19 @@
 #include "Component/ScreenEffectComponent.h"
 #include "Components/WidgetComponent.h"
 #include "UI/Widget/HealthPlate.h"
-#include "EnhancedInputComponent.h"
 #include "Player/OWPlayerState.h"
 #include "Player/OWPlayerController.h"
-#include "UI/HUD/OWHUD.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "OWGameplayTags.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/OWAttributeSet.h"
-#include "Components/TimelineComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Components/CapsuleComponent.h"
 #include "Game/OWGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Message/OWMessageTypes.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "UI/HUD/OWHUD.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -45,6 +42,12 @@ AOWCharacter::AOWCharacter()
 	// First Person Mesh 
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>("FirstPersonMesh");
 	FirstPersonMesh->SetupAttachment(FirstPersonCamera);
+	FirstPersonMesh->bOnlyOwnerSee = true;
+	FirstPersonMesh->bOwnerNoSee = false;
+	FirstPersonMesh->bCastDynamicShadow = false;
+	FirstPersonMesh->bReceivesDecals = false;
+	FirstPersonMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
+	FirstPersonMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
 
 	// Third Person Spring Arm 
 	ThirdPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("ThirdPersonSpringArm"); 
@@ -83,8 +86,6 @@ void AOWCharacter::BeginPlay()
 	// Show FirstPersonMesh visible to the user, invisible to other clients 
 	if (IsLocallyControlled())
 	{
-		FirstPersonMesh->bOnlyOwnerSee = true;
-		FirstPersonMesh->bOwnerNoSee = false;
 		if (ScreenEffectComponent)
 		{
 			ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera);
@@ -92,22 +93,15 @@ void AOWCharacter::BeginPlay()
 			ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
 		}
 	}
-	else
-	{
-		FirstPersonMesh->bOnlyOwnerSee = true;
-		FirstPersonMesh->bOwnerNoSee = false;
-	}
-	FirstPersonMesh->bCastDynamicShadow = false;
-	FirstPersonMesh->bReceivesDecals = false;
-	FirstPersonMesh->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
-	FirstPersonMesh->PrimaryComponentTick.TickGroup = TG_PrePhysics;
+
+	InitializeHealthPlate();
+
+	InitializeOverlay();
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); 
-
-	OnRep_PlayerState(); 
 
 	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
 	{
@@ -120,10 +114,23 @@ void AOWCharacter::PossessedBy(AController* NewController)
 		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacter::OnTeamChanged);
 	}
 
-	InitAbilityActorInfo(); 
-	AddHeroAbilities(); 
+	OnRep_PlayerState(); 
+}
 
-	InitializeDefaultAttributes();
+void AOWCharacter::UnPossessed()
+{
+	Super::UnPossessed(); 
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(PC))
+		{
+			MyTeamID = ControllerWithTeamInterface->GetGenericTeamId();
+			ControllerWithTeamInterface->GetTeamChangedDelegate().RemoveAll(this);
+		}
+	}
+	
+	// TODO - Process TeamChangedDelegate, InitAbilityActorInfo(), AddHeroAbilities(), InitializeDefaultAttributes()
 }
 
 void AOWCharacter::InitializeDefaultAttributes() const
@@ -140,30 +147,52 @@ void AOWCharacter::InitializeDefaultAttributes() const
 	}
 }
 
-void AOWCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent); 
-
-	UEnhancedInputComponent* OWInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent); 
-}
-
 void AOWCharacter::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState(); 
 
-	// Init ability actor info for the client
-	InitAbilityActorInfo(); 
+	if (!bPossessed)
+	{
+		InitAbilityActorInfo();
 
-	// Init Health Plate Widget Components of the Clients
-	InitializeHealthPlate();
+		AddHeroAbilities();
+
+		InitializeDefaultAttributes();
+
+		bPossessed = true; 
+	}
+}
+
+void AOWCharacter::InitializeOverlay()
+{
+	// Get Player Controller and Cast it to Custom Player Controller
+	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
+	{
+		// Get Custom Player State from Custom Player Controller
+		if (AOWPlayerState* OWPlayerState = OWPlayerController->GetPlayerState<AOWPlayerState>())
+		{
+			// Check if Ability System Component and Attribute Set are Valid 
+			if (IsValid(AbilitySystemComponent) && IsValid(AttributeSet))
+			{
+				// Get HUD from Custom Player Controller and Pass Related Values 
+				if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
+				{
+					OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet);
+				}
+			}
+		}
+	}
 }
 
 void AOWCharacter::InitializeHealthPlate()
 {
+	// Find Widget Component
 	if (UWidgetComponent* FoundWidgetComponent = FindComponentByClass<UWidgetComponent>())
 	{
+		// Get Health Plate from Widget Component
 		if (UHealthPlate* HealthPlate = Cast<UHealthPlate>(FoundWidgetComponent->GetUserWidgetObject()))
 		{
+			// Set Player State of Health Plate After Character is Possessed
 			if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
 			{
 				HealthPlate->SetPlayerState(OWPlayerState);
@@ -261,6 +290,20 @@ void AOWCharacter::Die(const FVector& DeathImpulse)
 {
 	Super::Die(DeathImpulse); 
 
+	if (FirstPersonMesh)
+	{
+		FirstPersonMesh->bOnlyOwnerSee = false;
+		FirstPersonMesh->bOwnerNoSee = true;
+		FirstPersonMesh->MarkRenderStateDirty(); 
+	}
+
+	if (GetMesh())
+	{
+		GetMesh()->bOnlyOwnerSee = false;
+		GetMesh()->bOwnerNoSee = false;
+		GetMesh()->MarkRenderStateDirty();
+	}
+
 	if (CameraTransitionComponent)
 	{
 		CameraTransitionComponent->ActiveThirdPersonCamera();
@@ -303,21 +346,22 @@ void AOWCharacter::OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTea
 void AOWCharacter::InitAbilityActorInfo()
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>(); 
-	check(OWPlayerState); 
+	if (!OWPlayerState)
+	{
+		return;
+	}
 
 	UOWAbilitySystemComponent* OWPlayerStateASC = Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent()); 
-	check(OWPlayerStateASC);
+	if (!OWPlayerStateASC)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Ability System Component is not initialized properly in AOWCharacter::InitAbilityActorInfo()"));
+		return;
+	}
 
-	if (OWPlayerStateASC)
-	{
-		OWPlayerStateASC->InitAbilityActorInfo(OWPlayerState, this); 
-		OWPlayerStateASC->AbilityActorInfoSet(); 
-		AbilitySystemComponent = OWPlayerStateASC; 
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Ability System Component is not initialized properly in AOWCharacter::InitAbilityActorInfo()")); 
-	}
+	OWPlayerStateASC->InitAbilityActorInfo(OWPlayerState, this); 
+	OWPlayerStateASC->AbilityActorInfoSet(); 
+
+	AbilitySystemComponent = OWPlayerStateASC;
 
 	AttributeSet = Cast<UOWAttributeSet>(OWPlayerState->GetAttributeSet()); 
 	check(AttributeSet);
@@ -333,14 +377,6 @@ void AOWCharacter::InitAbilityActorInfo()
 	OnASCRegistered.Broadcast(AbilitySystemComponent); 
 	AbilitySystemComponent->RegisterGameplayTagEvent(
 		FOWGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AOWCharacter::StunTagChanged); 
-
-	if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetController()))
-	{
-		if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
-		{
-			OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet); 
-		}
-	}
 }
 
 void AOWCharacter::Reset()
