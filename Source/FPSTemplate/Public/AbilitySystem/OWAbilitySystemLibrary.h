@@ -8,6 +8,7 @@
 #include "AbilitySystem/Data/OmnicInfo.h"
 #include "OWAbilitySystemLibrary.generated.h"
 
+class UOWGameplayAbility; 
 struct FWidgetControllerParams; 
 class AOWHUD; 
 class UOverlayWidgetController; 
@@ -22,6 +23,17 @@ class FPSTEMPLATE_API UOWAbilitySystemLibrary : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 	
 public:
+	/*
+	 * Gameplay Abilities
+	 */
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayAbilities")
+	static UOWGameplayAbility* GetPrimaryAbilityInstanceFromClass(UAbilitySystemComponent* AbilitySystemComponent, TSubclassOf<UGameplayAbility> InAbilityClass);
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayAbilities")
+	static UOWGameplayAbility* GetPrimaryAbilityInstanceFromHandle(UAbilitySystemComponent* AbilitySystemComponent, FGameplayAbilitySpecHandle Handle);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "OWAbilitySystemLibrary|GameplayAbilities")
+	static bool IsAbilitySpecHandleValid(FGameplayAbilitySpecHandle Handle);
 
 	/*
 	 * Widget Controller 

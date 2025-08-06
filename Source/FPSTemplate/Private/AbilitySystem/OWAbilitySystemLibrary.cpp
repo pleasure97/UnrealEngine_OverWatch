@@ -2,6 +2,7 @@
 
 
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/OWHUD.h"
 #include "Player/OWPlayerState.h"
@@ -14,6 +15,38 @@
 #include "Engine/OverlapResult.h"
 #include "Interface/CombatInterface.h"
 #include "Game/OWGameState.h"
+
+/* Gameplay Abilities */
+UOWGameplayAbility* UOWAbilitySystemLibrary::GetPrimaryAbilityInstanceFromClass(UAbilitySystemComponent* AbilitySystemComponent, TSubclassOf<UGameplayAbility> InAbilityClass)
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayAbilitySpec* GameplayAbilitySpec = AbilitySystemComponent->FindAbilitySpecFromClass(InAbilityClass); 
+		if (GameplayAbilitySpec)
+		{
+			return Cast<UOWGameplayAbility>(GameplayAbilitySpec->GetPrimaryInstance()); 
+		}
+	}
+	return nullptr;
+}
+
+UOWGameplayAbility* UOWAbilitySystemLibrary::GetPrimaryAbilityInstanceFromHandle(UAbilitySystemComponent* AbilitySystemComponent, FGameplayAbilitySpecHandle Handle)
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayAbilitySpec* GameplayAbilitySpec = AbilitySystemComponent->FindAbilitySpecFromHandle(Handle); 
+		if (GameplayAbilitySpec)
+		{
+			return Cast<UOWGameplayAbility>(GameplayAbilitySpec->GetPrimaryInstance()); 
+		}
+	}
+	return nullptr; 
+}
+
+bool UOWAbilitySystemLibrary::IsAbilitySpecHandleValid(FGameplayAbilitySpecHandle Handle)
+{
+	return Handle.IsValid(); 
+}
 
 /* Widget Controller */
 bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
