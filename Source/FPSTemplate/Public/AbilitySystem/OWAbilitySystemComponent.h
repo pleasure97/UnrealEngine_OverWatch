@@ -32,6 +32,9 @@ public:
 	virtual bool ShouldDoServerAbilityRPCBatch() const override { return true; }
 	virtual bool BatchRPCTryActivateAbility(FGameplayAbilitySpecHandle InAbilityHandle, bool bEndAbilityImmediately); 
 
+	UFUNCTION(BlueprintCallable)
+	FGameplayAbilitySpecHandle FindAbilitySpecHandleForClass(TSubclassOf<UGameplayAbility> AbilityClass); 
+
 	/* Ability Initialization */
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override; 
 	void AbilityActorInfoSet(); 

@@ -35,6 +35,21 @@ bool UOWAbilitySystemComponent::BatchRPCTryActivateAbility(FGameplayAbilitySpecH
     return bAbilityActivated; 
 }
 
+FGameplayAbilitySpecHandle UOWAbilitySystemComponent::FindAbilitySpecHandleForClass(TSubclassOf<UGameplayAbility> AbilityClass)
+{
+    // Used to stop us from removing abilities from an ability system component while we're iterating through the abilities 
+    ABILITYLIST_SCOPE_LOCK(); 
+    for (FGameplayAbilitySpec& GameplayAbilitySpec : ActivatableAbilities.Items)
+    {
+        TSubclassOf<UGameplayAbility> GameplayAbilitySpecClass = GameplayAbilitySpec.Ability->GetClass(); 
+        if (GameplayAbilitySpecClass == AbilityClass)
+        {
+            return GameplayAbilitySpec.Handle;
+        }
+    }
+    return FGameplayAbilitySpecHandle();
+}
+
 void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor)
 {
     FGameplayAbilityActorInfo* ActorInfo = AbilityActorInfo.Get(); 
