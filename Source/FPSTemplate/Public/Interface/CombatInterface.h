@@ -89,6 +89,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void TransitionCamera(bool bSmoothTransition); 
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FVector GetProjectileStartLocation() const;
+
 	/* Animation */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UAnimInstance* GetFirstPersonMeshAnimInstance() const; 

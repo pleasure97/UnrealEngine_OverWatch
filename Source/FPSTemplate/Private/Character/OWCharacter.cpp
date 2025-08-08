@@ -63,6 +63,7 @@ AOWCharacter::AOWCharacter()
 	CameraTransitionComponent = CreateDefaultSubobject<UCameraTransitionComponent>("CameraTransitionComponent");
 	CameraTransitionComponent->FirstPersonSpringArm = FirstPersonSpringArm;
 	CameraTransitionComponent->FirstPersonCamera = FirstPersonCamera;
+	CameraTransitionComponent->FirstPersonMesh = FirstPersonMesh; 
 	CameraTransitionComponent->ThirdPersonSpringArm = ThirdPersonSpringArm; 
 	CameraTransitionComponent->ThirdPersonCamera = ThirdPersonCamera;
 
@@ -119,9 +120,9 @@ void AOWCharacter::PossessedBy(AController* NewController)
 
 void AOWCharacter::UnPossessed()
 {
-	Super::UnPossessed(); 
+	Super::UnPossessed();
 
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	/*if (APlayerController* PC = Cast<APlayerController>(GetController()))
 	{
 		if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(PC))
 		{
@@ -130,7 +131,34 @@ void AOWCharacter::UnPossessed()
 		}
 	}
 	
-	// TODO - Process TeamChangedDelegate, InitAbilityActorInfo(), AddHeroAbilities(), InitializeDefaultAttributes()
+	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
+	{
+		if (UAbilitySystemComponent* PlayerStateASC = OWPlayerState->GetAbilitySystemComponent())
+		{
+			PlayerStateASC->ClearActorInfo(); 
+		}
+		OWPlayerState->SetHeroName(EHeroName::None); 
+	}
+
+	if (AttributeSet)
+	{
+		AttributeSet->OnDeath.RemoveAll(this); 
+	}
+
+	if (IsValid(AbilitySystemComponent))
+	{
+		AbilitySystemComponent->RegisterGameplayTagEvent(FOWGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).RemoveAll(this); 
+
+		if (HasAuthority())
+		{
+			UOWAbilitySystemComponent* OWAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(AbilitySystemComponent); 
+			if (OWAbilitySystemComponent && OWAbilitySystemComponent->bDefaultAbilitiesGiven)
+			{
+				OWAbilitySystemComponent->ClearAllAbilities(); 
+				OWAbilitySystemComponent->bDefaultAbilitiesGiven = false;
+			}
+		}
+	}*/
 }
 
 void AOWCharacter::InitializeDefaultAttributes() const
