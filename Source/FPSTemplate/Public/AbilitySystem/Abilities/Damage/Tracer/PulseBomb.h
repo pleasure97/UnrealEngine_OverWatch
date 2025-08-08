@@ -14,7 +14,7 @@ class FPSTEMPLATE_API UPulseBomb : public UOWDamageGameplayAbility
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float PulseBombThrowingSpeed = 1500.f; 
 };
