@@ -29,7 +29,6 @@ void UPlayerWeaponStatus::UpdateWeaponStatus(const FOWAbilityInfo& Info)
 
 	FSlateBrush SlateBrush;
 	SlateBrush.SetResourceObject(const_cast<UTexture2D*>(Info.Icon.Get()));
-	SlateBrush.SetImageSize(FVector2D(100.f, 100.f));
 	Image_Weapon->SetBrush(SlateBrush); 
 }
 
@@ -43,6 +42,23 @@ void UPlayerWeaponStatus::UpdateNumCurrentBullets(float NewValue)
 
 void UPlayerWeaponStatus::UpdateNumMaxBullets(float NewValue)
 {
+	if (NewValue < 0)
+	{
+		if (TextBlock_NumCurrentBullets)
+		{
+			TextBlock_NumCurrentBullets->SetText(InfiniteText); 
+		}
+		if (TextBlock_Slash)
+		{
+			TextBlock_Slash->SetVisibility(ESlateVisibility::Collapsed); 
+		}
+		if (TextBlock_NumMaxBullets)
+		{
+			TextBlock_NumMaxBullets->SetVisibility(ESlateVisibility::Collapsed); 
+		}
+		return;
+	}
+
 	if (TextBlock_NumMaxBullets)
 	{
 		TextBlock_NumMaxBullets->SetText(FText::AsNumber(UKismetMathLibrary::FTrunc(NewValue)));

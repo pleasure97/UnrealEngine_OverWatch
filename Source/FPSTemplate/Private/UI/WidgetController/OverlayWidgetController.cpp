@@ -6,6 +6,7 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "OWGameplayTags.h"
+#include "Player/OWPlayerState.h"
 
 void UOverlayWidgetController::BroadcastInitialValues()
 {
@@ -79,11 +80,16 @@ void UOverlayWidgetController::BindAttributeChange(UAbilitySystemComponent* ASC,
 
 void UOverlayWidgetController::BroadcastHeroInfo() const
 {
-	// EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
-	EHeroName HeroName = EHeroName::ILLIARI; 
-	const FOWHeroInfo& OWHeroInfo = HeroInfo->HeroInformation[HeroName]; 
-	for (const FOWAbilityInfo& OWAbilityInfo : OWHeroInfo.Abilities)
+	if (UWorld* World = GetWorld())
 	{
-		AbilityInfoDelegate.Broadcast(OWAbilityInfo);
+		EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(GetWorld());
+		if (AOWPlayerState* OwningPlayerState = Cast<AOWPlayerState>(PlayerState))
+		{
+			const FOWHeroInfo& OWHeroInfo = HeroInfo->HeroInformation[OwningPlayerState->GetHeroName()];
+			for (const FOWAbilityInfo& OWAbilityInfo : OWHeroInfo.Abilities)
+			{
+				AbilityInfoDelegate.Broadcast(OWAbilityInfo);
+			}
+		}
 	}
 }

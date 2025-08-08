@@ -107,10 +107,10 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 	}
 
 	// Early return When the difference between the new value and the current ultimate gauge does not exceed 1%
-	if (FMath::Abs(NewValue - CurrentUltimateGauge) < MaxUltimateGauge * 0.01f)
+	/*if (FMath::Abs(NewValue - CurrentUltimateGauge) < MaxUltimateGauge * 0.01f)
 	{
 		return;
-	}
+	}*/
 	
 	if (NewValue >= MaxUltimateGauge)
 	{
@@ -209,6 +209,7 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 				TextBlock_NumGauge->SetText(FText::AsNumber(FMath::TruncToInt(NewValue / MaxUltimateGauge * 100.f)));
 			}
 		}
-		CurrentUltimateGauge = NewValue;
 	}
+
+	CurrentUltimateGauge = NewValue;
 }

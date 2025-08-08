@@ -72,6 +72,10 @@ void UPlayerSkills::OnAbilityActivated(UGameplayAbility* ActivatedAbility)
 	{
 		for (const auto& TagToSkill : TagsToSkills)
 		{
+			if (BlockAbilitiesWithTags.Find(ActivatedAbilityTag) == nullptr)
+			{
+				return;
+			}
 			const FGameplayTagContainer& BlockAbilitiesTags = BlockAbilitiesWithTags[ActivatedAbilityTag]; 
 			for (const FGameplayTag& BlockAbilityTag : BlockAbilitiesTags)
 			{
@@ -84,17 +88,22 @@ void UPlayerSkills::OnAbilityActivated(UGameplayAbility* ActivatedAbility)
 
 void UPlayerSkills::OnAbilityEnded(const FAbilityEndedData& AbilityEndedData)
 {
-	const FGameplayTagContainer& EndedAbilityTags = AbilityEndedData.AbilityThatEnded->AbilityTags;
-
-	for (const FGameplayTag& EndedAbilityTag : EndedAbilityTags)
+	for (const FGameplayTag& EndedTag : AbilityEndedData.AbilityThatEnded->AbilityTags)
 	{
-		for (const auto& TagToSkill : TagsToSkills)
+		const FGameplayTagContainer* BlockAbilitiesContainer = BlockAbilitiesWithTags.Find(EndedTag);
+		if (!BlockAbilitiesContainer)
 		{
-			const FGameplayTagContainer& BlockAbilitiesTags = BlockAbilitiesWithTags[EndedAbilityTag];
-			for (const FGameplayTag& BlockAbilityTag : BlockAbilitiesTags)
+			continue;
+		}
+
+		for (const FGameplayTag& BlockAbilityTag : BlockAbilitiesContainer->GetGameplayTagArray())
+		{
+			if (TObjectPtr<UPlayerSkill>* PlayerSkillPointer = TagsToSkills.Find(BlockAbilityTag))
 			{
-				UPlayerSkill* PlayerSkill = TagsToSkills[BlockAbilityTag];
-				PlayerSkill->UpdateBlockedByTag(false);
+				if (UPlayerSkill* PlayerSkill = *PlayerSkillPointer)
+				{
+					PlayerSkill->UpdateBlockedByTag(false);
+				}
 			}
 		}
 	}

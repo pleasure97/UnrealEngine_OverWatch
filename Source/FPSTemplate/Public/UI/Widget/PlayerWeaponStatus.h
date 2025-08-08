@@ -31,6 +31,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_Weapon; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText InfiniteText; 
+
 	UFUNCTION()
 	void UpdateWeaponStatus(const FOWAbilityInfo& Info); 
 

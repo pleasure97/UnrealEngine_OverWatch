@@ -85,9 +85,14 @@ void UPlayerOverlay::OnMatchBeginCountdownMessage(FGameplayTag Channel, const FO
 {
 	if (TextBlock_GameplayMessage)
 	{
-		int32 CountdownTime = FMath::TruncToInt(Payload.Magnitude); 
+		int32 CountdownTime = FMath::TruncToInt(Payload.Magnitude);
 		FText CountdownText = FText::AsNumber(CountdownTime);
 		TextBlock_GameplayMessage->SetText(CountdownText);
+		if (CountdownTime == 0.f)
+		{
+			FText EmptyText = FText::FromString("");
+			TextBlock_GameplayMessage->SetText(EmptyText);
+		}
 	}
 }
 
