@@ -21,6 +21,7 @@ void UHeroSelectionOverlay::NativeConstruct()
 	if (WBP_HeroSelectionList)
 	{
 		WBP_HeroSelectionList->HeroSelectButtonDelegate.AddDynamic(this, &UHeroSelectionOverlay::OnHeroSelectButtonClicked); 
+		OnHeroSelectButtonClicked(EHeroName::None, false); 
 	}
 
 	// Setup for Initial UI Designs
@@ -325,28 +326,28 @@ void UHeroSelectionOverlay::OnHeroSelectButtonClicked(EHeroName HeroName, bool b
 		{
 			TextBlock_WaitingForBattle->SetVisibility(ESlateVisibility::Collapsed);
 		}
-		if (WBP_HeroSelectionList && (WBP_HeroSelectionList->GetVisibility() != ESlateVisibility::Visible))
+		if (TextBlock_HeroName->GetVisibility() == ESlateVisibility::Visible)
 		{
-			WBP_HeroSelectionList->SetVisibility(ESlateVisibility::Visible); 
+			TextBlock_HeroName->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 	else
 	{
-		UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this);
+		UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
 		if (HeroInfo->HeroInformation.Find(HeroName))
 		{
 			SelectedHeroName = HeroName; 
 			if (TextBlock_HeroName)
 			{
 				TextBlock_HeroName->SetText(HeroInfo->HeroInformation[HeroName].HeroDisplayName);
+				if (TextBlock_HeroName->GetVisibility() != ESlateVisibility::Visible)
+				{
+					TextBlock_HeroName->SetVisibility(ESlateVisibility::Visible);
+				}
 			}
 			if (TextBlock_WaitingForBattle)
 			{
 				TextBlock_WaitingForBattle->SetVisibility(ESlateVisibility::Visible);
-			}
-			if (WBP_HeroSelectionList && (WBP_HeroSelectionList->GetVisibility() == ESlateVisibility::Visible))
-			{
-				WBP_HeroSelectionList->SetVisibility(ESlateVisibility::Collapsed);
 			}
 		}
 	}

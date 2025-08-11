@@ -59,7 +59,7 @@ private:
 	UFUNCTION()
 	void OnHeroSelectionInitialized(EHeroName HeroName, UHeroSelection* HeroSelection);
 
-	void MakeHeroSelectionButtonsInvisible(bool bInvisible); 
+	void HideHeroSelectionButtons(bool bHidden);
 
 	UPROPERTY()
 	EHeroName SelectedHeroName; 

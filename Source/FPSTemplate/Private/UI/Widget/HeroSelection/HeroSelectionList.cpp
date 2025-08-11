@@ -97,7 +97,7 @@ void UHeroSelectionList::OnHeroSelectButtonClicked()
 		{
 			TextBlock_HeroSelect->SetText(HeroSelectText);
 		}
-		MakeHeroSelectionButtonsInvisible(false);
+		HideHeroSelectionButtons(false);
 		bHeroSelectConfirmed = false;
 		HeroSelectButtonDelegate.Broadcast(EHeroName::None, false);
 		return;
@@ -112,7 +112,7 @@ void UHeroSelectionList::OnHeroSelectButtonClicked()
 			{
 				TextBlock_HeroSelect->SetText(HeroChangeText); 
 			}
-			MakeHeroSelectionButtonsInvisible(true); 
+			HideHeroSelectionButtons(true); 
 			bHeroSelectConfirmed = true;
 			HeroSelectButtonDelegate.Broadcast(SelectedHeroName, true); 
 		}
@@ -144,20 +144,17 @@ void UHeroSelectionList::OnHeroSelectionInitialized(EHeroName HeroName, UHeroSel
 	}
 }
 
-void UHeroSelectionList::MakeHeroSelectionButtonsInvisible(bool bInvisible)
+void UHeroSelectionList::HideHeroSelectionButtons(bool bHidden)
 {
-	for (TPair<EHeroName, UHeroSelection*>& HeroSelectionButtonPair : HeroSelectionButtonMap)
+	if (HorizontalBox_HeroSelectionList)
 	{
-		if (HeroSelectionButtonPair.Value)
+		if (bHidden)
 		{
-			if (bInvisible)
-			{
-				HeroSelectionButtonPair.Value->SetVisibility(ESlateVisibility::HitTestInvisible);
-			}
-			else
-			{
-				HeroSelectionButtonPair.Value->SetVisibility(ESlateVisibility::Visible);
-			}
+			HorizontalBox_HeroSelectionList->SetVisibility(ESlateVisibility::Hidden); 
+		}
+		else
+		{
+			HorizontalBox_HeroSelectionList->SetVisibility(ESlateVisibility::Visible); 
 		}
 	}
 }

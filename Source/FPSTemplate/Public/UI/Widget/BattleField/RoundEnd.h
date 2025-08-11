@@ -17,6 +17,9 @@ class FPSTEMPLATE_API URoundEnd : public UOWUserWidget
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> RoundEndAnimation; 
+
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_NumRounds; 
 
@@ -31,4 +34,10 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_Team1OccupationProgress;
+
+protected:
+	virtual void NativeConstruct() override; 
+
+private:
+	FText ConvertTimeText(float RemainingCountdownTime); 
 };
