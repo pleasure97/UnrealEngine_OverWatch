@@ -44,4 +44,7 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_MatchDecided;
+
+protected:
+	virtual void NativeConstruct() override; 
 };
