@@ -129,9 +129,11 @@ public:
 	FGameplayTag GameplayCue_DamageImpact; 
 	FGameplayTag GameplayCue_HealImpact; 
 
+	FGameplayTag GameplayCue_Illiari_SolarRifle;
 	FGameplayTag GameplayCue_Illiari_HealingRay;
 	FGameplayTag GameplayCue_Illiari_Outburst;
 	FGameplayTag GameplayCue_Illiari_Laceration; 
+	FGameplayTag GameplayCue_Illiari_HealingPylon;
 
 	FGameplayTag GameplayCue_Tracer_PulsePistols; 
 	FGameplayTag GameplayCue_Tracer_Blink; 
@@ -180,6 +182,7 @@ public:
 	FGameplayTag Event_Death; 
 	FGameplayTag Event_ResetHero; 
 	FGameplayTag Event_RespawnHero; 
+	FGameplayTag Event_Illiari_PylonDemolished; 
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

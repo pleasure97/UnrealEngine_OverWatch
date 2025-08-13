@@ -338,6 +338,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.HealImpact"),
 		FString("GameplayCue When Healed"));
 
+	GameplayTags.GameplayCue_Illiari_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.SolarRifle"),
+		FString("Illiari's Solar Rifle GameplayCue"));
+
 	GameplayTags.GameplayCue_Illiari_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Illiari.HealingRay"),
 		FString("Illiari's Healing Ray GameplayCue"));
@@ -349,6 +353,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.GameplayCue_Illiari_Laceration = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Illiari.Laceration"),
 		FString("Illiari's Laceration GameplayCue"));
+
+	GameplayTags.GameplayCue_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.HealingPylon"),
+		FString("Illiari's Healing Pylon GameplayCue"));
 
 	GameplayTags.GameplayCue_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Tracer.PulsePistols"),
@@ -497,6 +505,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_RespawnHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.RespawnHero"),
 		FString("Respawn Hero Tag"));
+
+	GameplayTags.Event_Illiari_PylonDemolished = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Illiari.PylonDemolished"),
+		FString("Pylon Demolished Event Tag"));
 
 	/* Hero GameplayTags - Illiari */
 

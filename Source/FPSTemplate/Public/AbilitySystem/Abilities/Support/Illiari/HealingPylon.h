@@ -7,8 +7,6 @@
 #include "HealingPylon.generated.h"
 
 class AHealingSunStone; 
-class UDemolishPylon; 
-class UOWUserWidget; 
 /**
  * 
  */
@@ -17,11 +15,8 @@ class FPSTEMPLATE_API UHealingPylon : public UOWGameplayAbility
 {
 	GENERATED_BODY()
 
-	friend class UDemolishPylon; 
 public:
-	/* Healing Sun Stone Spawn */
-	UPROPERTY()
-	TObjectPtr<AHealingSunStone> HealingSunStone; 
+	/* Healing Sun Stone */
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf <AHealingSunStone> HealingSunStoneClass;
@@ -31,43 +26,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float PylonThrowingSpeed = 800.f; 
-
-	/* UI */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UOWUserWidget> PylonDestroyedWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UOWUserWidget> PylonDestroyedWidget;
-
-	FTimerHandle RemoveWidgetTimerHandle;
-	FTimerHandle DamageCheckTimerHandle; 
-
-	UFUNCTION()
-	void RemoveWidget();
-
-	/* Cooldown */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float GeneralCooldownTime = 6.f; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float DamagedCooldownTime = 14.f;
-
-protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle, 
-		const FGameplayAbilityActorInfo* ActorInfo, 
-		const FGameplayAbilityActivationInfo ActivationInfo, 
-		const FGameplayEventData* TriggerEventData) override;
-
-	UFUNCTION()
-	void OnHealingSunStoneDestroyed(AActor* DestroyedActor); 
-
-	void OnHealingSunStoneDamaged(const FOnAttributeChangeData& Data);
-
-	UFUNCTION()
-	void UpdateSunStoneDamagedState(); 
-
-	void ApplyDynamicCooldown(float CooldownTime); 
-
-	bool bSunStoneDamaged = false;
 };
