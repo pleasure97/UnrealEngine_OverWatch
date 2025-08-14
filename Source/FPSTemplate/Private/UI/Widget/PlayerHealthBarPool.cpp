@@ -87,6 +87,11 @@ void UPlayerHealthBarPool::SetPlayerState(AOWPlayerState* NewOWPlayerState)
 	}
 }
 
+void UPlayerHealthBarPool::SetAbilitySystemComponent(UOWAbilitySystemComponent* NewAbilitySystemComponent)
+{
+	BindDefensiveAttributeChangeWithASC(NewAbilitySystemComponent); 
+}
+
 void UPlayerHealthBarPool::SetIsEnemy(bool bEnemy)
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
@@ -151,6 +156,42 @@ void UPlayerHealthBarPool::BindDefensiveAttributeChange(AOWPlayerState* NewOWPla
 						// Call in advance to Initilaize Health Bar Pool 
 						OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(OwnerAttributeSet));
 					}
+				}
+			}
+		}
+	}
+}
+
+void UPlayerHealthBarPool::BindDefensiveAttributeChangeWithASC(UOWAbilitySystemComponent* NewAbilitySystemComponent)
+{
+	// Check if Ability System Component is Valid 
+	if (IsValid(NewAbilitySystemComponent))
+	{
+		// Assign Owner Ability System Component Member Variable 
+		OwnerAbilitySystemComponent = NewAbilitySystemComponent;
+		// Get Attribute Set from Owner Ability System Component and Cast it to Custom Attribute Set
+		if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(OwnerAbilitySystemComponent->GetSet<UOWAttributeSet>()))
+		{
+			// Assign Owner Attribute Set Member Variable 
+			OwnerAttributeSet = InAttributeSet;
+			// Check Owner Ability System Component and Attribute Set are Valid 
+			if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
+			{
+				// Iterate Defensive Attribute Map of Owner Attribute Set
+				for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+				{
+					const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
+					const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
+
+					// Bind Gameplay Attribute Value Change Delegate of Owner Ability System Component
+					OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddLambda(
+						[this, DefensiveTag](const FOnAttributeChangeData& Data)
+						{
+							OnDefensiveAttributeChanged(DefensiveTag, Data.NewValue);
+						}
+					);
+					// Call in advance to Initilaize Health Bar Pool 
+					OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(OwnerAttributeSet));
 				}
 			}
 		}

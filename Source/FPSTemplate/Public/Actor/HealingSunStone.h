@@ -5,17 +5,18 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "AbilitySystemInterface.h"
-#include "Interface/CombatInterface.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
-#include "OWAbilityTypes.h"
 #include "HealingSunStone.generated.h"
 
 class UBoxComponent; 
 class UWidgetComponent; 
 class UNiagaraComponent; 
 class UGameplayEffect; 
+class UGameplayAbility; 
 class UNiagaraSystem; 
 class USoundBase; 
+class UOWAbilitySystemComponent;
+class UOWAttributeSet; 
+struct FGameplayEffectSpec; 
 
 UCLASS()
 class FPSTEMPLATE_API AHealingSunStone : public AActor, public IAbilitySystemInterface
@@ -33,16 +34,13 @@ public:
 	TObjectPtr<UStaticMeshComponent> Pedestal;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UWidgetComponent> HealthBar;
+	TObjectPtr<UWidgetComponent> WidgetComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> SunStone;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UNiagaraComponent> SunRay; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UNiagaraSystem> HealLaser; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<USoundBase> HealSound; 
@@ -54,83 +52,52 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayEffect> VitalAttributes; 
 
-	/* Attribute Changed Delegate */
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnHealthChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnMaxHealthChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnShieldChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnMaxShieldChanged;
+	/* Gameplay Ability */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UGameplayAbility> HealingSunStoneAbilityClass; 
 
 	/* Spawn */
-	void Throw(FVector NewVelocity); 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float CooldownWhenNotDamaged = 6.f; 
 
-	/* Damage Effect */
-	FDamageEffectParams DamageEffectParams; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float CooldownWhenDamaged = 14.f;
+
+	UFUNCTION(BlueprintCallable)
+	void Throw(FVector NewVelocity); 
 
 	/* Ability System Interface */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
 
-	/* Combat Interface */
-	// virtual void Die(const FVector& DeathImpulse) override; 
+	UFUNCTION(BlueprintCallable)
+	UOWAttributeSet* GetAttributeSet() const; 
+
 protected:
 	virtual void BeginPlay() override; 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
 	void InitAbilityActorInfo(); 
 	void InitializeVitalAttributes(); 
+	void InitializeHealingAbility(); 
+	void InitializeHealthPlate(); 
 
 	/* Heal Mechanics */
 	UFUNCTION(BlueprintCallable)
 	void OnAttached(
-		UPrimitiveComponent* HitComponent, 
-		AActor* OtherActor, 
+		UPrimitiveComponent* HitComponent,
+		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
-		FVector NormalImpulse, 
+		FVector NormalImpulse,
 		const FHitResult& Hit);
 
-	UFUNCTION(BlueprintCallable)
-	void ActivateHealing(); 
-
-	UFUNCTION(BlueprintCallable)
-	void FindAlliance();
-
-	void FindAllyWithLowestHealth(UAbilitySystemComponent* ASC);
-
-	UFUNCTION()
-	void ResetCanHeal(); 
+	void OnDestroyed(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effects")
 	float Level = 1.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HealRadius = 1500.f; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HealAmount = -40.f; 
-
-	UPROPERTY()
-	float LowestHP = -1.f; 
-
-	UPROPERTY()
-	float LowestHPPercent = 1.f; 
-
-	UPROPERTY()
-	TObjectPtr<AActor> AllyToHeal; 
-
-	bool bCanHeal = true; 
-
 	/* Ability System */
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent; 
+	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent; 
 
 	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet; 
-
-	/* Combat Interface */
-	// FOnASCRegistered OnASCRegistered;
-	// FOnDamageSignature OnDamage; 
+	TObjectPtr<UOWAttributeSet> AttributeSet; 
 };

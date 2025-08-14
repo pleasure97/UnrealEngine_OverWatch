@@ -109,6 +109,9 @@ public:
 	UFUNCTION()
 	void BindDefensiveAttributeChange(AOWPlayerState* NewPlayerState);
 
+	UFUNCTION()
+	void BindDefensiveAttributeChangeWithASC(UOWAbilitySystemComponent* NewAbilitySystemComponent);
+
 	/* Update Attributes */
 	UFUNCTION()
 	void OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue);
@@ -144,6 +147,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(AOWPlayerState* NewOWPlayerState); 
+
+	UFUNCTION(BlueprintCallable)
+	void SetAbilitySystemComponent(UOWAbilitySystemComponent* NewAbilitySystemComponent);
 
 	void SetIsEnemy(bool InbEnemy); 
 

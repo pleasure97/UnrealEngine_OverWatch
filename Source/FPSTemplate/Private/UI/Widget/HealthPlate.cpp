@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "UI/Widget/PlayerHealthBarPool.h"
 #include "Player/OWPlayerState.h"
+#include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "Team/OWTeamSubsystem.h"
 
 void UHealthPlate::NativeDestruct()
@@ -41,6 +42,18 @@ void UHealthPlate::SetPlayerState(AOWPlayerState* InOWPlayerState)
 			{
 				OnTeamChanged(OWPlayerState, -1, TeamID);
 			}
+		}
+	}
+}
+
+void UHealthPlate::SetAbilitySystemComponent(UOWAbilitySystemComponent* InOWAbilitySystemComponent)
+{
+	if (IsValid(InOWAbilitySystemComponent))
+	{
+		// Set Player State of Player Health Bar Pool 
+		if (WBP_PlayerHealthBarPool)
+		{
+			WBP_PlayerHealthBarPool->SetAbilitySystemComponent(InOWAbilitySystemComponent); 
 		}
 	}
 }

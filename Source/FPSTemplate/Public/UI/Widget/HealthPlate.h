@@ -10,6 +10,7 @@ class UPlayerHealthBarPool;
 class UTextBlock;
 class UImage;
 class AOWPlayerState; 
+class UOWAbilitySystemComponent; 
 
 
 /**
@@ -39,6 +40,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(AOWPlayerState* InOWPlayerState);
+
+	UFUNCTION(BlueprintCallable)
+	void SetAbilitySystemComponent(UOWAbilitySystemComponent* InOWAbilitySystemComponent); 
 
 	AOWPlayerState* GetOWPlayerState() const; 
 
