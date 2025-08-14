@@ -88,7 +88,7 @@ bool FOWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
         }
     }
 
-    Ar.SerializeBits(&RepBits, 18); 
+    Ar.SerializeBits(&RepBits, 19); 
 
     if (RepBits & (1 << 0))
     {
