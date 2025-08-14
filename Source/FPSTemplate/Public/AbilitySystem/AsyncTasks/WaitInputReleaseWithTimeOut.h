@@ -22,7 +22,7 @@ public:
 
 	float StartTime = 0.f; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintAssignable)
 	FOnReleaseOrTimeOut OnReleaseOrTimeOut; 
 
 	virtual void Activate() override; 

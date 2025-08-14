@@ -17,31 +17,9 @@ class FPSTEMPLATE_API UOutBurst : public UOWDamageGameplayAbility
 	GENERATED_BODY()
 	
 protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override;
-
-	UFUNCTION()
-	void OnInputRelease(float TimeHeld); 
-
-	void Soar(float TimeHeld); 
-	
-	void TraceEnemies(TArray<AActor*>& TargetEnemies); 
-
-	void DamageAndKnockback(AActor* TargetActor); 
-
-	void PrepareToEndAbility();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<UAnimMontage> FirstPersonAnimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAnimMontage> OutburstMontage; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxHeldTime = 0.2f; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxOutburstVelocity = 1840.f; 
-
-	bool bActivate = false;
+	TObjectPtr<UAnimMontage> ThirdPersonAnimMontage; 
 };
