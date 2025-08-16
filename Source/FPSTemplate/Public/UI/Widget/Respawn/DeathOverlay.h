@@ -46,9 +46,7 @@ private:
 	UFUNCTION()
 	void ChangeSpectator();
 
-	void GetAllLiveTeamMembers(TArray<APlayerController*>& OutControllers) const;
-
-	void WatchLiveTeamMember(); 
+	void GetAllLiveTeamMembers(TArray<APawn*>& OutControllers) const;
 
 	UPROPERTY()
 	int32 CurrentWatchIndex = -1; 

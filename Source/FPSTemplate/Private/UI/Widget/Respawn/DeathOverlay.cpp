@@ -47,7 +47,7 @@ void UDeathOverlay::NativeDestruct()
 
 void UDeathOverlay::ChangeSpectator()
 {
-	TArray<APlayerController*> LiveTeamMembers; 
+	TArray<APawn*> LiveTeamMembers; 
 	GetAllLiveTeamMembers(LiveTeamMembers);
 
 	// If All Team Members are dead, Show Hero Selection Overlay to Cover Up the State of Nothing 
@@ -67,16 +67,16 @@ void UDeathOverlay::ChangeSpectator()
 	CurrentWatchIndex = (CurrentWatchIndex + 1) % LiveTeamMembers.Num(); 
 
 	// Set View Target to Next Player Controller 
-	APlayerController* NextPlayerController = LiveTeamMembers[CurrentWatchIndex]; 
-	if (NextPlayerController)
+	APawn* NextPawn = LiveTeamMembers[CurrentWatchIndex]; 
+	if (NextPawn)
 	{
-		GetOwningPlayer()->SetViewTargetWithBlend(NextPlayerController); 
+		GetOwningPlayer()->SetViewTargetWithBlend(NextPawn);
 	}
 }
 
-void UDeathOverlay::GetAllLiveTeamMembers(TArray<APlayerController*>& OutControllers) const
+void UDeathOverlay::GetAllLiveTeamMembers(TArray<APawn*>& OutPawns) const
 {
-	OutControllers.Reset(); 
+	OutPawns.Reset();
 
 	if (UWorld* World = GetWorld())
 	{
@@ -98,7 +98,7 @@ void UDeathOverlay::GetAllLiveTeamMembers(TArray<APlayerController*>& OutControl
 							// Check Owning Pawn is not Dead
 							if (!ICombatInterface::Execute_IsDead(PlayerState->GetPawn()))
 							{
-								OutControllers.Add(PlayerState->GetPlayerController());
+								OutPawns.Add(PlayerState->GetPawn()); 
 							}
 						}
 					}

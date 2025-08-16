@@ -38,3 +38,20 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 		WidgetController->BroadcastInitialValues();
 	}
 }
+
+void AOWHUD::CollapseOverlay()
+{
+	if (IsValid(PlayerOverlay))
+	{
+		PlayerOverlay->SetVisibility(ESlateVisibility::Collapsed); 
+	}
+}
+
+void AOWHUD::RemoveOverlay()
+{
+	if (IsValid(PlayerOverlay))
+	{
+		PlayerOverlay->RemoveFromParent(); 
+		PlayerOverlay = nullptr; 
+	}
+}

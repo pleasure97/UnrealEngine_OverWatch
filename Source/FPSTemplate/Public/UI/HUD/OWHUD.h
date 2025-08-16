@@ -28,6 +28,12 @@ public:
 
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS); 
 
+	UFUNCTION(BlueprintCallable)
+	void CollapseOverlay(); 
+
+	UFUNCTION(BlueprintCallable)
+	void RemoveOverlay(); 
+
 private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UPlayerOverlay> OverlayWidgetClass; 

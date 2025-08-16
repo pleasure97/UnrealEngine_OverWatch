@@ -52,12 +52,12 @@ void URespawnGauge::UpdateRespawnGauge()
 {
 	if (UWorld* World = GetWorld())
 	{
-		TimeUntilRespawn = StartTime + Duration - World->GetTimeSeconds(); 
+		TimeUntilRespawn = (StartTime + Duration) - World->GetTimeSeconds();
 		if (TimeUntilRespawn > 0.f)
 		{
 			if (MID_RespawnGauge)
 			{
-				float Percent = TimeUntilRespawn / (StartTime + Duration);
+				float Percent = TimeUntilRespawn / Duration;
 				MID_RespawnGauge->SetScalarParameterValue(TEXT("Percent"), Percent); 
 			}
 
