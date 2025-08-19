@@ -58,6 +58,8 @@ public:
 	int32 FindTeamFromObject(const UObject* TestObject) const; 
 
 	EOWTeamComparison CompareTeams(const UObject* A, const UObject* B, int32& TeamIdA, int32& TeamIdB) const; 
+
+	UFUNCTION(BlueprintCallable)
 	EOWTeamComparison CompareTeams(const UObject* A, const UObject* B) const; 
 
 	bool CanCauseDamage(const UObject* Instigator, const UObject* Target, bool bAllowDamageToSelf = true) const; 

@@ -7,7 +7,7 @@
 #include "GameplayEffectTypes.h"
 #include "OWMessageTypes.generated.h"
 
-class UHealthPlateManagerComponent; 
+class UHealthPlateManagerComponent;
 class APlayerState; 
 
 USTRUCT(BlueprintType)
@@ -15,35 +15,37 @@ struct FHealthPlateInfo
 {
 	GENERATED_BODY()
 
-	FHealthPlateInfo() 
+	FHealthPlateInfo()
 		: Pawn(nullptr)
-	{} 
-	
+	{
+	}
+
 	FHealthPlateInfo(APawn* InPawn)
 		: Pawn(InPawn)
-	{}
+	{
+	}
 
 	UPROPERTY(BlueprintReadWrite)
-	TObjectPtr<APawn> Pawn = nullptr; 
+	TObjectPtr<APawn> Pawn = nullptr;
 };
 
 USTRUCT(BlueprintType)
 struct FHealthPlateManagerInfo
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-    FHealthPlateManagerInfo()
-        : HealthPlateManagerComponent(nullptr)
-    {
-    }
+	FHealthPlateManagerInfo()
+		: HealthPlateManagerComponent(nullptr)
+	{
+	}
 
-    FHealthPlateManagerInfo(UHealthPlateManagerComponent* InHealthPlateManagerComponent)
-        : HealthPlateManagerComponent(InHealthPlateManagerComponent)
-    {
-    }
+	FHealthPlateManagerInfo(UHealthPlateManagerComponent* InHealthPlateManagerComponent)
+		: HealthPlateManagerComponent(InHealthPlateManagerComponent)
+	{
+	}
 
-    UPROPERTY(BlueprintReadWrite)
-    TObjectPtr<UHealthPlateManagerComponent> HealthPlateManagerComponent = nullptr;
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<UHealthPlateManagerComponent> HealthPlateManagerComponent = nullptr;
 };
 
 USTRUCT(BlueprintType)
@@ -53,19 +55,19 @@ struct FHeroDamagedInfo
 
 	FHeroDamagedInfo() {};
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTag DamageTag = FGameplayTag();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> SourcePlayerState = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> TargetPlayerState = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float Damage = 0.f;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	double DamageTimeSeconds = 0.f;
 };
 
@@ -76,28 +78,28 @@ struct FHeroDebuffedInfo
 
 	FHeroDebuffedInfo() {}; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTag DebuffTag = FGameplayTag(); 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> SourcePlayerState = nullptr; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> TargetPlayerState = nullptr; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayEffectContextHandle EffectContextHandle = FGameplayEffectContextHandle(); 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float DebuffDamage = 0.f; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float DebuffDuration = 0.f; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float DebuffFrequency = 0.f; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	double DebuffTimeSeconds = 0.f; 
 };
 
@@ -108,13 +110,13 @@ struct FHeroKilledInfo
 
 	FHeroKilledInfo() {}
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> InstigatorPlayerState = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> TargetPlayerState = nullptr;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTagContainer InstigatorTags; 
 };
 
@@ -130,7 +132,7 @@ struct FHeroRespawnInfo
 	{
 	}
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> OwnerPlayerState = nullptr;
 };
 
@@ -146,7 +148,7 @@ struct FHeroResetInfo
 	{
 	}
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> OwnerPlayerState = nullptr;
 };
 
@@ -163,10 +165,10 @@ struct FInteractionDurationInfo
 
 	}
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<APlayerState> PlayerState = nullptr; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float InteractionDuration = 0.f; 
 };
 
@@ -177,25 +179,25 @@ struct FOWVerbMessage
 
 	FOWVerbMessage() {}
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTag Verb = FGameplayTag(); 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> Instigator = nullptr; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AActor> Target = nullptr; 
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTagContainer InstigatorTags = FGameplayTagContainer();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTagContainer TargetTags = FGameplayTagContainer();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	FGameplayTagContainer ContextTags = FGameplayTagContainer();
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float Magnitude = 0.f;
 };
 
@@ -214,15 +216,34 @@ struct FOccupationInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TEnumAsByte<EOccupationState> OccupationState = EOccupationState::None; 
 
-	UPROPERTY()
-	int32 NumDefenders = 0; 
-
-	UPROPERTY()
-	int32 NumAttackers = 0; 
-
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	float OccupationProgress = 0.f; 
+
+	UPROPERTY(BlueprintReadWrite)
+	int32 OccupationTeamID = -1; 
+};
+
+
+USTRUCT(BlueprintType)
+struct FRecallState
+{
+	GENERATED_BODY()
+
+public:
+	FRecallState()
+		: TimeSeconds(0.f), Location(FVector::ZeroVector) 
+	{}
+
+	FRecallState(float InTimeSeconds, FVector InLocation)
+		: TimeSeconds(InTimeSeconds), Location(InLocation)
+	{}
+
+	UPROPERTY(BlueprintReadWrite)
+	float TimeSeconds = 0.f;
+
+	UPROPERTY(BlueprintReadWrite)
+	FVector Location = FVector::ZeroVector;
 };
