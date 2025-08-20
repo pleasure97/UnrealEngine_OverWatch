@@ -64,7 +64,7 @@ void UKillLog::ShowKillLog(FHeroKilledInfo& HeroKilledInfo)
             // Clamp Instigator Player Name to 12 characters
             if (InstigatorPlayerName.Len() > 12)
             {
-                InstigatorPlayerName = InstigatorPlayerName.Left(12); 
+                InstigatorPlayerName = InstigatorPlayerName.Right(12);
             }
             TextBlock_Kill->SetText(FText::FromString(InstigatorPlayerName));
         }
@@ -80,7 +80,7 @@ void UKillLog::ShowKillLog(FHeroKilledInfo& HeroKilledInfo)
             // Clamp Target Player Name to 12 characters
             if (TargetPlayerName.Len() > 12)
             {
-                TargetPlayerName = TargetPlayerName.Left(12);
+                TargetPlayerName = TargetPlayerName.Right(12);
             }
             TextBlock_Dead->SetText(FText::FromString(TargetPlayerName));
         }
@@ -100,11 +100,11 @@ void UKillLog::ShowKillLog(FHeroKilledInfo& HeroKilledInfo)
             {
                 if (Border_Kill)
                 {
-                    Border_Kill->SetBrushColor(KillLogColors::Blue);
+                    Border_Kill->SetBrushColor(BlueColor);
                 }
                 if (Border_Dead)
                 {
-                    Border_Dead->SetBrushColor(KillLogColors::Red);
+                    Border_Dead->SetBrushColor(RedColor);
                 }
             }
             // Compare Teams - Enemy Kill 
@@ -113,11 +113,11 @@ void UKillLog::ShowKillLog(FHeroKilledInfo& HeroKilledInfo)
             {
                 if (Border_Kill)
                 {
-                    Border_Kill->SetBrushColor(KillLogColors::Red);
+                    Border_Kill->SetBrushColor(RedColor);
                 }
                 if (Border_Dead)
                 {
-                    Border_Dead->SetBrushColor(KillLogColors::Blue);
+                    Border_Dead->SetBrushColor(BlueColor);
                 }
             }
             // Compare Teams - Invalid 

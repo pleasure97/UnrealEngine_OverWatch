@@ -14,12 +14,6 @@ class UTextBlock;
 class UImage; 
 class AOWPlayerState; 
 
-namespace KillLogColors
-{
-	constexpr FLinearColor Blue(0.041667f, 0.6407f, 1.f, 1.f);
-	constexpr FLinearColor Red(0.520833f, 0.005426f, 0.032740f, 1.f);
-};
-
 /**
  * 
  */
@@ -61,6 +55,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ShowKillLog(FHeroKilledInfo& HeroKilledInfo);
+
+	/* Color */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor BlueColor = FLinearColor(0.041667f, 0.6407f, 1.f, 1.f);;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor RedColor = FLinearColor(0.520833f, 0.005426f, 0.032740f, 1.f);
 
 protected:
 	/* User Widget */

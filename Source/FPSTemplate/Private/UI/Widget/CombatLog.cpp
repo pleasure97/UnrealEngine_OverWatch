@@ -50,9 +50,9 @@ void UCombatLog::ShowCombatLog(FHeroKilledInfo& HeroKilledInfo)
 			FString TargetPlayerName = TargetPlayerState->GetPlayerName();
 			if (TargetPlayerName.Len() > 12)
 			{
-				TargetPlayerName = TargetPlayerName.Left(12);
-				TextBlock_Username->SetText(FText::FromString(TargetPlayerName)); 
+				TargetPlayerName = TargetPlayerName.Right(12);
 			}
+			TextBlock_Username->SetText(FText::FromString(TargetPlayerName));
 		}
 		if (TextBlock_AdditionalLog)
 		{
@@ -84,9 +84,9 @@ void UCombatLog::ShowCombatLog(FHeroKilledInfo& HeroKilledInfo)
 			FString InstigatorPlayerName = InstigatorPlayerState->GetPlayerName();
 			if (InstigatorPlayerName.Len() > 12)
 			{
-				InstigatorPlayerName = InstigatorPlayerName.Left(12);
-				TextBlock_Username->SetText(FText::FromString(InstigatorPlayerName));
+				InstigatorPlayerName = InstigatorPlayerName.Right(12);
 			}
+			TextBlock_Username->SetText(FText::FromString(InstigatorPlayerName));
 		}
 		if (TextBlock_AdditionalLog)
 		{
