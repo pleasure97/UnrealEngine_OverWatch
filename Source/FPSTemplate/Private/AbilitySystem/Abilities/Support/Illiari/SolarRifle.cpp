@@ -2,94 +2,33 @@
 
 
 #include "AbilitySystem/Abilities/Support/Illiari/SolarRifle.h"
-#include "AbilitySystemGlobals.h"
-#include "Interface/CombatInterface.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "NiagaraFunctionLibrary.h"
-#include "Actor/OWProjectile.h"
-#include "AbilitySystem/OWAbilitySystemLibrary.h"
 
-
-void USolarRifle::ActivateAbility(
-	const FGameplayAbilitySpecHandle Handle, 
-	const FGameplayAbilityActorInfo* ActorInfo, 
-	const FGameplayAbilityActivationInfo ActivationInfo, 
-	const FGameplayEventData* TriggerEventData)
+void USolarRifle::WaitForSolarGaugeRegeneration()
 {
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData); 
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(SolarGaugeWaitingTimerHandle);
 
-	//// Check Ability Cost 
-	//check(CurrentActorInfo); 
-	//if (!UAbilitySystemGlobals::Get().ShouldIgnoreCosts() && !CheckCost(CurrentSpecHandle, CurrentActorInfo))
-	//{
-	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
-	//	return;
-	//}
-	//
-	//// To Hit Scan, Get Weapon's Muzzle Flash Socket Location 
-	//if (GetAvatarActorFromActorInfo() && GetAvatarActorFromActorInfo()->Implements<UCombatInterface>())
-	//{
-	//	const USkeletalMeshComponent* SolarRifle = ICombatInterface::Execute_GetWeapon(GetAvatarActorFromActorInfo());
-	//	const FTransform SocketTransform = SolarRifle->GetSocketTransform("MuzzleFlash");
-
-	//	CommitAbility(Handle, ActorInfo, ActivationInfo); 
-
-	//	// Fire (Spawn Muzzle Flash, Solar Projectile, and Impact Effect if Hit)
-	//	HitScan(SocketTransform);
-
-	//	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	//}
-
-	CommitAbility(Handle, ActorInfo, ActivationInfo);
-
-	EndAbility(Handle, ActorInfo, ActivationInfo, true, false); 
+		World->GetTimerManager().SetTimer(SolarGaugeRegenTimerHandle, this, &USolarRifle::RegenerateSolarGaugeByTick, SolarGaugeRegenInterval, true);
+	}
 }
 
-void USolarRifle::HitScan(const FTransform& SocketTransform)
+void USolarRifle::SetSolarGaugeWaitingTimerHandle(FTimerHandle InTimerHandle)
 {
-	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority(); 
-	if (!bIsServer) return; 
+	SolarGaugeWaitingTimerHandle = InTimerHandle;
+}
 
-	const FVector Start = SocketTransform.GetLocation();
-	const FVector End = SocketTransform.GetRotation().GetForwardVector() * MaxDistance;
-
-	// Hit Scan 
-	FHitResult HitResult;
-	TArray<AActor*> IgnoredActors;
-	// TODO - Change Trace Channel to trace enemies
-	UKismetSystemLibrary::LineTraceSingle(
-		this, Start, End, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, IgnoredActors, EDrawDebugTrace::None, HitResult, true);
-
-	// Spawn Muzzle Flash 
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, MuzzleFlash, Start, SocketTransform.GetRotation().Rotator());
-
-	// Spawn Solar Projectile Deferred 
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(Start);
-	SpawnTransform.SetRotation(SocketTransform.GetRotation());
-
-	AOWProjectile* SolarProjectile = GetWorld()->SpawnActorDeferred<AOWProjectile>(
-		SolarProjectileClass,
-		SpawnTransform,
-		GetOwningActorFromActorInfo(),
-		Cast<APawn>(GetOwningActorFromActorInfo()),
-		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-
-	if (!SolarProjectile)
+void USolarRifle::RegenerateSolarGaugeByTick()
+{
+	if (UWorld* World = GetWorld())
 	{
-		return;
+		if (SolarGauge >= MaxSolarGauge)
+		{
+			World->GetTimerManager().ClearTimer(SolarGaugeRegenTimerHandle); 
+		}
+		else
+		{
+			SolarGauge += SolarGaugeRegeneration; 
+		}
 	}
-
-	// If Hit 
-	if (HitResult.bBlockingHit)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, SolarProjectile->GetImpactEffect(), HitResult.Location, FRotator::ZeroRotator);
-
-		SolarProjectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults(HitResult.GetActor());
-
-		// Apply Damage Effect 
-		UOWAbilitySystemLibrary::ApplyDamageEffect(SolarProjectile->DamageEffectParams);
-	}
-
-	SolarProjectile->FinishSpawning(SpawnTransform);
 }
