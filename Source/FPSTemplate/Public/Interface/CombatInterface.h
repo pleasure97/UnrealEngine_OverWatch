@@ -10,6 +10,7 @@ class UAnimMontage;
 class UAbilitySystemComponent; 
 class USkeletalMeshComponent; 
 class UAnimInstance; 
+class AOWGATargetActor_LineTrace; 
 
 UENUM(BlueprintType)
 enum EAttackDirection : uint8
@@ -20,7 +21,6 @@ enum EAttackDirection : uint8
 	Down   UMETA(DisplayName = "Down"),
 	NotSet UMETA(DisplayName = "NotSet")
 };
-
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnASCRegistered, UAbilitySystemComponent*); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, DeadActor); 
@@ -83,7 +83,13 @@ public:
 
 	/* Weapon */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	USkeletalMeshComponent* GetWeapon(); 
+	FTransform GetFirstPersonWeaponSocketTransform(); 
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FTransform GetThirdPersonWeaponSocketTransform();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	AOWGATargetActor_LineTrace* GetLineTraceTargetActor(); 
 
 	/* Camera */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
