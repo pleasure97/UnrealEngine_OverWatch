@@ -51,7 +51,7 @@ protected:
 	EAssetManagerProcess Process; 
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPrimaryAssetLoaded, UObject*, Loaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPrimaryAssetLoadedDelegate, UObject*, Loaded);
 
 UCLASS()
 class LOADINGSCREEN_API UAsyncLoadPrimaryAsset :public UAsyncLoadPrimaryAssetBase
@@ -66,7 +66,7 @@ public:
 	static UAsyncLoadPrimaryAsset* AsyncLoadPrimaryAsset(UObject* WorldContextObject, FPrimaryAssetId PrimaryAsset, const TArray<FName>& LoadBundles); 
 
 	UPROPERTY(BlueprintAssignable)
-	FOnPrimaryAssetLoaded Completed;
+	FOnPrimaryAssetLoadedDelegate Completed;
 
 protected:
 	// Called from Asset Manager
