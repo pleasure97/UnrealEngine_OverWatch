@@ -12,53 +12,53 @@ void UTracerBlinkWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	check(BlinkAbilityClass); 
+	//check(BlinkAbilityClass); 
 
-	// Get Owning Player Pawn, Cast it to Ability System Interface, and Get Ability System Component 
-	if (APawn* OwningPawn = Cast<APawn>(GetOwningPlayerPawn()))
-	{
-		if (IAbilitySystemInterface* AbilitySystemInterface = Cast<IAbilitySystemInterface>(OwningPawn))
-		{
-			OwnerAbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent(); 
-		}
-	}
+	//// Get Owning Player Pawn, Cast it to Ability System Interface, and Get Ability System Component 
+	//if (APawn* OwningPawn = Cast<APawn>(GetOwningPlayerPawn()))
+	//{
+	//	if (IAbilitySystemInterface* AbilitySystemInterface = Cast<IAbilitySystemInterface>(OwningPawn))
+	//	{
+	//		OwnerAbilitySystemComponent = AbilitySystemInterface->GetAbilitySystemComponent(); 
+	//	}
+	//}
 
-	// Check if Owner Ability System Component is Valid 
-	if (!IsValid(OwnerAbilitySystemComponent))
-	{
-		return;
-	}
+	//// Check if Owner Ability System Component is Valid 
+	//if (!IsValid(OwnerAbilitySystemComponent))
+	//{
+	//	return;
+	//}
 
-	// Iterate Activatable Abilities of Owner Ability System Component 
-	for (const FGameplayAbilitySpec& GameplayAbilitySpec : OwnerAbilitySystemComponent->GetActivatableAbilities())
-	{
-		// Check if Gameplay Ability Class is Blink Ability Class 
-		if (GameplayAbilitySpec.Ability && (GameplayAbilitySpec.Ability->GetClass() == BlinkAbilityClass))
-		{
-			// Get Cooldown Gameplay Effect
-			UGameplayEffect* CooldownGameplayEffect = GameplayAbilitySpec.Ability->GetCooldownGameplayEffect(); 
-			// Register Gameplay Tag Event when Cooldown Tag Count Changed 
-			if (CooldownGameplayEffect)
-			{
-				OwnerAbilitySystemComponent->RegisterGameplayTagEvent(
-					FOWGameplayTags::Get().Cooldown_Tracer_Blink, EGameplayTagEventType::AnyCountChange)
-					.AddUObject(this, &UTracerBlinkWidget::OnBlinkStackChanged); 
+	//// Iterate Activatable Abilities of Owner Ability System Component 
+	//for (const FGameplayAbilitySpec& GameplayAbilitySpec : OwnerAbilitySystemComponent->GetActivatableAbilities())
+	//{
+	//	// Check if Gameplay Ability Class is Blink Ability Class 
+	//	if (GameplayAbilitySpec.Ability && (GameplayAbilitySpec.Ability->GetClass() == BlinkAbilityClass))
+	//	{
+	//		// Get Cooldown Gameplay Effect
+	//		UGameplayEffect* CooldownGameplayEffect = GameplayAbilitySpec.Ability->GetCooldownGameplayEffect(); 
+	//		// Register Gameplay Tag Event when Cooldown Tag Count Changed 
+	//		if (CooldownGameplayEffect)
+	//		{
+	//			OwnerAbilitySystemComponent->RegisterGameplayTagEvent(
+	//				FOWGameplayTags::Get().Cooldown_Tracer_Blink, EGameplayTagEventType::AnyCountChange)
+	//				.AddUObject(this, &UTracerBlinkWidget::OnBlinkStackChanged); 
 
-			}
-			break;
-		}
-	}
+	//		}
+	//		break;
+	//	}
+	//}
 }
 
 void UTracerBlinkWidget::NativeDestruct()
 {
-	// Unregister Gameplay Tag Event when Cooldown Tag Count Changed 
-	if (IsValid(OwnerAbilitySystemComponent))
-	{
-		OwnerAbilitySystemComponent->RegisterGameplayTagEvent(
-			FOWGameplayTags::Get().Cooldown_Tracer_Blink, EGameplayTagEventType::AnyCountChange)
-			.RemoveAll(this); 
-	}
+	//// Unregister Gameplay Tag Event when Cooldown Tag Count Changed 
+	//if (IsValid(OwnerAbilitySystemComponent))
+	//{
+	//	OwnerAbilitySystemComponent->RegisterGameplayTagEvent(
+	//		FOWGameplayTags::Get().Cooldown_Tracer_Blink, EGameplayTagEventType::AnyCountChange)
+	//		.RemoveAll(this); 
+	//}
 
 	Super::NativeDestruct(); 
 }
