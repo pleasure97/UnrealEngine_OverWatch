@@ -11,6 +11,7 @@
 #include "Team/OWTeamSubsystem.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/UserWidget.h"
+#include "GameFramework/GameplayMessageSubsystem.h"
 
 AOWPlayerController::AOWPlayerController()
 {
@@ -36,6 +37,12 @@ FGenericTeamId AOWPlayerController::GetGenericTeamId() const
 FOnTeamIndexChangedDelegate* AOWPlayerController::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate; 
+}
+
+void AOWPlayerController::ClientHeroDamaged_Implementation(const FHeroDamagedInfo& HeroDamagedInfo)
+{
+	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this); 
+	GameplayMessageSubsystem.BroadcastMessage(FOWGameplayTags::Get().Gameplay_Message_HeroDamaged, HeroDamagedInfo); 
 }
 
 void AOWPlayerController::ShowWidget(TSubclassOf<UUserWidget> InUserWidget)

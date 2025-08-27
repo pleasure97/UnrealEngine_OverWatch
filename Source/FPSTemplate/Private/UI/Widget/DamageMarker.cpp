@@ -56,9 +56,8 @@ void UDamageMarker::OnEnemyDamaged(FGameplayTag Channel, const FHeroDamagedInfo&
 		{
 			StopAnimation(DamageAnimation); 
 			SetAnimationCurrentTime(DamageAnimation, 0.f); 
-
-			PlayAnimationForward(DamageAnimation);
 		}
+		PlayAnimationForward(DamageAnimation);
 	}
 }
 

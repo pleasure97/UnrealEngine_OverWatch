@@ -6,6 +6,7 @@
 #include "Player/DSPlayerController.h"
 #include "Interface/TeamInterface.h"
 #include "GameplayTagContainer.h"
+#include "Message/OWMessageTypes.h"
 #include "OWPlayerController.generated.h"
 
 class UInputMappingContext;
@@ -35,6 +36,9 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerChooseHero(EHeroName ChosenHero); 
+
+	UFUNCTION(Client, Unreliable)
+	void ClientHeroDamaged(const FHeroDamagedInfo& HeroDamagedInfo); 
 
 	UFUNCTION(BlueprintCallable)
 	void ShowWidget(TSubclassOf<UUserWidget> InUserWidget); 

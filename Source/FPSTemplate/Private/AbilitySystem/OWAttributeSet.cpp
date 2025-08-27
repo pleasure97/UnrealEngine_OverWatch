@@ -5,6 +5,8 @@
 #include "Net/UnrealNetwork.h"
 #include "OWGameplayTags.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/PlayerState.h"
+#include "Player/OWPlayerController.h"
 #include "Interface/CombatInterface.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -477,20 +479,25 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 
 	// TODO - May need to change to general delegate from gameplay message subsystem 
 	// Get Gameplay Message Subsystem and Damage Message GameplayTag 
-	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
-	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
-	FGameplayTag HeroDamagedTag = GameplayTags.Gameplay_Message_HeroDamaged;
+	if (UWorld* World = GetWorld())
+	{
+		UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(World);
+		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+		FGameplayTag HeroDamagedTag = GameplayTags.Gameplay_Message_HeroDamaged;
 
-	// Initialize Hero Damaged Info 
-	FHeroDamagedInfo HeroDamagedInfo;
-	// HeroDamagedInfo.DamageTag = DamageTag;
-	HeroDamagedInfo.SourcePlayerState = EffectProperties.SourcePlayerState;
-	HeroDamagedInfo.TargetPlayerState = EffectProperties.TargetPlayerState;
-	HeroDamagedInfo.Damage = LocalIncomingDamage;
-	HeroDamagedInfo.DamageTimeSeconds = GetWorld()->GetTimeSeconds();
+		// Initialize Hero Damaged Info 
+		FHeroDamagedInfo HeroDamagedInfo;
+		// HeroDamagedInfo.DamageTag = DamageTag;
+		HeroDamagedInfo.SourcePlayerState = EffectProperties.SourcePlayerState;
+		HeroDamagedInfo.TargetPlayerState = EffectProperties.TargetPlayerState;
+		HeroDamagedInfo.Damage = LocalIncomingDamage;
+		HeroDamagedInfo.DamageTimeSeconds = World->GetTimeSeconds();
 
-	// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
-	GameplayMessageSubsystem.BroadcastMessage(HeroDamagedTag, HeroDamagedInfo); }
+		// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
+		AOWPlayerController* SourcePlayerControler = Cast<AOWPlayerController>(EffectProperties.SourcePlayerState->GetPlayerController()); 
+		SourcePlayerControler->ClientHeroDamaged(HeroDamagedInfo); 
+	}
+}
 
 void UOWAttributeSet::HandleIncomingXP(const FEffectProperties& EffectProperties)
 {
