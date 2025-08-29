@@ -50,14 +50,14 @@ void AOWGameState::PreInitializeComponents()
 		PlayerSpawningManagerComponent = NewObject<UPlayerSpawningManagerComponent>(this);
 		PlayerSpawningManagerComponent->SetIsReplicated(true);
 		PlayerSpawningManagerComponent->RegisterComponent();
-	}
 
-	if (MatchScoringComponentClass)
-	{
-		// Create New Object, Replicate, and Register
-		MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
-		MatchScoringComponent->SetIsReplicated(true);
-		MatchScoringComponent->RegisterComponent();
+		if (MatchScoringComponentClass)
+		{
+			// Create New Object, Replicate, and Register
+			MatchScoringComponent = NewObject<UMatchScoringComponent>(this, MatchScoringComponentClass);
+			MatchScoringComponent->SetIsReplicated(true);
+			MatchScoringComponent->RegisterComponent();
+		}
 	}
 
 	if (OWAbilitySystemComponent)

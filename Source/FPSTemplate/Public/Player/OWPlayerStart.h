@@ -25,11 +25,18 @@ class FPSTEMPLATE_API AOWPlayerStart : public APlayerStart
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, Category = "Team")
+	AOWPlayerStart(const FObjectInitializer& ObjectInitializer); 
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; 
+
+	UPROPERTY(Replicated, EditAnywhere, Category = "Team")
 	int32 TeamID = INDEX_NONE; 
 
 	UFUNCTION(BlueprintCallable, Category = "Team")
 	int32 GetTeamID() const { return TeamID;  }
+
+	UFUNCTION(BlueprintCallable, Category = "Team")
+	void SetTeamID(int32 InTeamID) { TeamID = InTeamID; }
 
 	bool IsMatchingTeam(AController* Controller) const;
 

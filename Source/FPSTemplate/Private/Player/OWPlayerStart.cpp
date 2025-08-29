@@ -2,9 +2,23 @@
 
 
 #include "Player/OWPlayerStart.h"
+#include "Net/UnrealNetwork.h"
 #include "Team/OWTeamSubsystem.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/PlayerState.h"
+
+AOWPlayerStart::AOWPlayerStart(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+	bReplicates = true; 
+}
+
+void AOWPlayerStart::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
+	
+	DOREPLIFETIME(AOWPlayerStart, TeamID); 
+}
 
 bool AOWPlayerStart::IsMatchingTeam(AController* Controller) const
 {

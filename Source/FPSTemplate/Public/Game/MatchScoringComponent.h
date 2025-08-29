@@ -12,9 +12,15 @@
 
 class AAssaultPoint; 
 class UOWGamePhaseAbility; 
+class AOWPlayerStart; 
+class UGameplayEffect; 
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAssaultPointRegistered, AAssaultPoint* AssaultPoint); 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPhaseRemainingTime, const FGameplayTag&, PhaseTag, float, RemainingCountdownTime); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnOccupationProgressDecided, const FGameplayTag&, PhaseTag, float, NewOccupationProgress);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAssaultScoreDecided, int32, TeamID, int32, NewAssaultScore);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWinningTeamDecided, int32, WinningTeamID);
+
 
 UCLASS(ClassGroup = (Custom), Blueprintable, meta = (BlueprintSpawnableComponent))
 class FPSTEMPLATE_API UMatchScoringComponent : public UActorComponent
@@ -30,7 +36,20 @@ public:
 	/* Assault */
 	void RegisterAssaultPoint(AAssaultPoint* AssaultPoint); 
 
+	UFUNCTION(BlueprintCallable)
+	AAssaultPoint* GetActiveAssaultPoint() const; 
+
 	int32 GetTeamScore(int32 TeamId) const; 
+
+	float GetTeamOccupationProgress(int32 TeamId) const; 
+
+	void SetTeamOccupationProgress(int32 TeamId, float OccupationProgress); 
+
+	float GetTeamRemainingTime(int32 TeamId) const; 
+
+	int32 GetWinningTeamID() const; 
+
+	TArray<AOWPlayerStart*> GetAllPlayerStarts() const;
 
 	UFUNCTION(BlueprintCallable)
 	void ScoreAssaultPoint(FOccupationInfo OccupationInfo);
@@ -39,6 +58,9 @@ public:
 	TArray<AAssaultPoint*> AssaultPoints;
 
 	FOnAssaultPointRegistered OnAssaultPointRegistered;
+	FOnOccupationProgressDecided OnOccupationProgressDecided; 
+	FOnAssaultScoreDecided OnAssaultScoreDecided; 
+	FOnWinningTeamDecided OnWinningTeamDecided; 
 
 	/* Game Phase */
 	UPROPERTY(BlueprintAssignable)
@@ -47,14 +69,25 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_CountdownTime)
 	float CountdownTime;
 
+	UPROPERTY(Replicated)
 	FGameplayTag CurrentGamePhaseTag;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UOWGamePhaseAbility> FirstHeroSelectionGamePhaseAbility; 
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UOWGamePhaseAbility> SwitchInningGamePhaseAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UOWGamePhaseAbility> PostMatchGamePhaseAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> MatchDecidedGameplayEffect; 
+
 	FOWGamePhaseTagDelegate FirstHeroSelectionGamePhaseDelegate;
 	FOWGamePhaseTagDelegate FirstMatchPreparationDelegate;
 	FOWGamePhaseTagDelegate FirstTeamOffensePhaseDelegate;
+	FOWGamePhaseTagDelegate SwitchInningPhaseDelegate; 
 	FOWGamePhaseTagDelegate SecondHeroSelectionGamePhaseDelegate;
 	FOWGamePhaseTagDelegate SecondMatchPreparationDelegate;
 	FOWGamePhaseTagDelegate SecondTeamOffensePhaseDelegate;
@@ -66,9 +99,6 @@ protected:
 private:
 	/* Game Logic */
 	UFUNCTION(BlueprintCallable)
-	void ResetAllActivePlayers();
-
-	UFUNCTION(BlueprintCallable)
 	void HandleVictory(int32 TeamID); 
 
 	UFUNCTION(BlueprintCallable)
@@ -77,7 +107,7 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void ClearMatchDecidedGameplayCue(); 
 
-	UPROPERTY()
+	UPROPERTY(ReplicatedUsing = OnRep_WinningTeamID)
 	int32 WinningTeamID = -1;
 
 	FGameplayTag MatchDecidedTag;
@@ -89,14 +119,26 @@ private:
 	UPROPERTY()
 	TEnumAsByte<EOccupationState> Team1OccupationState; 
 
-	UPROPERTY()
-	float Team1Progress = 0.f; 
+	UPROPERTY(ReplicatedUsing = OnRep_Team1OccupationProgress)
+	float Team1OccupationProgress = 0.f; 
+
+	UPROPERTY(ReplicatedUsing = OnRep_Team1AssaultScore)
+	int32 Team1AssaultScore = 0; 
+
+	UPROPERTY(Replicated)
+	float Team1RemainingTime = 240.f; 
 
 	UPROPERTY()
 	TEnumAsByte<EOccupationState> Team2OccupationState;
 
-	UPROPERTY()
-	float Team2Progress = 0.f; 
+	UPROPERTY(ReplicatedUsing = OnRep_Team2OccupationProgress)
+	float Team2OccupationProgress = 0.f; 
+
+	UPROPERTY(Replicated)
+	int32 Team2AssaultScore = 0;
+
+	UPROPERTY(Replicated)
+	float Team2RemainingTime = 240.f;
 
 	/* Game Phase */
 	UFUNCTION()
@@ -109,15 +151,33 @@ private:
 	void OnRep_CountdownTime(); 
 
 	UFUNCTION()
+	void OnRep_Team1OccupationProgress();
+
+	UFUNCTION()
+	void OnRep_Team1AssaultScore(); 
+
+	UFUNCTION()
+	void OnRep_Team2OccupationProgress(); 
+
+	UFUNCTION()
+	void OnRep_Team2AssaultScore();
+
+	UFUNCTION()
+	void OnRep_WinningTeamID(); 
+
+	void GamePhaseStarted(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	UFUNCTION()
 	void HandleFirstHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration); 
 
 	UFUNCTION()
 	void HandleFirstMatchPreparationPhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
-	void GamePhaseStarted(const FGameplayTag& PhaseTag, const float PhaseDuration);
-
 	UFUNCTION()
 	void HandleFirstTeamOffensePhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	UFUNCTION()
+	void HandleSwitchInningPhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
 	UFUNCTION()
 	void HandleSecondHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
@@ -128,6 +188,13 @@ private:
 	UFUNCTION()
 	void HandleSecondTeamOffensePhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
+	UFUNCTION()
+	void PrepareNextGamePhase(); 
+
 	FTimerHandle DelayTimerHandle; 
 	FTimerHandle CountdownTimerHandle; 
+	FTimerHandle GameplayEffectTimerHandle; 
+
+	bool bFirstTeamOffenseMatchDecided = false; 
+	bool bSecondTeamOffenseMatchDecided = false; 
 };
