@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "AbilitySystemInterface.h"
 #include "Message/OWMessageTypes.h"
+#include "Game/OWGamePhaseSubsystem.h"
+#include "GameplayTagContainer.h"
 #include "AssaultPoint.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnNumAttackersChanged, int32, NewNumAttackers); 
@@ -15,14 +18,17 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOccupationStateChanged, EOccupati
 class UBoxComponent; 
 class APawn; 
 class UMatchScoringComponent; 
+class UAbilitySystemComponent; 
 
 UCLASS()
-class FPSTEMPLATE_API AAssaultPoint : public AActor
+class FPSTEMPLATE_API AAssaultPoint : public AActor, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	AAssaultPoint();
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UBoxComponent> Box; 
@@ -48,10 +54,15 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnOccupationStateChanged OnOccupationStateChanged;
 
+	UFUNCTION(Server, Reliable)
+	void Server_SendAssaultScore(const FGameplayTag& CurrentGamePhaseTag, const float DecidedOccupationProgress); 
+
+	bool IsAssaultPointActive() const { return bAssaultPointActive; }
 	int32 GetNumAttackers() const { return NumAttackers; }
 	int32 GetNumDefenders() const { return NumDefenders; }
 	float GetOccupationProgress() const { return OccupationProgress; }
-	EOccupationState GetOccupationState() const { return OccupationState;  }
+	EOccupationState GetOccupationState() const { return OccupationState; }
+	void SetAssaultPointID(int32 InAssaultPointID) { AssaultPointID = InAssaultPointID; }
 
 protected:
 	virtual void BeginPlay() override; 
@@ -77,6 +88,9 @@ protected:
 		int32 OtherBodyIndex);
 
 private:
+	UPROPERTY()
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+
 	UPROPERTY(ReplicatedUsing=OnRep_NumAttackers)
 	int32 NumAttackers = 0; 
 
@@ -91,7 +105,7 @@ private:
 
 	float LastBroadcastedOccupationProgress = 0.f; 
 
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	int32 AssaultPointID = 2; 
 
 	UPROPERTY(Replicated)
@@ -102,6 +116,29 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UMatchScoringComponent> MatchScoringComponent; 
+
+	FOWGamePhaseTagDelegate FirstTeamOffensePhaseDelegate; 
+	FOWGamePhaseTagDelegate SwitchInningPhaseDelegate; 
+	FOWGamePhaseTagDelegate SecondTeamOffensePhaseDelegate; 
+
+	FTimerHandle PhaseEndTimerHandle;
+
+	bool bAssaultPointActive = true; 
+	bool bMatchDecided = false; 
+
+	UFUNCTION()
+	void HandleFirstTeamOffensePhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	UFUNCTION()
+	void HandleSwitchInningPhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	UFUNCTION()
+	void HandleSecondTeamOffensePhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	void MeasureWhenPhaseEnds(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	UFUNCTION()
+	void SendAssaultScoreWhenPhaseEnds(); 
 
 	void UpdateAssaultPoint(int32 NewNumAttackers, int32 NewNumDefenders); 
 
@@ -116,10 +153,4 @@ private:
 
 	UFUNCTION()
 	void OnRep_OccupationState(); 
-
-	void MakeOccupationMessage(); 
-
-private:
-	float AccumulatedDebugTime = 0.f; 
-	float Interval = 3.f;
 };
