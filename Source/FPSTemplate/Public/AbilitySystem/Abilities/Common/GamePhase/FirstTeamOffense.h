@@ -16,7 +16,7 @@ class FPSTEMPLATE_API UFirstTeamOffense : public UOWGamePhaseAbility
 	
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float FirstTeamOffenseTime = 240.f; 
+	float MatchDecidedDuration = 3.f; 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int32 CountdownDuration = 10; 

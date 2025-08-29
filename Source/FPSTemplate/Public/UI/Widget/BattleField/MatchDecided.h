@@ -47,4 +47,10 @@ public:
 
 protected:
 	virtual void NativeConstruct() override; 
+
+private:
+	UFUNCTION()
+	void OnWinningTeamDecided(int32 WinningTeamID); 
+
+	int32 OwnerTeamID = -1; 
 };

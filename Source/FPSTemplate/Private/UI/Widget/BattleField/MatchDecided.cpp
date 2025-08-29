@@ -25,7 +25,7 @@ void UMatchDecided::NativeConstruct()
 			if (UOWTeamSubsystem* TeamSubsystem = World->GetSubsystem<UOWTeamSubsystem>())
 			{
 				// Get Owner Team ID 
-				int32 OwnerTeamID = TeamSubsystem->FindTeamFromObject(OWPlayerState);
+				OwnerTeamID = TeamSubsystem->FindTeamFromObject(OWPlayerState);
 				if ((OwnerTeamID != 1) && (OwnerTeamID != 2))
 				{
 					UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2 in UMatchDecided::NativeConstruct()")); 
@@ -54,30 +54,16 @@ void UMatchDecided::NativeConstruct()
 						// Current Game Phase Tag = Second Team Offense (Match in Progress)
 						else if (MatchScoringComponent->CurrentGamePhaseTag == GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense)
 						{
+							MatchScoringComponent->OnWinningTeamDecided.AddDynamic(this, &UMatchDecided::OnWinningTeamDecided); 
+
 							if (MatchScoringComponent->GetWinningTeamID() < 0)
-								if (MatchScoringComponent->GetWinningTeamID() < 0)
-								{
-									UE_LOG(LogTemp, Error, TEXT("Winning Team ID is Not Set in UMatchDecided::NativeConstruct()"));
-								}
+							{
+								UE_LOG(LogTemp, Error, TEXT("Winning Team ID is Not Set in UMatchDecided::NativeConstruct()"));
+								return; 
+							}
 
 							// Check if Owner Wins
-							if (MatchScoringComponent->GetWinningTeamID() == OwnerTeamID)
-							{
-								if (TextBlock_MatchDecided)
-								{
-									TextBlock_MatchDecided->SetText(VictoryText);
-									TextBlock_MatchDecided->SetColorAndOpacity(VictoryTextColor);
-								}
-							}
-							// Check if Owner loses
-							else
-							{
-								if (TextBlock_MatchDecided)
-								{
-									TextBlock_MatchDecided->SetText(DefeatedText);
-									TextBlock_MatchDecided->SetColorAndOpacity(DefeatedTextColor);
-								}
-							}
+							OnWinningTeamDecided(MatchScoringComponent->GetWinningTeamID());
 						}
 						else
 						{
@@ -107,5 +93,27 @@ void UMatchDecided::NativeConstruct()
 	if (MatchDecidedAnimation)
 	{
 		PlayAnimation(MatchDecidedAnimation);
+	}
+}
+
+void UMatchDecided::OnWinningTeamDecided(int32 WinningTeamID)
+{
+	// Owner Team - Victory 
+	if (WinningTeamID == OwnerTeamID)
+	{
+		if (TextBlock_MatchDecided)
+		{
+			TextBlock_MatchDecided->SetText(VictoryText);
+			TextBlock_MatchDecided->SetColorAndOpacity(VictoryTextColor);
+		}
+	}
+	// Owner Team - Defeated 
+	else
+	{
+		if (TextBlock_MatchDecided)
+		{
+			TextBlock_MatchDecided->SetText(DefeatedText);
+			TextBlock_MatchDecided->SetColorAndOpacity(DefeatedTextColor);
+		}
 	}
 }
