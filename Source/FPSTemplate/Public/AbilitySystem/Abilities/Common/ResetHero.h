@@ -3,26 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "ResetHero.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API UResetHero : public UGameplayAbility
+class FPSTEMPLATE_API UResetHero : public UOWGameplayAbility
 {
 	GENERATED_BODY()
 	
 public:
 	UResetHero(); 
-
-protected:
-	virtual void SetCanBeCanceled(bool bCanBeCanceled) override; 
-
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override; 
 };

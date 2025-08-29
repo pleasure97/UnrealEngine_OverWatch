@@ -96,7 +96,7 @@ void UDeathOverlay::GetAllLiveTeamMembers(TArray<APawn*>& OutPawns) const
 						if (PlayerState != GetOwningPlayerState())
 						{
 							// Check Owning Pawn is not Dead
-							if (!ICombatInterface::Execute_IsDead(PlayerState->GetPawn()))
+							if ((PlayerState->GetPawn()) && (!ICombatInterface::Execute_IsDead(PlayerState->GetPawn())))
 							{
 								OutPawns.Add(PlayerState->GetPawn()); 
 							}
