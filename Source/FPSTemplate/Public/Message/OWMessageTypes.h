@@ -234,11 +234,11 @@ struct FRecallState
 
 public:
 	FRecallState()
-		: TimeSeconds(0.f), Location(FVector::ZeroVector) 
+		: TimeSeconds(0.f), Location(FVector::ZeroVector), Health(-1.f)
 	{}
 
-	FRecallState(float InTimeSeconds, FVector InLocation)
-		: TimeSeconds(InTimeSeconds), Location(InLocation)
+	FRecallState(float InTimeSeconds, FVector InLocation, float InHealth)
+		: TimeSeconds(InTimeSeconds), Location(InLocation), Health(InHealth)
 	{}
 
 	UPROPERTY(BlueprintReadWrite)
@@ -246,4 +246,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	FVector Location = FVector::ZeroVector;
+
+	UPROPERTY(BlueprintReadWrite)
+	float Health = -1.f;
 };

@@ -374,6 +374,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Tracer.PulseBomb"),
 		FString("Tracer's Pulse Bomb GameplayCue"));
 
+	GameplayTags.GameplayCue_Reinhardt_RocketHammer= UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Reinhardt.RocketHammer"),
+		FString("Reinhardt's Rocket Hammer GameplayCue"));
+
 	/* Gameplay Message */
 
 	GameplayTags.Gameplay_Message_HealthPlate_Add = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -471,6 +475,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Data_CriticalHitDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.CriticalHitDamage"),
 		FString("Gamplay Tag When Critical Hit Damage is Set By Caller"));
+
+	GameplayTags.Data_Recall = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.Recall"),
+		FString("Gamplay Tag When Recall is Set By Caller"));
 
 	/* Animation */
 	GameplayTags.Event_Movement_AimDownSight = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -600,6 +608,14 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Montage_BarrierField= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.BarrierField"),
 		FString("Reinhardt's BarrierField Montage Event Tag"));
+
+	GameplayTags.Event_Montage_RocketHammer1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.RocketHammer1"),
+		FString("Reinhardt's First Rocket Hammer Montage Event Tag"));
+
+	GameplayTags.Event_Montage_RocketHammer2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.RocketHammer2"),
+		FString("Reinhardt's Second Rocket Hammer Montage Event Tag"));
 
 	/* Hero GameplayTags - Tracer */
 	GameplayTags.Abilities_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(

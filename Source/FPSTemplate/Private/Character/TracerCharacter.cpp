@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Message/OWMessageTypes.h"
 #include "AbilitySystem/GameplayAbilityTargetActor/OWGATargetActor_LineTrace.h"
+#include "AbilitySystem/OWAttributeSet.h"
 #include "NiagaraFunctionLibrary.h"
 
 ATracerCharacter::ATracerCharacter()
@@ -59,9 +60,16 @@ void ATracerCharacter::BeginPlay()
 
 void ATracerCharacter::RecordRecallState()
 {
-	RecallStates.Add(FRecallState(UGameplayStatics::GetTimeSeconds(this), GetActorLocation()));
-	if (RecallStates.Num() > 30)
+	if (AttributeSet)
 	{
-		RecallStates.RemoveAt(0);
+		RecallStates.Add(FRecallState(UGameplayStatics::GetTimeSeconds(this), GetActorLocation(), AttributeSet->GetHealth()));
+		if (RecallStates.Num() > 30)
+		{
+			RecallStates.RemoveAt(0);
+		}
+	}
+	else
+	{
+		RecallStates.Empty(); 
 	}
 }

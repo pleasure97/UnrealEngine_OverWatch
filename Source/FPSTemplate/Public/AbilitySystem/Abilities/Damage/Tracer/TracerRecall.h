@@ -13,8 +13,9 @@ UCLASS()
 class FPSTEMPLATE_API UTracerRecall : public UOWGameplayAbility
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+
+public:
+	/* Game Logic */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float RecallTotalDuration = 0.9f; 
 };

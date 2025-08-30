@@ -140,6 +140,8 @@ public:
 	FGameplayTag GameplayCue_Tracer_Recall; 
 	FGameplayTag GameplayCue_Tracer_PulseBomb; 
 
+	FGameplayTag GameplayCue_Reinhardt_RocketHammer; 
+
 	/* Gameplay Message */
 	FGameplayTag Gameplay_Message_HealthPlate_Add; 
 	FGameplayTag Gameplay_Message_HealthPlate_Remove; 
@@ -170,6 +172,7 @@ public:
 	/* Set By Caller */ 
 	FGameplayTag Data_Cooldown; 
 	FGameplayTag Data_CriticalHitDamage; 
+	FGameplayTag Data_Recall; 
 
 	/* Animation */
 	FGameplayTag Event_Movement_AimDownSight; 
@@ -213,6 +216,8 @@ public:
 	FGameplayTag Cooldown_Reinhardt_FireStrike;
 
 	FGameplayTag Event_Montage_BarrierField;
+	FGameplayTag Event_Montage_RocketHammer1;
+	FGameplayTag Event_Montage_RocketHammer2;
 
 	/* Hero GameplayTags - Tracer */
 	FGameplayTag Abilities_Tracer_PulsePistols; 
