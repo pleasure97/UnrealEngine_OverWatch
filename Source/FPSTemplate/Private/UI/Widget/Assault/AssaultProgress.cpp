@@ -139,7 +139,7 @@ void UAssaultProgress::UpdateOccupationState(EOccupationState OccupationState)
 			}
 			if (Border_NumOccupiedDefenders && (Border_NumOccupiedDefenders->GetVisibility() == ESlateVisibility::Visible))
 			{
-				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Collapsed);
+				Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Collapsed);
 			}
 		}
 		StopContestingAnimation();
@@ -172,6 +172,14 @@ void UAssaultProgress::UpdateOccupationState(EOccupationState OccupationState)
 		{
 			HorizontalBox_NumOccupied->SetVisibility(ESlateVisibility::Collapsed);
 		}
+		if (Border_NumOccupiedAttackers && (Border_NumOccupiedAttackers->GetVisibility() == ESlateVisibility::Visible))
+		{
+			Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		if (Border_NumOccupiedDefenders && (Border_NumOccupiedDefenders->GetVisibility() == ESlateVisibility::Visible))
+		{
+			Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Collapsed);
+		}
 		break;
 	}
 	case EOccupationState::Complete:
@@ -190,7 +198,7 @@ void UAssaultProgress::PlayContestingAnimation()
 	if (HorizontalBox_Contesting && Contesting)
 	{
 		HorizontalBox_Contesting->SetVisibility(ESlateVisibility::Visible);
-		PlayAnimation(Contesting, 0.f, 0);
+		PlayAnimation(Contesting, 0.f, 10);
 	}
 }
 

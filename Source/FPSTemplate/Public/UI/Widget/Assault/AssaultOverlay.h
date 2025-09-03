@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
+#include "GameplayTagContainer.h"
 #include "Message/OWMessageTypes.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "AssaultOverlay.generated.h"
 
 class UMatchScoringComponent;
 class UAssaultProgress; 
-class UAssaultTimer; 
+class UAssaultScoreDetails; 
 class UAssaultScore; 
 class AAssaultPoint; 
 class UTextBlock; 
@@ -29,10 +30,10 @@ public:
 	TObjectPtr<UAssaultProgress> WBP_AssaultProgress; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UAssaultTimer> Ally_AssaultTimer; 
+	TObjectPtr<UAssaultScoreDetails> Ally_AssaultScoreDetails; 
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UAssaultTimer> Enemy_AssaultTimer;
+	TObjectPtr<UAssaultScoreDetails> Enemy_AssaultScoreDetails;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UAssaultScore> Ally_AssaultScore;
@@ -42,6 +43,9 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_Mission; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> TextBlock_RoundRemainingTime; 
 
 	/* Settings */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -65,8 +69,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText DefenseText; 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText RoundEndText;
+
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	virtual void NativeDestruct() override; 
 
 	void UpdateOffensePreparation();
@@ -82,21 +90,20 @@ private:
 	UPROPERTY()
 	int32 CurrentOffenseTeamID = -1; 
 
+	UPROPERTY()
+	FGameplayTag CurrentGamePhaseTag; 
+
 	UFUNCTION()
 	void OnAssaultPointRegistered(AAssaultPoint* AssaultPoint); 
 
 	UFUNCTION()
 	void OnTeamChanged(bool bTeamSet, int32 TeamID); 
 
+	/* Game Phase */
 	UFUNCTION()
-	void OnSwitchInningEnded(const FGameplayTag& PhaseTag); 
+	void ProcessPhaseRemainingTime(const FGameplayTag& PhaseTag, const float RemainingTime);
 
-	UFUNCTION()
-	void OnFirstTeamOffenseStarted(const FGameplayTag& PhaseTag);
-
-	UFUNCTION()
-	void OnSecondTeamOffenseStarted(const FGameplayTag& PhaseTag);
-
+	/* Occupation */
 	UFUNCTION()
 	void OnNumAttackersChanged(int32 NewNumAttackers); 
 
@@ -110,7 +117,24 @@ private:
 	void OnOccupationStateChanged(EOccupationState NewOccupationState);
 
 	UFUNCTION()
-	void OnMatchScoringComponentRegistered(FGameplayTag Channel, const FOWVerbMessage& Payload); 
+	void HandleCountdownTime(FGameplayTag Channel, const FOWVerbMessage& Payload);
 
-	FGameplayMessageListenerHandle MatchScoringComponentListener; 
+	FText ConvertTimeText(float RemainingCountdownTime); 
+
+	bool bAssaultPointRegistered = false; 
+
+	float TargetProgress = 0.f; 
+
+	float DisplayedProgress = 0.f; 
+
+	bool bMissionUpdated = false; 
+
+	FGameplayMessageListenerHandle FirstHeroSelectionListenerHandle;
+	FGameplayMessageListenerHandle FirstMatchPreparationListenerHandle;
+	FGameplayMessageListenerHandle FirstTeamOffenseListenerHandle;
+	FGameplayMessageListenerHandle SwitchInningListenerHandle;
+	FGameplayMessageListenerHandle SecondHeroSelectionListenerHandle;
+	FGameplayMessageListenerHandle SecondMatchPreparationListenerHandle;
+	FGameplayMessageListenerHandle SecondTeamOffenseListenerHandle;
+	FGameplayMessageListenerHandle PostMatchListenerHandle; 
 };
