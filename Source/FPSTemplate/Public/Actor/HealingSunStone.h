@@ -43,10 +43,7 @@ public:
 	TObjectPtr<UNiagaraComponent> SunRay; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<USoundBase> HealSound; 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UNiagaraSystem> HealCross;
+	TObjectPtr<UNiagaraComponent> HealingRay;
 
 	/* Vital Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

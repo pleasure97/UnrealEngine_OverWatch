@@ -40,6 +40,11 @@ AHealingSunStone::AHealingSunStone()
 	// Sun Ray (Niagara Component)
 	SunRay = CreateDefaultSubobject<UNiagaraComponent>("SunRay");
 	SunRay->SetupAttachment(SunStone);
+	
+	// Healing Ray (Niagara Component)
+	HealingRay = CreateDefaultSubobject<UNiagaraComponent>("HealingRay"); 
+	HealingRay->SetupAttachment(SunStone);
+	HealingRay->bAutoActivate = false;
 
 	// Health Plate Widget Component 
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("WidgetComponent"); 
