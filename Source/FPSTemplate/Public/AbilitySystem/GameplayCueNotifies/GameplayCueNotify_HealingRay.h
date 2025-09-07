@@ -19,9 +19,4 @@ class FPSTEMPLATE_API AGameplayCueNotify_HealingRay : public AGameplayCueNotify_
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Niagara")
 	TObjectPtr<UNiagaraSystem> HealingRay; 
-	
-protected:
-	virtual bool WhileActive_Implementation(AActor* MyTarget, const FGameplayCueParameters& Parameters) override; 
-	
-	
 };
