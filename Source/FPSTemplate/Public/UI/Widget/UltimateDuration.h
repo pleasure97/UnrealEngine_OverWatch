@@ -28,18 +28,25 @@ public:
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> DynamicMaterialInstance; 
 
-	float GetDuration() const { return Duration; }
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float DurationTick = 0.1f;
 
+	float GetDuration() const; 
+
+	UFUNCTION(BlueprintCallable)
 	void SetDuration(float InDuration); 
+
+protected:
+	virtual void NativePreConstruct() override;
+	virtual void NativeDestruct() override; 
+
+private:
+	float Duration = 0.f;
+
+	FTimerHandle DurationTickTimerHandle; 
+	void UpdateDuration(); 
 
 	void UpdateDurationText(float RemainingTime);
 
 	void UpdateDurationBar(float RemainingTime);
-
-protected:
-	virtual void NativePreConstruct() override;
-
-private:
-	UPROPERTY()
-	float Duration;
 };
