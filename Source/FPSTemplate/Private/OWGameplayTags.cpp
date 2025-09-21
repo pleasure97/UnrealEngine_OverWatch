@@ -56,6 +56,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Secondary.ShieldRegeneration"),
 		FString("Shield Regeneration"));
 
+	GameplayTags.Attributes_Secondary_HealthRegeneration = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Secondary.HealthRegeneration"),
+		FString("Health Regeneration"));
+
 	/* Damage Attributes */
 
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -249,6 +253,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Abilities_IgnoreDeath= UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.IgnoreDeath"),
 		FString("Ability which ignores Death"));
+
+	GameplayTags.Abilities_Interact_Activate = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Interact.Activate"),
+		FString("Ability which activates Interaction"));
 
 	/* Hit React */
 	GameplayTags.Abilities_HitReact= UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -616,6 +624,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Montage_RocketHammer2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.RocketHammer2"),
 		FString("Reinhardt's Second Rocket Hammer Montage Event Tag"));
+
+	GameplayTags.Event_Montage_Charge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.Charge"),
+		FString("Reinhardt's Charge Montage Event Tag"));
 
 	/* Hero GameplayTags - Tracer */
 	GameplayTags.Abilities_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(

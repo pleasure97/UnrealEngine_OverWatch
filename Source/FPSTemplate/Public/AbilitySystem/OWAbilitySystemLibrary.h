@@ -13,6 +13,8 @@ struct FWidgetControllerParams;
 class AOWHUD; 
 class UOverlayWidgetController; 
 struct FDamageEffectParams; 
+struct FOverlapResult;
+class IInteractInterface; 
 
 /**
  * 
@@ -49,7 +51,7 @@ public:
 	 * Hero Info Defaults 
 	 */
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
-	static void InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC, float Level=1.f); 
+	static void InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UOWAbilitySystemComponent* ASC, float Level=1.f);
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static void GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC); 
@@ -171,4 +173,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|DamageEffect")
 	static void SetTargetEffectParamsASC(UPARAM(ref)FDamageEffectParams& DamageEffectParams, UAbilitySystemComponent* InAbilitySystemComponent);
+
+	/*
+	 * Interaction
+	 */
+	UFUNCTION()
+	static void AddInteractableActorsFromOverlapResults(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractInterface>>& OutInteractableActors);
 };

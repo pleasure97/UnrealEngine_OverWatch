@@ -31,6 +31,7 @@ public:
 	/* Secondary Attributes */
 	FGameplayTag Attributes_Secondary_CriticalHitDamage;
 	FGameplayTag Attributes_Secondary_ShieldRegeneration; 
+	FGameplayTag Attributes_Secondary_HealthRegeneration; 
 	
 	/* Damage Attributes */
 	FGameplayTag Damage; 
@@ -97,6 +98,7 @@ public:
 	/* Common Abilities */
 	FGameplayTag Abilities_Reload; 
 	FGameplayTag Abilities_IgnoreDeath; 
+	FGameplayTag Abilities_Interact_Activate; 
 
 	/* Hit React */
 	FGameplayTag Abilities_HitReact;
@@ -218,6 +220,7 @@ public:
 	FGameplayTag Event_Montage_BarrierField;
 	FGameplayTag Event_Montage_RocketHammer1;
 	FGameplayTag Event_Montage_RocketHammer2;
+	FGameplayTag Event_Montage_Charge;
 
 	/* Hero GameplayTags - Tracer */
 	FGameplayTag Abilities_Tracer_PulsePistols; 

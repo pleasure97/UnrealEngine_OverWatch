@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
+#include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/OWHUD.h"
 #include "Player/OWPlayerState.h"
@@ -15,6 +16,8 @@
 #include "Engine/OverlapResult.h"
 #include "Interface/CombatInterface.h"
 #include "Game/OWGameState.h"
+#include "Engine/OverlapResult.h"
+#include "Interface/InteractInterface.h"
 
 /* Gameplay Abilities */
 UOWGameplayAbility* UOWAbilitySystemLibrary::GetPrimaryAbilityInstanceFromClass(UAbilitySystemComponent* AbilitySystemComponent, TSubclassOf<UGameplayAbility> InAbilityClass)
@@ -84,7 +87,7 @@ UOverlayWidgetController* UOWAbilitySystemLibrary::GetOverlayWidgetController(co
 }
 
 /* Hero Info Defaults */
-void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC, float Level)
+void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UOWAbilitySystemComponent* ASC, float Level)
 {
 	// Get Avatar Actor
 	AActor* AvatarActor = ASC->GetAvatarActor(); 
@@ -100,7 +103,8 @@ void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 	const FGameplayEffectSpecHandle VitalAttributeSpecHandle = ASC->MakeOutgoingSpec(
 		HeroInfo->HeroInformation[HeroName].VitalAttributes, Level, VitalAttributesContextHandle); 
 	// Apply Gameplay Effect Spec to Self
-	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get()); 
+	FActiveGameplayEffectHandle ActiveVitalGameplayEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get());
+	ASC->AddToDefaultAttributeHandles(ActiveVitalGameplayEffectHandle);
 
 	// Same as above - Primary Attributes
 	FGameplayEffectContextHandle PrimaryAttributesContextHandle = ASC->MakeEffectContext(); 
@@ -108,7 +112,8 @@ void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 	EHeroClass HeroClass = HeroInfo->HeroInformation[HeroName].HeroClass; 
 	const FGameplayEffectSpecHandle PrimaryAttributeSpecHandle = ASC->MakeOutgoingSpec(
 		HeroInfo->CommonClassInformation[HeroClass].PrimaryAttributes, Level, PrimaryAttributesContextHandle); 
-	ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributeSpecHandle.Data.Get()); 
+	FActiveGameplayEffectHandle ActivePrimaryGameplayEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributeSpecHandle.Data.Get());
+	ASC->AddToDefaultAttributeHandles(ActivePrimaryGameplayEffectHandle);
 
 	// Same as above - Common Attributes
 	for (TSubclassOf<UGameplayEffect> CommonAttribute : HeroInfo->CommonAttributes)
@@ -117,8 +122,11 @@ void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 		CommonAttributeContextHandle.AddSourceObject(AvatarActor);
 		const FGameplayEffectSpecHandle CommonAttributeSpecHandle = ASC->MakeOutgoingSpec(
 			CommonAttribute, Level, CommonAttributeContextHandle);
-		ASC->ApplyGameplayEffectSpecToSelf(*CommonAttributeSpecHandle.Data.Get());
+		FActiveGameplayEffectHandle ActiveCommonGameplayEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*CommonAttributeSpecHandle.Data.Get());
+		ASC->AddToDefaultAttributeHandles(ActiveCommonGameplayEffectHandle);
 	}
+
+	ASC->SetDefaultAttributesGiven(true); 
 }
 
 void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC)
@@ -442,8 +450,10 @@ FGameplayEffectContextHandle UOWAbilitySystemLibrary::ApplyDamageEffect(const FD
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, DamageEffectParams.DebuffDuration); 
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, DamageEffectParams.DebuffFrequency); 
 
-	DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data); 
-
+	if (IsValid(DamageEffectParams.TargetAbilitySystemComponent))
+	{
+		DamageEffectParams.TargetAbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+	}
 	return EffectContextHandle; 
 }
 
@@ -489,4 +499,22 @@ void UOWAbilitySystemLibrary::SetDeathImpulseDirection(FDamageEffectParams& Dama
 void UOWAbilitySystemLibrary::SetTargetEffectParamsASC(FDamageEffectParams& DamageEffectParams, UAbilitySystemComponent* InAbilitySystemComponent)
 {
 	DamageEffectParams.TargetAbilitySystemComponent = InAbilitySystemComponent; 
+}
+
+void UOWAbilitySystemLibrary::AddInteractableActorsFromOverlapResults(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractInterface>>& OutInteractableActors)
+{
+	for (const FOverlapResult& OverlapResult : OverlapResults)
+	{
+		TScriptInterface<IInteractInterface> InteractableActor(OverlapResult.GetActor()); 
+		if (InteractableActor)
+		{
+			OutInteractableActors.AddUnique(InteractableActor);
+		}
+
+		TScriptInterface<IInteractInterface> InteractableComponent(OverlapResult.GetComponent()); 
+		if (InteractableComponent)
+		{
+			OutInteractableActors.AddUnique(InteractableComponent); 
+		}
+	}
 }
