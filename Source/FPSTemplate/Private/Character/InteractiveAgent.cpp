@@ -8,3 +8,8 @@ AInteractiveAgent::AInteractiveAgent()
 	PrimaryActorTick.bCanEverTick = false;
 
 }
+
+void AInteractiveAgent::AddInteractionOptions(const FInteractionQuery& InteractionQuery, FInteractionOptionCollector& InteractionOptionCollector)
+{
+	InteractionOptionCollector.Add(InteractionOption); 
+}

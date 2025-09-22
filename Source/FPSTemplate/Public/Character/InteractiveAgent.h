@@ -15,4 +15,9 @@ class FPSTEMPLATE_API AInteractiveAgent : public ACharacter, public IInteractInt
 public:
 	AInteractiveAgent();
 
+	virtual void AddInteractionOptions(const FInteractionQuery& InteractionQuery, FInteractionOptionCollector& InteractionOptionCollector) override;
+
+protected:
+	UPROPERTY(EditAnywhere)
+	FInteractionOption InteractionOption; 
 };

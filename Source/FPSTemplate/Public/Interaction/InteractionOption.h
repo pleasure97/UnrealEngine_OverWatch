@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interface/InteractInterface.h"
 #include "Abilities/GameplayAbility.h"
 #include "Blueprint/UserWidget.h"
 #include "InteractionOption.generated.h"
 
+class IInteractInterface;
 class AController; 
 
 USTRUCT(BlueprintType)
