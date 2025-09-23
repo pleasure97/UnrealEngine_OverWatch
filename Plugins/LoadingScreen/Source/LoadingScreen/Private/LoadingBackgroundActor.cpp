@@ -62,17 +62,16 @@ void ALoadingBackgroundActor::ShowLoadingScreen()
 
 void ALoadingBackgroundActor::HideLoadingScreen()
 {
-	FTimerHandle TimerHandle; 
 	float DelayTime = 0.5f; 
 
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+	GetWorld()->GetTimerManager().SetTimer(LoadingScreenTimerHandle, FTimerDelegate::CreateLambda([&]()
 		{
 			if (LoadingTask)
 			{
 				LoadingTask->Unregister(); 
+				LoadingTask = nullptr; 
 			}
-
-			GetWorld()->GetTimerManager().ClearTimer(TimerHandle); 
+			GetWorld()->GetTimerManager().ClearTimer(LoadingScreenTimerHandle);
 		}), DelayTime, false); 
 }
 

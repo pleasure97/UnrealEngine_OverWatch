@@ -46,7 +46,7 @@ protected:
 	int32 MinPlayers; 
 
 	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<UWorld> DestinationMap; 
+	TArray<TSoftObjectPtr<UWorld>> DestinationMaps; 
 	
 private:
 
@@ -63,4 +63,6 @@ private:
 
 	void AddPlayerInfoToLobbyState(AController* Player) const; 
 	void RemovePlayerInfoFromLobbyState(AController* Player) const; 
+
+	TSoftObjectPtr<UWorld> PickDestinationMap() const; 
 };

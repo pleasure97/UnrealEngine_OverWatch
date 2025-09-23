@@ -102,6 +102,8 @@ void ADS_GameModeBase::OnCountTimerFinished(ECountTimerType Type)
 
 void ADS_GameModeBase::TrySeamlessTravel(TSoftObjectPtr<UWorld> DestinationMap)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::TrySeamlessTravel()"));
+
 	const FString MapName = DestinationMap.ToSoftObjectPath().GetAssetName();
 	if (GIsEditor)
 	{

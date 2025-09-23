@@ -178,7 +178,7 @@ void UPlayerSpawningManagerComponent::OnLevelAdded(ULevel* InLevel, UWorld* InWo
 
 void UPlayerSpawningManagerComponent::OnLevelRemoved(ULevel* InLevel, UWorld* InWorld)
 {
-	if (InWorld != GetWorld())
+	if (InWorld != GetWorld() || InLevel == nullptr)
 	{
 		return; 
 	}

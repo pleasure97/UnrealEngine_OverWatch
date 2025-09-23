@@ -35,6 +35,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<ULevelStreamingDynamic> LevelStreamingDynamic;
 
+	FTimerHandle LoadingScreenTimerHandle; 
+
 	void ShowLoadingScreen(); 
 
 	void HideLoadingScreen(); 

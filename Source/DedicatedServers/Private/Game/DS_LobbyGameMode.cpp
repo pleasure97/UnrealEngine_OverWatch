@@ -20,10 +20,17 @@ ADS_LobbyGameMode::ADS_LobbyGameMode()
 
 void ADS_LobbyGameMode::CheckAndStartLobbyCountTime()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::CheckAndStartLobbyCountTime() Begins"));
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::CheckAndStartLobbyCountTime() GetNumPlayers(): %d"), GetNumPlayers());
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::CheckAndStartLobbyCountTime() MinPlayers : %d"), MinPlayers);
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::CheckAndStartLobbyCountTime() LobbyStatus: %s"), 
+		*StaticEnum<ELobbyStatus>()->GetNameStringByValue(static_cast<int64>(LobbyStatus)));
+
 	if (GetNumPlayers() >= MinPlayers && LobbyStatus == ELobbyStatus::WaitingForPlayers)
 	{
 		LobbyStatus = ELobbyStatus::PreparingSeamlessTravel;
 		StartCountTimer(LobbyCountTimer);
+		UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::CheckAndStartLobbyCountTime() Starts Count Timer")); 
 	}
 }
 
@@ -176,6 +183,19 @@ void ADS_LobbyGameMode::RemovePlayerInfoFromLobbyState(AController* Player) cons
 	}
 }
 
+TSoftObjectPtr<UWorld> ADS_LobbyGameMode::PickDestinationMap() const
+{
+	if (DestinationMaps.Num() == 0)
+	{
+		UE_LOG(LogTemp, Error, TEXT("The Number of Destination Maps are Zero!"));
+		return nullptr; 
+	}
+
+	const int32 MapIndex = FMath::RandRange(0, DestinationMaps.Num() - 1); 
+
+	return DestinationMaps[MapIndex]; 
+}
+
 
 void ADS_LobbyGameMode::BeginPlay()
 {
@@ -188,11 +208,13 @@ void ADS_LobbyGameMode::OnCountTimerFinished(ECountTimerType Type)
 {
 	Super::OnCountTimerFinished(Type); 
 
+	UE_LOG(LogTemp, Warning, TEXT("ADS_LobbyGameMode::OnCountTimerFinished()"));
+
 	if (Type == ECountTimerType::LobbyCountdown)
 	{
 		StopCountTimer(LobbyCountTimer); 
 		LobbyStatus = ELobbyStatus::SeamlessTravelling; 
-		TrySeamlessTravel(DestinationMap); 
+		TrySeamlessTravel(PickDestinationMap()); 
 	}
 }
 
