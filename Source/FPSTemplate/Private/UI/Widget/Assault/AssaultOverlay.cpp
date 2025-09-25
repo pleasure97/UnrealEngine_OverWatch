@@ -36,6 +36,23 @@ void UAssaultOverlay::NativeConstruct()
 		}
 	}
 
+	// Allow Assault Point to be Registered Only Once by Getting Match Scoring Component of Game State 
+	if (AGameStateBase* GameState = UGameplayStatics::GetGameState(GetWorld()))
+	{
+		if (UMatchScoringComponent* FoundMatchScoringComponent = GameState->FindComponentByClass<UMatchScoringComponent>())
+		{
+			// Save Match Scoring Component as Member Variable 
+			MatchScoringComponent = FoundMatchScoringComponent;
+			// Bind Assault Point Registeration Delegate of Match Scoring Component 
+			MatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered);
+			// Call Callback Function to Function Properly 
+			for (AAssaultPoint* RegisterdAssaultPoint : MatchScoringComponent->AssaultPoints)
+			{
+				OnAssaultPointRegistered(RegisterdAssaultPoint);
+			}
+		}
+	}
+
 	// Get Gameplay Message Subsystem 
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	// Get GameplayTag Singleton Class 
@@ -70,31 +87,6 @@ void UAssaultOverlay::NativeConstruct()
 void UAssaultOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime); 
-
-	// Allow Assault Point to be Registered Only Once by Getting Match Scoring Component of Game State 
-	if (!bAssaultPointRegistered)
-	{
-		if (AGameStateBase* GameState = UGameplayStatics::GetGameState(GetWorld()))
-		{
-			if (UMatchScoringComponent* FoundMatchScoringComponent = GameState->FindComponentByClass<UMatchScoringComponent>())
-			{
-				// Save Match Scoring Component as Member Variable 
-				MatchScoringComponent = FoundMatchScoringComponent;
-				// Bind Assault Point Registeration Delegate of Match Scoring Component 
-				MatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered);
-				// Call Callback Function to Function Properly 
-				for (AAssaultPoint* RegisterdAssaultPoint : MatchScoringComponent->AssaultPoints)
-				{
-					OnAssaultPointRegistered(RegisterdAssaultPoint);
-				}
-			}
-			bAssaultPointRegistered = true; 
-		}
-		else
-		{
-			return;
-		}
-	}
 
 	if (FMath::IsNearlyEqual(DisplayedProgress, TargetProgress))
 	{
