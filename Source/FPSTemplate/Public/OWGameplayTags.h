@@ -126,7 +126,8 @@ public:
 	FGameplayTag GameplayCue_HeroSelection;
 	FGameplayTag GameplayCue_HeroDeath; 
 	FGameplayTag GameplayCue_SwitchInning; 
-	FGameplayTag GameplayCue_MatchDecided; 
+	FGameplayTag GameplayCue_MatchDecided;
+	FGameplayTag GameplayCue_Occupied;
 
 	FGameplayTag GameplayCue_DamageImpact; 
 	FGameplayTag GameplayCue_HealImpact; 

@@ -338,6 +338,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.MatchDecided"),
 		FString("GameplayCue When Match is Decided"));
 
+	GameplayTags.GameplayCue_Occupied = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Occupied"),
+		FString("GameplayCue When Assault Point is Occupied"));
+
 	GameplayTags.GameplayCue_DamageImpact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.DamageImpact"),
 		FString("GameplayCue When Damaged"));

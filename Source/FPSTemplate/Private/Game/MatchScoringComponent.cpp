@@ -165,7 +165,7 @@ void UMatchScoringComponent::OnRep_Team1OccupationProgress()
 						if (UOWGlobalAbilitySystem* GlobalAbilitySystem = World->GetSubsystem<UOWGlobalAbilitySystem>())
 						{
 							// Apply Match Decided Gameplay Effect
-							GlobalAbilitySystem->ApplyEffectToAll(MatchDecidedGameplayEffect);
+							GlobalAbilitySystem->ApplyEffectToAll(PhaseEndedGameplayEffect);
 							World->GetTimerManager().ClearTimer(GameplayEffectTimerHandle); 
 							// Prepare Next Game Phase 
 							World->GetTimerManager().SetTimer(
@@ -438,7 +438,7 @@ void UMatchScoringComponent::PrepareNextGamePhase()
 		// Remove Match Decided Gameplay Effect from All Clients 
 		if (UOWGlobalAbilitySystem* GlobalAbilitySystem = World->GetSubsystem<UOWGlobalAbilitySystem>())
 		{
-			GlobalAbilitySystem->RemoveEffectFromAll(MatchDecidedGameplayEffect); 
+			GlobalAbilitySystem->RemoveEffectFromAll(PhaseEndedGameplayEffect); 
 		}
 
 		if (UOWGamePhaseSubsystem* GamePhaseSubsystem = World->GetSubsystem<UOWGamePhaseSubsystem>())
@@ -577,8 +577,13 @@ void UMatchScoringComponent::HandleVictory(int32 TeamID)
 	// Replace Ability Level of the GameplayCueParameters with Team ID. 
 	FGameplayCueParameters GameplayCueParameters; 
 	GameplayCueParameters.AbilityLevel = WinningTeamID;
-	ActivateMatchDecidedGameplayCue(FOWGameplayTags::Get().GameplayCue_MatchDecided, GameplayCueParameters);
-
+	if (UWorld* World = GetWorld())
+	{
+		if (UOWGlobalAbilitySystem* OWGlobalAbilitySystem = World->GetSubsystem<UOWGlobalAbilitySystem>())
+		{
+			OWGlobalAbilitySystem->ApplyEffectToAll(MatchDecidedGameplayEffect);
+		}
+	}
 	OnRep_WinningTeamID(); 
 }
 

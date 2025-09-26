@@ -82,6 +82,9 @@ public:
 	TSubclassOf<UOWGamePhaseAbility> PostMatchGamePhaseAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> PhaseEndedGameplayEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UGameplayEffect> MatchDecidedGameplayEffect; 
 
 	FOWGamePhaseTagDelegate FirstHeroSelectionGamePhaseDelegate;
