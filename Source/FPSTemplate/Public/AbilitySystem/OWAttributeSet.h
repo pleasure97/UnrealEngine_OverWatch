@@ -138,6 +138,10 @@ public:
 	FGameplayAttributeData ShieldRegeneration;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, ShieldRegeneration);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthRegeneration, Category = "Secondary Attributes")
+	FGameplayAttributeData HealthRegeneration;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, HealthRegeneration);
+
 	/* 
 	 * Resistance Attributes 
 	 */
@@ -168,6 +172,14 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_NumMaxBullets, Category="Skill Attributes")
 	FGameplayAttributeData NumMaxBullets;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumMaxBullets);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillCurrentStacks, Category = "Skill Attributes")
+	FGameplayAttributeData FirstSkillCurrentStacks;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillCurrentStacks);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillMaxStacks, Category = "Skill Attributes")
+	FGameplayAttributeData FirstSkillMaxStacks;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillMaxStacks);
 
 	/* 
 	 * Meta Attributes 
@@ -248,6 +260,9 @@ public:
 	UFUNCTION()
 	void OnRep_ShieldRegeneration(const FGameplayAttributeData& OldShieldRegeneration) const; 
 
+	UFUNCTION()
+	void OnRep_HealthRegeneration(const FGameplayAttributeData& OldHealthRegeneration) const;
+
 	/*
 	 * Resistance Attributes
 	 */
@@ -271,6 +286,12 @@ public:
 
 	UFUNCTION()
 	void OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMaxBullets) const;
+
+	UFUNCTION()
+	void OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const;
+
+	UFUNCTION()
+	void OnRep_FirstSkillMaxStacks(const FGameplayAttributeData& OldFirstSkillMaxStacks) const;
 
 	/*
 	 * Match Attributes

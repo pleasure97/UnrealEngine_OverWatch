@@ -68,6 +68,9 @@ public:
 	FGameplayTag InputTag_RMB; 
 	FGameplayTag InputTag_ScoreBoard; 
 
+	/* Input Attributes - Interaction */
+	FGameplayTag InputTag_Interact;
+
 	/* Player Input Attributes */
 	FGameplayTag Player_Block_InputPressed; 
 	FGameplayTag Player_Block_InputHeld; 
@@ -79,6 +82,8 @@ public:
 	FGameplayTag Attributes_Skill_MaxUltimateGauge; 
 	FGameplayTag Attributes_Skill_NumCurrentBullets; 
 	FGameplayTag Attributes_Skill_NumMaxBullets; 
+	FGameplayTag Attributes_Skill_FirstSkillCurrentStacks;
+	FGameplayTag Attributes_Skill_FirstSkillMaxStacks;
 
 	/* Meta Attributes */
 	FGameplayTag Attributes_Meta_IncomingXP;

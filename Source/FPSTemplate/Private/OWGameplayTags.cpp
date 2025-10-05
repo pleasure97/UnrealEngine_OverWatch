@@ -123,6 +123,14 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Skill.NumMaxBullets"),
 		FString("The Number of Maximum Bullets"));
 
+	GameplayTags.Attributes_Skill_FirstSkillCurrentStacks = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.FirstSkillCurrentStacks"),
+		FString("The Number of First Skill Current Stacks"));
+
+	GameplayTags.Attributes_Skill_FirstSkillMaxStacks = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.FirstSkillMaxStacks"),
+		FString("The Number of First Skill Max Stacks"));
+
 	/* Input Attributes - Move */
 
 	GameplayTags.InputTag_Move_Forward = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -186,6 +194,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_ScoreBoard = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("InputTag.ScoreBoard"),
 		FString("InputTag of ScoreBoard Button"));
+
+	/* Input Attributes - Interaction */
+	GameplayTags.InputTag_Interact = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Interact"),
+		FString("InputTag of Interaction"));
 
 	/* Player Input Attributes */
 

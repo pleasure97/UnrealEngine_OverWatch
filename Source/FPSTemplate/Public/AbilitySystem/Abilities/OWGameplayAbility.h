@@ -6,6 +6,13 @@
 #include "Abilities/GameplayAbility.h"
 #include "OWGameplayAbility.generated.h"
 
+UENUM()
+enum class EAbilityStackingSlot : uint8
+{
+	None, 
+	FirstSkill
+};
+
 /**
  * 
  */
@@ -17,6 +24,12 @@ class FPSTEMPLATE_API UOWGameplayAbility : public UGameplayAbility
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	FGameplayTag DefaultInputTag; 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability Stacking")
+	int32 MaxStacks = 1;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Ability Stacking")
+	EAbilityStackingSlot AbilityStackingSlot = EAbilityStackingSlot::None;
 
 	virtual void OnHeroSet();
 
@@ -33,4 +46,8 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPawnAvatarSet")
 	void K2_OnHeroSet();
+
+	void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec); 
+
+	void ApplyStackChangeGameplayEffect(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec);
 };

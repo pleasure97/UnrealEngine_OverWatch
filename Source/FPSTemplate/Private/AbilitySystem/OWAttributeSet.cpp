@@ -36,6 +36,7 @@ UOWAttributeSet::UOWAttributeSet()
 	/* Secondary Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ShieldRegeneration, GetShieldRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_HealthRegeneration, GetHealthRegenerationAttribute);
 
 	/* Resistance Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Laser, GetLaserResistanceAttribute); 
@@ -74,6 +75,7 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	/* Secondary Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, ShieldRegeneration, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always); 
 
 	/* Resistance Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, LaserResistance, COND_None, REPNOTIFY_Always); 
@@ -84,6 +86,8 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumCurrentBullets, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumMaxBullets, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillMaxStacks, COND_None, REPNOTIFY_Always);
 
 	/* Match Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumKills, COND_None, REPNOTIFY_Always);
@@ -254,6 +258,11 @@ void UOWAttributeSet::OnRep_ShieldRegeneration(const FGameplayAttributeData& Old
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, ShieldRegeneration, OldShieldRegeneration);
 }
 
+void UOWAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData& OldHealthRegeneration) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, HealthRegeneration, OldHealthRegeneration);
+}
+
 void UOWAttributeSet::OnRep_LaserResistance(const FGameplayAttributeData& OldLaserResistance) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, LaserResistance, OldLaserResistance);
@@ -282,6 +291,16 @@ void UOWAttributeSet::OnRep_NumCurrentBullets(const FGameplayAttributeData& OldN
 void UOWAttributeSet::OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMaxBullets) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumMaxBullets, OldNumMaxBullets);
+}
+
+void UOWAttributeSet::OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, OldFirstSkillCurrentStacks);
+}
+
+void UOWAttributeSet::OnRep_FirstSkillMaxStacks(const FGameplayAttributeData& OldFirstSkillMaxStacks) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillMaxStacks, OldFirstSkillMaxStacks);
 }
 
 void UOWAttributeSet::OnRep_NumKills(const FGameplayAttributeData& OldNumKills) const
@@ -495,7 +514,10 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 
 		// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
 		AOWPlayerController* SourcePlayerControler = Cast<AOWPlayerController>(EffectProperties.SourcePlayerState->GetPlayerController()); 
-		SourcePlayerControler->ClientHeroDamaged(HeroDamagedInfo); 
+		if (IsValid(SourcePlayerControler))
+		{
+			SourcePlayerControler->ClientHeroDamaged(HeroDamagedInfo);
+		}
 	}
 }
 
