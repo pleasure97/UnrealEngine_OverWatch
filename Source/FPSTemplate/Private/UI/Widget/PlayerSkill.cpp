@@ -5,10 +5,11 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
+#include "Components/Border.h"
 #include "UI/WidgetController/OverlayWidgetController.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/AsyncTasks/WaitCooldownChange.h"
-#include "TimerManager.h"
 #include "OWGameplayTags.h"
 
 void UPlayerSkill::NativePreConstruct()
@@ -21,45 +22,84 @@ void UPlayerSkill::NativePreConstruct()
 	}
 	if (TextBlock_Cooltime)
 	{
-		TextBlock_Cooltime->SetRenderOpacity(0.f); 
+		TextBlock_Cooltime->SetVisibility(ESlateVisibility::Collapsed); 
 	}
+	if (Overlay_NumCurrentStacks)
+	{
+		Overlay_NumCurrentStacks->SetVisibility(ESlateVisibility::Collapsed); 
+	}
+	if (Image_InputKey)
+	{
+		Image_InputKey->SetVisibility(ESlateVisibility::Collapsed); 
+	}
+}
+
+void UPlayerSkill::NativeDestruct()
+{
+	if (IsValid(WaitCooldownChangeTask))
+	{
+		WaitCooldownChangeTask->CooldownStart.RemoveAll(this); 
+		WaitCooldownChangeTask->CooldownEnd.RemoveAll(this); 
+	}
+
+	Super::NativeDestruct(); 
 }
 
 void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 {
-	AbilityTag = WidgetInfo.AbilityTag; 
-	InputTag = WidgetInfo.InputTag; 
+	// Assign Ability and Input GameplayTag
+	AbilityTag = WidgetInfo.AbilityTag;
+	InputTag = WidgetInfo.InputTag;
+	
+	// Initialize Skill Icon Information 
 	FSlateBrush SlateBrush; 
 	SlateBrush.SetResourceObject(const_cast<UTexture2D*>(WidgetInfo.Icon.Get())); 
-	SlateBrush.TintColor = FSlateColor(FLinearColor(0.f, 0.f, 0.f, 1.f)); 
-	SlateBrush.SetImageSize(FVector2D(76.8f, 76.8f)); 
-	Image_SkillIcon->SetBrush(SlateBrush);
-
-	/* TODO - Change to Map */
-	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_1))
+	SlateBrush.TintColor = FSlateColor(BlackColor);
+	if (Image_SkillIcon)
 	{
-		TextBlock_InputKey->SetText(FText::FromString("LSHIFT"));
+		Image_SkillIcon->SetBrush(SlateBrush);
 	}
 
-	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_2))
+	// Get GameplayTag Singleton Container
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
+	// Check if Skill Input Info Map is SEt 
+	if (!SkillInputInfoMap.IsEmpty())
 	{
-		TextBlock_InputKey->SetText(FText::FromString("E"));
-	}
-
-	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_Skill_3))
-	{
-		TextBlock_InputKey->SetText(FText::FromString("F"));
-	}
-
-	if (InputTag.MatchesTagExact(FOWGameplayTags::Get().InputTag_LMB))
-	{
-		TextBlock_InputKey->SetText(FText::FromString(""));
+		// Find Input Tag Key from Skill Input Map 
+		if (FSkillInputInfo* SkillInputInfo = SkillInputInfoMap.Find(InputTag))
+		{
+			// Text Block Input Key 
+			if (TextBlock_InputKey && !SkillInputInfo->SkillInputText.IsEmpty())
+			{
+				TextBlock_InputKey->SetText(SkillInputInfo->SkillInputText); 
+			}
+			// Image Input Key 
+			if (Image_InputKey && !SkillInputInfo->SkillInputImage.IsNull())
+			{
+				// Set Brush of Image Input Key from Texture
+				Image_InputKey->SetBrushFromTexture(SkillInputInfo->SkillInputImage, false); 
+				// Set Visibility of Image Input Key to Visible 
+				Image_InputKey->SetVisibility(ESlateVisibility::Visible); 
+				// Set Visiblity of Border Input Key to Collapsed 
+				if (Border_InputKey)
+				{
+					Border_InputKey->SetVisibility(ESlateVisibility::Collapsed); 
+				}
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Input Tag Does Not Match Tag Exact in UPlayerSkill::SetWidgetInfo()"));
+		}
 	}
 }
 
 void UPlayerSkill::UpdateBlockedByTag(bool bBlocked)
 {
-	if (bCurrentlyBlocked == bBlocked) return;
+	if (bCurrentlyBlocked == bBlocked)
+	{
+		return;
+	}
 
 	bCurrentlyBlocked = bBlocked; 
 
@@ -67,16 +107,17 @@ void UPlayerSkill::UpdateBlockedByTag(bool bBlocked)
 	{
 		if (Image_Background)
 		{
-			Image_Background->SetColorAndOpacity(FLinearColor(0.491021f, 0.026241f, 0.076185f, 1.f));
+			Image_Background->SetColorAndOpacity(BlockedColor);
 		}
 		if (Image_Deactivate)
 		{
-			Image_Deactivate->SetColorAndOpacity(FLinearColor(0.168269f, 0.025187f, 0.035601f, 1.f));
+			Image_Deactivate->SetColorAndOpacity(DeactivatedColor);
+			Image_Deactivate->SetVisibility(ESlateVisibility::Visible);
 		}
 		if (Image_SkillIcon)
 		{
 			FSlateBrush CurrentBrush = Image_SkillIcon->GetBrush();
-			CurrentBrush.TintColor = FSlateColor(FLinearColor(0.491f, 0.026f, 0.076f, 1.f));
+			CurrentBrush.TintColor = FSlateColor(BlockedColor);
 			Image_SkillIcon->SetBrush(CurrentBrush); 
 		}
 	}
@@ -84,16 +125,16 @@ void UPlayerSkill::UpdateBlockedByTag(bool bBlocked)
 	{
 		if (Image_Background)
 		{
-			Image_Background->SetColorAndOpacity(FLinearColor(1.f, 1.f, 1.f, 1.f));
+			Image_Background->SetColorAndOpacity(WhiteColor);
 		}
 		if (Image_Deactivate)
 		{
-			Image_Deactivate->SetColorAndOpacity(FLinearColor(0.f, 0.f, 0.f, 0.f));
+			Image_Deactivate->SetVisibility(ESlateVisibility::Collapsed);
 		}
 		if (Image_SkillIcon)
 		{
 			FSlateBrush CurrentBrush = Image_SkillIcon->GetBrush();
-			CurrentBrush.TintColor = FSlateColor(FLinearColor(0.f, 0.f, 0.f, 1.f));
+			CurrentBrush.TintColor = FSlateColor(BlackColor);
 			Image_SkillIcon->SetBrush(CurrentBrush);
 		}
 	}
@@ -113,7 +154,8 @@ void UPlayerSkill::SetCooldownInfo(const FOWAbilityInfo& Info)
 		if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 		{
 			WaitCooldownChangeTask = UWaitCooldownChange::WaitForCooldownChange(OverlayWidgetController->AbilitySystemComponent, CooldownTag);
-			WaitCooldownChangeTask->CooldownStart.AddDynamic(this, &UPlayerSkill::HandleCooldownTimer);
+			WaitCooldownChangeTask->CooldownStart.AddDynamic(this, &UPlayerSkill::HandleCooldownTimer); 
+			WaitCooldownChangeTask->CooldownEnd.AddDynamic(this, &UPlayerSkill::EndCooldownTimer); 
 		}
 	}
 }
@@ -124,39 +166,61 @@ void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
 	{
 		ProgressBar_Cooltime->SetPercent(1.f);
 	}
-	if (TextBlock_Cooltime)
-	{
-		TextBlock_Cooltime->SetRenderOpacity(1.f); 
-	}
 
 	CooldownDuration = CurrentRemainedTime = TimeRemaining; 
 
-	TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
+	if (TextBlock_Cooltime)
+	{
+		TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
+		TextBlock_Cooltime->SetVisibility(ESlateVisibility::Visible);
+	}
 
-	GetWorld()->GetTimerManager().SetTimer(CooldownTimerHandle, this, &UPlayerSkill::UpdateCooldownTimer, GetWorld()->GetDeltaSeconds(), true);
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().SetTimer(
+			CooldownTimerHandle, 
+			this, 
+			&UPlayerSkill::UpdateCooldownTimer, 
+			World->GetDeltaSeconds(), 
+			true);
+	}
 }
 
 void UPlayerSkill::UpdateCooldownTimer()
 {
-	if (CurrentRemainedTime <= 1.f && CooldownTimerHandle.IsValid())
+	if (UWorld* World = GetWorld())
 	{
-		TextBlock_Cooltime->SetRenderOpacity(0.f); 
-		GetWorld()->GetTimerManager().ClearTimer(CooldownTimerHandle);
-		return; 
+		if (CurrentRemainedTime <= 1.f && CooldownTimerHandle.IsValid())
+		{
+			World->GetTimerManager().ClearTimer(CooldownTimerHandle);
+			return;
+		}
+
+		CurrentRemainedTime -= World->GetDeltaSeconds();
+
+		if (ProgressBar_Cooltime)
+		{
+			ProgressBar_Cooltime->SetPercent(CurrentRemainedTime / CooldownDuration);
+		}
+
+		if (TextBlock_Cooltime)
+		{
+			if (FMath::FloorToInt(CurrentRemainedTime + World->GetDeltaSeconds()) != FMath::FloorToInt(CurrentRemainedTime))
+			{
+				TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
+			}
+		}
 	}
+}
 
-	CurrentRemainedTime -= GetWorld()->GetDeltaSeconds(); 
-
+void UPlayerSkill::EndCooldownTimer(float TimeRemaining)
+{
 	if (ProgressBar_Cooltime)
 	{
-		ProgressBar_Cooltime->SetPercent(CurrentRemainedTime / CooldownDuration);
+		ProgressBar_Cooltime->SetPercent(0.f);
 	}
-
 	if (TextBlock_Cooltime)
 	{
-		if (FMath::FloorToInt(CurrentRemainedTime + GetWorld()->GetDeltaSeconds()) != FMath::FloorToInt(CurrentRemainedTime))
-		{
-			TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
-		}
+		TextBlock_Cooltime->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
