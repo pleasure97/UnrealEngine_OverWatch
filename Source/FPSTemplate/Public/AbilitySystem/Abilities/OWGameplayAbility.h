@@ -22,14 +22,24 @@ class FPSTEMPLATE_API UOWGameplayAbility : public UGameplayAbility
 	GENERATED_BODY()
 	
 public:
+	/* Ability Stacking */
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	FGameplayTag DefaultInputTag; 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
 	int32 MaxStacks = 1;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
 	EAbilityStackingSlot AbilityStackingSlot = EAbilityStackingSlot::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	float StackRechargeDuration = -1.f; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	FGameplayAttribute MaxStackAttribute;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	FGameplayAttribute CurrentStackAttribute;
 
 	virtual void OnHeroSet();
 
@@ -49,5 +59,12 @@ protected:
 
 	void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec); 
 
-	void ApplyStackChangeGameplayEffect(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec);
+	virtual bool CanActivateAbility(
+		const FGameplayAbilitySpecHandle Handle, 
+		const FGameplayAbilityActorInfo* ActorInfo, 
+		const FGameplayTagContainer* SourceTags,
+		const FGameplayTagContainer* TargetTags, 
+		OUT FGameplayTagContainer* OptionalRelevantTags) const override;
+
+	void InitializeAbilityStacking(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec);
 };

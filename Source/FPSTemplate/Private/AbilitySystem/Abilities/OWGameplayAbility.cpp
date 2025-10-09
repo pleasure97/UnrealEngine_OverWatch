@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "AbilitySystem/OWAttributeSet.h"
+#include "AbilitySystemGlobals.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 
 float UOWGameplayAbility::GetSkillCost(float InLevel) const
@@ -46,16 +48,42 @@ void UOWGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInf
     // Apply Stack Change Gameplay Effect when Ability is Given 
     if (ActorInfo && ActorInfo->IsNetAuthority())
     {
-        ApplyStackChangeGameplayEffect(ActorInfo, Spec); 
-    }
+        InitializeAbilityStacking(ActorInfo, Spec);
+    }  
 }
 
-void UOWGameplayAbility::ApplyStackChangeGameplayEffect(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+bool UOWGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
+{
+    // Override CanActivateAbility() of Parent Class if Ability Type is Not Stacking 
+    if (AbilityStackingSlot == EAbilityStackingSlot::None)
+    {
+        return Super::CanActivateAbility(Handle, ActorInfo, SourceTags, TargetTags, OptionalRelevantTags);
+    }
+    // Initialize Boolean Value Indicating Whether Stack Attribute Exists
+    bool bHasStackAttribute = false;
+    // Get Current Stack Attribute Value from Avatar Actor Using Ability System Blueprint Library 
+    float CurrentStackAttributeValue = UAbilitySystemBlueprintLibrary::GetFloatAttribute(
+        ActorInfo->AvatarActor.Get(), 
+        CurrentStackAttribute, 
+        bHasStackAttribute); 
+
+    // Return Whether the Stack is Greater than 0 to Activate the Ability
+    return (bHasStackAttribute && CurrentStackAttributeValue > 0.f);
+}
+
+void UOWGameplayAbility::InitializeAbilityStacking(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
 {
     // Early Return if Type of Gameplay Ability is Not Ability Stacking 
     if (AbilityStackingSlot == EAbilityStackingSlot::None)
     {
         return; 
+    }
+
+    // Check if Max or Current Stack Attribute is Valid 
+    if (!MaxStackAttribute.IsValid() || !CurrentStackAttribute.IsValid())
+    {
+        UE_LOG(LogTemp, Error, TEXT("Max or Current Stack Attribute is Not Valid in UOWGameplayAbility::InitializeAbilityStacking()")); 
+        return;
     }
 
     // Create Runtime Memory Object (Not Asset) and Set Instant Duration Policy 
@@ -76,22 +104,22 @@ void UOWGameplayAbility::ApplyStackChangeGameplayEffect(const FGameplayAbilityAc
     CurrentStackInfo.ModifierMagnitude = FScalableFloat(MaxStacks); 
     CurrentStackInfo.ModifierOp = EGameplayModOp::Override; 
 
-    // TODO - Enum Ability Stacking Slot or Spec's Input ID 
-    switch (AbilityStackingSlot)
-    {
-    case EAbilityStackingSlot::FirstSkill:
-    {
-        MaxStackInfo.Attribute = UOWAttributeSet::GetFirstSkillMaxStacksAttribute();
-        CurrentStackInfo.Attribute = UOWAttributeSet::GetFirstSkillCurrentStacksAttribute();
-    }
-    }
+    // Set Attributes of Max and Current Stack Info
+    MaxStackInfo.Attribute = MaxStackAttribute;
+    CurrentStackInfo.Attribute = CurrentStackAttribute; 
 
-    // Cast Ability System Component from Actor Info to Custom Ability System Component
-    UOWAbilitySystemComponent* OWAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponentFromActorInfo());
-    // Apply Stack Change Gameplay Effect Using Custom Ability System Component 
-    if (OWAbilitySystemComponent)
+    // Allocate Gameplay Effect Context and Create it on Heap Memory 
+    FGameplayEffectContext* StackGameplayEffectContextHandle = UAbilitySystemGlobals::Get().AllocGameplayEffectContext(); 
+    
+    // Create Gameplay Effect Spec with Runtime Gameplay Effect Context
+    const FGameplayEffectSpecHandle StackGameplayEffectSpecHandle =
+        FGameplayEffectSpecHandle(
+            new FGameplayEffectSpec(StackChangeGameplayEffect, FGameplayEffectContextHandle(StackGameplayEffectContextHandle), 1.f)); 
+
+    // Apply Stack Gameplay Effect Spec to Owner 
+    if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
     {
-        OWAbilitySystemComponent->ApplyGameplayEffectToSelf(StackChangeGameplayEffect, 1.f, OWAbilitySystemComponent->MakeEffectContext());
+        ASC->ApplyGameplayEffectSpecToSelf(*StackGameplayEffectSpecHandle.Data.Get()); 
     }
 }
 

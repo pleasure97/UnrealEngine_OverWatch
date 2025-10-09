@@ -86,8 +86,8 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumCurrentBullets, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumMaxBullets, COND_None, REPNOTIFY_Always); 
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillMaxStacks, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, COND_None, REPNOTIFY_Always); 
 
 	/* Match Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumKills, COND_None, REPNOTIFY_Always);
@@ -121,6 +121,10 @@ void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	if (Attribute == GetUltimateGaugeAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxUltimateGauge()); 
+	}
+	if (Attribute == GetFirstSkillCurrentStacksAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetFirstSkillMaxStacks()); 
 	}
 }
 
@@ -180,6 +184,10 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetIncomingXPAttribute())
 	{
 		HandleIncomingXP(EffectProperties); 
+	}
+	if (Data.EvaluatedData.Attribute == GetFirstSkillCurrentStacksAttribute())
+	{
+		SetFirstSkillCurrentStacks(FMath::Clamp(GetFirstSkillCurrentStacks(), 0.f, GetFirstSkillMaxStacks()));
 	}
 }
 
@@ -293,14 +301,14 @@ void UOWAttributeSet::OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMa
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, NumMaxBullets, OldNumMaxBullets);
 }
 
-void UOWAttributeSet::OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, OldFirstSkillCurrentStacks);
-}
-
 void UOWAttributeSet::OnRep_FirstSkillMaxStacks(const FGameplayAttributeData& OldFirstSkillMaxStacks) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillMaxStacks, OldFirstSkillMaxStacks);
+}
+
+void UOWAttributeSet::OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, OldFirstSkillCurrentStacks);
 }
 
 void UOWAttributeSet::OnRep_NumKills(const FGameplayAttributeData& OldNumKills) const

@@ -173,13 +173,13 @@ public:
 	FGameplayAttributeData NumMaxBullets;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, NumMaxBullets);
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillCurrentStacks, Category = "Skill Attributes")
-	FGameplayAttributeData FirstSkillCurrentStacks;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillCurrentStacks);
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillMaxStacks, Category = "Skill Attributes")
 	FGameplayAttributeData FirstSkillMaxStacks;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillMaxStacks);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillCurrentStacks, Category = "Skill Attributes")
+	FGameplayAttributeData FirstSkillCurrentStacks;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillCurrentStacks);
 
 	/* 
 	 * Meta Attributes 
@@ -288,10 +288,10 @@ public:
 	void OnRep_NumMaxBullets(const FGameplayAttributeData& OldNumMaxBullets) const;
 
 	UFUNCTION()
-	void OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const;
+	void OnRep_FirstSkillMaxStacks(const FGameplayAttributeData& OldFirstSkillMaxStacks) const;
 
 	UFUNCTION()
-	void OnRep_FirstSkillMaxStacks(const FGameplayAttributeData& OldFirstSkillMaxStacks) const;
+	void OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const;
 
 	/*
 	 * Match Attributes
