@@ -11,6 +11,9 @@
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/AsyncTasks/WaitCooldownChange.h"
 #include "OWGameplayTags.h"
+#include "AbilitySystem/Abilities/OWGameplayAbility.h"
+#include "AbilitySystemComponent.h"
+#include "AbilitySystem/OWAttributeSet.h"
 
 void UPlayerSkill::NativePreConstruct()
 {
@@ -91,6 +94,36 @@ void UPlayerSkill::SetWidgetInfo(const FOWAbilityInfo& WidgetInfo)
 		{
 			UE_LOG(LogTemp, Error, TEXT("Input Tag Does Not Match Tag Exact in UPlayerSkill::SetWidgetInfo()"));
 		}
+
+		// Ability Stacking 
+		// Check if Widget Info Ability is Not nullptr and Child of OWGameplayAbility 
+		if (WidgetInfo.Ability && WidgetInfo.Ability->IsChildOf(UOWGameplayAbility::StaticClass()))
+		{
+			// Get Class Default Object from Widget Info Ability 
+			UOWGameplayAbility* OWGameplayAbility = WidgetInfo.Ability->GetDefaultObject<UOWGameplayAbility>(); 
+			// Get Current Stack Attribute from CDO 
+			const FGameplayAttribute StackAttribute = OWGameplayAbility->CurrentStackAttribute; 
+
+			// Early Return if Ability Stacking Slot of Custom Gameplay Ability is Not Stacking
+			if (OWGameplayAbility->AbilityStackingSlot == EAbilityStackingSlot::None)
+			{
+				return;
+			}
+
+			// Cast Widget Controller to Overlay Widget Controller
+			if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+			{
+				// Bind Current Stack Attribute Value Changed Delegate of Ability System Component of Overlay Widget Controller
+				OverlayWidgetController->AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+					OWGameplayAbility->CurrentStackAttribute).AddLambda(
+						[this, StackAttribute](const FOnAttributeChangeData& Data)
+						{
+							UpdateCurrentStacks(StackAttribute, Data);
+						}
+					);
+				bAbilityStacking = true; 
+			}
+		}
 	}
 }
 
@@ -160,8 +193,32 @@ void UPlayerSkill::SetCooldownInfo(const FOWAbilityInfo& Info)
 	}
 }
 
+void UPlayerSkill::UpdateCurrentStacks(const FGameplayAttribute& Attribute, const FOnAttributeChangeData& Data)
+{
+	if (Attribute == UOWAttributeSet::GetFirstSkillCurrentStacksAttribute())
+	{
+		if (TextBlock_NumCurrentStacks)
+		{
+			NumCurrentStacks = FMath::TruncToInt(Data.NewValue); 
+			TextBlock_NumCurrentStacks->SetText(FText::AsNumber(NumCurrentStacks));
+		}
+	}
+
+	// Check Overlay Visibility and Set Visiblity to Visible 
+	if (Overlay_NumCurrentStacks->GetVisibility() != ESlateVisibility::Visible)
+	{
+		Overlay_NumCurrentStacks->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
 {
+	// Ability Stacking Early Return
+	if (bAbilityStacking && NumCurrentStacks > 0)
+	{
+		return;
+	}
+	
 	if (ProgressBar_Cooltime)
 	{
 		ProgressBar_Cooltime->SetPercent(1.f);
@@ -171,7 +228,7 @@ void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
 
 	if (TextBlock_Cooltime)
 	{
-		TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
+		TextBlock_Cooltime->SetText(FText::AsNumber(FMath::RoundToInt(CurrentRemainedTime)));
 		TextBlock_Cooltime->SetVisibility(ESlateVisibility::Visible);
 	}
 
@@ -190,7 +247,7 @@ void UPlayerSkill::UpdateCooldownTimer()
 {
 	if (UWorld* World = GetWorld())
 	{
-		if (CurrentRemainedTime <= 1.f && CooldownTimerHandle.IsValid())
+		if (CurrentRemainedTime <= 0.1f && CooldownTimerHandle.IsValid())
 		{
 			World->GetTimerManager().ClearTimer(CooldownTimerHandle);
 			return;

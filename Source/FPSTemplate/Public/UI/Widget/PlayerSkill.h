@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "GameplayTagContainer.h"
+#include "GameplayEffectTypes.h"
 #include "PlayerSkill.generated.h"
 
 class UImage; 
@@ -110,6 +111,13 @@ protected:
 	virtual void NativeDestruct() override; 
 
 private:
+	/* Ability Stacking */
+	void UpdateCurrentStacks(const FGameplayAttribute& Attribute, const FOnAttributeChangeData& Data);
+
+	int32 NumCurrentStacks = -1; 
+
+	bool bAbilityStacking = false;
+
 	/* Cooldown */
 	UFUNCTION()
 	void HandleCooldownTimer(float TimeRemaining);
@@ -122,9 +130,10 @@ private:
 
 	FTimerHandle CooldownTimerHandle; 
 
-	bool bCurrentlyBlocked = false; 
-
 	float CurrentRemainedTime = 0.f;
 
 	float CooldownDuration = 0.f;
+
+	bool bCurrentlyBlocked = false;
+
 };
