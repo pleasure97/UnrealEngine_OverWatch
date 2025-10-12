@@ -36,7 +36,7 @@ void UTracerBlink::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, con
 				{
 					int32 ViewWidth, ViewHeight; 
 					AvatarPlayerController->GetViewportSize(ViewWidth, ViewHeight); 
-					TracerBlinkWidget->AddToPlayerScreen(10);
+					TracerBlinkWidget->AddToPlayerScreen();
 					TracerBlinkWidget->SetAlignmentInViewport(FVector2D(0.5f, 0.5f)); 
 					TracerBlinkWidget->SetDesiredSizeInViewport(FVector2D(100.f, 100.f)); 
 					TracerBlinkWidget->SetPositionInViewport(FVector2D(ViewWidth * 0.5f, ViewHeight * 0.5f + 50.f), true); 

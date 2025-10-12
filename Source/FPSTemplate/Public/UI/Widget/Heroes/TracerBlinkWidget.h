@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "GameplayTagContainer.h"
+#include "GameplayEffectTypes.h"
 #include "TracerBlinkWidget.generated.h"
 
 class UOWGameplayAbility; 
@@ -28,12 +29,10 @@ public:
 	
 protected:
 	virtual void NativeConstruct() override; 
-	virtual void NativeDestruct() override; 
 
 private:
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> OwnerAbilitySystemComponent;
 
-	UFUNCTION()
-	void OnBlinkStackChanged(const FGameplayTag CooldownTag, int32 NewCount); 
+	void UpdateNumBlinks(const FGameplayAttribute& Attribute, const FOnAttributeChangeData& Data);
 };
