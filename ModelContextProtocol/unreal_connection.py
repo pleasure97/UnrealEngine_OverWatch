@@ -1,10 +1,11 @@
 # MIT License
 #
 # Copyright (c) 2025 runeape.sats
+# Handles Connection and Communication with Unreal Engine
 
 import logging
 import requests
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
 # Configure Logging
 logging.basicConfig(
@@ -16,8 +17,8 @@ logger = logging.getLogger("UnrealConnection")
 class UnrealConnection:
     """ Class to Manage Connection to Unreal Engine Remote Control API """
     def __init__(self,
-                 host: str="127.0.0.1",
-                 port: int=30010):
+                 host: str = "127.0.0.1",
+                 port: int = 30010):
         self.host = host
         self.port = port
         self.base_url = f"http://{host}:{port}/remote/object/call"
@@ -26,17 +27,12 @@ class UnrealConnection:
         # Test Connection to Unreal Engine Remote Control API
         try:
             # Get All Level Actors as Simple Test
-            # TODO - EditorActorSubsystem -> Runtime?
-            payload = {
-                "objectPath": "/Script/UnrealEd.Default_EditorActorSubsystem",
-                "functionName": "GetAllLevelActors"
-            }
-            response = requests.put(self.base_url, json=payload, timeout=10)
+            info_url = f"http://{self.host}:{self.port}/remote/info"
+            response = requests.get(info_url, timeout=10)
             response.raise_for_status()
 
-            logger.info(f"Successfully Connected to Unreal Engine at {self.host}:{self.post}")
+            logger.info(f"Successfully Connected to Unreal Engine at {self.host}:{self.port}")
             return True
-        # TODO - Specify Exception
         except Exception as e:
             logger.error(f"Failed to Connect to Unreal Engine : {str(e)}")
             return False
@@ -44,7 +40,7 @@ class UnrealConnection:
     def send_command(self,
                      object_path: str,
                      function_name: str,
-                     parameters: Dict[str, Any],
+                     parameters: Dict[str, Any] = None,
                      generate_transaction: bool = True) -> Dict[str, Any]:
         """
         Send a Command to Unreal Engine and Return the Response
@@ -70,10 +66,18 @@ class UnrealConnection:
             # Send the Command
             response = requests.put(self.base_url, json=payload, timeout=10)
             response.raise_for_status()
+
             # Save the Response as JSON Object
             result = response.json()
             logger.info(f"Command Successful : {function_name}")
+
+            return result
         except requests.exceptions.RequestException as e:
+            logger.error(f"Error Sending Command to Unreal Engine : {str(e)}")
+            if hasattr(e, 'response') and e.response:
+                logger.error(f"Response Details : {e.response.text}")
+            raise Exception(f"Communication Error with Unreal Engine : {str(e)}")
+        except Exception as e:
             logger.error(f"Unexpected Error : {str(e)}")
             raise Exception(f"Unexpected Error : {str(e)}")
 
@@ -163,7 +167,7 @@ class UnrealConnection:
 
     def get_component_by_class(self, actor_path: str, component_class: str) -> Optional[str]:
         """
-        Get Component by its Class from Actor
+        Get a Component by its Class from Actor
         :param actor_path: Path to Actor
         :param component_class: Class of Component to Find
         :return: Component Path if Found, None Otherwise
@@ -180,6 +184,7 @@ def get_unreal_connection():
     """ Get or Create Unreal Connection """
     global _unreal_connection
 
+    # If We Have Existing Connection, Check if it's Still Valid
     if _unreal_connection is not None:
         try:
             if _unreal_connection.test_connection():
@@ -188,11 +193,13 @@ def get_unreal_connection():
             logger.warning(f"Existing Connection is No Longer Valid : {str(e)}")
             _unreal_connection = None
 
-    _unreal_connection = UnrealConnection()
-    if not _unreal_connection.test_connection():
-        logger.error("Failed to Connect to Unreal Engine in get_unreal_connection()")
-        _unreal_connection = None
-        raise Exception("Could not connect to Unreal Engine. Make sure Remote Control API enabled.")
-    logger.info("Created New Persistent Connection to Unreal Engine")
+    # Create New Connection If Needed
+    if _unreal_connection is None:
+        _unreal_connection = UnrealConnection()
+        if not _unreal_connection.test_connection():
+            logger.error("Failed to Connect to Unreal Engine in get_unreal_connection()")
+            _unreal_connection = None
+            raise Exception("Could not connect to Unreal Engine. Make sure Remote Control API enabled.")
+        logger.info("Created New Persistent Connection to Unreal Engine")
 
     return _unreal_connection

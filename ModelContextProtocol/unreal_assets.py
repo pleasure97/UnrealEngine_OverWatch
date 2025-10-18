@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2025 runeape.sats
+# Functions for Working with Unreal Engine Assets
 import logging
 from typing import Optional, Dict
 from unreal_connection import get_unreal_connection
@@ -11,7 +12,7 @@ import json
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("UnrealAssets")
 
-def get_available_assets(keyword_arguments: Optional[str, Dict]) -> str:
+def get_available_assets(keyword_arguments) -> str:
     """
     Get List of Available Assets of Specific Type in Project
     :param keyword_arguments: String or Dict with Parameters:
@@ -247,7 +248,7 @@ def get_unreal_level_information() -> str:
                     location_result = unreal.send_command(actor_path, "GetActorLocation")
                     actor_information["location"] = location_result.get("ReturnValue", {})
                 except Exception as e:
-                    logger.warning(f"Could Not Get Location from Actor {actor_path} : {str(e)}")
+                    logger.warning(f"Could Not Get Location for Actor {actor_path} : {str(e)}")
                     actor_information["location"] = "Unknown"
 
                 # Infer Type from Path

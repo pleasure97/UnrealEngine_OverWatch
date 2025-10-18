@@ -1,6 +1,8 @@
 # MIT License
 #
 # Copyright (c) 2025 runeape.sats
+# Utility Functions for Unreal MCP Server
+
 import logging
 from typing import Dict, Any, List, Optional, Tuple
 import json
@@ -67,7 +69,7 @@ def format_transform_parameters(params: Dict[str, Any]) -> Dict[str, Dict[str, f
 
 def vector_to_ue_format(vector: List[float], keys: List[str] = None) -> Dict[str, float]:
     """
-    Convert a Vector List [x, y, z] to Unreal Engine Format {"X": x, "Y": y, "Z": z}
+    Convert a Vector List [x, y, z] to Unreal Engine Format {"X": x, "Y": y, "Z": z} or With Custom Keys
     :param vector: List of Float Values
     :param keys: Optional List of Custom Keys (default : ["X", "Y", "Z"])
     :return: Dictionary in Unreal Engine Format
@@ -99,7 +101,7 @@ def get_common_actor_name(params: Dict[str, Any], default_name: str = "NewActor"
     return params.get('actor_label') or params.get('name') or params.get('label') or default_name
 
 
-def parse_keyword_arguments(keyword_arguments: Optional[str, Dict]) -> Dict[str, Any]:
+def parse_keyword_arguments(keyword_arguments) -> Dict[str, Any]:
     """
     Parse Keyword Arguments from string, dict, or JSON format to Unified Dictionary
     :param keyword_arguments: String with key=value pairs, JSON string, or dictionary
@@ -124,7 +126,7 @@ def parse_keyword_arguments(keyword_arguments: Optional[str, Dict]) -> Dict[str,
     kwargs = {}
 
     if isinstance(keyword_arguments, str):
-        parts = kwargs.split()
+        parts = keyword_arguments.split()
         for part in parts:
             if '=' in part:
                 key, value = part.split('=', 1)
@@ -135,7 +137,7 @@ def parse_keyword_arguments(keyword_arguments: Optional[str, Dict]) -> Dict[str,
 
 def parse_value(key: str, value: str) -> Any:
     """
-    Parse a String Valu e into the Appropriate Type Based on Key and Content
+    Parse a String Value into the Appropriate Type Based on Key and Content
     :param key: Parameter Key Name
     :param value: String Value to Parse
     :return: Parsed Value in Appropriate Type 

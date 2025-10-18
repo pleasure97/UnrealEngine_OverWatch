@@ -21,3 +21,4 @@ Content/Maps/Egypt/Maps/Stylized_Egypt_Demo_BuiltData.uasset
 *.suo
 *.xcodeproj
 *.xcworkspace
+*.pyc

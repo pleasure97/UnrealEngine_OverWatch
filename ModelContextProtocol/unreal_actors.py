@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2025 runeape.sats
+# Core Functions for Actor Creation and Manipulation
 
 from unreal_connection import get_unreal_connection
 from unreal_utils import format_transform_parameters, get_common_actor_name, parse_keyword_arguments, \
@@ -64,7 +65,7 @@ def spawn_unreal_actor(actor_class: str, params: Dict[str, Any]) -> Optional[str
         logger.error(f"Error in spawn_unreal_actor(): {str(e)}")
         return None
 
-def create_unreal_static_mesh_actor(keyword_arguments: Optional[str, Dict]) -> str:
+def create_unreal_static_mesh_actor(keyword_arguments) -> str:
     """
     Create New Static Mesh Actor with Basic Shape or Custom Mesh
     :param kwargs: String or Dict with Parameters
@@ -129,7 +130,7 @@ def create_unreal_static_mesh_actor(keyword_arguments: Optional[str, Dict]) -> s
         logger.error(f"Error in create_unreal_static_mesh_actor(): {str(e)}")
         return f"Error Creating Static Mesh Actor : {str(e)}"
 
-def spawn_unreal_static_mesh_actor_from_mesh(keyword_arguments: Optional[str, Dict]) -> str:
+def spawn_unreal_static_mesh_actor_from_mesh(keyword_arguments: str | Dict[str, Any] | None) -> str:
     """
     Spawn Static Mesh Actor using Existing Static Mesh Asset
     :param keyword_arguments: String or Dict with Parameters
@@ -155,7 +156,7 @@ def spawn_unreal_static_mesh_actor_from_mesh(keyword_arguments: Optional[str, Di
         logger.error(f"Error in spawn_unreal_static_mesh_actor_from_mesh(): {str(e)}")
         return f"Error Spawning Static Mesh Actor : {str(e)}"
 
-def spawn_unreal_actor_from_blueprint(keyword_arguments: Optional[str, Dict]) -> str:
+def spawn_unreal_actor_from_blueprint(keyword_arguments: str | Dict[str, Any] | None) -> str:
     """
     Spawn Actor from Blueprint Class
     :param keyword_arguments: String or Dict with Parameters
@@ -180,13 +181,13 @@ def spawn_unreal_actor_from_blueprint(keyword_arguments: Optional[str, Dict]) ->
         # Get Name
         name = get_common_actor_name(params, "BlueprintActor")
 
-        return f"Successfully Created Actor '{name}' from Blueprint Class '{actor_class}
+        return f"Successfully Created Actor '{name}' from Blueprint Class '{actor_class}'"
 
     except Exception as e:
         logger.error(f"Error in spawn_unreal_actor_from_blueprint() : {str(e)}")
         return f"Error Spawning Actor from Blueprint : {str(e)}"
 
-def modify_unreal_actor(keyword_arguments: Optional[str, Dict]) -> str:
+def modify_unreal_actor(keyword_arguments: str | Dict[str, Any] | None) -> str:
     """
     Modify Existing Actor in Level
     :param keyword_arguments: String or Dict with Parameters
@@ -284,13 +285,13 @@ def get_unreal_actor_info(actor_label: str) -> str:
             rotation_result = unreal.send_command(actor_path, "GetActorRotation")
             information["rotation"] = rotation_result.get("ReturnValue", {})
         except Exception as e:
-            logger.warning(f"Could Not Get Rotation from Actor {actor_path}: {str(e)}"
+            logger.warning(f"Could Not Get Rotation from Actor {actor_path}: {str(e)}")
             information["rotation"] = "Not available"
 
         # Get Scale
         try:
             scale_result = unreal.send_command(actor_path, "GetActorScale3D")
-            information["scale"] = unreal.send_command(actor_path, "GetActorScale3D")
+            information["scale"] = scale_result.get("ReturnValue", {})
         except Exception as e:
             logger.warning(f"Could Not Get Scale from Actor {actor_path} : {str(e)}")
             information["scale"] = "Not available"
@@ -391,6 +392,7 @@ def delete_unreal_actor(actor_label: str) -> str:
         actor_path = unreal.find_actor_by_label(actor_label)
         if not actor_path:
             return f"Actor '{actor_label}' Not Found in the Current Level"
+        # Call DestroyActor() on the Actor
         result = unreal.send_command(actor_path, "DestroyActor", {"ActorTarget": actor_path})
     except Exception as e:
         logger.error(f"Error in Deleting Actor : {str(e)}")

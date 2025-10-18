@@ -1,6 +1,7 @@
 # MIT License
 #
 # Copyright (c) 2025 runeape.sats
+# Main Entry Point for Unreal Engine MCP Server
 
 import logging
 from contextlib import asynccontextmanager
@@ -43,12 +44,13 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[Dict[str, Any]]:
         logger.info("Unreal with Model Context Protocol Shutdowns")
         spatial_context.clear()
 
+# Create Model Context Protocol Server with Lifespan Support
 mcp = FastMCP(
     "unreal_with_model_context_protocol",
-    description="Unreal Engine Integration with Spatial Context",
-    server_lifespan=server_lifespan
+    lifespan=server_lifespan
 )
 
+# Tool to Get Current Spatial Context
 @mcp.tool()
 def get_spatial_context(context: Context) -> str:
     """ Return Current Spatial Context of All Actors as a JSON string. """
@@ -59,6 +61,7 @@ def get_spatial_context(context: Context) -> str:
         logger.error(f"Error in get_spatial_context() : {str(e)}")
         return f"Error Retrieving Spatial Context : {str(e)}"
 
+# Tool to Reset Spatial Context
 @mcp.tool()
 def reset_spatial_context(context: Context) -> str:
     """ Reset Spatial Context, Clearing All Tracked Actors. """
@@ -70,6 +73,7 @@ def reset_spatial_context(context: Context) -> str:
         logger.error(f"Error in reset_spatial_context() : {str(e)}")
         return f"Error resetting spatial context : {str(e)}"
 
+# Modified Exisitng Tools to Update Spatial Context
 @mcp.tool()
 def delete_actor(context: Context, actor_label: str) -> str:
     """
@@ -81,6 +85,7 @@ def delete_actor(context: Context, actor_label: str) -> str:
     try:
         from unreal_actors import delete_unreal_actor
         result = delete_unreal_actor(actor_label)
+        # Remove from Context
         spatial_context.pop(actor_label, None)
         return result
     except Exception as e:
@@ -154,7 +159,7 @@ def spawn_static_mesh(context: Context, keyword_arguments: str) -> str:
         return f"Error Spawning Static Mesh Actor : {str(e)}"
 
 @mcp.tool()
-def create_static_mesh_actor(context:Context, keyword_arguments: str) -> str:
+def create_static_mesh_actor(context: Context, keyword_arguments: str) -> str:
     """
     Create New Static Mesh Actor in Unreal Engine
     :param context:
@@ -237,8 +242,6 @@ def get_actor_info(context: Context, actor_label: str) -> str:
 def get_level_information(context: Context) -> str:
     """
     Get Information about Current Unreal Engine Level and Update Spatial Context
-    :param context:
-    :return:
     """
     global spatial_context
     try:
@@ -273,8 +276,8 @@ def get_level_information(context: Context) -> str:
 def list_available_assets(context: Context, keyword_arguments: str) -> str:
     """
     List Available Assets of Specific Type in Unreal Engine Project
-    :param context:
     :param keyword_arguments: String Containing Parameters as key=value Pairs or JSON Object
+            - Example : "asset_type=StaticMesh search_path=/Game/AssetName search_term=House"
     Supported Parameters:
     - asset_type: Type of Assets to List (BlueprintClass, StaticMesh, Material, etc.)
     - search_path: Optional Path to Search for Assets (default : /Game)
