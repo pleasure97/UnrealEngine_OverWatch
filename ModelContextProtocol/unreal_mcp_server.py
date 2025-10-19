@@ -1,12 +1,9 @@
-# MIT License
-#
-# Copyright (c) 2025 runeape.sats
 # Main Entry Point for Unreal Engine MCP Server
 
 import logging
 from contextlib import asynccontextmanager
 from mcp.server.fastmcp import FastMCP, Context
-from typing import AsyncIterator, Dict, Any
+from typing import AsyncIterator, Dict, Any, List
 from unreal_connection import get_unreal_connection
 import json
 import traceback
@@ -311,6 +308,83 @@ def search_assets_recursively(context: Context,
     except Exception as e:
         logger.error(f"Error in search_assets_recursively(): {str(e)}")
         return f"Error Searching Assets Recursively : {str(e)}"
+
+
+@mcp.tool()
+def create_pyramid(
+    base_size: int = 3,
+    block_size: float = 100.0,
+    location: List[float] = [0.0, 0.0, 0.0],
+    name_prefix: str = "PyramidBlock",
+    mesh: str = "/Engine/BasicShapes/Cube.Cube"
+) -> Dict[str, Any]:
+    """Spawn a pyramid made of cube actors.
+    :param base_size: number of blocks along one side of the base (>=1)
+    :param block_size: size of a single cube in cm (Unreal uses cm)
+    :param location: world origin (x,y,z) for the center of the base level
+    :param name_prefix: prefix for spawned actor names
+    :param mesh: static mesh asset path
+    """
+
+    global spatial_context
+
+    try:
+        spawned = []
+        errors = []
+        scale = block_size / 100.0
+
+        from unreal_actors import spawn_unreal_static_mesh_actor_from_mesh
+
+        # Iterate Base Size (e.g., base_size = 40 | 40 * 40 + 39 * 39 + ... + 1 * 1 Blocks)
+        for level in range(base_size):
+            count = base_size - level
+            for x in range(count):
+                for y in range(count):
+                    actor_name = f"{name_prefix}_{level}_{x}_{y}"
+
+                    # Calculate X, Y, Z Location of Each Block
+                    world_x = location[0] + (x - (count - 1)/2) * block_size
+                    world_y = location[1] + (y - (count - 1)/2) * block_size
+                    world_z = location[2] + level * block_size
+
+                    # Setup Parameters of Actor to Spawn
+                    params = {
+                        "actor_label": actor_name,
+                        "type": "StaticMeshActor",
+                        "static_mesh": mesh,
+                        "location": [world_x, world_y, world_z],
+                        "rotation": [0, 0, 0],
+                        "scale": [scale, scale, scale],
+                        "static_mesh": mesh
+                    }
+                    keyword_arguments_string = json.dumps(params)
+                    try:
+                        response = spawn_unreal_static_mesh_actor_from_mesh(keyword_arguments_string)
+                        if response and isinstance(response, dict) and  response.get("status") == "success":
+                            spawned.append(response)
+                            # Update Global 'spatial_context' (consistent format with other tools)
+                            spatial_context[actor_name] = {
+                                "location": params["location"],
+                                "rotation": params["rotation"],
+                                "scale": params["scale"]
+                            }
+                        else:
+                            error_message = response.get("message") if isinstance(response, dict) else str(response)
+                            errors.append({"actor": actor_name, "error": str(error_message)})
+                    except Exception as e:
+                        logger.exception("Error Spawning %s : %s", actor_name, e)
+                        errors.append({"actor": actor_name, "error": str(error_message)})
+        # Initialize 'result' Dictionary Including Success or Failure, and Actors' Parameters to Spawn
+        result = {"success": len(errors) == 0, "actors": spawned}
+        if errors:
+            result["errors"] = errors
+            result["message"] = f"{len(errors)} actors failed to spawn"
+        return result
+
+    except Exception as e:
+        logger.error(f"create_pyramid error: {e}")
+        return {"success": False, "message": str(e)}
+
 
 if __name__ == "__main__":
     try:
