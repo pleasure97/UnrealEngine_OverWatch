@@ -2,6 +2,9 @@
 
 
 #include "System/DSSystemStatics.h"
+#include "Game/DSGameState.h"
+#include "Kismet/GameplayStatics.h"
+#include "Data/API/InteractiveAPIData.h"
 
 void UDSSystemStatics::PlayNextGame(const UObject* WorldContextObject)
 {
@@ -28,6 +31,48 @@ void UDSSystemStatics::PlayNextGame(const UObject* WorldContextObject)
 	URL.RemoveFromStart(LastURL.GetHostPortString()); 
 
 	World->ServerTravel(URL, /* bAbsolute */ false, /* bShouldSkipGameNotify */ false); 
+}
+
+const FString UDSSystemStatics::GetAPIUrlFromDataAsset(const UObject* WorldContextObject)
+{
+	// Get Game State and Cast Game State to DS Game State
+	if (ADSGameState* DSGameState = Cast<ADSGameState>(UGameplayStatics::GetGameState(WorldContextObject)))
+	{
+		// Get API URL of Interactive API Data Asset from DS Game State
+		if (IsValid(DSGameState->InteractiveAPIDataAsset))
+		{
+			return DSGameState->InteractiveAPIDataAsset->GetAPIUrl();
+		}
+	}
+	return FString();
+}
+
+const FString UDSSystemStatics::GetAPIKeyFromDataAsset(const UObject* WorldContextObject)
+{
+	// Get Game State and Cast Game State to DS Game State
+	if (ADSGameState* DSGameState = Cast<ADSGameState>(UGameplayStatics::GetGameState(WorldContextObject)))
+	{
+		// Get API Key of Interactive API Data Asset from DS Game State
+		if (IsValid(DSGameState->InteractiveAPIDataAsset))
+		{
+			return DSGameState->InteractiveAPIDataAsset->GetAPIKey();
+		}
+	}
+	return FString();
+}
+
+const FString UDSSystemStatics::GetAPIModelFromDataAsset(const UObject* WorldContextObject)
+{
+	// Get Game State and Cast Game State to DS Game State
+	if (ADSGameState* DSGameState = Cast<ADSGameState>(UGameplayStatics::GetGameState(WorldContextObject)))
+	{
+		// Get API Model of Interactive API Data Asset from DS Game State
+		if (IsValid(DSGameState->InteractiveAPIDataAsset))
+		{
+			return DSGameState->InteractiveAPIDataAsset->GetAPIModel();
+		}
+	}
+	return FString();
 }
 
 

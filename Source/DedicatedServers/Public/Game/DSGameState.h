@@ -7,6 +7,7 @@
 #include "DSGameState.generated.h"
 
 class ALobbyState; 
+class UInteractiveAPIData;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLobbyStateInitialized, ALobbyState*, LobbyState); 
 
@@ -28,6 +29,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnLobbyStateInitialized OnLobbyStateInitialized;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Interaction")
+	TObjectPtr<UInteractiveAPIData> InteractiveAPIDataAsset;
 
 protected:
 	

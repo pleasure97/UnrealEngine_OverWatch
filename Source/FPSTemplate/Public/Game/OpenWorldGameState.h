@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameState.h"
+#include "Game/DSGameState.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "Message/OWMessageTypes.h"
 #include "OpenWorldGameState.generated.h"
@@ -12,7 +12,7 @@
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOpenWorldGameState : public AGameState
+class FPSTEMPLATE_API AOpenWorldGameState : public ADSGameState
 {
 	GENERATED_BODY()
 	

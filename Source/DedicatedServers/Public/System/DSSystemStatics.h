@@ -17,4 +17,14 @@ class DEDICATEDSERVERS_API UDSSystemStatics : public UBlueprintFunctionLibrary
 public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
 	static void PlayNextGame(const UObject* WorldContextObject); 
+
+	/* Interactive API Data */
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+	static const FString GetAPIUrlFromDataAsset(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+	static const FString GetAPIKeyFromDataAsset(const UObject* WorldContextObject); 
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"))
+	static const FString GetAPIModelFromDataAsset(const UObject* WorldContextObject);
 };
