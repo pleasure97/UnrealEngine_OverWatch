@@ -6,6 +6,7 @@ Build
 Plugins/Developer/RiderLink/
 Content/Assets/Effects/Textures/Flipbooks/SmokeSwirl_3_Flipbook_CHANNELPACK.uasset
 Content/Maps/Egypt/Maps/Stylized_Egypt_Demo_BuiltData.uasset
+RAG/overwatch-knowledge/
 
 .idea/
 *.user
@@ -22,3 +23,4 @@ Content/Maps/Egypt/Maps/Stylized_Egypt_Demo_BuiltData.uasset
 *.xcodeproj
 *.xcworkspace
 *.pyc
+*.env
