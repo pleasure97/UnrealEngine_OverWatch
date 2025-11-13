@@ -30,54 +30,56 @@ void UInteractiveAgentSubsystem::RequestInteractiveConversation(const FString& I
 	Request->SetURL(APIUrl); 
 	Request->SetVerb("POST"); 
 	Request->SetHeader("Content-Type", "application/json"); 
-	Request->SetHeader("Authorization", "Bearer " + APIKey); 
+	// Request->SetHeader("Authorization", "Bearer " + APIKey); 
 
 	TSharedPtr<FJsonObject> RequestData = MakeShareable(new FJsonObject); 
 
 	// Descript System Prompt
 	FString SystemPrompt = ""; 
 	const FString APIModel = UDSSystemStatics::GetAPIModelFromDataAsset(this);
-	RequestData->SetStringField("model", APIModel);
-	TArray<TSharedPtr<FJsonValue>> MessagesArray; 
+	RequestData->SetStringField("user_question", InUserPrompt);
+	TArray<TSharedPtr<FJsonValue>> ChatHistoryArray; 
 
-	// Make System Message 
-	// e.g. {"role": "system", "content": "Content, History: "}
-	TSharedPtr<FJsonObject> SystemMessage = MakeShareable(new FJsonObject); 
-	SystemMessage->SetStringField("role", "system"); 
-	SystemMessage->SetStringField("content", SystemPrompt + "\nHistory:\n"); 
-
-	// Add Interactive Chat History to System Prompt 
-	for (FInteractionData& InteractiveChatData : InteractiveChatHistory)
+	for (const FInteractionData& InteractiveChatData : InteractiveChatHistory)
 	{
-		SystemPrompt += InteractiveChatData.InteractiveConversation + "\n"; 
+		TSharedPtr<FJsonObject> HistoryMessage = MakeShareable(new FJsonObject);
+
+		FString Type;
+		// Convert SpeakerName to "human" or "ai" which is expected from FastAPI Model
+		if (InteractiveChatData.SpeakerName.ToString().Equals("Player", ESearchCase::IgnoreCase))
+		{
+			Type = "human";
+		}
+		else if (InteractiveChatData.SpeakerName.ToString().Equals("Agent", ESearchCase::IgnoreCase))
+		{
+			// Response to LangChain AIMessage
+			Type = "ai"; 
+		}
+
+		HistoryMessage->SetStringField("type", Type);
+		HistoryMessage->SetStringField("content", InteractiveChatData.InteractiveConversation);
+
+		ChatHistoryArray.Add(MakeShareable(new FJsonValueObject(HistoryMessage)));
 	}
 
-	// TODO - May Need to Change Json Type according to Each LLM API 
-	// Add System Message to Messages Array 
-	SystemMessage->SetStringField("content", SystemPrompt); 
-	MessagesArray.Add(MakeShareable(new FJsonValueObject(SystemMessage))); 
+	RequestData->SetArrayField("chat_history", ChatHistoryArray);
 
-	// Make User Prompt
-	TSharedPtr<FJsonObject> UserMessage = MakeShareable(new FJsonObject); 
-	UserMessage->SetStringField("role", "user"); 
-	UserMessage->SetStringField("content", InUserPrompt); 
+	// AddToInteractiveConversationHistory (응답 전에 대화 UI에 표시하기 위함)
+	AddToInteractiveConversationHistory("Player", InUserPrompt);
 
-	// Add User Message to Messages Array 
-	MessagesArray.Add(MakeShareable(new FJsonValueObject(UserMessage))); 
-	RequestData->SetArrayField("messages", MessagesArray); 
+	// Serialize JSON and Setup Request Content
+	FString RequestBody;
+	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&RequestBody);
+	FJsonSerializer::Serialize(RequestData.ToSharedRef(), JsonWriter);
+	Request->SetContentAsString(RequestBody);
+
+	// Bind OnResponseReceived() Callback
+	Request->OnProcessRequestComplete().BindUObject(this, &UInteractiveAgentSubsystem::OnResponseReceived);
+	UE_LOG(LogTemp, Log, TEXT("Processing Request in UInteractiveAgentSubsystem::RequestInteractiveConversation()"));
+	Request->ProcessRequest();
 
 	// TODO - May Need to Change Speaker Name from "Player" to Another Variable
 	AddToInteractiveConversationHistory("Player", InUserPrompt); 
-
-	FString RequestBody; 
-	TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&RequestBody);
-	FJsonSerializer::Serialize(RequestData.ToSharedRef(), JsonWriter); 
-	Request->SetContentAsString(RequestBody); 
-
-	// Bind OnResponseReceived() Callback
-	Request->OnProcessRequestComplete().BindUObject(this, &UInteractiveAgentSubsystem::OnResponseReceived); 
-	UE_LOG(LogTemp, Log, TEXT("Processing Request in UInteractiveAgentSubsystem::RequestInteractiveConversation()")); 
-	Request->ProcessRequest(); 
 }
 
 void UInteractiveAgentSubsystem::AddToInteractiveConversationHistory(const FName& InSpeakerName, const FString& InInteractiveChat)
@@ -117,43 +119,15 @@ void UInteractiveAgentSubsystem::OnResponseReceived(FHttpRequestPtr Request, FHt
 		return;
 	}
 
-	// Parse First Option of Choices Field
-	const TArray<TSharedPtr<FJsonValue>>* ChoicesArray; 
-	if (!JsonResponse->TryGetArrayField("choices", ChoicesArray) || ChoicesArray->Num() == 0)
+	FString Content;
+	if (!JsonResponse->TryGetStringField("npc_answer", Content))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Choices are Not Available in Response.")); 
+		UE_LOG(LogTemp, Error, TEXT("Response is missing 'npc_answer' field."));
 		return;
 	}
 
-	// Get Choice Object from Choices Array 
-	TSharedPtr<FJsonObject> ChoiceObject = (*ChoicesArray)[0]->AsObject(); 
-	if (!ChoiceObject.IsValid())
-	{
-		UE_LOG(LogTemp, Error, TEXT("Choice Object is Invalid.")); 
-		return; 
-	}
-
-	// Parse Message Field
-	TSharedPtr<FJsonObject> MessageObject = ChoiceObject->GetObjectField(TEXT("message")); 
-	if (!MessageObject.IsValid())
-	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid Message Object.")); 
-		return;
-	}
-
-	// Parse Message Content - Role, Content, ToneToken
-	FString Role = MessageObject->GetStringField("role"); 
-	FString Content = MessageObject->GetStringField("content"); 
-	FString ToneToken = Content.Mid(0, Content.Find("]") + 1); 
-
-	UE_LOG(LogTemp, Log, TEXT("Role : %s"), *Role); 
 	UE_LOG(LogTemp, Log, TEXT("Content : %s"), *Content);
-	UE_LOG(LogTemp, Log, TEXT("ToneToken : %s"), *ToneToken);
 
 	// Add Content of Interactive Agent to Chat History 
 	AddToInteractiveConversationHistory("Agent", Content);
-
-	// Print Finish Reason
-	FString FinishReason = ChoiceObject->GetStringField("finish_reason"); 
-	UE_LOG(LogTemp, Log, TEXT("Finish Reason : %s"), *FinishReason); 
 }
