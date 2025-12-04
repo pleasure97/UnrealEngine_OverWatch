@@ -4,6 +4,7 @@
 #include "UI/Widget/HeroSelection/HeroSelectionOverlay.h"
 #include "OWGameplayTags.h"
 #include "Player/OWPlayerState.h"
+#include "Player/OWPlayerController.h"
 #include "Components/TextBlock.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Team/OWTeamSubsystem.h"
@@ -15,7 +16,7 @@
 
 void UHeroSelectionOverlay::NativeConstruct()
 {
-	Super::NativeConstruct(); 
+	Super::NativeConstruct();
 
 	// Bind Hero Name Changed Delegate of Player State
 	if (WBP_HeroSelectionList)
@@ -41,18 +42,15 @@ void UHeroSelectionOverlay::NativeConstruct()
 		WBP_HeroSelectionList->InitializeHeroSelectionList(); 
 	}
 
+	// Get Team Subsystem from the World 
 	if (UWorld* World = GetWorld())
 	{
 		if (UOWTeamSubsystem* TeamSubsystem = World->GetSubsystem<UOWTeamSubsystem>())
 		{
-			OwnerPlayerState = Cast<AOWPlayerState>(GetOwningPlayerState());
-			if (OwnerPlayerState)
+			// Bind Team Changed Delegate of Custom Player Controller
+			if (AOWPlayerController* OWPlayerController = Cast<AOWPlayerController>(GetOwningPlayer()))
 			{
-				OwnerTeamID = TeamSubsystem->FindTeamFromObject(OwnerPlayerState);
-				if (OwnerTeamID < 0)
-				{
-					OwnerPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UHeroSelectionOverlay::OnTeamChanged);
-				}
+				OWPlayerController->GetTeamChangedDelegate().AddDynamic(this, &UHeroSelectionOverlay::OnTeamChanged); 
 			}
 		}
 
@@ -100,6 +98,8 @@ void UHeroSelectionOverlay::OnTeamChanged(UObject* ObjectChangingTeam, int32 Old
 	{
 		OwnerTeamID = NewTeamID;
 	}
+
+	UpdateWidgetForCurrentPhase();
 }
 
 void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseTag, const float RemainingTime)
@@ -123,7 +123,15 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 		return;
 	}
 	
+	UpdateWidgetForCurrentPhase();
+
+	bMissionDescriptionUpdated = true; 
+}
+
+void UHeroSelectionOverlay::UpdateWidgetForCurrentPhase()
+{
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+
 	// Game Phase - First Hero Selection 
 	if (CurrentGamePhaseTag == GameplayTags.GamePhase_HeroSelection_FirstHeroSelection)
 	{
@@ -136,10 +144,10 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 		{
 			if (TextBlock_MainMission)
 			{
-				TextBlock_MainMission->SetText(AttackMissionText); 
-				TextBlock_MainMission->SetColorAndOpacity(FSlateColor(RedColor)); 
+				TextBlock_MainMission->SetText(AttackMissionText);
+				TextBlock_MainMission->SetColorAndOpacity(FSlateColor(RedColor));
 			}
-			
+
 		}
 		else if (OwnerTeamID == 2)
 		{
@@ -151,9 +159,9 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2")); 
+			UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2"));
 		}
-	} 
+	}
 	// Game Phase - First Match Preparation 
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense)
 	{
@@ -161,7 +169,7 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 		{
 			if (TextBlock_MissionDescription)
 			{
-				TextBlock_MissionDescription->SetText(AttackPreparationMissionText); 
+				TextBlock_MissionDescription->SetText(AttackPreparationMissionText);
 			}
 		}
 		else if (OwnerTeamID == 2)
@@ -190,7 +198,7 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 		if (TextBlock_MissionDescription)
 		{
 			TextBlock_MissionDescription->SetText(WaitingForTeamConstructionText);
-			TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Visible); 
+			TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Visible);
 		}
 
 		if (OwnerTeamID == 1)
@@ -223,7 +231,7 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 			{
 				TextBlock_MissionDescription->SetText(DefendPreparationMissionText);
 			}
-			
+
 		}
 		else if (OwnerTeamID == 2)
 		{
@@ -248,10 +256,8 @@ void UHeroSelectionOverlay::ProcessPhaseRemainingTime(const FGameplayTag& PhaseT
 	// Game Phase - Post Match 
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_PostMatch)
 	{
-		RemoveFromParent(); 
+		RemoveFromParent();
 	}
-
-	bMissionDescriptionUpdated = true; 
 }
 
 void UHeroSelectionOverlay::NativeDestruct()

@@ -44,7 +44,6 @@ public:
 	virtual void SetIsBeingShocked_Implementation(bool bInShock) override; 
 	virtual bool IsBeingHealed_Implementation() const override;
 	virtual void SetIsBeingHealed_Implementation(bool bInHeal) override; 
-	virtual USkeletalMeshComponent* GetWeapon_Implementation() override; 
 
 	FOnASCRegistered OnASCRegistered; 
 	FOnDamageSignature OnDamage; 
@@ -68,13 +67,9 @@ public:
 	bool bIsStunned = false;
 
 protected:
-	virtual void PossessedBy(AController* NewController) override; 
 	virtual void UnPossessed() override; 
 	
 	void AddHeroAbilities(); 
-
-	UPROPERTY(EditAnywhere, Category="Combat")
-	TObjectPtr<USkeletalMeshComponent> Weapon; 
 
 	UPROPERTY()
 	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent;
@@ -113,9 +108,6 @@ protected:
 	{
 		return OldTeamId;
 	}
-
-	UFUNCTION()
-	void OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Combat")

@@ -90,7 +90,9 @@ private:
 
 	/* Game Phase*/
 	UFUNCTION(BlueprintCallable)
-	void ProcessPhaseRemainingTime(const FGameplayTag& PhaseTag, const float RemainingTime); 
+	void ProcessPhaseRemainingTime(const FGameplayTag& PhaseTag, const float RemainingTime);
+	void UpdateWidgetForCurrentPhase();
+
 
 	FText ConvertTimeText(float RemainingCountdownTime);
 

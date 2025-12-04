@@ -15,9 +15,9 @@
 #include "UI/Widget/Assault/AssaultScore.h"
 #include "Components/TextBlock.h"
 
-void UAssaultOverlay::NativeConstruct()
+void UAssaultOverlay::NativeOnInitialized()
 {
-	Super::NativeConstruct(); 
+	Super::NativeOnInitialized();
 
 	// Get Observe Team Async Action 
 	UAsyncAction_ObserveTeam* ObserveTeam = UAsyncAction_ObserveTeam::ObserveTeam(GetOwningPlayer()); 
@@ -46,10 +46,10 @@ void UAssaultOverlay::NativeConstruct()
 			// Bind Assault Point Registeration Delegate of Match Scoring Component 
 			MatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered);
 			// Call Callback Function to Function Properly 
-			for (AAssaultPoint* RegisterdAssaultPoint : MatchScoringComponent->AssaultPoints)
+			/*for (AAssaultPoint* RegisterdAssaultPoint : MatchScoringComponent->AssaultPoints)
 			{
 				OnAssaultPointRegistered(RegisterdAssaultPoint);
-			}
+			}*/
 		}
 	}
 

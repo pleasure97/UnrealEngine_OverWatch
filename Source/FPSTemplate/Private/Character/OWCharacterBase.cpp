@@ -21,17 +21,10 @@ AOWCharacterBase::AOWCharacterBase()
 	PrimaryActorTick.bCanEverTick = false;
 	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get();
 
-	// Weapon Component
-	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon"); 
-	Weapon->SetupAttachment(GetMesh(), FName("WeaponHandSocket")); 
-	Weapon->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
-
 	// Stun Debuff Component
 	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>(TEXT("StunDebuffComponent")); 
 	StunDebuffComponent->SetupAttachment(GetRootComponent()); 
 	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
-
-	//HealthPlateSourceComponent = CreateDefaultSubobject<UHealthPlateSourceComponent>("HealthPlateSourceComponent"); 
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
@@ -80,7 +73,7 @@ FOnDeath& AOWCharacterBase::GetOnDeathDelegate()
 
 void AOWCharacterBase::Die(const FVector& DeathImpulse)
 {
-	Weapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true)); 
+	// ThirdPersonWeapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true)); 
 	MulticastHandleDeath(DeathImpulse); 
 }
 
@@ -112,11 +105,6 @@ bool AOWCharacterBase::IsBeingHealed_Implementation() const
 void AOWCharacterBase::SetIsBeingHealed_Implementation(bool bInHeal)
 {
 	bIsBeingHealed = bInHeal; 
-}
-
-USkeletalMeshComponent* AOWCharacterBase::GetWeapon_Implementation()
-{
-	return Weapon;
 }
 
 void AOWCharacterBase::NotifyControllerChanged()
@@ -170,10 +158,10 @@ FOnTeamIndexChangedDelegate* AOWCharacterBase::GetOnTeamIndexChangedDelegate()
 void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	// Implement the Falling of the Weapon through Death 
-	Weapon->SetSimulatePhysics(true); 
-	Weapon->SetEnableGravity(true); 
-	Weapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); 
-	Weapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true); 
+	/*ThirdPersonWeapon->SetSimulatePhysics(true); 
+	ThirdPersonWeapon->SetEnableGravity(true); 
+	ThirdPersonWeapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); 
+	ThirdPersonWeapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true); */
 
 	// Implement the Death Motion 
 	GetMesh()->SetEnableGravity(true); 
@@ -187,23 +175,6 @@ void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathI
 
 	// TODO - May need to delete FOnDeath Delegate of Combat Interface 
 	OnDeath.Broadcast(this); 
-}
-
-void AOWCharacterBase::PossessedBy(AController* NewController)
-{
-	// Save Old Team ID 
-	const FGenericTeamId OldTeamID = MyTeamID;
-
-	Super::PossessedBy(NewController); 
-
-	// Cast New Controller to Team Interface 
-	// Set Team ID and Bind Team Changed Delegate
-	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(NewController))
-	{
-		MyTeamID = ControllerWithTeamInterface->GetGenericTeamId(); 
-		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacterBase::OnControllerChangedTeam); 
-		BroadcastTeamChanged(this, OldTeamID, MyTeamID);
-	}
 }
 
 void AOWCharacterBase::UnPossessed()
@@ -268,11 +239,3 @@ void AOWCharacterBase::UpdateTeamColor()
 		GetMesh()->SetCustomDepthStencilValue(TeamID);
 	}
 }
-
-void AOWCharacterBase::OnControllerChangedTeam(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
-{
-	const FGenericTeamId MyOldTeamID = MyTeamID; 
-	MyTeamID = IntegerToGenericTeamId(NewTeam); 
-	BroadcastTeamChanged(this, MyOldTeamID, MyTeamID); 
-}
-
