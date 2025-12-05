@@ -82,9 +82,6 @@ protected:
 
 private:
 	UPROPERTY()
-	TObjectPtr<UMatchScoringComponent> MatchScoringComponent;
-
-	UPROPERTY()
 	int32 OwnerTeamID = -1;
 
 	UPROPERTY()

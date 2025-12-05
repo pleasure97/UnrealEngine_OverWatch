@@ -41,15 +41,8 @@ void UAssaultOverlay::NativeOnInitialized()
 	{
 		if (UMatchScoringComponent* FoundMatchScoringComponent = GameState->FindComponentByClass<UMatchScoringComponent>())
 		{
-			// Save Match Scoring Component as Member Variable 
-			MatchScoringComponent = FoundMatchScoringComponent;
 			// Bind Assault Point Registeration Delegate of Match Scoring Component 
-			MatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered);
-			// Call Callback Function to Function Properly 
-			/*for (AAssaultPoint* RegisterdAssaultPoint : MatchScoringComponent->AssaultPoints)
-			{
-				OnAssaultPointRegistered(RegisterdAssaultPoint);
-			}*/
+			FoundMatchScoringComponent->OnAssaultPointRegistered.AddUObject(this, &UAssaultOverlay::OnAssaultPointRegistered);
 		}
 	}
 
@@ -146,17 +139,22 @@ void UAssaultOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 
 void UAssaultOverlay::NativeDestruct()
 {
-	if (MatchScoringComponent)
+	// Allow Assault Point to be Registered Only Once by Getting Match Scoring Component of Game State 
+	if (AGameStateBase* GameState = UGameplayStatics::GetGameState(GetWorld()))
 	{
-		// Iterate Match Scoring Component's Assault Points Array and Remove Related Bindings 
-		for (AAssaultPoint* AssaultPoint : MatchScoringComponent->AssaultPoints)
+		if (UMatchScoringComponent* FoundMatchScoringComponent = GameState->FindComponentByClass<UMatchScoringComponent>())
 		{
-			AssaultPoint->OnNumAttackersChanged.RemoveAll(this); 
-			AssaultPoint->OnNumDefendersChanged.RemoveAll(this);
-			AssaultPoint->OnOccupationProgressChanged.RemoveAll(this);
-			AssaultPoint->OnOccupationStateChanged.RemoveAll(this);
+			// Iterate Match Scoring Component's Assault Points Array and Remove Related Bindings 
+			for (AAssaultPoint* AssaultPoint : FoundMatchScoringComponent->AssaultPoints)
+			{
+				AssaultPoint->OnNumAttackersChanged.RemoveAll(this);
+				AssaultPoint->OnNumDefendersChanged.RemoveAll(this);
+				AssaultPoint->OnOccupationProgressChanged.RemoveAll(this);
+				AssaultPoint->OnOccupationStateChanged.RemoveAll(this);
+			}
 		}
 	}
+
 	// Remove the Async Action Observe Team Binding 
 	UAsyncAction_ObserveTeam* ObserveTeam = UAsyncAction_ObserveTeam::ObserveTeam(GetOwningPlayer());
 	if (ObserveTeam)

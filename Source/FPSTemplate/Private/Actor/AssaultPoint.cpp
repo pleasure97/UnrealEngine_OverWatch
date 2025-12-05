@@ -47,15 +47,6 @@ void AAssaultPoint::BeginPlay()
 	// Get Match Scoring Component of Game State in World and Register Assault Point to Match Scoring Component
 	if (UWorld* World = GetWorld())
 	{
-		if (AGameStateBase* GameState = UGameplayStatics::GetGameState(World))
-		{
-			MatchScoringComponent = GameState->GetComponentByClass<UMatchScoringComponent>();
-			if (MatchScoringComponent)
-			{
-				MatchScoringComponent->RegisterAssaultPoint(this);
-			}
-		}
-
 		if (UOWGamePhaseSubsystem* GamePhaseSubsystem = World->GetSubsystem<UOWGamePhaseSubsystem>())
 		{
 			// Connect to When First Team Offense Game Phase Starts
@@ -95,6 +86,18 @@ void AAssaultPoint::HandleFirstTeamOffensePhase(const FGameplayTag& PhaseTag, co
 {
 	bAssaultPointActive = true; 
 	MeasureWhenPhaseEnds(PhaseTag, PhaseDuration);
+
+	if (UWorld* World = GetWorld())
+	{
+		if (AGameStateBase* GameState = UGameplayStatics::GetGameState(World))
+		{
+			UMatchScoringComponent* MatchScoringComponent = GameState->GetComponentByClass<UMatchScoringComponent>();
+			if (MatchScoringComponent)
+			{
+				MatchScoringComponent->RegisterAssaultPoint(this);
+			}
+		}
+	}
 }
 
 void AAssaultPoint::HandleSwitchInningPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
@@ -166,20 +169,28 @@ void AAssaultPoint::SendAssaultScoreWhenPhaseEnds()
 void AAssaultPoint::Server_SendAssaultScore_Implementation(const FGameplayTag& CurrentGamePhaseTag, const float DecidedOccupationProgress)
 {
 	// Check if Match Scoring Component (Actor Component of Game State) is Valid 
-	if (IsValid(MatchScoringComponent))
+	if (UWorld* World = GetWorld())
 	{
-		// First Team Offense Game Phase - Team 1 Occupation Progress
-		if (CurrentGamePhaseTag == FOWGameplayTags::Get().GamePhase_MatchInProgress_FirstTeamOffense)
+		if (AGameStateBase* GameState = UGameplayStatics::GetGameState(World))
 		{
-			MatchScoringComponent->SetTeamOccupationProgress(1, DecidedOccupationProgress);
-		}
-		// Second Team Offense Game Phase - Team 2 Occupation Progress
-		else if (CurrentGamePhaseTag == FOWGameplayTags::Get().GamePhase_MatchInProgress_SecondTeamOffense)
-		{
-			MatchScoringComponent->SetTeamOccupationProgress(2, DecidedOccupationProgress);
-		}
+			UMatchScoringComponent* MatchScoringComponent = GameState->GetComponentByClass<UMatchScoringComponent>();
 
-		bAssaultPointActive = false;
+			if (IsValid(MatchScoringComponent))
+			{
+				// First Team Offense Game Phase - Team 1 Occupation Progress
+				if (CurrentGamePhaseTag == FOWGameplayTags::Get().GamePhase_MatchInProgress_FirstTeamOffense)
+				{
+					MatchScoringComponent->SetTeamOccupationProgress(1, DecidedOccupationProgress);
+				}
+				// Second Team Offense Game Phase - Team 2 Occupation Progress
+				else if (CurrentGamePhaseTag == FOWGameplayTags::Get().GamePhase_MatchInProgress_SecondTeamOffense)
+				{
+					MatchScoringComponent->SetTeamOccupationProgress(2, DecidedOccupationProgress);
+				}
+
+				bAssaultPointActive = false;
+			}
+		}
 	}
 }
 

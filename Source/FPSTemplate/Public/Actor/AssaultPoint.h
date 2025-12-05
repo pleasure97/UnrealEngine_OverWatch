@@ -113,10 +113,6 @@ private:
 
 	UPROPERTY()
 	TEnumAsByte<EOccupationState> LastOccupationState = EOccupationState::None;
-
-	UPROPERTY()
-	TObjectPtr<UMatchScoringComponent> MatchScoringComponent; 
-
 	FOWGamePhaseTagDelegate FirstTeamOffensePhaseDelegate; 
 	FOWGamePhaseTagDelegate SwitchInningPhaseDelegate; 
 	FOWGamePhaseTagDelegate SecondTeamOffensePhaseDelegate; 
