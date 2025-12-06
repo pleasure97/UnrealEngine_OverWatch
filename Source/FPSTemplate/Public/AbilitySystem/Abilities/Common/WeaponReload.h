@@ -18,10 +18,13 @@ class FPSTEMPLATE_API UWeaponReload : public UOWGameplayAbility
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UAnimMontage> ReloadMontage; 
+	TObjectPtr<UAnimMontage> FirstPersonMeshReloadMontage; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MontagePlayRate = 1.f; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ReloadTime = 1.f;
 
 	UFUNCTION(BlueprintCallable)
 	void ReloadBullets(); 

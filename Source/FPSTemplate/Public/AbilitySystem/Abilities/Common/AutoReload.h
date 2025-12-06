@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Abilities/GameplayAbility.h"
+#include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "AutoReload.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API UAutoReload : public UGameplayAbility
+class FPSTEMPLATE_API UAutoReload : public UOWGameplayAbility
 {
 	GENERATED_BODY()
 

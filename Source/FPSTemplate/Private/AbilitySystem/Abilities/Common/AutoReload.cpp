@@ -12,7 +12,7 @@ bool UAutoReload::CheckBulletsState()
 	if (CurrentActorInfo->AbilitySystemComponent.IsValid())
 	{
 		float NumCurrentBullets = CurrentActorInfo->AbilitySystemComponent->GetNumericAttribute(UOWAttributeSet::GetNumCurrentBulletsAttribute());
-		return NumCurrentBullets <= 0.f;
+		return FMath::IsNearlyEqual(NumCurrentBullets, 0.f);
 	}
 
 	return false;
