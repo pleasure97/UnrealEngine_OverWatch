@@ -37,6 +37,8 @@ protected:
 	virtual void NativeDestruct() override; 
 
 private:
+	void UpdateTeamMember(); 
+
 	UFUNCTION()
 	void HandleNewPlayerState(APlayerState* PlayerState);
 
@@ -47,12 +49,15 @@ private:
 	void OnTeamMemberHeroChanged(AOWPlayerState* OWPlayerState, EHeroName HeroName);
 
 	UFUNCTION()
-	void OnClientTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID);
+	void OnTeamChanged(UObject* ObjectChangingTeam, int32 OldTeamID, int32 NewTeamID);
 
-	void SortTeamMemberInfoArray(TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>>& TeamMemberInfoArray); 
+	UFUNCTION()
+	void OnOwningPlayerStateChanged(APlayerState* NewPlayerState);
+
+	void UpdateTeamMemberWidget(TMap<AOWPlayerState*, UTeamMemberInfo*>& TeamMemberInfoMap);
 
 	int32 MyTeamID = -1; 
 
-	TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>> Team1MemberInfoArray; 
-	TArray<TPair<AOWPlayerState*, UTeamMemberInfo*>> Team2MemberInfoArray; 
+	TMap<AOWPlayerState*, UTeamMemberInfo*> Team1MemberInfoMap; 
+	TMap<AOWPlayerState*, UTeamMemberInfo*> Team2MemberInfoMap; 
 };
