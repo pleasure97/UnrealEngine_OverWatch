@@ -11,14 +11,6 @@ UCameraTransitionComponent::UCameraTransitionComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
 
-    // Create subobjects
-    FirstPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("FirstPersonSpringArm")); 
-    FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-    FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh")); 
-
-    ThirdPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("ThirdPersonSpringArm"));
-    ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
-
     FPtoTPCameraTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("FPtoTPCameraTimeline;"));
     TPtoFPCameraTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TPtoFPCameraTimeline"));
 

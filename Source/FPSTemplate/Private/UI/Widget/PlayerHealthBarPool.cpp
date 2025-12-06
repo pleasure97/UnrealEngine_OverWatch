@@ -11,9 +11,9 @@
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "AbilitySystem/OWAttributeSet.h"
 
-void UPlayerHealthBarPool::NativeConstruct()
+void UPlayerHealthBarPool::NativePreConstruct()
 {
-	Super::NativeConstruct();
+	Super::NativePreConstruct(); 
 
 	ClearHealthBarPool();
 
@@ -77,21 +77,6 @@ void UPlayerHealthBarPool::InitializeHealthBarPoolInfos()
 	HealthBarInfos.Add(FPlayerHealthBarPoolInfo(Border_TempShield, HorizontalBox_TempShield, HealthBarColors[FName("Blue")]));
 }
 
-void UPlayerHealthBarPool::SetPlayerState(AOWPlayerState* NewOWPlayerState)
-{
-	if ((OWPlayerState == nullptr) && (NewOWPlayerState != nullptr))
-	{
-		OWPlayerState = NewOWPlayerState;
-
-		BindDefensiveAttributeChange(NewOWPlayerState);
-	}
-}
-
-void UPlayerHealthBarPool::SetAbilitySystemComponent(UOWAbilitySystemComponent* NewAbilitySystemComponent)
-{
-	BindDefensiveAttributeChangeWithASC(NewAbilitySystemComponent); 
-}
-
 void UPlayerHealthBarPool::SetIsEnemy(bool bEnemy)
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
@@ -128,7 +113,7 @@ void UPlayerHealthBarPool::BindDefensiveAttributeChange(AOWPlayerState* NewOWPla
 	if (IsValid(NewOWPlayerState))
 	{
 		// Get Ability System Component from Custom Player State and Cast it to Custom Ability System Component
-		if (UOWAbilitySystemComponent* InAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent()))
+		if (UOWAbilitySystemComponent* InAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(NewOWPlayerState->GetAbilitySystemComponent()))
 		{
 			// Assign Owner Ability System Component Member Variable 
 			OwnerAbilitySystemComponent = InAbilitySystemComponent;
@@ -162,7 +147,7 @@ void UPlayerHealthBarPool::BindDefensiveAttributeChange(AOWPlayerState* NewOWPla
 	}
 }
 
-void UPlayerHealthBarPool::BindDefensiveAttributeChangeWithASC(UOWAbilitySystemComponent* NewAbilitySystemComponent)
+void UPlayerHealthBarPool::BindDefensiveAttributeChange(UOWAbilitySystemComponent* NewAbilitySystemComponent)
 {
 	// Check if Ability System Component is Valid 
 	if (IsValid(NewAbilitySystemComponent))
@@ -224,14 +209,17 @@ void UPlayerHealthBarPool::InitializeProgressBars(const float& NewValue, const F
 	SlateChildSize.SizeRule = ESlateSizeRule::Fill;
 
 	// Create the health bars and fill them in the horizontal box. 
-	for (int i = 0; i < NumHealthBars; ++i)
+	if (UWorld* World = GetWorld())
 	{
-		UHealthBar* HealthBar = CreateWidget<UHealthBar>(this, HealthBarClass);
-
-		UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
-		if (HorizontalBoxSlot)
+		for (int i = 0; i < NumHealthBars; ++i)
 		{
-			HorizontalBoxSlot->SetSize(SlateChildSize);
+			UHealthBar* HealthBar = CreateWidget<UHealthBar>(World, HealthBarClass);
+
+			UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox->AddChildToHorizontalBox(HealthBar);
+			if (HorizontalBoxSlot)
+			{
+				HorizontalBoxSlot->SetSize(SlateChildSize);
+			}
 		}
 	}
 }
@@ -418,6 +406,12 @@ void UPlayerHealthBarPool::DistributeFillSize()
 		}
 	}
 
+	// Check if Number of Child Widget is 0, then Early Return 
+	if (NumAllChildren == 0)
+	{
+		return;
+	}
+
 	FSlateChildSize ChildSize;
 	ChildSize.SizeRule = ESlateSizeRule::Fill;
 
@@ -470,6 +464,4 @@ void UPlayerHealthBarPool::ClearHealthBarPool()
 		HorizontalBox_OverHealth->ClearChildren();
 	}
 }
-
-
 

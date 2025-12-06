@@ -85,7 +85,7 @@ AActor* UPlayerSpawningManagerComponent::OnChoosePlayerStart(AController* Player
 	if (!ensure(TeamSubsystem)) { return nullptr; }
 
 	const int32 PlayerTeamID = TeamSubsystem->FindTeamFromObject(Player);
-	if (!ensure(PlayerTeamID != INDEX_NONE)) 
+	if (PlayerTeamID == INDEX_NONE) 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Controller=%s, PlayerState=%s, TeamID=%d"),
 			*Player->GetName(),

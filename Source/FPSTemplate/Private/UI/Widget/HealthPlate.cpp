@@ -22,26 +22,23 @@ void UHealthPlate::NativeDestruct()
 
 void UHealthPlate::SetPlayerState(AOWPlayerState* InOWPlayerState)
 {
-	if ((OWPlayerState == nullptr) && (InOWPlayerState != nullptr))
+	OWPlayerState = InOWPlayerState;
+
+	// Set Player State of Player Health Bar Pool 
+	if (WBP_PlayerHealthBarPool)
 	{
-		OWPlayerState = InOWPlayerState;
+		WBP_PlayerHealthBarPool->BindDefensiveAttributeChange(OWPlayerState);
+	}
 
-		// Set Player State of Player Health Bar Pool 
-		if (WBP_PlayerHealthBarPool)
+	// Bind Team Changed Delegate of Player State 
+	OWPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UHealthPlate::OnTeamChanged);
+	if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
+	{
+		// If Team ID is already set, then Call OnTeamChanged()
+		int32 TeamID = TeamSubsystem->FindTeamFromObject(OWPlayerState);
+		if (TeamID == 1 || TeamID == 2)
 		{
-			WBP_PlayerHealthBarPool->SetPlayerState(OWPlayerState);
-		}
-
-		// Bind Team Changed Delegate of Player State 
-		OWPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UHealthPlate::OnTeamChanged);
-		if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
-		{
-			// If Team ID is already set, then Call OnTeamChanged()
-			int32 TeamID = TeamSubsystem->FindTeamFromObject(OWPlayerState);
-			if (TeamID == 1 || TeamID == 2)
-			{
-				OnTeamChanged(OWPlayerState, -1, TeamID);
-			}
+			OnTeamChanged(OWPlayerState, -1, TeamID);
 		}
 	}
 }
@@ -53,7 +50,7 @@ void UHealthPlate::SetAbilitySystemComponent(UOWAbilitySystemComponent* InOWAbil
 		// Set Player State of Player Health Bar Pool 
 		if (WBP_PlayerHealthBarPool)
 		{
-			WBP_PlayerHealthBarPool->SetAbilitySystemComponent(InOWAbilitySystemComponent); 
+			WBP_PlayerHealthBarPool->BindDefensiveAttributeChange(InOWAbilitySystemComponent); 
 		}
 	}
 }

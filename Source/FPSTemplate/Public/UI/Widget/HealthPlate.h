@@ -62,4 +62,6 @@ private:
 	void UpdatePlayerHealthBarPool(bool bAlly);
 
 	int32 OwnerTeamID = -1; 
+
+	TArray<APawn*> EnemyPawnArray;
 };

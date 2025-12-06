@@ -106,11 +106,9 @@ public:
 	UPROPERTY()
 	TArray<FPlayerHealthBarPoolInfo> HealthBarInfos;
 
-	UFUNCTION()
 	void BindDefensiveAttributeChange(AOWPlayerState* NewPlayerState);
 
-	UFUNCTION()
-	void BindDefensiveAttributeChangeWithASC(UOWAbilitySystemComponent* NewAbilitySystemComponent);
+	void BindDefensiveAttributeChange(UOWAbilitySystemComponent* NewAbilitySystemComponent);
 
 	/* Update Attributes */
 	UFUNCTION()
@@ -145,16 +143,10 @@ public:
 
 	/* End Update Attributes */
 
-	UFUNCTION(BlueprintCallable)
-	void SetPlayerState(AOWPlayerState* NewOWPlayerState); 
-
-	UFUNCTION(BlueprintCallable)
-	void SetAbilitySystemComponent(UOWAbilitySystemComponent* NewAbilitySystemComponent);
-
 	void SetIsEnemy(bool InbEnemy); 
 
 protected:
-	virtual void NativeConstruct() override;
+	virtual void NativePreConstruct() override;
 	virtual void NativeDestruct() override;
 	void InitializeHealthBarPoolInfos();
 

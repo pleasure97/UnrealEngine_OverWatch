@@ -194,7 +194,6 @@ private:
 	UFUNCTION()
 	void PrepareNextGamePhase(); 
 
-	FTimerHandle DelayTimerHandle; 
 	FTimerHandle CountdownTimerHandle; 
 	FTimerHandle GameplayEffectTimerHandle; 
 

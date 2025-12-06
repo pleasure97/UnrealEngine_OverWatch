@@ -44,17 +44,7 @@ void UMatchScoringComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Delay BeginPlay() Until Player States are Properly Initialized
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(DelayTimerHandle); 
-		World->GetTimerManager().SetTimer(
-			DelayTimerHandle,
-			this,
-			&UMatchScoringComponent::ConnectToGamePhase,
-			3.f,
-			false);
-	}
+	ConnectToGamePhase(); 
 }
 
 void UMatchScoringComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -63,7 +53,6 @@ void UMatchScoringComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	// TODO - Delete Delay Timer Handle and Make sure the Loading Screen is Visible until the Game is Set Up
 	if (UWorld* World = GetWorld())
 	{
-		World->GetTimerManager().ClearTimer(DelayTimerHandle); 
 		World->GetTimerManager().ClearTimer(CountdownTimerHandle); 
 		World->GetTimerManager().ClearTimer(GameplayEffectTimerHandle);
 	}
@@ -263,11 +252,6 @@ void UMatchScoringComponent::OnRep_WinningTeamID()
 
 void UMatchScoringComponent::ConnectToGamePhase()
 {
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().ClearTimer(DelayTimerHandle);
-	}
-
 	if (UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>())
 	{
 		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
