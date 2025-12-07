@@ -14,7 +14,10 @@ class FPSTEMPLATE_API UCharge : public UOWDamageGameplayAbility
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ChargeSpeed = 1200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ChargeDuration = 3.f;
 };
