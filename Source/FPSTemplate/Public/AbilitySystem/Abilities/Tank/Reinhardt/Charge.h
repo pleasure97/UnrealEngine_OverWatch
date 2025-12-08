@@ -18,6 +18,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float ChargeSpeed = 1200.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float ChargeDuration = 3.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ChargeInterval = 0.1f;
 };
