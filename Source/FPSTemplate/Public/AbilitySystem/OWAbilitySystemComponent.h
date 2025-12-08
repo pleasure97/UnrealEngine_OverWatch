@@ -39,8 +39,8 @@ public:
 	virtual void InitAbilityActorInfo(AActor* InOwnerActor, AActor* InAvatarActor) override; 
 	void AbilityActorInfoSet(); 
 	void AddHeroAbilities(); 
-
-	bool bDefaultAbilitiesGiven = false;
+	void AddToDefaultAttributeHandles(FActiveGameplayEffectHandle DefaultAttributeHandle);
+	void RemoveDefaultAttributes(); 
 
 	/* Ability Input Tag */
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);
@@ -72,8 +72,16 @@ protected:
 	UFUNCTION(Client, Reliable)
 	void ClientEffectApplied(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle); 
 
+	/* Ability Activated on Given */
+	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
 	virtual void OnRep_ActivateAbilities() override;
 
 	UFUNCTION(Client, Reliable)
 	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
+
+private:
+	UPROPERTY()
+	TArray<FActiveGameplayEffectHandle> DefaultAttributeHandles; 
+
+	void HandleAutoActivatedAbility(const FGameplayAbilitySpec& AbilitySpec);
 };

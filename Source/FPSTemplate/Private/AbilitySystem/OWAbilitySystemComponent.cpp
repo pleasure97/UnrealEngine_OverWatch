@@ -8,6 +8,7 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/OWGlobalAbilitySystem.h"
+#include "Player/OWPlayerState.h"
 
 bool UOWAbilitySystemComponent::BatchRPCTryActivateAbility(FGameplayAbilitySpecHandle InAbilityHandle, bool bEndAbilityImmediately)
 {
@@ -111,7 +112,7 @@ void UOWAbilitySystemComponent::AbilityActorInfoSet()
 void UOWAbilitySystemComponent::AddHeroAbilities()
 {
     UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this); 
-    EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(this); 
+    EHeroName HeroName = Cast<AOWPlayerState>(GetOwner())->GetHeroName(); 
     const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
     // Add Common Abilities
@@ -127,20 +128,40 @@ void UOWAbilitySystemComponent::AddHeroAbilities()
     }
 
     // Add Hero's Unique Abilities 
-    const TArray<FOWAbilityInfo>& UniqueAbilities = HeroInfo->HeroInformation[HeroName].Abilities; 
-    for (const FOWAbilityInfo& UniqueAbility : UniqueAbilities)
+    if (HeroInfo && (HeroName != EHeroName::None))
     {
-        const TSubclassOf<UGameplayAbility>& UniqueAbilityClass = UniqueAbility.Ability;
-        FGameplayAbilitySpec UniqueAbilitySpec = FGameplayAbilitySpec(UniqueAbilityClass, 1 /*int32 InLevel*/);
-        if (const UOWGameplayAbility* UniqueGameplayAbility = Cast<UOWGameplayAbility>(UniqueAbilitySpec.Ability))
+        const TArray<FOWAbilityInfo>& UniqueAbilities = HeroInfo->HeroInformation[HeroName].Abilities;
+        for (const FOWAbilityInfo& UniqueAbility : UniqueAbilities)
         {
-            UniqueAbilitySpec.DynamicAbilityTags.AddTag(UniqueGameplayAbility->DefaultInputTag);
-            UniqueAbilitySpec.DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
-            GiveAbility(UniqueAbilitySpec);
+            const TSubclassOf<UGameplayAbility>& UniqueAbilityClass = UniqueAbility.Ability;
+            FGameplayAbilitySpec UniqueAbilitySpec = FGameplayAbilitySpec(UniqueAbilityClass, 1 /*int32 InLevel*/);
+            if (const UOWGameplayAbility* UniqueGameplayAbility = Cast<UOWGameplayAbility>(UniqueAbilitySpec.Ability))
+            {
+                UniqueAbilitySpec.DynamicAbilityTags.AddTag(UniqueGameplayAbility->DefaultInputTag);
+                UniqueAbilitySpec.DynamicAbilityTags.AddTag(GameplayTags.Abilities_Status_Equipped);
+                GiveAbility(UniqueAbilitySpec);
+            }
         }
     }
-    bDefaultAbilitiesGiven = true; 
-    AbilitiesGivenDelegate.Broadcast(); 
+
+    AbilitiesGivenDelegate.Broadcast();
+}
+
+void UOWAbilitySystemComponent::AddToDefaultAttributeHandles(FActiveGameplayEffectHandle DefaultAttributeHandle)
+{
+    DefaultAttributeHandles.Add(DefaultAttributeHandle); 
+}
+
+void UOWAbilitySystemComponent::RemoveDefaultAttributes()
+{
+    for (const FActiveGameplayEffectHandle& DefaultAttributeHandle : DefaultAttributeHandles)
+    {
+        if (DefaultAttributeHandle.IsValid())
+        {
+            RemoveActiveGameplayEffect(DefaultAttributeHandle); 
+        }
+    }
+    DefaultAttributeHandles.Empty(); 
 }
 
 void UOWAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
@@ -348,14 +369,40 @@ void UOWAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc S
     }
 }
 
+void UOWAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+    Super::OnGiveAbility(AbilitySpec);
+
+    HandleAutoActivatedAbility(AbilitySpec);
+}
+
 void UOWAbilitySystemComponent::OnRep_ActivateAbilities()
 {
     Super::OnRep_ActivateAbilities(); 
 
-    if (!bDefaultAbilitiesGiven)
+    // Lock Scoped Ability List, Iterate Activate Abilities, and Handle Auto Activated Ability 
+    FScopedAbilityListLock ActiveScopeLock(*this);
+    for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
     {
-        bDefaultAbilitiesGiven = true; 
-        AbilitiesGivenDelegate.Broadcast(); 
+        HandleAutoActivatedAbility(AbilitySpec);
+    }
+}
+
+void UOWAbilitySystemComponent::HandleAutoActivatedAbility(const FGameplayAbilitySpec& AbilitySpec)
+{
+    // Check if Related Ability is Valid 
+    if (IsValid(AbilitySpec.Ability))
+    {
+        // Iterate Ability Tags of Related Ability 
+        for (const FGameplayTag& Tag : AbilitySpec.Ability->AbilityTags)
+        {
+            // Try Activate Ability which Has 'Abilities_ActivateOnGiven'
+            if (Tag.MatchesTagExact(FOWGameplayTags::Get().Abilities_ActivateOnGiven))
+            {
+                TryActivateAbility(AbilitySpec.Handle);
+                return;
+            }
+        }
     }
 }
 

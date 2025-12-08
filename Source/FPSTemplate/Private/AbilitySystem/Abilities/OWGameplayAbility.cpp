@@ -117,7 +117,7 @@ void UOWGameplayAbility::InitializeAbilityStacking(const FGameplayAbilityActorIn
             new FGameplayEffectSpec(StackChangeGameplayEffect, FGameplayEffectContextHandle(StackGameplayEffectContextHandle), 1.f)); 
 
     // Apply Stack Gameplay Effect Spec to Owner 
-    if (UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo())
+    if (UAbilitySystemComponent* ASC = ActorInfo->AbilitySystemComponent.Get())
     {
         ASC->ApplyGameplayEffectSpecToSelf(*StackGameplayEffectSpecHandle.Data.Get()); 
     }

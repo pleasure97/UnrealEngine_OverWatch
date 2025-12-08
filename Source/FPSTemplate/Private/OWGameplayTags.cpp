@@ -258,6 +258,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Cost.Illiari.HealingRay"),
 		FString("Cost of HealingRay"));
 
+	/* Activate On Given Ability */
+	GameplayTags.Abilities_ActivateOnGiven = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.ActivateOnGiven"),
+		FString("Ability which is Activated on Given"));
+
 	/* Common Abilities */
 	GameplayTags.Abilities_Reload = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Reload"),
@@ -326,9 +331,9 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Knockback"),
 		FString("Debuff Knockback"));
 
-	GameplayTags.Debuff_ForcedMovement = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Debuff.ForcedMovement"),
-		FString("Debuff ForcedMovement"));
+	GameplayTags.Debuff_Suppression = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Suppression"),
+		FString("Debuff Suppression"));
 
 	GameplayTags.Debuff_Laceration = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Laceration"),

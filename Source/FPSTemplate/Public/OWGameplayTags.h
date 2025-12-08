@@ -100,6 +100,9 @@ public:
 	FGameplayTag Cost_Illiari_SolarRifle; 
 	FGameplayTag Cost_Illiari_HealingRay; 
 
+	/* Activate On Given Ability */
+	FGameplayTag Abilities_ActivateOnGiven;
+
 	/* Common Abilities */
 	FGameplayTag Abilities_Reload; 
 	FGameplayTag Abilities_IgnoreDeath; 
@@ -124,7 +127,7 @@ public:
 
 	FGameplayTag Debuff_Stun;
 	FGameplayTag Debuff_Knockback;
-	FGameplayTag Debuff_ForcedMovement;
+	FGameplayTag Debuff_Suppression;
 	FGameplayTag Debuff_Laceration; 
 
 	/* Gameplay Cue */
