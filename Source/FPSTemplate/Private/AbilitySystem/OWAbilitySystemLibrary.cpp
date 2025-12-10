@@ -4,11 +4,11 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystem/Abilities/OWGameplayAbility.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "AbilitySystem/OWAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/OWHUD.h"
 #include "Player/OWPlayerState.h"
 #include "UI/WidgetController/OWWidgetController.h"
-#include "AbilitySystemComponent.h"
 #include "Game/OWGameModeBase.h"
 #include "OWGameplayTags.h"
 #include "OWAbilityTypes.h"
@@ -16,7 +16,7 @@
 #include "Engine/OverlapResult.h"
 #include "Interface/CombatInterface.h"
 #include "Game/OWGameState.h"
-#include "Engine/OverlapResult.h"
+#include "Game/OpenWorldGameState.h"
 #include "Interface/InteractInterface.h"
 
 /* Gameplay Abilities */
@@ -125,8 +125,26 @@ void UOWAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldCo
 		FActiveGameplayEffectHandle ActiveCommonGameplayEffectHandle = ASC->ApplyGameplayEffectSpecToSelf(*CommonAttributeSpecHandle.Data.Get());
 		ASC->AddToDefaultAttributeHandles(ActiveCommonGameplayEffectHandle);
 	}
+}
 
-	ASC->SetDefaultAttributesGiven(true); 
+void UOWAbilitySystemLibrary::ResetAttributes(const UObject* WorldContextObject, EHeroName HeroName, UOWAbilitySystemComponent* ASC, float Level)
+{
+	// Get Avatar Actor
+	AActor* AvatarActor = ASC->GetAvatarActor();
+
+	// Get Hero Info Data Asset
+	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject);
+
+	// Make Gaemplay Effect Context - Reset Attributes
+	FGameplayEffectContextHandle ResetAttributesContextHandle = ASC->MakeEffectContext();
+	// Set Gameplay Effect Context's Source Object to Avatar Actor
+	ResetAttributesContextHandle.AddSourceObject(AvatarActor);
+	// Make Gameplay Effect Spec - Vital Attributes 
+	const FGameplayEffectSpecHandle ResetAttributesSpecHandle = ASC->MakeOutgoingSpec(
+		HeroInfo->HeroInformation[HeroName].ResetAttributes, Level, ResetAttributesContextHandle);
+	// Apply Gameplay Effect Spec to Self
+	ASC->ApplyGameplayEffectSpecToSelf(*ResetAttributesSpecHandle.Data.Get());
+
 }
 
 void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC)
@@ -143,12 +161,18 @@ void UOWAbilitySystemLibrary::GiveDefaultAbilities(const UObject* WorldContextOb
 
 UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObject)
 {
-	const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject)); 
-	if (OWGameState == nullptr)
+	if (const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject)))
+	{
+		return OWGameState->HeroInfo;
+	}
+	else if (const AOpenWorldGameState* OpenWorldGameState = Cast<AOpenWorldGameState>(UGameplayStatics::GetGameState(WorldContextObject)))
+	{
+		return OpenWorldGameState->HeroInfo; 
+	}
+	else
 	{
 		return nullptr; 
 	}
-	return OWGameState->HeroInfo;
 }
 
 EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject)
@@ -517,4 +541,35 @@ void UOWAbilitySystemLibrary::AddInteractableActorsFromOverlapResults(const TArr
 			OutInteractableActors.AddUnique(InteractableComponent); 
 		}
 	}
+}
+
+void UOWAbilitySystemLibrary::AddInteractableActorsFromHitResult(const FHitResult& HitResult, TArray<TScriptInterface<IInteractInterface>>& OutInteractableActors)
+{
+	TScriptInterface<IInteractInterface> InteractableActor(HitResult.GetActor());
+	if (InteractableActor)
+	{
+		OutInteractableActors.AddUnique(InteractableActor);
+	}
+}
+
+AActor* UOWAbilitySystemLibrary::GetActorFromInteractableAgent(TScriptInterface<IInteractInterface> InteractableAgent)
+{
+	if (UObject* InteractableObject = InteractableAgent.GetObject())
+	{
+		if (AActor* InteractableActor = Cast<AActor>(InteractableObject))
+		{
+			return InteractableActor;
+		}
+		else if (UActorComponent* InteractableActorComponent = Cast<UActorComponent>(InteractableObject))
+		{
+			return InteractableActorComponent->GetOwner();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Type of Interactable Object is Neither Actor nor Actor Component")); 
+			return nullptr; 
+		}
+	}
+
+	return nullptr;
 }

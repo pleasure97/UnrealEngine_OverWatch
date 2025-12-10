@@ -95,70 +95,82 @@ void AOWCharacter::BeginPlay()
 		}
 	}
 
-	InitializeHealthPlate();
-
 	InitializeOverlay();
+
+	// Delay 1 seconds 
+	FTimerHandle TimerHandle;
+	float DelayTime = 1.5f;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			InitializeHealthPlate();
+			GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+		}), DelayTime, false);
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController); 
 
-	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
-	{
-		OWPlayerState->OnRep_HeroName(); 
-	}
-
 	if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(NewController))
 	{
 		MyTeamID = ControllerWithTeamInterface->GetGenericTeamId();
-		ControllerWithTeamInterface->GetTeamChangedDelegate().AddDynamic(this, &AOWCharacter::OnTeamChanged);
-	}
-
-	OnRep_PlayerState(); 
-}
-
-void AOWCharacter::UnPossessed()
-{
-	Super::UnPossessed();
-
-	/*if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		if (ITeamInterface* ControllerWithTeamInterface = Cast<ITeamInterface>(PC))
+		if (!ControllerWithTeamInterface->GetTeamChangedDelegate().IsBound())
 		{
-			MyTeamID = ControllerWithTeamInterface->GetGenericTeamId();
-			ControllerWithTeamInterface->GetTeamChangedDelegate().RemoveAll(this);
+			ControllerWithTeamInterface->GetTeamChangedDelegate().AddUniqueDynamic(this, &AOWCharacter::OnTeamChanged);
 		}
 	}
-	
+
 	if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
 	{
-		if (UAbilitySystemComponent* PlayerStateASC = OWPlayerState->GetAbilitySystemComponent())
-		{
-			PlayerStateASC->ClearActorInfo(); 
-		}
-		OWPlayerState->SetHeroName(EHeroName::None); 
+		OWPlayerState->OnRep_HeroName();
 	}
 
-	if (AttributeSet)
+	if (IsValid(GetAbilitySystemComponent()) && HasAuthority())
 	{
-		AttributeSet->OnDeath.RemoveAll(this); 
-	}
-
-	if (IsValid(AbilitySystemComponent))
-	{
-		AbilitySystemComponent->RegisterGameplayTagEvent(FOWGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).RemoveAll(this); 
-
-		if (HasAuthority())
+		if (!bPossessed)
 		{
-			UOWAbilitySystemComponent* OWAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(AbilitySystemComponent); 
-			if (OWAbilitySystemComponent && OWAbilitySystemComponent->bDefaultAbilitiesGiven)
-			{
-				OWAbilitySystemComponent->ClearAllAbilities(); 
-				OWAbilitySystemComponent->bDefaultAbilitiesGiven = false;
-			}
+			InitAbilityActorInfo();
+
+			AddHeroAbilities();
+
+			InitializeDefaultAttributes();
+
+			bPossessed = true;
 		}
-	}*/
+	}
+}
+
+void AOWCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (IsValid(GetAbilitySystemComponent()))
+	{
+		InitAbilityActorInfo();
+	}
+}
+
+UAbilitySystemComponent* AOWCharacter::GetAbilitySystemComponent() const
+{
+	AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState());
+	if (IsValid(OWPlayerState))
+	{
+		return OWPlayerState->GetAbilitySystemComponent();
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+UOWAttributeSet* AOWCharacter::GetAttributeSet() const
+{
+	AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState());
+	if (IsValid(OWPlayerState))
+	{
+		return Cast<UOWAttributeSet>(OWPlayerState->GetAttributeSet());
+	}
+	return nullptr;
 }
 
 void AOWCharacter::InitializeDefaultAttributes() const
@@ -166,7 +178,7 @@ void AOWCharacter::InitializeDefaultAttributes() const
 	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState()))
 	{
 		EHeroName HeroName = OWPlayerState->GetHeroName(); 
-		UAbilitySystemComponent* ASC = GetAbilitySystemComponent(); 
+		UOWAbilitySystemComponent* ASC = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponent()); 
 
 		if ((HeroName != EHeroName::None) && IsValid(ASC))
 		{
@@ -175,19 +187,17 @@ void AOWCharacter::InitializeDefaultAttributes() const
 	}
 }
 
-void AOWCharacter::OnRep_PlayerState()
+void AOWCharacter::ResetAttributes() const
 {
-	Super::OnRep_PlayerState(); 
-
-	if (!bPossessed)
+	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState()))
 	{
-		InitAbilityActorInfo();
+		EHeroName HeroName = OWPlayerState->GetHeroName();
+		UOWAbilitySystemComponent* ASC = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponent());
 
-		AddHeroAbilities();
-
-		InitializeDefaultAttributes();
-
-		bPossessed = true; 
+		if ((HeroName != EHeroName::None) && IsValid(ASC))
+		{
+			UOWAbilitySystemLibrary::ResetAttributes(this, HeroName, ASC);
+		}
 	}
 }
 
@@ -200,12 +210,12 @@ void AOWCharacter::InitializeOverlay()
 		if (AOWPlayerState* OWPlayerState = OWPlayerController->GetPlayerState<AOWPlayerState>())
 		{
 			// Check if Ability System Component and Attribute Set are Valid 
-			if (IsValid(AbilitySystemComponent) && IsValid(AttributeSet))
+			if (IsValid(GetAbilitySystemComponent()) && IsValid(GetAttributeSet()))
 			{
 				// Get HUD from Custom Player Controller and Pass Related Values 
 				if (AOWHUD* OWHUD = Cast<AOWHUD>(OWPlayerController->GetHUD()))
 				{
-					OWHUD->InitOverlay(OWPlayerController, OWPlayerState, AbilitySystemComponent, AttributeSet);
+					OWHUD->InitOverlay(OWPlayerController, OWPlayerState, GetAbilitySystemComponent(), GetAttributeSet());
 				}
 			}
 		}
@@ -318,23 +328,29 @@ void AOWCharacter::Die(const FVector& DeathImpulse)
 {
 	Super::Die(DeathImpulse); 
 
+	SwitchCameraWhenDying();
+}
+
+void AOWCharacter::SwitchCameraWhenDying_Implementation()
+{
+	if (CameraTransitionComponent)
+	{
+		CameraTransitionComponent->ActiveThirdPersonCamera();
+	}
+
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		PC->SetViewTargetWithBlend(this, 0.0f);
+	}
+
 	if (FirstPersonMesh)
 	{
-		FirstPersonMesh->bOnlyOwnerSee = false;
-		FirstPersonMesh->bOwnerNoSee = true;
-		FirstPersonMesh->MarkRenderStateDirty(); 
+		FirstPersonMesh->SetVisibility(false, true);
 	}
 
 	if (GetMesh())
 	{
-		GetMesh()->bOnlyOwnerSee = false;
-		GetMesh()->bOwnerNoSee = false;
-		GetMesh()->MarkRenderStateDirty();
-	}
-
-	if (CameraTransitionComponent)
-	{
-		CameraTransitionComponent->ActiveThirdPersonCamera();
+		GetMesh()->SetVisibility(true, true);
 	}
 }
 
@@ -389,10 +405,7 @@ void AOWCharacter::InitAbilityActorInfo()
 	OWPlayerStateASC->InitAbilityActorInfo(OWPlayerState, this); 
 	OWPlayerStateASC->AbilityActorInfoSet(); 
 
-	AbilitySystemComponent = OWPlayerStateASC;
-
-	AttributeSet = Cast<UOWAttributeSet>(OWPlayerState->GetAttributeSet()); 
-	check(AttributeSet);
+	UOWAttributeSet* AttributeSet = GetAttributeSet();
 	if (AttributeSet)
 	{
 		AttributeSet->OnDeath.AddUObject(this, &AOWCharacter::HandleDeath); 
@@ -402,18 +415,9 @@ void AOWCharacter::InitAbilityActorInfo()
 		UE_LOG(LogTemp, Error, TEXT("Attribute Set is not initialized properly in AOWCharacter::InitAbilityActorInfo()"));
 	}
 
-	OnASCRegistered.Broadcast(AbilitySystemComponent); 
-	AbilitySystemComponent->RegisterGameplayTagEvent(
+	OnASCRegistered.Broadcast(OWPlayerStateASC);
+	OWPlayerStateASC->RegisterGameplayTagEvent(
 		FOWGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AOWCharacter::StunTagChanged); 
-}
-
-void AOWCharacter::Reset()
-{
-	DisableMovementAndCollision(); 
-
-	K2_OnReset(); 
-
-	UninitAndDestroy(); 
 }
 
 void AOWCharacter::DisableMovementAndCollision()
@@ -427,6 +431,7 @@ void AOWCharacter::DisableMovementAndCollision()
 	check(CharacterCapsule);
 
 	CharacterCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CollisionResponseContainer = CharacterCapsule->GetCollisionResponseToChannels(); 
 	CharacterCapsule->SetCollisionResponseToChannels(ECR_Ignore);
 
 	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
@@ -437,23 +442,45 @@ void AOWCharacter::DisableMovementAndCollision()
 	}
 }
 
-void AOWCharacter::UninitAndDestroy()
+void AOWCharacter::Revive()
 {
-	if (GetLocalRole() == ROLE_Authority)
+	EnableMovementAndCollision();
+
+	bDead = false; 
+}
+
+void AOWCharacter::EnableMovementAndCollision()
+{
+	if (Controller)
 	{
-		DetachFromControllerPendingDestroy(); 
-		SetLifeSpan(0.1f); 
+		Controller->SetIgnoreMoveInput(false);
 	}
 
-	// TODO - Uninitialize Ability System
+	UCapsuleComponent* CharacterCapsule = GetCapsuleComponent();
+	check(CharacterCapsule);
 
-	SetActorHiddenInGame(true); 
+	CharacterCapsule->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	CharacterCapsule->SetCollisionResponseToChannels(CollisionResponseContainer);
+
+	UCharacterMovementComponent* MovementComponent = GetCharacterMovement();
+	if (MovementComponent)
+	{
+		MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+	}
 }
 
 void AOWCharacter::HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude)
 {
 #if WITH_SERVER_CODE 
-	if (AbilitySystemComponent && DamageEffectSpec)
+	if (bDead)
+	{
+		return;
+	}
+
+	bDead = true;
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponent();
+	if (ASC && DamageEffectSpec)
 	{
 		// Get GameplayTag Singleton Class
 		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
@@ -462,22 +489,22 @@ void AOWCharacter::HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, c
 		FGameplayEventData GameplayEventData; 
 		GameplayEventData.EventTag = GameplayTags.Event_Death;
 		GameplayEventData.Instigator = DamageInstigator; 
-		GameplayEventData.Target = AbilitySystemComponent->GetAvatarActor(); 
+		GameplayEventData.Target = ASC->GetAvatarActor();
 		GameplayEventData.OptionalObject = DamageEffectSpec->Def; 
 		GameplayEventData.ContextHandle = DamageEffectSpec->GetEffectContext(); 
 		GameplayEventData.InstigatorTags = *DamageEffectSpec->CapturedSourceTags.GetAggregatedTags(); 
 		GameplayEventData.TargetTags = *DamageEffectSpec->CapturedTargetTags.GetAggregatedTags(); 
 		GameplayEventData.EventMagnitude = DamageMagnitude; 
 
-		FScopedPredictionWindow NewScopedWindow(AbilitySystemComponent, true); 
-		AbilitySystemComponent->HandleGameplayEvent(GameplayEventData.EventTag, &GameplayEventData); 
+		FScopedPredictionWindow NewScopedWindow(ASC, true);
+		ASC->HandleGameplayEvent(GameplayEventData.EventTag, &GameplayEventData);
 
 		// Initialize Death Gameplay Message
 		FOWVerbMessage OWVerbMessage; 
 		OWVerbMessage.Verb = GameplayTags.Gameplay_Message_HeroKilled; 
 		OWVerbMessage.Instigator = DamageInstigator; 
 		OWVerbMessage.InstigatorTags = *DamageEffectSpec->CapturedSourceTags.GetAggregatedTags(); 
-		OWVerbMessage.Target = UOWAbilitySystemLibrary::GetPlayerStateFromObject(AbilitySystemComponent->GetAvatarActor()); 
+		OWVerbMessage.Target = UOWAbilitySystemLibrary::GetPlayerStateFromObject(ASC->GetAvatarActor());
 		OWVerbMessage.TargetTags = *DamageEffectSpec->CapturedTargetTags.GetAggregatedTags(); 
 
 		// Broadcast Death Gameplay Message 

@@ -9,6 +9,16 @@
 #include "AbilitySystem/OWAbilitySystemComponent.h"
 #include "Team/OWTeamSubsystem.h"
 
+void UHealthPlate::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+	
+	if (Image_PlayerArrow)
+	{
+		Image_PlayerArrow->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
 void UHealthPlate::NativeDestruct()
 {
 	// Remove Team Changed Delegate Binding of Player State
@@ -128,11 +138,15 @@ void UHealthPlate::UpdatePlayerName(bool bAlly)
 
 void UHealthPlate::UpdatePlayerArrow(bool bAlly)
 {
-	if (!bAlly)
+	if (Image_PlayerArrow)
 	{
-		if (Image_PlayerArrow)
+		if (!bAlly)
 		{
-			Image_PlayerArrow->SetVisibility(ESlateVisibility::Collapsed); 
+			Image_PlayerArrow->SetVisibility(ESlateVisibility::Collapsed);
+		}
+		else
+		{
+			Image_PlayerArrow->SetVisibility(ESlateVisibility::Visible);
 		}
 	}
 }

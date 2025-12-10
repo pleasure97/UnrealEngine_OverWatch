@@ -81,6 +81,9 @@ struct FOWHeroInfo
 	TSubclassOf<UGameplayEffect> VitalAttributes;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> ResetAttributes;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FOWAbilityInfo> Abilities; 
 };
 

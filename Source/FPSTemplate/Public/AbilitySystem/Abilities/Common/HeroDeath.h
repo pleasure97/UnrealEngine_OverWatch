@@ -7,6 +7,7 @@
 #include "HeroDeath.generated.h"
 
 class UDeathOverlay; 
+class UAnimMontage; 
 
 /**
  * 
@@ -24,6 +25,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float RespawnWaitingDuration = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> DeathMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UDeathOverlay> DeathOverlayWidgetClass; 

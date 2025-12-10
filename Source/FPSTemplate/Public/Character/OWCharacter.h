@@ -12,6 +12,7 @@ class UCameraComponent;
 class UCameraTransitionComponent; 
 class UScreenEffectComponent; 
 struct FGameplayEffectSpec; 
+class UOWAttributeSet;
 
 /**
  * 
@@ -27,9 +28,16 @@ public:
 	virtual void BeginPlay() override; 
 
 	virtual void PossessedBy(AController* NewController) override;
-	virtual void UnPossessed() override; 
 
 	virtual void OnRep_PlayerState() override;
+
+	/* Ability System Component & Attribute Set */
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	virtual UOWAttributeSet* GetAttributeSet() const override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ResetAttributes() const;
 
 	/* LevelUp Interface */
 	virtual int32 FindLevelForXP_Implementation(int32 InXP) const override; 
@@ -47,7 +55,10 @@ public:
 
 	/* Combat Interface */
 	virtual int32 GetCharacterLevel_Implementation() const override; 
-	virtual void Die(const FVector& DeathImpulse) override; 
+	virtual void Die(const FVector& DeathImpulse) override;
+	UFUNCTION(Client, Reliable)
+	void SwitchCameraWhenDying();
+
 	virtual UAnimInstance* GetFirstPersonMeshAnimInstance_Implementation() const override;
 	virtual void TransitionCamera_Implementation(bool bSmoothTransition) override;
 	virtual EAttackDirection GetAttackDirection_Implementation() const override; 
@@ -57,42 +68,44 @@ public:
 	UFUNCTION()
 	void OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
 
-	void Reset();
+	UFUNCTION(BlueprintCallable)
+	void DisableMovementAndCollision();
+
+	UFUNCTION(BlueprintCallable)
+
+	void Revive(); 
 
 protected:
 	virtual void InitializeDefaultAttributes() const; 
 
-private:
-	void InitAbilityActorInfo(); 
-
-	void InitializeOverlay();
-
-	void InitializeHealthPlate();
-
-	void DisableMovementAndCollision(); 
-
-	void UninitAndDestroy(); 
-
-	void HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude); 
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USpringArmComponent> FirstPersonSpringArm;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> FirstPersonSpringArm; 
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> FirstPersonCamera; 
+	TObjectPtr<UCameraComponent> FirstPersonCamera;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> ThirdPersonSpringArm; 
+	TObjectPtr<USpringArmComponent> ThirdPersonSpringArm;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> ThirdPersonCamera; 
-	/* Camera End */
+	TObjectPtr<UCameraComponent> ThirdPersonCamera;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraTransitionComponent> CameraTransitionComponent;
+
+private:
+	void InitAbilityActorInfo(); 
+
+	void InitializeOverlay(); 
+
+	void InitializeHealthPlate();
+
+	void HandleDeath(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude);
+
+	void EnableMovementAndCollision();
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UScreenEffectComponent> ScreenEffectComponent;
@@ -107,4 +120,11 @@ private:
 	EAttackDirection AttackDirection = EAttackDirection::NotSet; 
 
 	bool bPossessed = false; 
+
+	bool bIgnoreFirstUnpossession = true; 
+
+	bool bCleanedUp = false; 
+
+	UPROPERTY()
+	FCollisionResponseContainer CollisionResponseContainer;
 };

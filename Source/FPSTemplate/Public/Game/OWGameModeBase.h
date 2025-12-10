@@ -44,6 +44,12 @@ public:
 
 	void CleanupOldPawns(); 
 
+	UFUNCTION(BlueprintCallable)
+	void RestartHero(APlayerController* PendingPlayerController, UHeroInfo* HeroInfo);
+
+	UFUNCTION(BlueprintCallable)
+	AOWPlayerStart* RestartHeroAtPlayerStart(APlayerController* PlayerController);
+
 	FOnGameModePlayerInitialized OnGameModePlayerInitialized; 
 
 	FOnGameplayReady OnGameplayReady; 
@@ -53,22 +59,30 @@ protected:
 	TArray<APlayerController*> PendingPlayers; 
 
 private:
-	FOWGamePhaseTagDelegate FirstHeroSelectionEndedDelegate; 
+	FOWGamePhaseTagDelegate FirstHeroSelectionStartedDelegate; 
+	FOWGamePhaseTagDelegate SwitchInningStartedDelegate;
 	FOWGamePhaseTagDelegate SwitchInningEndedDelegate; 
-	FOWGamePhaseTagDelegate SecondHeroSelectionEndedDelegate; 
+	FOWGamePhaseTagDelegate SecondHeroSelectionStartedDelegate; 
+	FOWGamePhaseTagDelegate SecondHeroSelectionEndedDelegate;
 
 	UFUNCTION()
-	void HandleFirstHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration); 
+	void HandleWhenFirstHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration); 
 
 	UFUNCTION()
-	void HandleSwitchInningPhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
+	void HandleWhenSwitchInningStarts(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
 	UFUNCTION()
-	void HandleSecondHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration);
+	void HandleWhenSwitchInningEnds(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
-	void EnableHeroSpawning(); 
+	UFUNCTION()
+	void HandleWhenSecondHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
-	void RestartHeroWithClass(APlayerController* PC, TSubclassOf<APawn> PawnClass); 
+	UFUNCTION()
+	void HandleWhenSecondHeroSelectionEnds(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	void EnableHeroSpawning();
+
+	void RestartHeroWithClass(APlayerController* PC, TSubclassOf<APawn> PawnClass);
 
 	bool bCanSpawnHero = false; 
 };

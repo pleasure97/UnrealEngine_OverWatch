@@ -11,6 +11,7 @@
 #include "Team/OWTeamSubsystem.h"
 #include "OWGameplayTags.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
+#include "UI/HUD/OWHUD.h"
 
 void AOWGameModeBase::BeginPlay()
 {
@@ -22,31 +23,48 @@ void AOWGameModeBase::BeginPlay()
 		{
 			const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
-			FirstHeroSelectionEndedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleFirstHeroSelectionPhase);
-			GamePhaseSubsystem->WhenPhaseEnds(GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, EPhaseTagMatchType::ExactMatch, FirstHeroSelectionEndedDelegate);
+			FirstHeroSelectionStartedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenFirstHeroSelectionStarts);
+			GamePhaseSubsystem->WhenPhaseEnds(GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, EPhaseTagMatchType::ExactMatch, FirstHeroSelectionStartedDelegate);
 		
-			SwitchInningEndedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleSwitchInningPhase);
+			SwitchInningStartedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenSwitchInningStarts);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(GameplayTags.GamePhase_SwitchInning, EPhaseTagMatchType::ExactMatch, SwitchInningStartedDelegate);
+
+			SwitchInningEndedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenSwitchInningEnds);
 			GamePhaseSubsystem->WhenPhaseEnds(GameplayTags.GamePhase_SwitchInning, EPhaseTagMatchType::ExactMatch, SwitchInningEndedDelegate);
 			
-			SecondHeroSelectionEndedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleSecondHeroSelectionPhase);
+			SecondHeroSelectionStartedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenSecondHeroSelectionStarts);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(GameplayTags.GamePhase_HeroSelection_SecondHeroSelection, EPhaseTagMatchType::ExactMatch, SecondHeroSelectionStartedDelegate);
+
+			SecondHeroSelectionEndedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenSecondHeroSelectionEnds);
 			GamePhaseSubsystem->WhenPhaseEnds(GameplayTags.GamePhase_HeroSelection_SecondHeroSelection, EPhaseTagMatchType::ExactMatch, SecondHeroSelectionEndedDelegate);
 		}
 	}
 }
 
-void AOWGameModeBase::HandleFirstHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+void AOWGameModeBase::HandleWhenFirstHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration)
 {
 	EnableHeroSpawning(); 
 }
 
-void AOWGameModeBase::HandleSwitchInningPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
+void AOWGameModeBase::HandleWhenSwitchInningStarts(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+
+}
+
+void AOWGameModeBase::HandleWhenSwitchInningEnds(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+
+}
+
+void AOWGameModeBase::HandleWhenSecondHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+
+}
+
+void AOWGameModeBase::HandleWhenSecondHeroSelectionEnds(const FGameplayTag& PhaseTag, const float PhaseDuration)
 {
 	CleanupOldPawns(); 
-}
-
-void AOWGameModeBase::HandleSecondHeroSelectionPhase(const FGameplayTag& PhaseTag, const float PhaseDuration)
-{
-	EnableHeroSpawning(); 
+	EnableHeroSpawning();
 }
 
 void AOWGameModeBase::EnableHeroSpawning()
@@ -59,17 +77,7 @@ void AOWGameModeBase::EnableHeroSpawning()
 
 		for (APlayerController* PendingPlayerController : PendingPlayers)
 		{
-			if (PendingPlayerController && (!PendingPlayerController->GetPawn()))
-			{
-				if (AOWPlayerState* OWPlayerState = PendingPlayerController->GetPlayerState<AOWPlayerState>())
-				{
-					if (OWPlayerState->GetHeroName() != EHeroName::None)
-					{
-						FOWHeroInfo HeroInfoToSpawn = HeroInfo->HeroInformation[OWPlayerState->GetHeroName()];
-						RestartHeroWithClass(PendingPlayerController, HeroInfoToSpawn.HeroPawnClass);
-					}
-				}
-			}
+			RestartHero(PendingPlayerController, HeroInfo);
 		}
 		PendingPlayers.Empty();
 	}
@@ -79,32 +87,65 @@ void AOWGameModeBase::EnableHeroSpawning()
 	}
 }
 
-void AOWGameModeBase::RestartHeroWithClass(APlayerController* PC, TSubclassOf<APawn> PawnClass)
+void AOWGameModeBase::RestartHero(APlayerController* PlayerControllerToRestart, UHeroInfo* HeroInfo)
 {
-	if (!PC || !PawnClass)
+	if (!HeroInfo)
 	{
-		return;
+		HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
 	}
 
-	AActor* StartSpot = ChoosePlayerStart(PC); 
+	if (PlayerControllerToRestart && (!PlayerControllerToRestart->GetPawn()))
+	{
+		if (AOWPlayerState* OWPlayerState = PlayerControllerToRestart->GetPlayerState<AOWPlayerState>())
+		{
+			if (OWPlayerState->GetHeroName() != EHeroName::None)
+			{
+				FOWHeroInfo HeroInfoToSpawn = HeroInfo->HeroInformation[OWPlayerState->GetHeroName()];
+				RestartHeroWithClass(PlayerControllerToRestart, HeroInfoToSpawn.HeroPawnClass);
+			}
+		}
+	}
+}
+
+AOWPlayerStart* AOWGameModeBase::RestartHeroAtPlayerStart(APlayerController* PlayerController)
+{
+	if (!IsValid(PlayerController))
+	{
+		return nullptr;
+	}
+
+	AActor* StartSpot = ChoosePlayerStart(PlayerController);
 	if (!StartSpot)
 	{
-		UE_LOG(LogTemp, Error, TEXT("There is No Valid Player Start in AOWGameModeBase::RestartHeroWithClass()")); 
-		return;
+		UE_LOG(LogTemp, Error, TEXT("There is No Valid Player Start in AOWGameModeBase::RestartHeroWithClass()"));
+		return nullptr;
 	}
 
-	AOWPlayerStart* OWPlayerStart = Cast<AOWPlayerStart>(StartSpot); 
+	AOWPlayerStart* OWPlayerStart = Cast<AOWPlayerStart>(StartSpot);
 	if (!OWPlayerStart)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Cannot Cast to OWPlayerStart in AOWGameModeBase::RestartHeroWithClass()"));
+		return nullptr;
+	}
+
+	if (!OWPlayerStart->TryClaim(PlayerController))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s is Already Claimed!"), *OWPlayerStart->GetName());
+	}
+
+	return OWPlayerStart; 
+}
+
+void AOWGameModeBase::RestartHeroWithClass(APlayerController* PC, TSubclassOf<APawn> PawnClass)
+{
+	if (!PawnClass)
+	{
 		return;
 	}
 
-	if (!OWPlayerStart->TryClaim(PC))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s is Already Claimed!"), *OWPlayerStart->GetName()); 
-	}
+	AOWPlayerStart* OWPlayerStart = RestartHeroAtPlayerStart(PC);
 
+	// TODO - Change Respawn Logic 
 	FTransform SpawnTransform = OWPlayerStart->GetActorTransform(); 
 	FActorSpawnParameters SpawnParameters; 
 	SpawnParameters.Owner = PC; 
@@ -150,9 +191,11 @@ void AOWGameModeBase::CleanupOldPawns()
 		{
 			if (APawn* OldPawn = PlayerController->GetPawn())
 			{
-				PlayerController->UnPossess(); 
+				PlayerController->UnPossess();
 
-				OldPawn->Destroy(); 
+				OldPawn->Destroy();
+
+				PendingPlayers.Add(PlayerController);
 			}
 		}
 	}

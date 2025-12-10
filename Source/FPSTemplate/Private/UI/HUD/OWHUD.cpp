@@ -39,6 +39,14 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	}
 }
 
+void AOWHUD::ShowOverlay()
+{
+	if (IsValid(PlayerOverlay))
+	{
+		PlayerOverlay->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 void AOWHUD::CollapseOverlay()
 {
 	if (IsValid(PlayerOverlay))

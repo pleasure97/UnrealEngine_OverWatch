@@ -437,11 +437,11 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 		const bool bFatal = GetHealth() <= 0.f; 
 		if (bFatal)
 		{
-			ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor); 
+			/*ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor); 
 			if (CombatInterface)
 			{
 				CombatInterface->Die(UOWAbilitySystemLibrary::GetDeathImpulse(EffectProperties.EffectContextHandle));
-			}
+			}*/
 			SendHeroKilledEvent(EffectProperties);
 			SendXPEvent(EffectProperties); 
 		}
@@ -622,7 +622,7 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 	TagContainer.CombinedTags.AddTag(DebuffTag); 
 
 	// If Debuff is Stun or ForcedMovement, Block Input Held, Pressed, and Released
-	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun) || DebuffTag.MatchesTagExact(GameplayTags.Debuff_ForcedMovement))
+	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun) || DebuffTag.MatchesTagExact(GameplayTags.Debuff_Suppression))
 	{
 		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld); 
 		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_InputHeld);

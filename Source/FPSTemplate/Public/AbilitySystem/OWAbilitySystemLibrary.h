@@ -54,6 +54,9 @@ public:
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, EHeroName HeroName, UOWAbilitySystemComponent* ASC, float Level=1.f);
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static void ResetAttributes(const UObject* WorldContextObject, EHeroName HeroName, UOWAbilitySystemComponent* ASC, float Level = 1.f);
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static void GiveDefaultAbilities(const UObject* WorldContextObject, EHeroName HeroName, UAbilitySystemComponent* ASC); 
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
@@ -179,4 +182,10 @@ public:
 	 */
 	UFUNCTION()
 	static void AddInteractableActorsFromOverlapResults(const TArray<FOverlapResult>& OverlapResults, TArray<TScriptInterface<IInteractInterface>>& OutInteractableActors);
+
+	UFUNCTION()
+	static void AddInteractableActorsFromHitResult(const FHitResult& HitResult, TArray<TScriptInterface<IInteractInterface>>& OutInteractableActors);
+
+	UFUNCTION()
+	static AActor* GetActorFromInteractableAgent(TScriptInterface<IInteractInterface> InteractableAgent);
 };

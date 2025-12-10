@@ -47,6 +47,7 @@ public:
 	AOWPlayerState* GetOWPlayerState() const; 
 
 protected:
+	virtual void NativePreConstruct() override;
 	virtual void NativeDestruct() override; 
 
 private:

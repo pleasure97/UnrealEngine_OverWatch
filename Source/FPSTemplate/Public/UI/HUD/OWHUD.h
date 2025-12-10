@@ -29,6 +29,9 @@ public:
 	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS); 
 
 	UFUNCTION(BlueprintCallable)
+	void ShowOverlay();
+
+	UFUNCTION(BlueprintCallable)
 	void CollapseOverlay(); 
 
 	UFUNCTION(BlueprintCallable)
