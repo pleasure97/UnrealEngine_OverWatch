@@ -29,7 +29,12 @@ AOWCharacterBase::AOWCharacterBase()
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
 {
-	return AbilitySystemComponent;
+	return nullptr;
+}
+
+UOWAttributeSet* AOWCharacterBase::GetAttributeSet() const
+{
+	return nullptr;
 }
 
 void AOWCharacterBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -199,7 +204,7 @@ void AOWCharacterBase::UnPossessed()
 
 void AOWCharacterBase::AddHeroAbilities()
 {
-	UOWAbilitySystemComponent* OWASC = CastChecked<UOWAbilitySystemComponent>(AbilitySystemComponent); 
+	UOWAbilitySystemComponent* OWASC = CastChecked<UOWAbilitySystemComponent>(GetAbilitySystemComponent()); 
 
 	if (!HasAuthority()) return; 
 

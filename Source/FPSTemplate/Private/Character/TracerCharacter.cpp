@@ -60,9 +60,9 @@ void ATracerCharacter::BeginPlay()
 
 void ATracerCharacter::RecordRecallState()
 {
-	if (AttributeSet)
+	if (GetAttributeSet())
 	{
-		RecallStates.Add(FRecallState(UGameplayStatics::GetTimeSeconds(this), GetActorLocation(), AttributeSet->GetHealth()));
+		RecallStates.Add(FRecallState(UGameplayStatics::GetTimeSeconds(this), GetActorLocation(), GetAttributeSet()->GetHealth()));
 		if (RecallStates.Num() > 30)
 		{
 			RecallStates.RemoveAt(0);

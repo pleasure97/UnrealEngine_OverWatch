@@ -17,6 +17,8 @@ struct FInputActionValue;
 class AOWPlayerState; 
 class UUserWidget; 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateChanged, APlayerState*, NewPlayerState);
+
 /**
  * 
  */
@@ -32,6 +34,10 @@ public:
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override; 
 	virtual FGenericTeamId GetGenericTeamId() const override; 
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
+	/** Team Interface End **/
+	
+	/** Player State **/
+	FOnPlayerStateChanged& GetOnPlayerStateChangedDelegate();
 	/** Team Interface End **/
 
 	UFUNCTION(Server, Reliable)
@@ -80,6 +86,9 @@ private:
 
 	UPROPERTY()
 	FOnTeamIndexChangedDelegate OnTeamChangedDelegate; 
+
+	UPROPERTY()
+	FOnPlayerStateChanged OnPlayerStateChanged;
 
 	UOWAbilitySystemComponent* GetAbilitySystemComponent();
 

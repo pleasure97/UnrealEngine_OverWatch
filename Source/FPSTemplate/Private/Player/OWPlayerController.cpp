@@ -39,6 +39,11 @@ FOnTeamIndexChangedDelegate* AOWPlayerController::GetOnTeamIndexChangedDelegate(
 	return &OnTeamChangedDelegate; 
 }
 
+FOnPlayerStateChanged& AOWPlayerController::GetOnPlayerStateChangedDelegate()
+{
+	return OnPlayerStateChanged;
+}
+
 void AOWPlayerController::ClientHeroDamaged_Implementation(const FHeroDamagedInfo& HeroDamagedInfo)
 {
 	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this); 
@@ -127,6 +132,8 @@ void AOWPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState(); 
 
 	BroadcastOnPlayerStateChanged();
+
+	OnPlayerStateChanged.Broadcast(PlayerState);
 }
 
 UOWAbilitySystemComponent* AOWPlayerController::GetAbilitySystemComponent()
@@ -189,7 +196,7 @@ void AOWPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 
 void AOWPlayerController::BroadcastOnPlayerStateChanged()
 {
-	FGenericTeamId OldTeamID = FGenericTeamId::NoTeam; 
+	int32 OldTeamID = -1; 
 	if (LastSeenPlayerState != nullptr)
 	{
 		if (ITeamInterface* PlayerStateWithTeamInterface = Cast<ITeamInterface>(LastSeenPlayerState))
@@ -199,7 +206,7 @@ void AOWPlayerController::BroadcastOnPlayerStateChanged()
 		}
 	}
 
-	FGenericTeamId NewTeamID = FGenericTeamId::NoTeam; 
+	int32 NewTeamID = -1;
 	if (PlayerState != nullptr)
 	{
 		if (ITeamInterface* PlayerStateWithTeamInterface = Cast<ITeamInterface>(PlayerState))

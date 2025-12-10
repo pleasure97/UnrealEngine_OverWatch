@@ -28,6 +28,8 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
 
+	virtual UOWAttributeSet* GetAttributeSet() const;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; 
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override; 
@@ -70,12 +72,6 @@ protected:
 	virtual void UnPossessed() override; 
 	
 	void AddHeroAbilities(); 
-
-	UPROPERTY()
-	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
-	TObjectPtr<UOWAttributeSet> AttributeSet; 
 
 	/* Attributes */
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const; 

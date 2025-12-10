@@ -12,8 +12,9 @@
 
 class UOWAbilitySystemComponent; 
 class UAttributeSet; 
+class UOWAttributeSet; 
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStateChanged, int32 /* Stat Value */)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /* Stat Value */)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnLevelChanged, int32 /*Stat Value*/, bool /*bLevelUp*/)
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnHeroNameChanged, AOWPlayerState*, /*OWPlayerState */ EHeroName /*HeroName*/)
 
@@ -30,13 +31,14 @@ public:
 
 	/* Ability System */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UAttributeSet* GetAttributeSet() const { return AttributeSet;  }
+	UAttributeSet* GetAttributeSet() const; 
 
 	/* Hero Info */
 	UPROPERTY(ReplicatedUsing = OnRep_HeroName, BlueprintReadOnly)
 	EHeroName HeroName;
 
 	EHeroName GetHeroName() const { return HeroName; }
+	UFUNCTION(BlueprintCallable)
 	void SetHeroName(EHeroName NewHeroName);
 
 	UFUNCTION()
@@ -47,10 +49,10 @@ public:
 	TObjectPtr<ULevelUpInfo> LevelUpInfo; 
 
 	/* Delegates */
-	FOnPlayerStateChanged OnXPChangedDelegate;
+	FOnPlayerStatChanged OnXPChangedDelegate;
 	FOnLevelChanged OnLevelChangedDelegate; 
-	FOnPlayerStateChanged OnAttributePointsChangedDelegate; 
-	FOnPlayerStateChanged OnSpellPointsChangedDelegate; 
+	FOnPlayerStatChanged OnAttributePointsChangedDelegate;
+	FOnPlayerStatChanged OnSpellPointsChangedDelegate;
 	FOnHeroNameChanged OnHeroNameChangedDelegate; 
 
 	/* Level Up Info */ 
@@ -84,7 +86,7 @@ protected:
 	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet; 
+	TObjectPtr<UOWAttributeSet> AttributeSet; 
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_Level)
 	int32 Level = 1; 

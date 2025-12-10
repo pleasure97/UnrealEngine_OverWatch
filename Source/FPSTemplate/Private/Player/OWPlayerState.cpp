@@ -25,6 +25,11 @@ UAbilitySystemComponent* AOWPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UAttributeSet* AOWPlayerState::GetAttributeSet() const
+{
+	return AttributeSet;
+}
+
 void AOWPlayerState::SetHeroName(EHeroName NewHeroName)
 {
 	HeroName = NewHeroName;
