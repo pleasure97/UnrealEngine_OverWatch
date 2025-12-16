@@ -331,9 +331,13 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Knockback"),
 		FString("Debuff Knockback"));
 
-	GameplayTags.Debuff_Suppression = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Debuff.Suppression"),
-		FString("Debuff Suppression"));
+	GameplayTags.Debuff_Suppression_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Suppression.Start"),
+		FString("Start of Debuff Suppression"));
+
+	GameplayTags.Debuff_Suppression_End = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Suppression.End"),
+		FString("End of Debuff Suppression"));
 
 	GameplayTags.Debuff_Laceration = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Laceration"),
@@ -506,9 +510,13 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Data.CriticalHitDamage"),
 		FString("Gamplay Tag When Critical Hit Damage is Set By Caller"));
 
-	GameplayTags.Data_Recall = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Data.Recall"),
-		FString("Gamplay Tag When Recall is Set By Caller"));
+	GameplayTags.Data_Recall_Health = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.Recall.Health"),
+		FString("Health Gamplay Tag When Recall is Set By Caller"));
+
+	GameplayTags.Data_Recall_NumCurrentBullets = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.Recall.NumCurrentBullets"),
+		FString("NumCurrentBullets Gamplay Tag When Recall is Set By Caller"));
 
 	/* Animation */
 	GameplayTags.Event_Movement_AimDownSight = UGameplayTagsManager::Get().AddNativeGameplayTag(

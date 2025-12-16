@@ -127,7 +127,8 @@ public:
 
 	FGameplayTag Debuff_Stun;
 	FGameplayTag Debuff_Knockback;
-	FGameplayTag Debuff_Suppression;
+	FGameplayTag Debuff_Suppression_Start;
+	FGameplayTag Debuff_Suppression_End;
 	FGameplayTag Debuff_Laceration; 
 
 	/* Gameplay Cue */
@@ -183,7 +184,8 @@ public:
 	/* Set By Caller */ 
 	FGameplayTag Data_Cooldown; 
 	FGameplayTag Data_CriticalHitDamage; 
-	FGameplayTag Data_Recall; 
+	FGameplayTag Data_Recall_Health; 
+	FGameplayTag Data_Recall_NumCurrentBullets; 
 
 	/* Animation */
 	FGameplayTag Event_Movement_AimDownSight; 

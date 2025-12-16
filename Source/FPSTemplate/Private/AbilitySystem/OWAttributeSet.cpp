@@ -622,7 +622,7 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 	TagContainer.CombinedTags.AddTag(DebuffTag); 
 
 	// If Debuff is Stun or ForcedMovement, Block Input Held, Pressed, and Released
-	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun) || DebuffTag.MatchesTagExact(GameplayTags.Debuff_Suppression))
+	if (DebuffTag.MatchesTagExact(GameplayTags.Debuff_Stun) || DebuffTag.MatchesTagExact(GameplayTags.Debuff_Suppression_Start))
 	{
 		TagContainer.Added.AddTag(GameplayTags.Player_Block_InputHeld); 
 		TagContainer.CombinedTags.AddTag(GameplayTags.Player_Block_InputHeld);
