@@ -61,11 +61,8 @@ AOWCharacter::AOWCharacter()
 
 	// Camera Transition Component
 	CameraTransitionComponent = CreateDefaultSubobject<UCameraTransitionComponent>("CameraTransitionComponent");
-	CameraTransitionComponent->FirstPersonSpringArm = FirstPersonSpringArm;
-	CameraTransitionComponent->FirstPersonCamera = FirstPersonCamera;
-	CameraTransitionComponent->FirstPersonMesh = FirstPersonMesh; 
-	CameraTransitionComponent->ThirdPersonSpringArm = ThirdPersonSpringArm; 
-	CameraTransitionComponent->ThirdPersonCamera = ThirdPersonCamera;
+	// Ensure Replication of Camera Transition Component 
+	CameraTransitionComponent->SetIsReplicated(true);
 
 	// Screen Effect Component
 	ScreenEffectComponent = CreateDefaultSubobject<UScreenEffectComponent>("ScreenEffectComponent");
@@ -79,10 +76,6 @@ AOWCharacter::AOWCharacter()
 void AOWCharacter::BeginPlay()
 {
 	Super::BeginPlay(); 
-
-	CameraTransitionComponent->SetFirstPersonCameraTransform(FirstPersonCamera->GetRelativeTransform()); 
-	CameraTransitionComponent->SetThirdPersonCameraTransform(ThirdPersonCamera->GetRelativeTransform()); 
-	CameraTransitionComponent->ActiveFirstPersonCamera(); 
 
 	// Show FirstPersonMesh visible to the user, invisible to other clients 
 	if (IsLocallyControlled())
@@ -147,6 +140,20 @@ void AOWCharacter::OnRep_PlayerState()
 	if (IsValid(GetAbilitySystemComponent()))
 	{
 		InitAbilityActorInfo();
+	}
+}
+
+void AOWCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	// Set First Person Camera, Third Person Camera, and First Person Mesh of Camera Transition Component 
+	// Since they are Not Set Properly in Constructor
+	if (CameraTransitionComponent)
+	{
+		CameraTransitionComponent->SetFirstPersonCamera(FirstPersonCamera);
+		CameraTransitionComponent->SetThirdPersonCamera(ThirdPersonCamera);
+		CameraTransitionComponent->SetFirstPersonMesh(FirstPersonMesh);
 	}
 }
 
@@ -324,47 +331,17 @@ int32 AOWCharacter::GetCharacterLevel_Implementation() const
 	return OWPlayerState->GetPlayerLevel();
 }
 
-void AOWCharacter::Die(const FVector& DeathImpulse)
-{
-	Super::Die(DeathImpulse); 
-
-	SwitchCameraWhenDying();
-}
-
-void AOWCharacter::SwitchCameraWhenDying_Implementation()
+void AOWCharacter::TransitionCamera_Implementation(bool bFirstPersonView, bool bSmoothTransition)
 {
 	if (CameraTransitionComponent)
 	{
-		CameraTransitionComponent->ActiveThirdPersonCamera();
-	}
-
-	if (APlayerController* PC = Cast<APlayerController>(GetController()))
-	{
-		PC->SetViewTargetWithBlend(this, 0.0f);
-	}
-
-	if (FirstPersonMesh)
-	{
-		FirstPersonMesh->SetVisibility(false, true);
-	}
-
-	if (GetMesh())
-	{
-		GetMesh()->SetVisibility(true, true);
+		CameraTransitionComponent->Server_SetViewMode(bFirstPersonView); 
 	}
 }
 
 UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() const
 {
 	return FirstPersonMesh->GetAnimInstance(); 
-}
-
-void AOWCharacter::TransitionCamera_Implementation(bool bSmoothTransition)
-{
-	if (CameraTransitionComponent)
-	{
-		CameraTransitionComponent->TransitionCamera(bSmoothTransition);
-	}
 }
 
 EAttackDirection AOWCharacter::GetAttackDirection_Implementation() const

@@ -31,6 +31,8 @@ public:
 
 	virtual void OnRep_PlayerState() override;
 
+	virtual void PostInitializeComponents() override;
+
 	/* Ability System Component & Attribute Set */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
@@ -55,12 +57,9 @@ public:
 
 	/* Combat Interface */
 	virtual int32 GetCharacterLevel_Implementation() const override; 
-	virtual void Die(const FVector& DeathImpulse) override;
-	UFUNCTION(Client, Reliable)
-	void SwitchCameraWhenDying();
+	virtual void TransitionCamera_Implementation(bool bFirstPersonView, bool bSmoothTransition) override;
 
 	virtual UAnimInstance* GetFirstPersonMeshAnimInstance_Implementation() const override;
-	virtual void TransitionCamera_Implementation(bool bSmoothTransition) override;
 	virtual EAttackDirection GetAttackDirection_Implementation() const override; 
 	virtual void SetAttackDirection_Implementation(EAttackDirection InAttackDirection) override; 
 	/* End Combat Interface */

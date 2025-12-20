@@ -6,8 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Components/TimelineComponent.h"
-#include "Curves/CurveFloat.h"
 #include "CameraTransitionComponent.generated.h"
 
 class ACharacter; 
@@ -24,66 +22,43 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	// Getter 
-	bool IsFirstPersonView() const { return bFirstPersonView; }
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	// Getter & Setter
+	bool IsFirstPersonView() const;
+
+	void SetFirstPersonCamera(UCameraComponent* InFirstPersonCamera); 
+	void SetThirdPersonCamera(UCameraComponent* InThirdPersonCamera);
+	void SetFirstPersonMesh(USkeletalMeshComponent* InFirstPersonMesh);
 
 	/* Camera Transition */
-	void SetFirstPersonCameraTransform(const FTransform InTransform);
-	void SetThirdPersonCameraTransform(const FTransform InTransform);
-
-	void ActiveFirstPersonCamera();
-	void ActiveThirdPersonCamera();
-
-	void UpdateFPtoTPCamera(float Output);
-	void UpdateTPtoFPCamera(float Output);
-
-	void FinishFPtoTPCamera();
-	void FinishTPtoFPCamera();
-
-	void TransitionCamera(bool bSmoothTransition);
-	/* Camera Transition End*/
-
-	/* Camera Timeline*/
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera Transition")
-	TObjectPtr<UCurveFloat> SlideAmount;
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera Transition")
-	TObjectPtr<UTimelineComponent> FPtoTPCameraTimeline;
-
-	UPROPERTY(VisibleAnywhere, Category = "Camera Transition")
-	TObjectPtr<UTimelineComponent> TPtoFPCameraTimeline;
-	/* End Camera Timeline */
-
-	/* Camera & Spring Arm */
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> FirstPersonSpringArm;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> FirstPersonCamera;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> ThirdPersonSpringArm;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> ThirdPersonCamera;
-	/* Camera & Spring Arm End */
+	UFUNCTION(Server, Reliable)
+	void Server_SetViewMode(bool bNewFirstPerson);
 
 private:
+	/* Camera & First Person Mesh */
+	UPROPERTY()
+	TObjectPtr<UCameraComponent> FirstPersonCamera;
+
+	UPROPERTY()
+	TObjectPtr<UCameraComponent> ThirdPersonCamera;
+
+	UPROPERTY()
+	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
+	/* Camera & First Person Mesh End */
+
+	UPROPERTY()
 	TObjectPtr<ACharacter> OwningCharacter; 
 
-	UPROPERTY()
-	FTransform FirstPersonCameraTransform;
-
-	UPROPERTY()
-	FTransform ThirdPersonCameraTransform;
-
-	bool bCameraTransitioning = false;
-
+	UPROPERTY(ReplicatedUsing = OnRep_FirstPersonView)
 	bool bFirstPersonView = true;
 
-	UPROPERTY()
-	float CameraTransitionSpeed = 0.025f;
+	UFUNCTION()
+	void OnRep_FirstPersonView();
+
+	void ActiveFirstPersonCamera();
+
+	void ActiveThirdPersonCamera();
+
+	void UpdateMeshVisibility();
 };

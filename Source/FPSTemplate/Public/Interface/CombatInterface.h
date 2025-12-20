@@ -93,7 +93,7 @@ public:
 
 	/* Camera */
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void TransitionCamera(bool bSmoothTransition); 
+	void TransitionCamera(bool bFirstPersonView, bool bSmoothTransition); 
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetProjectileStartLocation() const;

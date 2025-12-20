@@ -3,18 +3,11 @@
 
 #include "Component/CameraTransitionComponent.h"
 #include "GameFramework/Character.h"
-#include "Components/TimelineComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Components/CapsuleComponent.h"
+#include "Net/UnrealNetwork.h"
 
 UCameraTransitionComponent::UCameraTransitionComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
-
-    FPtoTPCameraTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("FPtoTPCameraTimeline;"));
-    TPtoFPCameraTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TPtoFPCameraTimeline"));
-
-    bFirstPersonView = true;
 }
 
 void UCameraTransitionComponent::BeginPlay()
@@ -24,152 +17,129 @@ void UCameraTransitionComponent::BeginPlay()
     // Cache Owning Character
     OwningCharacter = Cast<ACharacter>(GetOwner()); 
 
-    // Cache initial transforms
-    FirstPersonCameraTransform = FirstPersonCamera->GetComponentTransform();
-    ThirdPersonCameraTransform = ThirdPersonCamera->GetComponentTransform();
-
-    // Set Camera Timeline Play Rate 
-    if (FPtoTPCameraTimeline)
-    {
-        FPtoTPCameraTimeline->SetPlayRate(CameraTransitionSpeed);
-    }
-    if (TPtoFPCameraTimeline)
-    {
-        TPtoFPCameraTimeline->SetPlayRate(CameraTransitionSpeed);
-    }
+    ActiveFirstPersonCamera();
 }
 
-void UCameraTransitionComponent::SetFirstPersonCameraTransform(const FTransform InTransform)
+void UCameraTransitionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    FirstPersonCameraTransform = InTransform; 
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(UCameraTransitionComponent, bFirstPersonView); 
 }
 
-void UCameraTransitionComponent::SetThirdPersonCameraTransform(const FTransform InTransform)
+/* Getter & Setter */
+bool UCameraTransitionComponent::IsFirstPersonView() const
 {
-    ThirdPersonCameraTransform = InTransform; 
+    return bFirstPersonView;
+}
+
+void UCameraTransitionComponent::SetFirstPersonCamera(UCameraComponent* InFirstPersonCamera)
+{
+    FirstPersonCamera = InFirstPersonCamera;
+}
+
+void UCameraTransitionComponent::SetThirdPersonCamera(UCameraComponent* InThirdPersonCamera)
+{
+    ThirdPersonCamera = InThirdPersonCamera;
+}
+
+void UCameraTransitionComponent::SetFirstPersonMesh(USkeletalMeshComponent* InFirstPersonMesh)
+{
+    FirstPersonMesh = InFirstPersonMesh;
+}
+/* Getter & Setter End */
+
+void UCameraTransitionComponent::OnRep_FirstPersonView()
+{
+    UpdateMeshVisibility(); 
+
+    bFirstPersonView ? ActiveFirstPersonCamera() : ActiveThirdPersonCamera();
 }
 
 void UCameraTransitionComponent::ActiveFirstPersonCamera()
 {
-    if (!OwningCharacter) { return; }
+    // Check if Owning Character is Valid 
+    if (!IsValid(OwningCharacter)) 
+    {
+        return; 
+    }
 
+    // Allow Free Use of Controller Rotation Yaw in First Person Perspective 
     OwningCharacter->bUseControllerRotationYaw = true;
+    // Activate First Person Camera, and Deactivate Third Person Camera
     ThirdPersonCamera->SetActive(false);
     FirstPersonCamera->SetActive(true);
-    bFirstPersonView = true;
 }
 
 void UCameraTransitionComponent::ActiveThirdPersonCamera()
 {
-    if (!OwningCharacter) { return; }
+    // Check if Owning Character is Valid 
+    if (!IsValid(OwningCharacter))
+    {
+        return; 
+    }
 
+    // Limit Controller Rotation Yaw to Avoid Losing Sight of Owning Character in Third Person Perspective
     OwningCharacter->bUseControllerRotationYaw = false;
+    // Activate Third Person Camera, and Deactivate First Person Camera
     FirstPersonCamera->SetActive(false);
     ThirdPersonCamera->SetActive(true);
-    bFirstPersonView = false;
 }
 
-void UCameraTransitionComponent::UpdateFPtoTPCamera(float Output)
+void UCameraTransitionComponent::UpdateMeshVisibility()
 {
-    FTransform NewTransform = UKismetMathLibrary::TLerp(
-        FirstPersonCamera->GetComponentTransform(), 
-        ThirdPersonCamera->GetComponentTransform(), 
-        Output);
-    FirstPersonCamera->SetWorldTransform(NewTransform);
-}
-
-void UCameraTransitionComponent::FinishFPtoTPCamera()
-{
-    ActiveThirdPersonCamera();
-    FirstPersonCamera->SetRelativeTransform(FirstPersonCameraTransform);
-    bCameraTransitioning = false;
-}
-
-void UCameraTransitionComponent::UpdateTPtoFPCamera(float Output)
-{
-    if (!OwningCharacter) { return; }
-    UCapsuleComponent* CapsuleComponent = OwningCharacter->GetCapsuleComponent(); 
-
-    FVector NewVector = UKismetMathLibrary::VLerp(
-        ThirdPersonCamera->GetComponentLocation(),
-        FirstPersonCamera->GetComponentLocation(), 
-        Output);
-    ThirdPersonCamera->SetWorldLocation(NewVector);
-
-    FRotator NewRotator = UKismetMathLibrary::RLerp(
-        CapsuleComponent->GetComponentRotation(),
-        ThirdPersonCamera->GetComponentRotation(), 
-        Output, false);
-    CapsuleComponent->SetWorldRotation(NewRotator);
-}
-
-void UCameraTransitionComponent::FinishTPtoFPCamera()
-{
-    ActiveFirstPersonCamera();
-    ThirdPersonCamera->SetRelativeTransform(ThirdPersonCameraTransform);
-    bCameraTransitioning = false;
-}
-
-void UCameraTransitionComponent::TransitionCamera(bool bSmoothTransition)
-{
-    if (bCameraTransitioning) return;
-
-    bCameraTransitioning = true;
-
-    if (bSmoothTransition)
+    // Check if Owning Character is Valid 
+    if (!IsValid(OwningCharacter))
     {
-        if (bFirstPersonView)
-        {
-            if (!SlideAmount || !FPtoTPCameraTimeline) return;
+        return;
+    }
 
-            FOnTimelineFloat TimelineProgress;
-            TimelineProgress.BindUFunction(this, FName("UpdateFPtoTPCamera"));
-            FPtoTPCameraTimeline->AddInterpFloat(SlideAmount, TimelineProgress);
+    // Get Owning Character Mesh
+    USkeletalMeshComponent* OwningCharacterMesh = OwningCharacter->GetMesh(); 
 
-            FOnTimelineEvent TimelineFinished;
-            TimelineFinished.BindUFunction(this, FName("FinishFPtoTPCamera"));
-            FPtoTPCameraTimeline->SetTimelineFinishedFunc(TimelineFinished);
+    // Check if First Person Mesh and Owning Character Mesh are Valid 
+    if (!IsValid(OwningCharacterMesh) || !IsValid(FirstPersonMesh))
+    {
+        return;
+    }
 
-            FPtoTPCameraTimeline->SetLooping(false);
-            FPtoTPCameraTimeline->PlayFromStart();
+    // Check if Owning Character is Locally Controlled
+    if (!OwningCharacter->IsLocallyControlled())
+    {
+        return;
+    }
 
-            if (OwningCharacter->IsLocallyControlled())
-            {
-                OwningCharacter->GetMesh()->SetVisibility(true, true);
-                FirstPersonMesh->SetVisibility(false, true);
-            }
-        }
-        else
-        {
-            if (!SlideAmount || !TPtoFPCameraTimeline) return;
-
-            FOnTimelineFloat TimelineProgress;
-            TimelineProgress.BindUFunction(this, FName("UpdateTPtoFPCamera"));
-            TPtoFPCameraTimeline->AddInterpFloat(SlideAmount, TimelineProgress);
-
-            FOnTimelineEvent TimelineFinished;
-            TimelineFinished.BindUFunction(this, FName("FinishTPtoFPCamera"));
-            TPtoFPCameraTimeline->SetTimelineFinishedFunc(TimelineFinished);
-
-            TPtoFPCameraTimeline->SetLooping(false);
-            TPtoFPCameraTimeline->PlayFromStart();
-
-            if (OwningCharacter->IsLocallyControlled())
-            {
-                OwningCharacter->GetMesh()->SetVisibility(false, true);
-                FirstPersonMesh->SetVisibility(true, true);
-            }
-        }
+    if (bFirstPersonView)
+    {
+        OwningCharacterMesh->SetVisibility(false, true);
+        // Show ThirdPersonMesh visible to other clients, invisible to the user 
+        OwningCharacterMesh->bOnlyOwnerSee = false;
+        OwningCharacterMesh->bOwnerNoSee = true;
+        OwningCharacterMesh->bReceivesDecals = false;
+        FirstPersonMesh->SetVisibility(true, true);
     }
     else
     {
-        if (bFirstPersonView)
-        {
-            ActiveThirdPersonCamera();
-        }
-        else
-        {
-            ActiveFirstPersonCamera();
-        }
+        OwningCharacterMesh->SetVisibility(true, true);
+        // Show ThirdPersonMesh visible to other clients, invisible to the user 
+        OwningCharacterMesh->bOnlyOwnerSee = true;
+        OwningCharacterMesh->bOwnerNoSee = false;
+        OwningCharacterMesh->bReceivesDecals = true;
+        FirstPersonMesh->SetVisibility(false, true);
+    }
+
+    // Notify Rendering Thread that Rendering Flag State Has Changed  
+    OwningCharacterMesh->MarkRenderStateDirty(); 
+    FirstPersonMesh->MarkRenderStateDirty();
+}
+
+void UCameraTransitionComponent::Server_SetViewMode_Implementation(bool bNewFirstPerson)
+{
+    if (bFirstPersonView != bNewFirstPerson)
+    {
+        bFirstPersonView = bNewFirstPerson;
+
+        // Call RepNotify 
+        OnRep_FirstPersonView();
     }
 }

@@ -36,6 +36,13 @@ void UDeathOverlay::NativeConstruct()
 
 void UDeathOverlay::NativeDestruct()
 {
+	// Get Owning Player Controller and Set View Target Back to Original Pawn
+	APlayerController* OwningPlayerController = GetOwningPlayer();
+	if (IsValid(OwningPlayerController))
+	{
+		OwningPlayerController->SetViewTargetWithBlend(OwningPlayerController->GetPawn()); 
+	}
+
 	// Remove Binding of Button Clicked
 	if (Button_ChangeSpectator)
 	{
