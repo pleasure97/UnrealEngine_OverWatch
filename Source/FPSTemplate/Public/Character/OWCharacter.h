@@ -60,9 +60,10 @@ public:
 	virtual void TransitionCamera_Implementation(bool bFirstPersonView, bool bSmoothTransition) override;
 
 	virtual UAnimInstance* GetFirstPersonMeshAnimInstance_Implementation() const override;
-	virtual EAttackDirection GetAttackDirection_Implementation() const override; 
-	virtual void SetAttackDirection_Implementation(EAttackDirection InAttackDirection) override; 
 	/* End Combat Interface */
+
+	/* Getter for Component */
+	UCameraComponent* GetFirstPersonCamera() const; 
 
 	UFUNCTION()
 	void OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam);
@@ -112,15 +113,7 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUp() const; 
 
-	FTimerHandle DeathTimer; 
-
-	float DeathTime = 9.f; 
-
-	EAttackDirection AttackDirection = EAttackDirection::NotSet; 
-
 	bool bPossessed = false; 
-
-	bool bIgnoreFirstUnpossession = true; 
 
 	bool bCleanedUp = false; 
 

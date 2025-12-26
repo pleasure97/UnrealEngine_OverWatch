@@ -17,7 +17,7 @@ void UCameraTransitionComponent::BeginPlay()
     // Cache Owning Character
     OwningCharacter = Cast<ACharacter>(GetOwner()); 
 
-    ActiveFirstPersonCamera();
+    OnRep_FirstPersonView();
 }
 
 void UCameraTransitionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

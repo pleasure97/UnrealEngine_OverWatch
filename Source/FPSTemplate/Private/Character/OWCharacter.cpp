@@ -344,14 +344,9 @@ UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() con
 	return FirstPersonMesh->GetAnimInstance(); 
 }
 
-EAttackDirection AOWCharacter::GetAttackDirection_Implementation() const
+UCameraComponent* AOWCharacter::GetFirstPersonCamera() const
 {
-	return AttackDirection;
-}
-
-void AOWCharacter::SetAttackDirection_Implementation(EAttackDirection InAttackDirection)
-{
-	AttackDirection = InAttackDirection; 
+	return FirstPersonCamera;
 }
 
 void AOWCharacter::OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTeam)
