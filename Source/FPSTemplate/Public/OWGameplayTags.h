@@ -32,6 +32,7 @@ public:
 	FGameplayTag Attributes_Secondary_CriticalHitDamage;
 	FGameplayTag Attributes_Secondary_ShieldRegeneration; 
 	FGameplayTag Attributes_Secondary_HealthRegeneration; 
+	FGameplayTag Attributes_Secondary_SpeedMultiplier; 
 	
 	/* Damage Attributes */
 	FGameplayTag Damage; 
@@ -70,6 +71,7 @@ public:
 
 	/* Input Attributes - Interaction */
 	FGameplayTag InputTag_Interact;
+	FGameplayTag InputTag_Escape;
 
 	/* Player Input Attributes */
 	FGameplayTag Player_Block_InputPressed; 
@@ -186,6 +188,7 @@ public:
 	FGameplayTag Data_CriticalHitDamage; 
 	FGameplayTag Data_Recall_Health; 
 	FGameplayTag Data_Recall_NumCurrentBullets; 
+	FGameplayTag Data_SpeedMultiplier; 
 
 	/* Animation */
 	FGameplayTag Event_Movement_AimDownSight; 

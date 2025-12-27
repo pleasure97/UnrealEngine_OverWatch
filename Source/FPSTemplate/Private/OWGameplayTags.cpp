@@ -60,6 +60,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Secondary.HealthRegeneration"),
 		FString("Health Regeneration"));
 
+	GameplayTags.Attributes_Secondary_SpeedMultiplier = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Secondary.SpeedMultiplier"),
+		FString("Speed Multiplier"));
+
 	/* Damage Attributes */
 
 	GameplayTags.Damage = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -199,6 +203,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.InputTag_Interact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("InputTag.Interact"),
 		FString("InputTag of Interaction"));
+
+	GameplayTags.InputTag_Escape = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.Escape"),
+		FString("InputTag of Escape"));
 
 	/* Player Input Attributes */
 
@@ -504,19 +512,23 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Data_Cooldown = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.Cooldown"),
-		FString("Gamplay Tag When Cooldown is Set By Caller"));
+		FString("Gameplay Tag When Cooldown is Set By Caller"));
 
 	GameplayTags.Data_CriticalHitDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.CriticalHitDamage"),
-		FString("Gamplay Tag When Critical Hit Damage is Set By Caller"));
+		FString("Gameplay Tag When Critical Hit Damage is Set By Caller"));
 
 	GameplayTags.Data_Recall_Health = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.Recall.Health"),
-		FString("Health Gamplay Tag When Recall is Set By Caller"));
+		FString("Health Gameplay Tag When Recall is Set By Caller"));
 
 	GameplayTags.Data_Recall_NumCurrentBullets = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.Recall.NumCurrentBullets"),
-		FString("NumCurrentBullets Gamplay Tag When Recall is Set By Caller"));
+		FString("NumCurrentBullets Gameplay Tag When Recall is Set By Caller"));
+
+	GameplayTags.Data_SpeedMultiplier = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.SpeedMultiplier"),
+		FString("Speed Multiplier Gameplay Tag When Recall is Set By Caller"));
 
 	/* Animation */
 	GameplayTags.Event_Movement_AimDownSight = UGameplayTagsManager::Get().AddNativeGameplayTag(

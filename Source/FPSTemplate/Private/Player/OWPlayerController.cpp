@@ -175,23 +175,77 @@ void AOWPlayerController::Input_Look(const FInputActionValue& InputActionValue)
 
 void AOWPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputPressed)) return; 
+	// Get GameplayTag Singleton Container
+	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get(); 
+	// Get Custom Ability System Component
+	UOWAbilitySystemComponent* OWASC = GetAbilitySystemComponent(); 
 
-	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagPressed(InputTag); 
+	// Check if Input Tag Matches Escape Key 
+	bool bIsEscapeKey = InputTag.MatchesTagExact(OWGameplayTags.InputTag_Escape);
+
+	// When 'Player_Block_InputPressed' Gameplay Tag is Present, Block when a Key Other than Escape Key is Pressed
+	if (!bIsEscapeKey)
+	{
+		if (IsValid(OWASC) && OWASC->HasMatchingGameplayTag(OWGameplayTags.Player_Block_InputPressed))
+		{
+			return;
+		}
+	}
+	
+	if (IsValid(OWASC))
+	{
+		OWASC->AbilityInputTagPressed(InputTag);
+	}
 }
 
 void AOWPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputReleased)) return;
+	// Get GameplayTag Singleton Container
+	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get();
+	// Get Custom Ability System Component
+	UOWAbilitySystemComponent* OWASC = GetAbilitySystemComponent();
 
-	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagReleased(InputTag);
+	// Check if Input Tag Matches Escape Key 
+	bool bIsEscapeKey = InputTag.MatchesTagExact(OWGameplayTags.InputTag_Escape);
+
+	// When 'Player_Block_InputReleased' Gameplay Tag is Present, Block when a Key Other than Escape Key is Pressed
+	if (!bIsEscapeKey)
+	{
+		if (IsValid(OWASC) && OWASC->HasMatchingGameplayTag(OWGameplayTags.Player_Block_InputReleased))
+		{
+			return;
+		}
+	}
+
+	if (IsValid(OWASC))
+	{
+		OWASC->AbilityInputTagReleased(InputTag);
+	}
 }
 
 void AOWPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
-	if (GetAbilitySystemComponent() && GetAbilitySystemComponent()->HasMatchingGameplayTag(FOWGameplayTags::Get().Player_Block_InputHeld)) return;
+	// Get GameplayTag Singleton Container
+	const FOWGameplayTags& OWGameplayTags = FOWGameplayTags::Get();
+	// Get Custom Ability System Component
+	UOWAbilitySystemComponent* OWASC = GetAbilitySystemComponent();
 
-	if (GetAbilitySystemComponent()) GetAbilitySystemComponent()->AbilityInputTagHeld(InputTag);
+	// Check if Input Tag Matches Escape 
+	bool bIsEscapeKey = InputTag.MatchesTagExact(OWGameplayTags.InputTag_Escape);
+
+	// When 'Player_Block_InputReleased' Gameplay Tag is Present, Block when a Key Other than Escape Key is Pressed
+	if (!bIsEscapeKey)
+	{
+		if (IsValid(OWASC) && OWASC->HasMatchingGameplayTag(OWGameplayTags.Player_Block_InputHeld))
+		{
+			return;
+		}
+	}
+
+	if (IsValid(OWASC))
+	{
+		OWASC->AbilityInputTagHeld(InputTag);
+	}
 }
 
 void AOWPlayerController::BroadcastOnPlayerStateChanged()
