@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "GameplayEffectTypes.h"
+#include "Net/UnrealNetwork.h"
 #include "OWMessageTypes.generated.h"
 
 class UHealthPlateManagerComponent;
@@ -245,7 +246,7 @@ public:
 	float TimeSeconds = 0.f;
 
 	UPROPERTY(BlueprintReadWrite)
-	FVector Location = FVector::ZeroVector;
+	FVector_NetQuantize Location = FVector::ZeroVector;
 
 	UPROPERTY(BlueprintReadWrite)
 	float Health = -1.f;
