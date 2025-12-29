@@ -111,6 +111,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Attributes.Skill.SkillGauge"),
 		FString("Skill Gauge"));
 
+	GameplayTags.Attributes_Skill_MaxSkillGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Attributes.Skill.MaxSkillGauge"),
+		FString("Max Skill Gauge"));
+
 	GameplayTags.Attributes_Skill_UltimateGauge = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Attributes.Skill.UltimateGauge"),
 		FString("Ultimate Gauge"));

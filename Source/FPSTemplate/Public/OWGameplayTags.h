@@ -80,6 +80,7 @@ public:
 
 	/* Skill Attributes */
 	FGameplayTag Attributes_Skill_SkillGauge; 
+	FGameplayTag Attributes_Skill_MaxSkillGauge; 
 	FGameplayTag Attributes_Skill_UltimateGauge; 
 	FGameplayTag Attributes_Skill_MaxUltimateGauge; 
 	FGameplayTag Attributes_Skill_NumCurrentBullets; 

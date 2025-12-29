@@ -13,6 +13,12 @@
 		GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 		GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName) \
 
+#define CLAMP_BY_MAX_ATTRIBUTE(TargetAttribute, AttributeName, MaxAttributeName) \
+    if (TargetAttribute == Get##AttributeName##Attribute()) \
+    { \
+        NewValue = FMath::Clamp(NewValue, 0.f, Get##MaxAttributeName()); \
+    }
+
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnDamageReceived, AActor*, /* DamageEffectCauser */ AActor*, /* Owner Actor */ float /* Damage */);
 DECLARE_MULTICAST_DELEGATE_FourParams(FOWAttributeEvent, AActor* /* Effect Instigator */, AActor* /* Effect Causer */, const FGameplayEffectSpec* /* Effect Spec */, float /* Effect Magnitude*/); 
 
@@ -142,6 +148,10 @@ public:
 	FGameplayAttributeData HealthRegeneration;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, HealthRegeneration);
 
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SpeedMultiplier, Category = "Secondary Attributes")
+	FGameplayAttributeData SpeedMultiplier;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SpeedMultiplier);
+
 	/* 
 	 * Resistance Attributes 
 	 */
@@ -156,6 +166,10 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_SkillGauge, Category="Skill Attributes")
 	FGameplayAttributeData SkillGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SkillGauge);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxSkillGauge, Category = "Skill Attributes")
+	FGameplayAttributeData MaxSkillGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxSkillGauge);
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_UltimateGauge, Category="Skill Attributes")
 	FGameplayAttributeData UltimateGauge;
@@ -263,6 +277,9 @@ public:
 	UFUNCTION()
 	void OnRep_HealthRegeneration(const FGameplayAttributeData& OldHealthRegeneration) const;
 
+	UFUNCTION()
+	void OnRep_SpeedMultiplier(const FGameplayAttributeData& OldSpeedMultiplier) const;
+
 	/*
 	 * Resistance Attributes
 	 */
@@ -274,6 +291,9 @@ public:
 	 */
 	UFUNCTION()
 	void OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const;
+
+	UFUNCTION()
+	void OnRep_MaxSkillGauge(const FGameplayAttributeData& OldMaxSkillGauge) const;
 
 	UFUNCTION()
 	void OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const;

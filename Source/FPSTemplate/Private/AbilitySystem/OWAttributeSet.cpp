@@ -37,12 +37,14 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_CriticalHitDamage, GetCriticalHitDamageAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_ShieldRegeneration, GetShieldRegenerationAttribute);
 	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_HealthRegeneration, GetHealthRegenerationAttribute);
+	TagsToAttributes.Add(GameplayTags.Attributes_Secondary_SpeedMultiplier, GetSpeedMultiplierAttribute);
 
 	/* Resistance Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Laser, GetLaserResistanceAttribute); 
 
 	/* Skill Attributes */
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
+	TagsToAttributes.Add(GameplayTags.Attributes_Skill_MaxSkillGauge, GetMaxSkillGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_UltimateGauge, GetUltimateGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_MaxUltimateGauge, GetMaxUltimateGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_NumCurrentBullets, GetNumCurrentBulletsAttribute); 
@@ -76,12 +78,14 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, CriticalHitDamage, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, ShieldRegeneration, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, HealthRegeneration, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SpeedMultiplier, COND_None, REPNOTIFY_Always);
 
 	/* Resistance Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, LaserResistance, COND_None, REPNOTIFY_Always); 
 
 	/* Skill Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxSkillGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, UltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumCurrentBullets, COND_None, REPNOTIFY_Always); 
@@ -102,30 +106,12 @@ void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 {
 	Super::PreAttributeChange(Attribute, NewValue); 
 
-	if (Attribute == GetHealthAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth()); 
-	}
-	if (Attribute == GetArmorAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxArmor()); 
-	}
-	if (Attribute == GetShieldAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxShield()); 
-	}
-	if (Attribute == GetNumCurrentBulletsAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetNumMaxBullets()); 
-	}
-	if (Attribute == GetUltimateGaugeAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxUltimateGauge()); 
-	}
-	if (Attribute == GetFirstSkillCurrentStacksAttribute())
-	{
-		NewValue = FMath::Clamp(NewValue, 0.f, GetFirstSkillMaxStacks()); 
-	}
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, Health, MaxHealth);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, Armor, MaxArmor);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, NumCurrentBullets, NumMaxBullets);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, UltimateGauge, MaxUltimateGauge);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, FirstSkillCurrentStacks, FirstSkillMaxStacks);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, SkillGauge, MaxSkillGauge);
 }
 
 bool UOWAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -188,6 +174,10 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetFirstSkillCurrentStacksAttribute())
 	{
 		SetFirstSkillCurrentStacks(FMath::Clamp(GetFirstSkillCurrentStacks(), 0.f, GetFirstSkillMaxStacks()));
+	}
+	if (Data.EvaluatedData.Attribute == GetUltimateGaugeAttribute())
+	{
+		SetUltimateGauge(FMath::Clamp(GetUltimateGauge(), 0.f, GetMaxUltimateGauge())); 
 	}
 }
 
@@ -271,6 +261,11 @@ void UOWAttributeSet::OnRep_HealthRegeneration(const FGameplayAttributeData& Old
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, HealthRegeneration, OldHealthRegeneration);
 }
 
+void UOWAttributeSet::OnRep_SpeedMultiplier(const FGameplayAttributeData& OldSpeedMultiplier) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SpeedMultiplier, OldSpeedMultiplier);
+}
+
 void UOWAttributeSet::OnRep_LaserResistance(const FGameplayAttributeData& OldLaserResistance) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, LaserResistance, OldLaserResistance);
@@ -279,6 +274,11 @@ void UOWAttributeSet::OnRep_LaserResistance(const FGameplayAttributeData& OldLas
 void UOWAttributeSet::OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SkillGauge, OldSkillGauge); 
+}
+
+void UOWAttributeSet::OnRep_MaxSkillGauge(const FGameplayAttributeData& OldMaxSkillGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, MaxSkillGauge, OldMaxSkillGauge);
 }
 
 void UOWAttributeSet::OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const
@@ -437,11 +437,6 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 		const bool bFatal = GetHealth() <= 0.f; 
 		if (bFatal)
 		{
-			/*ICombatInterface* CombatInterface = Cast<ICombatInterface>(EffectProperties.TargetAvatarActor); 
-			if (CombatInterface)
-			{
-				CombatInterface->Die(UOWAbilitySystemLibrary::GetDeathImpulse(EffectProperties.EffectContextHandle));
-			}*/
 			SendHeroKilledEvent(EffectProperties);
 			SendXPEvent(EffectProperties); 
 		}
@@ -500,9 +495,6 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 			SetShield(GetShield() + ShieldHeal);
 		}
 	}
-
-	// Increase ultimate gauge by 1 for damage or healing amount
-	SetUltimateGauge(GetUltimateGauge() + FMath::Abs(LocalIncomingDamage));
 
 	// TODO - May need to change to general delegate from gameplay message subsystem 
 	// Get Gameplay Message Subsystem and Damage Message GameplayTag 

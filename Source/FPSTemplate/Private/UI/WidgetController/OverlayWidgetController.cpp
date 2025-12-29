@@ -39,13 +39,19 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToDefensiveAttributes)
 	{
 		FOnAttributeChangedSignature* AttributeDelegate = GetDelegateForTag(Pair.Key);
-		BindAttributeChange(AbilitySystemComponent, Pair.Key, Pair.Value(), *AttributeDelegate);
+		if (AttributeDelegate)
+		{
+			BindAttributeChange(AbilitySystemComponent, Pair.Key, Pair.Value(), *AttributeDelegate);
+		}
 	}
 
 	for (TPair<FGameplayTag, TStaticFuncPtr<FGameplayAttribute()>>& Pair : GetOW_AS()->TagsToAttributes)
 	{
 		FOnAttributeChangedSignature* AttributeDelegate = GetDelegateForTag(Pair.Key);
-		BindAttributeChange(AbilitySystemComponent, Pair.Key, Pair.Value(), *AttributeDelegate);
+		if (AttributeDelegate)
+		{
+			BindAttributeChange(AbilitySystemComponent, Pair.Key, Pair.Value(), *AttributeDelegate);
+		}
 	}
 }
 
