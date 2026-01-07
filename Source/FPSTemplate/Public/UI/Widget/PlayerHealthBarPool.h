@@ -100,17 +100,28 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UHorizontalBox> HorizontalBox_OverHealth;
 
-	UPROPERTY()
+	/* Health Bar Information */
+	UPROPERTY(Transient)
 	TMap<FGameplayTag, FPlayerHealthBarPoolInfo> TagsToHealthBarInfos;
 
 	UPROPERTY()
 	TArray<FPlayerHealthBarPoolInfo> HealthBarInfos;
 
+	/* Binding Attributes */
 	void BindDefensiveAttributeChange(AOWPlayerState* NewPlayerState);
 
 	void BindDefensiveAttributeChange(UOWAbilitySystemComponent* NewAbilitySystemComponent);
 
+	void TryBindAttributes(AOWPlayerState* InOWPlayerState);
+
+	void TryBindAttributes(UOWAbilitySystemComponent* InAbilitySystemComponent);
+
+	bool CanBindAttributes(AOWPlayerState* InOWPlayerState);
+
+	bool CanBindAttributes(UOWAbilitySystemComponent* InAbilitySystemComponent);
+
 	/* Update Attributes */
+
 	UFUNCTION()
 	void OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue);
 
@@ -151,27 +162,21 @@ protected:
 	void InitializeHealthBarPoolInfos();
 
 private:
+	/* Update Progress Bars */
 	void InitializeProgressBars(const float& NewValue, const FPlayerHealthBarPoolInfo& HealthBarPoolInfo);
 	void UpdateProgressBars(const float& NewValue, const FPlayerHealthBarPoolInfo& HealthBarPoolInfo);
 	void UpdateBorderVisibility();
 	void DistributeFillSize();
 	void ClearHealthBarPool();
 
-	UPROPERTY()
-	float SavedHealth = 0.f; 
+	/* Binding Attributes */
+	bool ClearRetryTimer();
 
-	UPROPERTY()
-	float SavedArmor = 0.f; 
+	TWeakObjectPtr<UOWAbilitySystemComponent> WeakOwnerASC;
 
-	UPROPERTY()
-	float SavedShield = 0.f; 
+	TWeakObjectPtr<UOWAttributeSet> WeakOwnerAS;
 
-	UPROPERTY()
-	TObjectPtr<UOWAbilitySystemComponent> OwnerAbilitySystemComponent;
+	TWeakObjectPtr<AOWPlayerState> WeakOwnerPS;
 
-	UPROPERTY()
-	TObjectPtr<UOWAttributeSet> OwnerAttributeSet;
-
-	UPROPERTY()
-	TObjectPtr<AOWPlayerState> OWPlayerState; 
+	FTimerHandle RetryTimerHandle;
 };

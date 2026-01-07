@@ -32,16 +32,20 @@ void UHealthPlate::NativeDestruct()
 
 void UHealthPlate::SetPlayerState(AOWPlayerState* InOWPlayerState)
 {
-	OWPlayerState = InOWPlayerState;
-
-	// Set Player State of Player Health Bar Pool 
-	if (WBP_PlayerHealthBarPool)
+	if (!IsValid(InOWPlayerState))
 	{
-		WBP_PlayerHealthBarPool->BindDefensiveAttributeChange(OWPlayerState);
+		return;
 	}
 
+	if (OWPlayerState == InOWPlayerState && bSuccessfullyInitialized)
+	{
+		return;
+	}
+
+	OWPlayerState = InOWPlayerState;
+
 	// Bind Team Changed Delegate of Player State 
-	OWPlayerState->GetTeamChangedDelegate().AddDynamic(this, &UHealthPlate::OnTeamChanged);
+	OWPlayerState->GetTeamChangedDelegate().AddUniqueDynamic(this, &UHealthPlate::OnTeamChanged);
 	if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
 	{
 		// If Team ID is already set, then Call OnTeamChanged()
@@ -51,6 +55,13 @@ void UHealthPlate::SetPlayerState(AOWPlayerState* InOWPlayerState)
 			OnTeamChanged(OWPlayerState, -1, TeamID);
 		}
 	}
+
+	// Set Player State of Player Health Bar Pool 
+	if (WBP_PlayerHealthBarPool)
+	{
+		WBP_PlayerHealthBarPool->TryBindAttributes(OWPlayerState);
+	}
+
 }
 
 void UHealthPlate::SetAbilitySystemComponent(UOWAbilitySystemComponent* InOWAbilitySystemComponent)
@@ -60,7 +71,7 @@ void UHealthPlate::SetAbilitySystemComponent(UOWAbilitySystemComponent* InOWAbil
 		// Set Player State of Player Health Bar Pool 
 		if (WBP_PlayerHealthBarPool)
 		{
-			WBP_PlayerHealthBarPool->BindDefensiveAttributeChange(InOWAbilitySystemComponent); 
+			WBP_PlayerHealthBarPool->TryBindAttributes(InOWAbilitySystemComponent); 
 		}
 	}
 }
@@ -119,14 +130,11 @@ void UHealthPlate::UpdatePlayerName(bool bAlly)
 {
 	if (TextBlock_PlayerName)
 	{
-		if (bAlly)
-		{
-			TextBlock_PlayerName->SetColorAndOpacity(FSlateColor(AllyColor));
-		}
-		else
-		{
-			TextBlock_PlayerName->SetColorAndOpacity(FSlateColor(EnemyColor));
-		}
+		// Set Player Name Color Depending on Team
+		FSlateColor SlateColor = bAlly ? FSlateColor(AllyColor) : FSlateColor(EnemyColor);
+		TextBlock_PlayerName->SetColorAndOpacity(SlateColor);
+
+		// Set Player Name
 		FString OwnerPlayerName = OWPlayerState->GetPlayerName();
 		if (OwnerPlayerName.Len() > 12)
 		{
@@ -140,24 +148,22 @@ void UHealthPlate::UpdatePlayerArrow(bool bAlly)
 {
 	if (Image_PlayerArrow)
 	{
-		if (!bAlly)
-		{
-			Image_PlayerArrow->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		else
-		{
-			Image_PlayerArrow->SetVisibility(ESlateVisibility::Visible);
-		}
+		// Ally - Show Player Arrow
+		// Enemy - Collapse Player Arrow 
+		ESlateVisibility SlateVisibility = bAlly ? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
+		Image_PlayerArrow->SetVisibility(SlateVisibility);
 	}
 }
 
 void UHealthPlate::UpdatePlayerHealthBarPool(bool bAlly)
 {
-	if (!bAlly)
+	if (bAlly)
 	{
-		if (WBP_PlayerHealthBarPool)
-		{
-			WBP_PlayerHealthBarPool->SetIsEnemy(true); 
-		}
+		return;
+	}
+
+	if (WBP_PlayerHealthBarPool)
+	{
+		WBP_PlayerHealthBarPool->SetIsEnemy(true);
 	}
 }

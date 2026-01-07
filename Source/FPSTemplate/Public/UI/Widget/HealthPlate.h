@@ -38,6 +38,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FLinearColor AllyColor = FLinearColor(0.f, 0.f, 1.f, 1.f);
 
+	/* Binding */
 	UFUNCTION(BlueprintCallable)
 	void SetPlayerState(AOWPlayerState* InOWPlayerState);
 
@@ -49,6 +50,8 @@ public:
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeDestruct() override; 
+
+	bool bSuccessfullyInitialized = false;
 
 private:
 	UPROPERTY()
@@ -63,6 +66,4 @@ private:
 	void UpdatePlayerHealthBarPool(bool bAlly);
 
 	int32 OwnerTeamID = -1; 
-
-	TArray<APawn*> EnemyPawnArray;
 };

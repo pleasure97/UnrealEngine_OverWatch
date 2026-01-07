@@ -23,20 +23,20 @@ void UPlayerHealthBarPool::NativePreConstruct()
 void UPlayerHealthBarPool::NativeDestruct()
 {
 	// Remove Binding of Gameplay Attribute Value Change Delegate of Ability System Component 
-	if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
+	if (IsValid(WeakOwnerASC.Get()) && IsValid(WeakOwnerAS.Get()))
 	{
-		for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+		for (auto& TagToDefensiveAttribute : WeakOwnerAS->TagsToDefensiveAttributes)
 		{
 			const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
 			const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
 
-			OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this);
+			WeakOwnerASC->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this);
 		}
 	}
 
-	if (OWPlayerState)
+	if (IsValid(WeakOwnerPS.Get()))
 	{
-		OWPlayerState->GetTeamChangedDelegate().RemoveAll(this); 
+		WeakOwnerPS->GetTeamChangedDelegate().RemoveAll(this);
 	}
 
 	ClearHealthBarPool();
@@ -81,28 +81,27 @@ void UPlayerHealthBarPool::SetIsEnemy(bool bEnemy)
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
+	if (!bEnemy)
+	{
+		return;
+	}
+
 	if (TagsToHealthBarInfos.IsEmpty())
 	{
-		if (bEnemy)
-		{
-			TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth,
-				FPlayerHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("Red")], &UPlayerHealthBarPool::UpdateMaxHealthBars));
-			TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health,
-				FPlayerHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("Red")], &UPlayerHealthBarPool::UpdateHealthBars));
-		}
+		TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_MaxHealth,
+			FPlayerHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("Red")], &UPlayerHealthBarPool::UpdateMaxHealthBars));
+		TagsToHealthBarInfos.Add(GameplayTags.Attributes_Defense_Health,
+			FPlayerHealthBarPoolInfo(Border_Health, HorizontalBox_Health, HealthBarColors[FName("Red")], &UPlayerHealthBarPool::UpdateHealthBars));
 	}
 	else
 	{
-		if (bEnemy)
+		if (FPlayerHealthBarPoolInfo* MaxHealthBarInfo = TagsToHealthBarInfos.Find(GameplayTags.Attributes_Defense_MaxHealth))
 		{
-			if (FPlayerHealthBarPoolInfo* MaxHealthBarInfo = TagsToHealthBarInfos.Find(GameplayTags.Attributes_Defense_MaxHealth))
-			{
-				MaxHealthBarInfo->HealthBarColor = HealthBarColors[FName("Red")];
-			}
-			if (FPlayerHealthBarPoolInfo* HealthBarInfo = TagsToHealthBarInfos.Find(GameplayTags.Attributes_Defense_Health))
-			{
-				HealthBarInfo->HealthBarColor = HealthBarColors[FName("Red")];
-			}
+			MaxHealthBarInfo->HealthBarColor = HealthBarColors[FName("Red")];
+		}
+		if (FPlayerHealthBarPoolInfo* HealthBarInfo = TagsToHealthBarInfos.Find(GameplayTags.Attributes_Defense_Health))
+		{
+			HealthBarInfo->HealthBarColor = HealthBarColors[FName("Red")];
 		}
 	}
 }
@@ -115,34 +114,7 @@ void UPlayerHealthBarPool::BindDefensiveAttributeChange(AOWPlayerState* NewOWPla
 		// Get Ability System Component from Custom Player State and Cast it to Custom Ability System Component
 		if (UOWAbilitySystemComponent* InAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(NewOWPlayerState->GetAbilitySystemComponent()))
 		{
-			// Assign Owner Ability System Component Member Variable 
-			OwnerAbilitySystemComponent = InAbilitySystemComponent;
-			// Get Attribute Set from Owner Ability System Component and Cast it to Custom Attribute Set
-			if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(OwnerAbilitySystemComponent->GetSet<UOWAttributeSet>()))
-			{
-				// Assign Owner Attribute Set Member Variable 
-				OwnerAttributeSet = InAttributeSet;
-				// Check Owner Ability System Component and Attribute Set are Valid 
-				if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
-				{
-					// Iterate Defensive Attribute Map of Owner Attribute Set
-					for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
-					{
-						const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
-						const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
-
-						// Bind Gameplay Attribute Value Change Delegate of Owner Ability System Component
-						OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddLambda(
-							[this, DefensiveTag](const FOnAttributeChangeData& Data)
-							{
-								OnDefensiveAttributeChanged(DefensiveTag, Data.NewValue);
-							}
-						);
-						// Call in advance to Initilaize Health Bar Pool 
-						OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(OwnerAttributeSet));
-					}
-				}
-			}
+			BindDefensiveAttributeChange(InAbilitySystemComponent);
 		}
 	}
 }
@@ -153,38 +125,167 @@ void UPlayerHealthBarPool::BindDefensiveAttributeChange(UOWAbilitySystemComponen
 	if (IsValid(NewAbilitySystemComponent))
 	{
 		// Assign Owner Ability System Component Member Variable 
-		OwnerAbilitySystemComponent = NewAbilitySystemComponent;
+		WeakOwnerASC = NewAbilitySystemComponent;
+
 		// Get Attribute Set from Owner Ability System Component and Cast it to Custom Attribute Set
-		if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(OwnerAbilitySystemComponent->GetSet<UOWAttributeSet>()))
+		if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(WeakOwnerASC->GetSet<UOWAttributeSet>()))
 		{
 			// Assign Owner Attribute Set Member Variable 
-			OwnerAttributeSet = InAttributeSet;
+			WeakOwnerAS = InAttributeSet;
 			// Check Owner Ability System Component and Attribute Set are Valid 
-			if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
+			if (IsValid(WeakOwnerASC.Get()) && IsValid(WeakOwnerAS.Get()))
 			{
+				// Clear Defensive Attribute Value Bindings 
+				for (auto& TagToDefensiveAttribute : WeakOwnerAS->TagsToDefensiveAttributes)
+				{
+					const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
+					const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
+					WeakOwnerASC->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this);
+				}
+
 				// Iterate Defensive Attribute Map of Owner Attribute Set
-				for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+				for (auto& TagToDefensiveAttribute : WeakOwnerAS->TagsToDefensiveAttributes)
 				{
 					const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
 					const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
 
 					// Bind Gameplay Attribute Value Change Delegate of Owner Ability System Component
-					OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddLambda(
+					WeakOwnerASC->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddWeakLambda(
+						this,
 						[this, DefensiveTag](const FOnAttributeChangeData& Data)
 						{
 							OnDefensiveAttributeChanged(DefensiveTag, Data.NewValue);
 						}
 					);
 					// Call in advance to Initilaize Health Bar Pool 
-					OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(OwnerAttributeSet));
+					if (WeakOwnerASC->HasAttributeSetForAttribute(DefensiveAttribute))
+					{
+						OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(WeakOwnerAS.Get()));
+					}
 				}
 			}
 		}
 	}
 }
 
+void UPlayerHealthBarPool::TryBindAttributes(AOWPlayerState* InOWPlayerState)
+{
+	WeakOwnerPS = InOWPlayerState;
+
+	if (!ClearRetryTimer())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cannot Clear Retry Timer in UPlayerHealthBarPool::TryBindAttributes()"));
+		return;
+	}
+
+	if (CanBindAttributes(InOWPlayerState))
+	{
+		BindDefensiveAttributeChange(InOWPlayerState);
+		return;
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(RetryTimerHandle,
+			[this]()
+			{
+				if (WeakOwnerPS.IsValid())
+				{
+					TryBindAttributes(WeakOwnerPS.Get());
+				}
+				else
+				{
+					GetWorld()->GetTimerManager().ClearTimer(RetryTimerHandle);
+				}
+			},
+			0.1f,
+			false
+		);
+	}
+}
+
+bool UPlayerHealthBarPool::ClearRetryTimer()
+{
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is Not Valid in UPlayerHealthBarPool::()"));
+		return false;
+	}
+
+	if (World->GetTimerManager().IsTimerActive(RetryTimerHandle))
+	{
+		World->GetTimerManager().ClearTimer(RetryTimerHandle);
+	}
+
+	return true;
+}
+
+void UPlayerHealthBarPool::TryBindAttributes(UOWAbilitySystemComponent* InAbilitySystemComponent)
+{
+	WeakOwnerASC = InAbilitySystemComponent;
+
+	if (!ClearRetryTimer())
+	{
+		UE_LOG(LogTemp, Error, TEXT("Cannot Clear Retry Timer in UPlayerHealthBarPool::TryBindAttributes()"));
+		return;
+	}
+
+	if (CanBindAttributes(InAbilitySystemComponent))
+	{
+		BindDefensiveAttributeChange(InAbilitySystemComponent);
+		return;
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(RetryTimerHandle,
+			[this]()
+			{
+				if (WeakOwnerASC.IsValid())
+				{
+					TryBindAttributes(WeakOwnerASC.Get());
+				}
+				else
+				{
+					GetWorld()->GetTimerManager().ClearTimer(RetryTimerHandle);
+				}
+			},
+			0.1f,
+			false
+		);
+	}
+}
+
+bool UPlayerHealthBarPool::CanBindAttributes(AOWPlayerState* InOWPlayerState)
+{
+	if (!IsValid(InOWPlayerState))
+	{
+		return false;
+	}
+
+	UOWAbilitySystemComponent* OWAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(InOWPlayerState->GetAbilitySystemComponent());
+
+	return CanBindAttributes(OWAbilitySystemComponent);
+}
+
+bool UPlayerHealthBarPool::CanBindAttributes(UOWAbilitySystemComponent* InAbilitySystemComponent)
+{
+	if (!IsValid(InAbilitySystemComponent))
+	{
+		return false;
+	}
+
+	const UOWAttributeSet* OWAttributeSet = InAbilitySystemComponent->GetSet<UOWAttributeSet>();
+
+	return IsValid(OWAttributeSet);
+}
+
 void UPlayerHealthBarPool::OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue)
 {
+	if (!IsValid(this))
+	{
+		return;
+	}
+
 	if (TagsToHealthBarInfos.IsEmpty())
 	{
 		InitializeHealthBarPoolInfos(); 
@@ -257,13 +358,6 @@ void UPlayerHealthBarPool::UpdateMaxHealthBars(float NewValue)
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
 
-	if (SavedHealth > 0.f)
-	{
-		UpdateProgressBars(SavedHealth, HealthBarPoolInfo); 
-
-		SavedHealth = 0.f;
-	}
-
 	UpdateBorderVisibility();
 
 	DistributeFillSize();
@@ -274,13 +368,6 @@ void UPlayerHealthBarPool::UpdateMaxArmorBars(float NewValue)
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	if (SavedArmor > 0.f)
-	{
-		UpdateProgressBars(SavedArmor, HealthBarPoolInfo);
-
-		SavedArmor = 0.f;
-	}
 
 	UpdateBorderVisibility();
 
@@ -293,13 +380,6 @@ void UPlayerHealthBarPool::UpdateMaxShieldBars(float NewValue)
 
 	InitializeProgressBars(NewValue, HealthBarPoolInfo);
 
-	if (SavedShield > 0.f)
-	{
-		UpdateProgressBars(SavedShield, HealthBarPoolInfo);
-
-		SavedShield = 0.f;
-	}
-
 	UpdateBorderVisibility();
 
 	DistributeFillSize();
@@ -308,11 +388,6 @@ void UPlayerHealthBarPool::UpdateMaxShieldBars(float NewValue)
 void UPlayerHealthBarPool::UpdateHealthBars(float NewValue)
 {
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
-	{
-		SavedHealth = NewValue;
-		return;
-	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
@@ -320,11 +395,6 @@ void UPlayerHealthBarPool::UpdateHealthBars(float NewValue)
 void UPlayerHealthBarPool::UpdateArmorBars(float NewValue)
 {
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
-	{
-		SavedArmor = NewValue; 
-		return;
-	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
@@ -332,11 +402,6 @@ void UPlayerHealthBarPool::UpdateArmorBars(float NewValue)
 void UPlayerHealthBarPool::UpdateShieldBars(float NewValue)
 {
 	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
-	{
-		SavedShield = NewValue; 
-		return;
-	}
 
 	UpdateProgressBars(NewValue, HealthBarPoolInfo);
 }
