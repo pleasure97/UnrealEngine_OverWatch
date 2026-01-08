@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "GameplayTagContainer.h"
+#include "OWGameplayTags.h"
 #include "HealthBarPool.generated.h"
 
 class UHealthBar;
@@ -16,6 +17,28 @@ class UOWAttributeSet;
 struct FOnAttributeChangeData;
 struct FGameplayTag;
 struct FGameplayAttribute;
+
+#define DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(AttributeName) \
+    UFUNCTION() \
+    void Update##AttributeName##Bars(float NewValue) \
+    { \
+        if (const FHealthBarPoolInfo* Info = TagsToHealthBarInfos.Find(FOWGameplayTags::Get().Attributes_Defense_##AttributeName)) \
+        { \
+            InitializeProgressBars(NewValue, *Info); \
+            UpdateBorderVisibility(); \
+            DistributeFillSize(); \
+        } \
+    }
+
+#define DEFINE_VALUE_ATTRIBUTE_FUNCTION(AttributeName) \
+    UFUNCTION() \
+    void Update##AttributeName##Bars(float NewValue) \
+    { \
+        if (const FHealthBarPoolInfo* Info = TagsToHealthBarInfos.Find(FOWGameplayTags::Get().Attributes_Defense_##AttributeName)) \
+        { \
+            UpdateProgressBars(NewValue, *Info); \
+        } \
+    }																				
 
 USTRUCT(BlueprintType)
 struct FHealthBarPoolInfo
@@ -116,33 +139,16 @@ public:
 	UFUNCTION()
 	void OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue); 
 
-	UFUNCTION()
-	void UpdateHealthBars(float NewValue);
+	DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(MaxHealth)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(MaxArmor)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(MaxShield)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(TempArmor)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(TempShield)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNCTION(OverHealth)
 
-	UFUNCTION()
-	void UpdateMaxHealthBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateArmorBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateMaxArmorBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateShieldBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateMaxShieldBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateTempArmorBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateTempShieldBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateOverHealthBars(float NewValue);
-
+	DEFINE_VALUE_ATTRIBUTE_FUNCTION(Health)
+	DEFINE_VALUE_ATTRIBUTE_FUNCTION(Armor)
+	DEFINE_VALUE_ATTRIBUTE_FUNCTION(Shield)
 	/* End Update Attributes */
 
 	void SetHealthBarColor(FLinearColor Color); 
@@ -158,17 +164,6 @@ private:
 	void DistributeFillSize(); 
 	void ClearHealthBarPool(); 
 
-	UPROPERTY()
-	float SavedHealth = 0.f; 
-
-	UPROPERTY()
-	float SavedArmor = 0.f; 
-
-	UPROPERTY()
-	float SavedShield = 0.f; 
-
-	UPROPERTY()
-	TObjectPtr<UOWAbilitySystemComponent> OwnerAbilitySystemComponent; 
-	UPROPERTY()
-	TObjectPtr<UOWAttributeSet> OwnerAttributeSet; 
+	TWeakObjectPtr<UOWAbilitySystemComponent> WeakOwnerASC;
+	TObjectPtr<UOWAttributeSet> WeakOwnerAS;
 };

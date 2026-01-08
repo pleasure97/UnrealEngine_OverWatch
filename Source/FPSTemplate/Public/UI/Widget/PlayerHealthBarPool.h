@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "GameplayTagContainer.h"
+#include "OWGameplayTags.h"
 #include "PlayerHealthBarPool.generated.h"
 
 class UHealthBar;
@@ -16,10 +17,41 @@ class AOWPlayerState;
 struct FOnAttributeChangeData;
 struct FGameplayAttribute;
 
+#define DEFINE_LAYOUT_ATTRIBUTE_FUNC(AttributeName) \
+    UFUNCTION() \
+    void Update##AttributeName##Bars(float NewValue) \
+    { \
+        if (const FPlayerHealthBarPoolInfo* Info = TagsToHealthBarInfos.Find(FOWGameplayTags::Get().Attributes_Defense_##AttributeName)) \
+        { \
+            InitializeProgressBars(NewValue, *Info); \
+            UpdateBorderVisibility(); \
+            DistributeFillSize(); \
+        } \
+    }
+
+#define DEFINE_VALUE_ATTRIBUTE_FUNC(AttributeName) \
+    UFUNCTION() \
+    void Update##AttributeName##Bars(float NewValue) \
+    { \
+        if (const FPlayerHealthBarPoolInfo* Info = TagsToHealthBarInfos.Find(FOWGameplayTags::Get().Attributes_Defense_##AttributeName)) \
+        { \
+            UpdateProgressBars(NewValue, *Info); \
+        } \
+    }																				
+
 USTRUCT(BlueprintType)
 struct FPlayerHealthBarPoolInfo
 {
 	GENERATED_BODY()
+
+	FPlayerHealthBarPoolInfo() {}
+
+	FPlayerHealthBarPoolInfo(
+		UBorder* InBorder, 
+		UHorizontalBox* InHorizontalBox, 
+		const FLinearColor& InHealthBarColor, 
+		void (UPlayerHealthBarPool::*InUpdateFunc)(float) = nullptr)
+		: Border(InBorder), HorizontalBox(InHorizontalBox), HealthBarColor(InHealthBarColor), UpdateFunc(InUpdateFunc) {}
 
 	UPROPERTY()
 	TObjectPtr<UBorder> Border;
@@ -125,33 +157,16 @@ public:
 	UFUNCTION()
 	void OnDefensiveAttributeChanged(FGameplayTag AttributeTag, float NewValue);
 
-	UFUNCTION()
-	void UpdateHealthBars(float NewValue);
+	DEFINE_LAYOUT_ATTRIBUTE_FUNC(MaxHealth)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNC(MaxArmor)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNC(MaxShield)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNC(TempArmor)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNC(TempShield)
+	DEFINE_LAYOUT_ATTRIBUTE_FUNC(OverHealth)
 
-	UFUNCTION()
-	void UpdateMaxHealthBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateArmorBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateMaxArmorBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateShieldBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateMaxShieldBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateTempArmorBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateTempShieldBars(float NewValue);
-
-	UFUNCTION()
-	void UpdateOverHealthBars(float NewValue);
-
+	DEFINE_VALUE_ATTRIBUTE_FUNC(Health)
+	DEFINE_VALUE_ATTRIBUTE_FUNC(Armor)
+	DEFINE_VALUE_ATTRIBUTE_FUNC(Shield)
 	/* End Update Attributes */
 
 	void SetIsEnemy(bool InbEnemy); 

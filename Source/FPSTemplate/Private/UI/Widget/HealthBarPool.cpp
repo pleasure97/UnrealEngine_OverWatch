@@ -5,7 +5,6 @@
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-#include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
 #include "Player/OWPlayerState.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
@@ -25,14 +24,14 @@ void UHealthBarPool::NativeConstruct()
 void UHealthBarPool::NativeDestruct()
 {
 	// Remove Binding of Gameplay Attribute Value Change Delegate of Ability System Component 
-	if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
+	if (IsValid(WeakOwnerASC.Get()) && IsValid(WeakOwnerAS.Get()))
 	{
-		for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+		for (auto& TagToDefensiveAttribute : WeakOwnerAS->TagsToDefensiveAttributes)
 		{
 			const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
 			const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
 
-			OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this); 
+			WeakOwnerASC->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this);
 		}
 	}
 
@@ -83,30 +82,41 @@ void UHealthBarPool::BindDefensiveAttributeChange()
 		if (UOWAbilitySystemComponent* InAbilitySystemComponent = Cast<UOWAbilitySystemComponent>(OWPlayerState->GetAbilitySystemComponent()))
 		{
 			// Assign Owner Ability System Component Member Variable 
-			OwnerAbilitySystemComponent = InAbilitySystemComponent;
+			WeakOwnerASC = InAbilitySystemComponent;
 			// Get Attribute Set from Owner Ability System Component and Cast it to Custom Attribute Set
-			if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(OwnerAbilitySystemComponent->GetSet<UOWAttributeSet>()))
+			if (UOWAttributeSet* InAttributeSet = const_cast<UOWAttributeSet*>(WeakOwnerASC->GetSet<UOWAttributeSet>()))
 			{
 				// Assign Owner Attribute Set Member Variable 
-				OwnerAttributeSet = InAttributeSet; 
+				WeakOwnerAS = InAttributeSet; 
 				// Check Owner Ability System Component and Attribute Set are Valid 
-				if (IsValid(OwnerAbilitySystemComponent) && IsValid(OwnerAttributeSet))
+				if (IsValid(WeakOwnerASC.Get()) && IsValid(WeakOwnerAS.Get()))
 				{
+					// Clear Defensive Attribute Value Bindings 
+					for (auto& TagToDefensiveAttribute : WeakOwnerAS->TagsToDefensiveAttributes)
+					{
+						const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
+						const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
+						WeakOwnerASC->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).RemoveAll(this);
+					}
+
 					// Iterate Defensive Attribute Map of Owner Attribute Set
-					for (auto& TagToDefensiveAttribute : OwnerAttributeSet->TagsToDefensiveAttributes)
+					for (auto& TagToDefensiveAttribute : WeakOwnerAS->TagsToDefensiveAttributes)
 					{
 						const FGameplayTag& DefensiveTag = TagToDefensiveAttribute.Key;
 						const FGameplayAttribute& DefensiveAttribute = TagToDefensiveAttribute.Value();
 
 						// Bind Gameplay Attribute Value Change Delegate of Owner Ability System Component
-						OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddLambda(
+						WeakOwnerASC->GetGameplayAttributeValueChangeDelegate(DefensiveAttribute).AddLambda(
 							[this, DefensiveTag](const FOnAttributeChangeData& Data)
 							{
 								OnDefensiveAttributeChanged(DefensiveTag, Data.NewValue);
 							}
 						);
 						// Call in advance to Initilaize Health Bar Pool 
-						OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(OwnerAttributeSet)); 
+						if (WeakOwnerASC->HasAttributeSetForAttribute(DefensiveAttribute))
+						{
+							OnDefensiveAttributeChanged(DefensiveTag, DefensiveAttribute.GetNumericValue(WeakOwnerAS.Get()));
+						}
 					}
 				}
 			}
@@ -174,126 +184,126 @@ void UHealthBarPool::UpdateProgressBars(const float& NewValue, const FHealthBarP
 	}
 }
 
-void UHealthBarPool::UpdateMaxHealthBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxHealth];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	if (SavedHealth > 0.f)
-	{
-		UpdateProgressBars(SavedHealth, HealthBarPoolInfo); 
-
-		SavedHealth = 0.f; 
-	}
-
-	UpdateBorderVisibility(); 
-
-	DistributeFillSize(); 
-}
-
-void UHealthBarPool::UpdateMaxArmorBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	if (SavedArmor > 0.f)
-	{
-		UpdateProgressBars(SavedArmor, HealthBarPoolInfo);
-
-		SavedArmor = 0.f;
-	}
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UHealthBarPool::UpdateMaxShieldBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxShield];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	if (SavedShield)
-	{
-		UpdateProgressBars(SavedShield, HealthBarPoolInfo);
-
-		SavedShield = 0.f;
-	}
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UHealthBarPool::UpdateHealthBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health]; 
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
-	{
-		SavedHealth = NewValue;
-		return;
-	}
-
-	UpdateProgressBars(NewValue, HealthBarPoolInfo); 
-}
-
-void UHealthBarPool::UpdateArmorBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
-	{
-		SavedArmor = NewValue; 
-	}
-
-	UpdateProgressBars(NewValue, HealthBarPoolInfo);
-}
-
-void UHealthBarPool::UpdateShieldBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
-	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
-	{
-		SavedShield = NewValue; 
-	}
-
-	UpdateProgressBars(NewValue, HealthBarPoolInfo);
-}
-
-void UHealthBarPool::UpdateTempArmorBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempArmor];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UHealthBarPool::UpdateTempShieldBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempShield];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UHealthBarPool::UpdateOverHealthBars(float NewValue)
-{
-	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_OverHealth];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
+//void UHealthBarPool::UpdateMaxHealthBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxHealth];
+//
+//	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+//
+//	if (SavedHealth > 0.f)
+//	{
+//		UpdateProgressBars(SavedHealth, HealthBarPoolInfo); 
+//
+//		SavedHealth = 0.f; 
+//	}
+//
+//	UpdateBorderVisibility(); 
+//
+//	DistributeFillSize(); 
+//}
+//
+//void UHealthBarPool::UpdateMaxArmorBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
+//
+//	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+//
+//	if (SavedArmor > 0.f)
+//	{
+//		UpdateProgressBars(SavedArmor, HealthBarPoolInfo);
+//
+//		SavedArmor = 0.f;
+//	}
+//
+//	UpdateBorderVisibility();
+//
+//	DistributeFillSize();
+//}
+//
+//void UHealthBarPool::UpdateMaxShieldBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxShield];
+//
+//	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+//
+//	if (SavedShield)
+//	{
+//		UpdateProgressBars(SavedShield, HealthBarPoolInfo);
+//
+//		SavedShield = 0.f;
+//	}
+//
+//	UpdateBorderVisibility();
+//
+//	DistributeFillSize();
+//}
+//
+//void UHealthBarPool::UpdateHealthBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health]; 
+//	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+//	{
+//		SavedHealth = NewValue;
+//		return;
+//	}
+//
+//	UpdateProgressBars(NewValue, HealthBarPoolInfo); 
+//}
+//
+//void UHealthBarPool::UpdateArmorBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
+//	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+//	{
+//		SavedArmor = NewValue; 
+//	}
+//
+//	UpdateProgressBars(NewValue, HealthBarPoolInfo);
+//}
+//
+//void UHealthBarPool::UpdateShieldBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
+//	if (HealthBarPoolInfo.HorizontalBox->GetChildrenCount() == 0)
+//	{
+//		SavedShield = NewValue; 
+//	}
+//
+//	UpdateProgressBars(NewValue, HealthBarPoolInfo);
+//}
+//
+//void UHealthBarPool::UpdateTempArmorBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempArmor];
+//
+//	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+//
+//	UpdateBorderVisibility();
+//
+//	DistributeFillSize();
+//}
+//
+//void UHealthBarPool::UpdateTempShieldBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempShield];
+//
+//	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+//
+//	UpdateBorderVisibility();
+//
+//	DistributeFillSize();
+//}
+//
+//void UHealthBarPool::UpdateOverHealthBars(float NewValue)
+//{
+//	const FHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_OverHealth];
+//
+//	InitializeProgressBars(NewValue, HealthBarPoolInfo);
+//
+//	UpdateBorderVisibility();
+//
+//	DistributeFillSize();
+//}
 
 
 void UHealthBarPool::UpdateBorderVisibility()
@@ -355,33 +365,11 @@ void UHealthBarPool::SetHealthBarColor(FLinearColor Color)
 
 void UHealthBarPool::ClearHealthBarPool()
 {
-	if (HorizontalBox_Health)
+	for (TPair<FGameplayTag, FHealthBarPoolInfo>& TagToHealthBarInfo : TagsToHealthBarInfos)
 	{
-		HorizontalBox_Health->ClearChildren(); 
-	}
-
-	if (HorizontalBox_Armor)
-	{
-		HorizontalBox_Armor->ClearChildren();
-	}
-
-	if (HorizontalBox_TempArmor)
-	{
-		HorizontalBox_TempArmor->ClearChildren();
-	}
-
-	if (HorizontalBox_Shield)
-	{
-		HorizontalBox_Shield->ClearChildren();
-	}
-
-	if (HorizontalBox_TempShield)
-	{
-		HorizontalBox_TempShield->ClearChildren();
-	}
-
-	if (HorizontalBox_OverHealth)
-	{
-		HorizontalBox_OverHealth->ClearChildren();
+		if (IsValid(TagToHealthBarInfo.Value.HorizontalBox))
+		{
+			TagToHealthBarInfo.Value.HorizontalBox->ClearChildren();
+		}
 	}
 }

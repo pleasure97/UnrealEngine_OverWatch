@@ -5,7 +5,6 @@
 #include "Components/Border.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
-#include "OWGameplayTags.h"
 #include "UI/Widget/HealthBar.h"
 #include "Player/OWPlayerState.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
@@ -352,94 +351,6 @@ void UPlayerHealthBarPool::UpdateProgressBars(const float& NewValue, const FPlay
 	}
 }
 
-void UPlayerHealthBarPool::UpdateMaxHealthBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxHealth];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UPlayerHealthBarPool::UpdateMaxArmorBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxArmor];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UPlayerHealthBarPool::UpdateMaxShieldBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_MaxShield];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UPlayerHealthBarPool::UpdateHealthBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Health];
-
-	UpdateProgressBars(NewValue, HealthBarPoolInfo);
-}
-
-void UPlayerHealthBarPool::UpdateArmorBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Armor];
-
-	UpdateProgressBars(NewValue, HealthBarPoolInfo);
-}
-
-void UPlayerHealthBarPool::UpdateShieldBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_Shield];
-
-	UpdateProgressBars(NewValue, HealthBarPoolInfo);
-}
-
-void UPlayerHealthBarPool::UpdateTempArmorBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempArmor];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UPlayerHealthBarPool::UpdateTempShieldBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_TempShield];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-void UPlayerHealthBarPool::UpdateOverHealthBars(float NewValue)
-{
-	const FPlayerHealthBarPoolInfo& HealthBarPoolInfo = TagsToHealthBarInfos[FOWGameplayTags::Get().Attributes_Defense_OverHealth];
-
-	InitializeProgressBars(NewValue, HealthBarPoolInfo);
-
-	UpdateBorderVisibility();
-
-	DistributeFillSize();
-}
-
-
 void UPlayerHealthBarPool::UpdateBorderVisibility()
 {
 	for (FPlayerHealthBarPoolInfo& HealthBarInfo : HealthBarInfos)
@@ -499,34 +410,12 @@ void UPlayerHealthBarPool::DistributeFillSize()
 
 void UPlayerHealthBarPool::ClearHealthBarPool()
 {
-	if (HorizontalBox_Health)
+	for (TPair<FGameplayTag, FPlayerHealthBarPoolInfo>& TagToHealthBarInfo : TagsToHealthBarInfos)
 	{
-		HorizontalBox_Health->ClearChildren();
-	}
-
-	if (HorizontalBox_Armor)
-	{
-		HorizontalBox_Armor->ClearChildren();
-	}
-
-	if (HorizontalBox_TempArmor)
-	{
-		HorizontalBox_TempArmor->ClearChildren();
-	}
-
-	if (HorizontalBox_Shield)
-	{
-		HorizontalBox_Shield->ClearChildren();
-	}
-
-	if (HorizontalBox_TempShield)
-	{
-		HorizontalBox_TempShield->ClearChildren();
-	}
-
-	if (HorizontalBox_OverHealth)
-	{
-		HorizontalBox_OverHealth->ClearChildren();
+		if (IsValid(TagToHealthBarInfo.Value.HorizontalBox))
+		{
+			TagToHealthBarInfo.Value.HorizontalBox->ClearChildren();
+		}
 	}
 }
 
