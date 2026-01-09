@@ -394,131 +394,171 @@ void UOWAttributeSet::HandleIncomingDamage(const FEffectProperties& EffectProper
 	const float LocalIncomingDamage = GetIncomingDamage();
 	SetIncomingDamage(0.f); 
 
+	HandleUltimateGauge(EffectProperties, LocalIncomingDamage);
+
 	// Process Positive Incoming Damage 
 	if (LocalIncomingDamage > 0.f)
 	{
-		// Damage Shield, Armor, and Health in that order.
-		float RemainingDamage = LocalIncomingDamage; 
-		// Should Damage Shield
-		bool ShouldDamageShield = (GetShield() > 0.f) && (RemainingDamage > 0.f); 
-		if (ShouldDamageShield)
-		{
-			float ShieldDamage = FMath::Min(RemainingDamage, GetShield()); 
-			SetShield(GetShield() - ShieldDamage); 
-			RemainingDamage -= ShieldDamage; 
-		}
-		// Should Damage Armor
-		bool ShouldDamageArmor = (GetArmor() > 0.f) && (RemainingDamage > 0.f); 
-		if (ShouldDamageArmor)
-		{
-			// TODO - if Attack Type is Laser or Not,
-			// Using Effect Properties and Make OWAbilitySystemLibrary Getter Function 
-			if (RemainingDamage >= 10.f)
-			{
-				RemainingDamage -= 5.f; 
-			}
-			else
-			{
-				RemainingDamage /= 2.f; 
-			}
-			float ArmorDamage = FMath::Min(RemainingDamage, GetArmor()); 
-			SetArmor(GetArmor() - ArmorDamage); 
-			RemainingDamage -= ArmorDamage; 
-		}
-		// Should Damage Health 
-		bool ShouldDamageHealth = (GetHealth() > 0.f) && (RemainingDamage > 0.f); 
-		if (ShouldDamageHealth)
-		{
-			float NewHealth = GetHealth() - RemainingDamage; 
-			SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth())); 
-		}
+		HandleDamage(LocalIncomingDamage);
 
 		// Check if Actor related to Attribute Set is Fatal 
-		const bool bFatal = GetHealth() <= 0.f; 
-		if (bFatal)
+		if (GetHealth() <= 0.f)
 		{
 			SendHeroKilledEvent(EffectProperties);
 			SendXPEvent(EffectProperties); 
 		}
 		else
 		{
-			// Try Activate Hit React Effect 
-			if (EffectProperties.TargetCharacter->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsBeingShocked(EffectProperties.TargetCharacter))
-			{
-				FGameplayTagContainer TagContainer; 
-				TagContainer.AddTag(FOWGameplayTags::Get().Effects_HitReact);
-				EffectProperties.TargetASC->TryActivateAbilitiesByTag(TagContainer); 
-			}
-			const FVector& KnockbackForce = UOWAbilitySystemLibrary::GetKnockbackForce(EffectProperties.EffectContextHandle); 
-			if (!KnockbackForce.IsNearlyZero(1.f))
-			{
-				EffectProperties.TargetCharacter->LaunchCharacter(KnockbackForce, true, true); 
-			}
+			HandleHitReaction(EffectProperties);
 			// Broadcast Damage Effect Causer, Hit Actor, and Damage 
 			OnDamageReceived.Broadcast(EffectProperties.SourceAvatarActor, EffectProperties.TargetAvatarActor, LocalIncomingDamage);
 		}
 
-		const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle); 
-
-		/*if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
+		if (UOWAbilitySystemLibrary::IsSuccessfulDebuff(EffectProperties.EffectContextHandle))
 		{
 			Debuff(EffectProperties); 
-		}*/
+		}
 	}
 	// Process Negative Incoming Damage as Healing 
 	else if (LocalIncomingDamage < 0.f)
 	{
-		// Heal Health, Armor, and Shield in that order.
-		float HealAmount = -LocalIncomingDamage;
-		// Should Heal Health 
-		bool ShouldHealHealth = GetHealth() < GetMaxHealth();
-		if (ShouldHealHealth)
-		{
-			float HealthHeal = FMath::Min(HealAmount, GetMaxHealth() - GetHealth());
-			SetHealth(GetHealth() + HealthHeal);
-			HealAmount -= HealthHeal;
-		}
-		// Should Heal Armor
-		bool ShouldHealArmor = (GetMaxArmor() > 0.f) && (HealAmount > 0.f) && (GetHealth() >= GetMaxHealth()) && (GetMaxArmor() > GetArmor());
-		if (ShouldHealArmor)
-		{
-			float ArmorHeal = FMath::Min(HealAmount, GetMaxArmor() - GetArmor());
-			SetArmor(GetArmor() + ArmorHeal);
-			HealAmount -= ArmorHeal;
-		}
-		// Should Heal Shield
-		bool ShouldHealShield = (GetMaxShield() > 0.f) && (HealAmount > 0.f)
-			&& (GetHealth() >= GetMaxHealth()) && (GetArmor() >= GetMaxArmor()) && (GetMaxShield() >= GetShield());
-		if (ShouldHealShield)
-		{
-			float ShieldHeal = FMath::Min(HealAmount, GetMaxShield() - GetShield());
-			SetShield(GetShield() + ShieldHeal);
-		}
+		HandleHealing(LocalIncomingDamage);
 	}
 
 	// TODO - May need to change to general delegate from gameplay message subsystem 
-	// Get Gameplay Message Subsystem and Damage Message GameplayTag 
-	if (UWorld* World = GetWorld())
+	SendDamageInfo(EffectProperties);
+}
+
+void UOWAttributeSet::HandleHitReaction(const FEffectProperties& EffectProperties)
+{
+	// Try Activate Hit React Effect 
+	if (EffectProperties.TargetCharacter->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsBeingShocked(EffectProperties.TargetCharacter))
 	{
-		UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(World);
-		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
-		FGameplayTag HeroDamagedTag = GameplayTags.Gameplay_Message_HeroDamaged;
-
-		// Initialize Hero Damaged Info 
-		FHeroDamagedInfo HeroDamagedInfo;
-		// HeroDamagedInfo.DamageTag = DamageTag;
-		HeroDamagedInfo.SourcePlayerState = EffectProperties.SourcePlayerState;
-		HeroDamagedInfo.TargetPlayerState = EffectProperties.TargetPlayerState;
-		HeroDamagedInfo.Damage = LocalIncomingDamage;
-		HeroDamagedInfo.DamageTimeSeconds = World->GetTimeSeconds();
-
-		// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
-		AOWPlayerController* SourcePlayerControler = Cast<AOWPlayerController>(EffectProperties.SourcePlayerState->GetPlayerController()); 
-		if (IsValid(SourcePlayerControler))
-		{
-			SourcePlayerControler->ClientHeroDamaged(HeroDamagedInfo);
-		}
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(FOWGameplayTags::Get().Effects_HitReact);
+		EffectProperties.TargetASC->TryActivateAbilitiesByTag(TagContainer);
 	}
+	const FVector& KnockbackForce = UOWAbilitySystemLibrary::GetKnockbackForce(EffectProperties.EffectContextHandle);
+	if (!KnockbackForce.IsNearlyZero(1.f))
+	{
+		EffectProperties.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
+	}
+}
+
+void UOWAttributeSet::HandleHealing(const float LocalIncomingDamage)
+{
+	// Heal Health, Armor, and Shield in that order.
+	float HealAmount = -LocalIncomingDamage;
+	// Should Heal Health 
+	bool ShouldHealHealth = GetHealth() < GetMaxHealth();
+	if (ShouldHealHealth)
+	{
+		float HealthHeal = FMath::Min(HealAmount, GetMaxHealth() - GetHealth());
+		SetHealth(GetHealth() + HealthHeal);
+		HealAmount -= HealthHeal;
+	}
+	// Should Heal Armor
+	bool ShouldHealArmor = (GetMaxArmor() > 0.f) && (HealAmount > 0.f) && (GetHealth() >= GetMaxHealth()) && (GetMaxArmor() > GetArmor());
+	if (ShouldHealArmor)
+	{
+		float ArmorHeal = FMath::Min(HealAmount, GetMaxArmor() - GetArmor());
+		SetArmor(GetArmor() + ArmorHeal);
+		HealAmount -= ArmorHeal;
+	}
+	// Should Heal Shield
+	bool ShouldHealShield = (GetMaxShield() > 0.f) && (HealAmount > 0.f)
+		&& (GetHealth() >= GetMaxHealth()) && (GetArmor() >= GetMaxArmor()) && (GetMaxShield() >= GetShield());
+	if (ShouldHealShield)
+	{
+		float ShieldHeal = FMath::Min(HealAmount, GetMaxShield() - GetShield());
+		SetShield(GetShield() + ShieldHeal);
+	}
+}
+
+void UOWAttributeSet::HandleDamage(const float LocalIncomingDamage)
+{
+	// Damage Shield, Armor, and Health in that order.
+	float RemainingDamage = LocalIncomingDamage;
+	// Should Damage Shield
+	bool ShouldDamageShield = (GetShield() > 0.f) && (RemainingDamage > 0.f);
+	if (ShouldDamageShield)
+	{
+		float ShieldDamage = FMath::Min(RemainingDamage, GetShield());
+		SetShield(GetShield() - ShieldDamage);
+		RemainingDamage -= ShieldDamage;
+	}
+	// Should Damage Armor
+	bool ShouldDamageArmor = (GetArmor() > 0.f) && (RemainingDamage > 0.f);
+	if (ShouldDamageArmor)
+	{
+		// TODO - if Attack Type is Laser or Not,
+		// Using Effect Properties and Make OWAbilitySystemLibrary Getter Function 
+		if (RemainingDamage >= 10.f)
+		{
+			RemainingDamage -= 5.f;
+		}
+		else
+		{
+			RemainingDamage /= 2.f;
+		}
+		float ArmorDamage = FMath::Min(RemainingDamage, GetArmor());
+		SetArmor(GetArmor() - ArmorDamage);
+		RemainingDamage -= ArmorDamage;
+	}
+	// Should Damage Health 
+	bool ShouldDamageHealth = (GetHealth() > 0.f) && (RemainingDamage > 0.f);
+	if (ShouldDamageHealth)
+	{
+		float NewHealth = GetHealth() - RemainingDamage;
+		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+	}
+}
+
+void UOWAttributeSet::SendDamageInfo(const FEffectProperties& EffectProperties)
+{
+	const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle);
+
+	// Initialize Hero Damaged Info 
+	FHeroDamagedInfo HeroDamagedInfo;
+	// HeroDamagedInfo.DamageTag = DamageTag;
+	HeroDamagedInfo.SourcePlayerState = EffectProperties.SourcePlayerState;
+	HeroDamagedInfo.TargetPlayerState = EffectProperties.TargetPlayerState;
+	HeroDamagedInfo.Damage = GetIncomingDamage();
+	HeroDamagedInfo.DamageTimeSeconds = GetWorld()->GetTimeSeconds();
+
+	// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
+	AOWPlayerController* SourcePlayerControler = Cast<AOWPlayerController>(EffectProperties.SourcePlayerState->GetPlayerController());
+	if (IsValid(SourcePlayerControler))
+	{
+		SourcePlayerControler->ClientHeroDamaged(HeroDamagedInfo);
+	}
+}
+
+void UOWAttributeSet::HandleUltimateGauge(const FEffectProperties& EffectProperties, const float& LocalIncomingDamage)
+{
+	float UltimateGainAmount = FMath::Abs(LocalIncomingDamage);
+
+	// Check if Source Ability System Component is Valid 
+	if (!IsValid(EffectProperties.SourceASC))
+	{
+		return;
+	}
+
+	// Check if Source Avatar Actor and Target Avatar Actor are Valid 
+	if (!IsValid(EffectProperties.SourceAvatarActor) && !IsValid(EffectProperties.TargetAvatarActor))
+	{
+		return;
+	}
+
+	// Check if Source and Target Avatar Actors are Same 
+	if (EffectProperties.SourceAvatarActor == EffectProperties.TargetAvatarActor)
+	{
+		return;
+	}
+
+	// Add Absolute Value of Damage or Heal to Ultimate Attribute 
+	FGameplayAttribute UltimateAttribute = GetUltimateGaugeAttribute();
+	EffectProperties.SourceASC->ApplyModToAttribute(UltimateAttribute, EGameplayModOp::Additive, UltimateGainAmount);
 }
 
 void UOWAttributeSet::HandleIncomingXP(const FEffectProperties& EffectProperties)
@@ -643,9 +683,8 @@ void UOWAttributeSet::Debuff(const FEffectProperties& EffectProperties)
 	{
 		// Cast to Custom Gameplay Effect Context
 		FOWGameplayEffectContext* OWGameplayEffectContext = static_cast<FOWGameplayEffectContext*>(MutableSpec->GetContext().Get()); 
-		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType)); 
 		// Set Damage Type of Custom Gameplay Effect Context 
-		OWGameplayEffectContext->SetDamageType(DebuffDamageType); 
+		OWGameplayEffectContext->SetDamageType(DamageType);
 
 		EffectProperties.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec); 
 	}

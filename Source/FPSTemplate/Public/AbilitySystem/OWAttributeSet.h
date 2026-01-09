@@ -338,6 +338,11 @@ private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& EffectProperties) const; 
 
 	void HandleIncomingDamage(const FEffectProperties& EffectProperties);
+	void HandleHitReaction(const FEffectProperties& EffectProperties);
+	void HandleHealing(const float LocalIncomingDamage);
+	void HandleDamage(const float LocalIncomingDamage);
+	void SendDamageInfo(const FEffectProperties& EffectProperties);
+	void HandleUltimateGauge(const FEffectProperties& EffectProperties, const float& LocalIncomingDamage);
 	void SendHeroKilledEvent(const FEffectProperties& EffectProperties);
 	void HandleIncomingXP(const FEffectProperties& EffectProperties);
 	void SendXPEvent(const FEffectProperties& EffectProperties);
