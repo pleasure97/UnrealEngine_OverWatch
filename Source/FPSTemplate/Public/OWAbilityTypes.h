@@ -87,8 +87,8 @@ public:
 	float GetDebuffDamage() const { return DebuffDamage; }
 	float GetDebuffDuration() const { return DebuffDuration; }
 	float GetDebuffFrequency() const { return DebuffFrequency; }
-	TSharedPtr<FGameplayTag> GetDebuffTag() const { return DebuffTag; }
-	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
+	FGameplayTag GetDebuffTag() const { return DebuffTag; }
+	FGameplayTag GetDamageType() const { return DamageType; }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
 	FVector GetKnockbackForce() const { return KnockbackForce; }
 	bool IsRadialDamage() const { return bIsRadialDamage; }
@@ -101,7 +101,7 @@ public:
 	void SetDebuffDamage(float InDebuffDamage) { DebuffDamage = InDebuffDamage; }
 	void SetDebuffDuration(float InDebuffDuration) { DebuffDuration= InDebuffDuration; }
 	void SetDebuffFrequency(float InDebuffFrequency) { DebuffFrequency = InDebuffFrequency; }
-	void SetDamageType(TSharedPtr<FGameplayTag> InDamageType) { DamageType = InDamageType; }
+	void SetDamageType(const FGameplayTag& InDamageType) { DamageType = InDamageType; }
 	void SetDeathImpulse(const FVector& InDeathImpulse) { DeathImpulse = InDeathImpulse; }
 	void SetKnockbackForce(const FVector& InKnockbackForce) { KnockbackForce = InKnockbackForce; }
 	void SetIsRadialDamage(bool bInIsRadialDamage) { bIsRadialDamage = bInIsRadialDamage; }
@@ -146,9 +146,11 @@ protected:
 	UPROPERTY()
 	float DebuffFrequency = 0.f;
 
-	TSharedPtr<FGameplayTag> DebuffTag; 
+	UPROPERTY()
+	FGameplayTag DebuffTag = FGameplayTag::EmptyTag;
 	
-	TSharedPtr<FGameplayTag> DamageType; 
+	UPROPERTY()
+	FGameplayTag DamageType = FGameplayTag::EmptyTag;
 
 	UPROPERTY()
 	FVector DeathImpulse = FVector::ZeroVector; 

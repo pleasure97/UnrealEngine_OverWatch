@@ -18,6 +18,8 @@
 #include "Game/OWGameState.h"
 #include "Game/OpenWorldGameState.h"
 #include "Interface/InteractInterface.h"
+#include "Character/OWCharacter.h"
+#include "Camera/CameraComponent.h"
 
 /* Gameplay Abilities */
 UOWGameplayAbility* UOWAbilitySystemLibrary::GetPrimaryAbilityInstanceFromClass(UAbilitySystemComponent* AbilitySystemComponent, TSubclassOf<UGameplayAbility> InAbilityClass)
@@ -273,9 +275,9 @@ FGameplayTag UOWAbilitySystemLibrary::GetDebuffTag(const FGameplayEffectContextH
 {
 	if (const FOWGameplayEffectContext* OWEffectContext = static_cast<const FOWGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		return *OWEffectContext->GetDebuffTag(); 
+		return OWEffectContext->GetDebuffTag(); 
 	}
-	return FGameplayTag();
+	return FGameplayTag::EmptyTag;
 }
 
 FGameplayTag UOWAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
@@ -284,10 +286,10 @@ FGameplayTag UOWAbilitySystemLibrary::GetDamageType(const FGameplayEffectContext
 	{
 		if (OWEffectContext->GetDamageType().IsValid())
 		{
-			return *OWEffectContext->GetDamageType(); 
+			return OWEffectContext->GetDamageType(); 
 		}
 	}
-	return FGameplayTag();
+	return FGameplayTag::EmptyTag;
 }
 
 FVector UOWAbilitySystemLibrary::GetDeathImpulse(const FGameplayEffectContextHandle& EffectContextHandle)
@@ -380,8 +382,7 @@ void UOWAbilitySystemLibrary::SetDamageType(FGameplayEffectContextHandle& Effect
 {
 	if (FOWGameplayEffectContext* OWEffectContext = static_cast<FOWGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		const TSharedPtr<FGameplayTag> DamageType = MakeShared<FGameplayTag>(InDamageType); 
-		OWEffectContext->SetDamageType(DamageType); 
+		OWEffectContext->SetDamageType(InDamageType);
 	}
 }
 
@@ -422,6 +423,106 @@ void UOWAbilitySystemLibrary::SetRadialDamageOrigin(FGameplayEffectContextHandle
 	if (FOWGameplayEffectContext* OWEffectContext = static_cast<FOWGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		OWEffectContext->SetRadialDamageOrigin(InRadialDamageOrigin); 
+	}
+}
+
+void UOWAbilitySystemLibrary::SendHitReactEventToActors(AActor* Instigator, const TArray<AActor*>& ActorsHit)
+{
+	// Iterate Hit Actors 
+	for (AActor* HitActor : ActorsHit)
+	{
+		// Send Gameplay Event 'HitReact' Containing Instigator Information
+		FGameplayEventData Payload;
+		Payload.Instigator = Instigator;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, FOWGameplayTags::Get().Effects_HitReact, Payload);
+	}
+}
+
+TArray<AActor*> UOWAbilitySystemLibrary::CheckHitBoxOverlap(AActor* AvatarActor, float HitBoxRadius, float HitBoxForwardOffset, float HitBoxElevationOffset, bool bDrawDebugs)
+{
+	if (!IsValid(AvatarActor))
+	{
+		return TArray<AActor*>();
+	}
+
+	// Ensure that Overlap Ignores Avatar Actor
+	FCollisionQueryParams CollisionQueryParams; 
+	CollisionQueryParams.AddIgnoredActor(AvatarActor); 
+
+	// Set Collision Response Params (Pawn - Block / All Others - Ignore)
+	FCollisionResponseParams CollisionResponseParams; 
+	CollisionResponseParams.CollisionResponse.SetAllChannels(ECR_Ignore); 
+	CollisionResponseParams.CollisionResponse.SetResponse(ECC_Pawn, ECR_Block); 
+	
+	// Declare Overlap Results to Save Overlaps
+	TArray<FOverlapResult> OverlapResults; 
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(HitBoxRadius); 
+
+	// Set Hit Box Location 
+	AOWCharacter* InstigatorCharacter = Cast<AOWCharacter>(AvatarActor);
+	// Direction in which Custom Character Faces is Different from Actual Forward Vector
+	FVector Forward = IsValid(InstigatorCharacter) ? InstigatorCharacter->GetFirstPersonCamera()->GetForwardVector() * HitBoxForwardOffset
+													: AvatarActor->GetActorForwardVector() + HitBoxForwardOffset;
+	const FVector HitBoxLocation = AvatarActor->GetActorLocation() + Forward + HitBoxElevationOffset; 
+
+	// Get World from GEngine using Avatar Actor
+	UWorld* World = GEngine->GetWorldFromContextObject(AvatarActor, EGetWorldErrorMode::LogAndReturnNull); 
+	if (!IsValid(World))
+	{
+		return TArray<AActor*>(); 
+	}
+
+	// Trace based on Collision Query Params, and Collision Response Params, and Save to OverlapResults
+	World->OverlapMultiByChannel(
+		OverlapResults, HitBoxLocation, FQuat::Identity, ECC_Pawn, Sphere, CollisionQueryParams, CollisionResponseParams); 
+
+	TArray<AActor*> ActorsHit; 
+	// Iterate Overlap Results 
+	for (const FOverlapResult& Result : OverlapResults)
+	{
+		// Cast to Custom Character and Check if the Character is Valid and Not Dead 
+		AOWCharacterBase* OWCharacterBase = Cast<AOWCharacterBase>(Result.GetActor()); 
+		if (!IsValid(OWCharacterBase))
+		{
+			continue;
+		}
+		if (ICombatInterface::Execute_IsDead(OWCharacterBase))
+		{
+			continue;
+		}
+		ActorsHit.AddUnique(Result.GetActor()); 
+	}
+
+	// Draw HitBox Overlap in Debug Mode 
+	if (bDrawDebugs)
+	{
+		DrawHitBoxOverlap(AvatarActor, OverlapResults, HitBoxLocation, HitBoxRadius); 
+	}
+
+	return ActorsHit;
+}
+
+void UOWAbilitySystemLibrary::DrawHitBoxOverlap(const UObject* WorldContextObject, const TArray<FOverlapResult>& OverlapResults, const FVector& HitBoxLocation, float HitBoxRadius)
+{
+	// Get World and Check if World is Valid 
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull); 
+	if (!IsValid(World))
+	{
+		return;
+	}
+
+	// Draw Hit Box Location Debug Sphere
+	DrawDebugSphere(World, HitBoxLocation, HitBoxRadius, 16, FColor::Red, false, 3.f); 
+
+	// Iterate Overlap Results and Draw Overlap Result Debug Sphere 
+	for (const FOverlapResult& OverlapResult : OverlapResults)
+	{
+		if (IsValid(OverlapResult.GetActor()))
+		{
+			FVector DebugLocation = OverlapResult.GetActor()->GetActorLocation(); 
+			DebugLocation.Z += 100.f; 
+			DrawDebugSphere(World, DebugLocation, 30.f, 10, FColor::Green, false, 3.f); 
+		}
 	}
 }
 

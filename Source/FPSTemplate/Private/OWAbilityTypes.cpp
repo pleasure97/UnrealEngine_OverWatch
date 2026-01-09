@@ -152,25 +152,11 @@ bool FOWGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool
     }
     if (RepBits & (1 << 12))
     {
-        if (Ar.IsLoading())
-        {
-            if (!DebuffTag.IsValid())
-            {
-                DebuffTag = TSharedPtr<FGameplayTag>(new FGameplayTag()); 
-            }
-            DebuffTag->NetSerialize(Ar, Map, bOutSuccess); 
-        }
+        DebuffTag.NetSerialize(Ar, Map, bOutSuccess);
     }
     if (RepBits & (1 << 13))
     {
-        if (Ar.IsLoading())
-        {
-            if (!DamageType.IsValid())
-            {
-                DamageType = TSharedPtr<FGameplayTag>(new FGameplayTag());
-            }
-            DamageType->NetSerialize(Ar, Map, bOutSuccess);
-        }
+        DamageType.NetSerialize(Ar, Map, bOutSuccess);
     }
     if (RepBits & (1 << 14))
     {

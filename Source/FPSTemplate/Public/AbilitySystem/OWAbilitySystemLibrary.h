@@ -155,6 +155,14 @@ public:
 	/*
 	 * Gameplay Mechanics 
 	 */
+	UFUNCTION(BlueprintCallable)
+	static void SendHitReactEventToActors(AActor* Instigator, const TArray<AActor*>& ActorsHit);
+
+	UFUNCTION(BlueprintCallable)
+	static TArray<AActor*> CheckHitBoxOverlap(AActor* AvatarActor, float HitBoxRadius, float HitBoxForwardOffset = 0.f, float HitBoxElevationOffset = 0.f, bool bDrawDebugs = false);
+
+	static void DrawHitBoxOverlap(const UObject* WorldContextObject, const TArray<FOverlapResult>& OverlapResults, const FVector& HitBoxLocation, float HitBoxRadius);
+
 	UFUNCTION(BlueprintCallable, Category="OWAbilitySystemLibrary|GameplayMechanics")
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject,
 		TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,
