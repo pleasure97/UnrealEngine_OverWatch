@@ -663,17 +663,29 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Event.Montage.BarrierField"),
 		FString("Reinhardt's BarrierField Montage Event Tag"));
 
-	GameplayTags.Event_Montage_RocketHammer1 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Event.Montage.RocketHammer1"),
-		FString("Reinhardt's First Rocket Hammer Montage Event Tag"));
+	GameplayTags.Event_Montage_RocketHammer_ComboStart = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.RocketHammer.ComboStart"),
+		FString("Reinhardt's Rocket Hammer Combo Start Montage Event Tag"));
 
-	GameplayTags.Event_Montage_RocketHammer2 = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Event.Montage.RocketHammer2"),
-		FString("Reinhardt's Second Rocket Hammer Montage Event Tag"));
+	GameplayTags.Event_Montage_RocketHammer_ComboEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.RocketHammer.ComboEnd"),
+		FString("Reinhardt's Rocket Hammer Combo End Montage Event Tag"));
+
+	GameplayTags.Event_Montage_RocketHammer_DefaultDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.RocketHammer.DefaultDamage"),
+		FString("Reinhardt's Rocket Hammer Default Damage Event Tag"));
+
+	GameplayTags.Event_Montage_RocketHammer_ComboDamage = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.RocketHammer.ComboDamage"),
+		FString("Reinhardt's Rocket Hammer Combo Damage Event Tag"));
 
 	GameplayTags.Event_Montage_Charge = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.Charge"),
 		FString("Reinhardt's Charge Montage Event Tag"));
+
+	GameplayTags.Event_Montage_FireStrike = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.FireStrike"),
+		FString("Reinhardt's Fire Strike Montage Event Tag"));
 
 	/* Hero GameplayTags - Tracer */
 	GameplayTags.Abilities_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(

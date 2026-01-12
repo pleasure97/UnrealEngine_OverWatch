@@ -233,9 +233,12 @@ public:
 	FGameplayTag Cooldown_Reinhardt_FireStrike;
 
 	FGameplayTag Event_Montage_BarrierField;
-	FGameplayTag Event_Montage_RocketHammer1;
-	FGameplayTag Event_Montage_RocketHammer2;
+	FGameplayTag Event_Montage_RocketHammer_ComboStart;
+	FGameplayTag Event_Montage_RocketHammer_ComboEnd;
+	FGameplayTag Event_Montage_RocketHammer_DefaultDamage;
+	FGameplayTag Event_Montage_RocketHammer_ComboDamage;
 	FGameplayTag Event_Montage_Charge;
+	FGameplayTag Event_Montage_FireStrike;
 
 	/* Hero GameplayTags - Tracer */
 	FGameplayTag Abilities_Tracer_PulsePistols; 
