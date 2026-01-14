@@ -424,6 +424,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Reinhardt.RocketHammer"),
 		FString("Reinhardt's Rocket Hammer GameplayCue"));
 
+	GameplayTags.GameplayCue_Reinhardt_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Reinhardt.BarrierField"),
+		FString("Reinhardt's Barrier Field GameplayCue"));
+
 	/* Gameplay Message */
 
 	GameplayTags.Gameplay_Message_HealthPlate_Add = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -571,6 +575,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Illiari_PylonDemolished = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Illiari.PylonDemolished"),
 		FString("Pylon Demolished Event Tag"));
+
+	GameplayTags.Event_Reinhardt_BarrierDestroyed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Reinhardt.BarrierDestroyed"),
+		FString("Barrier Demolished Event Tag"));
 
 	/* Hero GameplayTags - Illiari */
 

@@ -156,6 +156,7 @@ public:
 	FGameplayTag GameplayCue_Tracer_PulseBomb; 
 
 	FGameplayTag GameplayCue_Reinhardt_RocketHammer; 
+	FGameplayTag GameplayCue_Reinhardt_BarrierField; 
 
 	/* Gameplay Message */
 	FGameplayTag Gameplay_Message_HealthPlate_Add; 
@@ -203,6 +204,7 @@ public:
 	FGameplayTag Event_ResetHero; 
 	FGameplayTag Event_RespawnHero; 
 	FGameplayTag Event_Illiari_PylonDemolished; 
+	FGameplayTag Event_Reinhardt_BarrierDestroyed;
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 
