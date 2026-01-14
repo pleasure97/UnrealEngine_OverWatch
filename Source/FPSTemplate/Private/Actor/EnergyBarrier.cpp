@@ -3,13 +3,12 @@
 
 #include "Actor/EnergyBarrier.h"
 #include "Components/BoxComponent.h"
-#include "AbilitySystem/OWAbilitySystemComponent.h"
-#include "AbilitySystem/OWAttributeSet.h"
+#include "Team/OWTeamSubsystem.h"
+#include "AbilitySystemBlueprintLibrary.h"
+#include "OWGameplayTags.h"
 
 AEnergyBarrier::AEnergyBarrier()
 {
-	bReplicates = true;
-
 	Box = CreateDefaultSubobject<UBoxComponent>("Box");
 	Box->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 	Box->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
@@ -17,46 +16,48 @@ AEnergyBarrier::AEnergyBarrier()
 
 	BarrierField = CreateDefaultSubobject<UStaticMeshComponent>("BarrierField");
 	BarrierField->SetupAttachment(GetRootComponent());
-
-	AbilitySystemComponent = CreateDefaultSubobject<UOWAbilitySystemComponent>("AbilitySystemComponent");
-	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-
-	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet");
-}
-
-UAbilitySystemComponent* AEnergyBarrier::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent; 
-}
-
-void AEnergyBarrier::BeginPlay()
-{
-	Super::BeginPlay(); 
-
-	InitAbilityActorInfo(); 
 }
 
 void AEnergyBarrier::InitAbilityActorInfo()
 {
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	Cast<UOWAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+	Super::InitAbilityActorInfo();
 
-	if (HasAuthority())
-	{
-		InitializeVitalAttributes();
-	}
-
+	// TODO - Change Literal 
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(UOWAttributeSet::GetHealthAttribute())
+		.AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				HandleHealth(Data.NewValue);
+			});
 }
 
-void AEnergyBarrier::InitializeVitalAttributes()
+void AEnergyBarrier::HandleHealth(float NewHealthValue)
 {
-	FGameplayEffectContextHandle VitalAttributesContextHandle = AbilitySystemComponent->MakeEffectContext();
+	if (NewHealthValue <= 0.f)
+	{
+		bBarrierDestroyed = true; 
+		// TODO - Physics 
+		FGameplayEventData Payload;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			GetAttachParentActor(),
+			FOWGameplayTags::Get().Event_Reinhardt_BarrierDestroyed,
+			Payload);
+	}
+	else if (NewHealthValue <= AttributeSet->GetMaxHealth() * 0.25f && !bBarrierVeryDangerous)
+	{
+		bBarrierVeryDangerous = true; 
+		// TODO - Physics 
 
-	VitalAttributesContextHandle.AddSourceObject(this);
-
-	const FGameplayEffectSpecHandle VitalAttributeSpecHandle =
-		AbilitySystemComponent->MakeOutgoingSpec(VitalAttributes, Level, VitalAttributesContextHandle);
-
-	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get());
+	}
+	else if (NewHealthValue <= AttributeSet->GetMaxHealth() * 0.5f && !bBarrierDangerous)
+	{
+		bBarrierDangerous = true; 
+		// TODO - Physics 
+	}
+	else
+	{
+		bBarrierDangerous = false; 
+		bBarrierVeryDangerous = false;
+		bBarrierDestroyed = true; 
+	}
 }

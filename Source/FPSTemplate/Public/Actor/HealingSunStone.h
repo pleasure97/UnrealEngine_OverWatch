@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "AbilitySystemInterface.h"
+#include "Actor/AbilityActor.h"
 #include "HealingSunStone.generated.h"
 
 class UBoxComponent; 
@@ -13,13 +12,11 @@ class UNiagaraComponent;
 class UGameplayEffect; 
 class UGameplayAbility; 
 class UNiagaraSystem; 
-class USoundBase; 
-class UOWAbilitySystemComponent;
-class UOWAttributeSet; 
+class USoundBase;  
 struct FGameplayEffectSpec; 
 
 UCLASS()
-class FPSTEMPLATE_API AHealingSunStone : public AActor, public IAbilitySystemInterface
+class FPSTEMPLATE_API AHealingSunStone : public AAbilityActor
 {
 	GENERATED_BODY()
 	
@@ -45,10 +42,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> HealingRay;
 
-	/* Vital Attributes */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UGameplayEffect> VitalAttributes; 
-
 	/* Gameplay Ability */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UGameplayAbility> HealingSunStoneAbilityClass; 
@@ -62,18 +55,13 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Throw(FVector NewVelocity); 
-
-	/* Ability System Interface */
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; 
-
-	UFUNCTION(BlueprintCallable)
-	UOWAttributeSet* GetAttributeSet() const; 
-
+ 
 protected:
 	virtual void BeginPlay() override; 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override; 
-	void InitAbilityActorInfo(); 
-	void InitializeVitalAttributes(); 
+	
+	virtual void InitAbilityActorInfo() override;
+
 	void InitializeHealingAbility(); 
 	void InitializeHealthPlate(); 
 
@@ -87,14 +75,4 @@ protected:
 		const FHitResult& Hit);
 
 	void OnDestroyed(AActor* DamageInstigator, AActor* DamageCauser, const FGameplayEffectSpec* DamageEffectSpec, float DamageMagnitude);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effects")
-	float Level = 1.f;
-
-	/* Ability System */
-	UPROPERTY()
-	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent; 
-
-	UPROPERTY()
-	TObjectPtr<UOWAttributeSet> AttributeSet; 
 };

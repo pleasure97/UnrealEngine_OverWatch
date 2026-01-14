@@ -15,10 +15,7 @@
 AHealingSunStone::AHealingSunStone()
 {
 	// Replication 
-	bReplicates = true; 
 	SetReplicatingMovement(true); 
-
-	PrimaryActorTick.bCanEverTick = false; 
 
 	// Box Component (Root Component)
 	Box = CreateDefaultSubobject<UBoxComponent>("Box"); 
@@ -50,30 +47,11 @@ AHealingSunStone::AHealingSunStone()
 	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>("WidgetComponent"); 
 	WidgetComponent->SetupAttachment(GetRootComponent()); 
 	WidgetComponent->SetIsReplicated(true); 
-
-	// Ability System Component 
-	AbilitySystemComponent = CreateDefaultSubobject<UOWAbilitySystemComponent>("AbilitySystemComponent"); 
-	AbilitySystemComponent->SetIsReplicated(true); 
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed); 
-
-	AttributeSet = CreateDefaultSubobject<UOWAttributeSet>("AttributeSet"); 
-}
-
-UAbilitySystemComponent* AHealingSunStone::GetAbilitySystemComponent() const
-{
-	return AbilitySystemComponent; 
-}
-
-UOWAttributeSet* AHealingSunStone::GetAttributeSet() const
-{
-	return AttributeSet; 
 }
 
 void AHealingSunStone::BeginPlay()
 {
 	Super::BeginPlay(); 
-
-	InitAbilityActorInfo(); 
 
 	InitializeHealthPlate(); 
 }
@@ -90,29 +68,14 @@ void AHealingSunStone::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AHealingSunStone::InitAbilityActorInfo()
 {
-	AbilitySystemComponent->InitAbilityActorInfo(this, this); 
-	Cast<UOWAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet(); 
+	Super::InitAbilityActorInfo();
 
 	if (HasAuthority())
 	{
-		InitializeVitalAttributes();
 		InitializeHealingAbility();
-
 	}
 
 	AttributeSet->OnDeath.AddUObject(this, &AHealingSunStone::OnDestroyed); 
-}
-
-void AHealingSunStone::InitializeVitalAttributes()
-{
-	FGameplayEffectContextHandle VitalAttributesContextHandle = AbilitySystemComponent->MakeEffectContext(); 
-
-	VitalAttributesContextHandle.AddSourceObject(this); 
-
-	const FGameplayEffectSpecHandle VitalAttributeSpecHandle =
-		AbilitySystemComponent->MakeOutgoingSpec(VitalAttributes, Level, VitalAttributesContextHandle); 
-
-	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*VitalAttributeSpecHandle.Data.Get()); 
 }
 
 void AHealingSunStone::InitializeHealingAbility()
@@ -163,8 +126,6 @@ void AHealingSunStone::OnAttached(
 	
 	if (CollisionChannel == ECollisionChannel::ECC_WorldStatic ||
 		CollisionChannel == ECollisionChannel::ECC_WorldDynamic ||
-		CollisionChannel == ECollisionChannel::ECC_Pawn ||
-		CollisionChannel == ECollisionChannel::ECC_PhysicsBody ||
 		CollisionChannel == ECollisionChannel::ECC_Vehicle)
 	{
 		Box->SetPhysicsLinearVelocity(FVector::ZeroVector);

@@ -3,16 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "AbilitySystemInterface.h"
-#include "UI/WidgetController/OverlayWidgetController.h"
+#include "Actor/AbilityActor.h"
 #include "EnergyBarrier.generated.h"
 
 class UBoxComponent; 
 class UStaticMeshComponent; 
+class UAttributeSet; 
+class UGameplayEffect; 
+
 
 UCLASS()
-class FPSTEMPLATE_API AEnergyBarrier : public AActor, public IAbilitySystemInterface
+class FPSTEMPLATE_API AEnergyBarrier : public AAbilityActor
 {
 	GENERATED_BODY()
 	
@@ -25,33 +26,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> BarrierField; 
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnShieldChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnAttributeChangedSignature OnMaxShieldChanged;
-
 	
-
-	/* Ability System Interface */
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-
 protected:
-	virtual void BeginPlay() override;
-	void InitAbilityActorInfo(); 
+	virtual void InitAbilityActorInfo() override;
 
-	void InitializeVitalAttributes();
+private:
+	UFUNCTION()
+	void HandleHealth(float NewHealthValue);
 
-	/* Vital Attributes */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UGameplayEffect> VitalAttributes;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Applied Effects")
-	float Level = 1.f;
-
-	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
-
-	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet;
+	bool bBarrierDangerous = false; 
+	bool bBarrierVeryDangerous = false; 
+	bool bBarrierDestroyed = false;
 };
