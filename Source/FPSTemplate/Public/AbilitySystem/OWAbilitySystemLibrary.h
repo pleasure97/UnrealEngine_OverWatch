@@ -38,16 +38,6 @@ public:
 	static bool IsAbilitySpecHandleValid(FGameplayAbilitySpecHandle Handle);
 
 	/*
-	 * Widget Controller 
-	 */
-
-	UFUNCTION(BlueprintCallable, Category="OWAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
-	static bool MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD); 
-	
-	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|WidgetController", meta = (DefaultToSelf = "WorldContextObject"))
-	static UOverlayWidgetController* GetOverlayWidgetController(const UObject* WorldContextObject); 
-
-	/*
 	 * Hero Info Defaults 
 	 */
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")

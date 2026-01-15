@@ -8,7 +8,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/HUD/OWHUD.h"
 #include "Player/OWPlayerState.h"
-#include "UI/WidgetController/OWWidgetController.h"
 #include "Game/OWGameModeBase.h"
 #include "OWGameplayTags.h"
 #include "OWAbilityTypes.h"
@@ -51,41 +50,6 @@ UOWGameplayAbility* UOWAbilitySystemLibrary::GetPrimaryAbilityInstanceFromHandle
 bool UOWAbilitySystemLibrary::IsAbilitySpecHandleValid(FGameplayAbilitySpecHandle Handle)
 {
 	return Handle.IsValid(); 
-}
-
-/* Widget Controller */
-bool UOWAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams, AOWHUD*& OutOWHUD)
-{
-	if (APlayerController* PC = UGameplayStatics::GetPlayerController(WorldContextObject, 0))
-	{
-		OutOWHUD = Cast<AOWHUD>(PC->GetHUD()); 
-		if (OutOWHUD)
-		{
-			AOWPlayerState* PS = PC->GetPlayerState<AOWPlayerState>();
-			UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent(); 
-			UAttributeSet* AS = PS->GetAttributeSet(); 
-
-			OutWCParams.PlayerController = PC; 
-			OutWCParams.PlayerState = PS; 
-			OutWCParams.AbilitySystemComponent = ASC; 
-			OutWCParams.AttributeSet = AS; 
-
-			return true; 
-		}
-	}
-	return false;
-}
-
-UOverlayWidgetController* UOWAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
-{
-	FWidgetControllerParams WidgetControllerParams; 
-	AOWHUD* OWHUD = nullptr; 
-	if (MakeWidgetControllerParams(WorldContextObject, WidgetControllerParams, OWHUD))
-	{
-		return OWHUD->GetOverlayWidgetController(WidgetControllerParams); 
-	}
-
-	return nullptr;
 }
 
 /* Hero Info Defaults */

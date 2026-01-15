@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
+#include "UI/OWWidgetLibrary.h"
 
 void UPlayerHealthStatus::NativeConstruct()
 {
@@ -80,10 +81,7 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 
 			CurrentHealth += (NewValue - OldValue); 
 			CheckDamagedOrHealed(OldValue, NewValue); 
-			if (TextBlock_CurrentHealth)
-			{
-				TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth))); 
-			}
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_CurrentHealth, CurrentHealth);
 			break; 
 		}
 		// Max Attribute Value is Changed (e.g., Max Health, Max Armor, Max Shield)
@@ -94,10 +92,7 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 			ValueToChange = NewValue;
 
 			MaxHealth += (NewValue - OldValue);
-			if (TextBlock_MaxHealth)
-			{
-				TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
-			}
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_MaxHealth, MaxHealth);
 			break; 
 		}
 		// Both Attribute Values are Changed (e.g., Health & Max Health)
@@ -109,20 +104,14 @@ void UPlayerHealthStatus::UpdateStatus(FGameplayTag Tag, float NewValue, EHealth
 
 			CurrentHealth += (NewValue - OldCurrentValue);
 			CheckDamagedOrHealed(OldCurrentValue, NewValue);
-			if (TextBlock_CurrentHealth)
-			{
-				TextBlock_CurrentHealth->SetText(FText::AsNumber(FMath::TruncToInt(CurrentHealth)));
-			}
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_CurrentHealth, CurrentHealth);
 
 			float& MaxValueToChange = MaxHealthStatusMap[Tag];
 			float OldMaxValue = MaxValueToChange;
 			MaxValueToChange = NewValue; 
 
 			MaxHealth += (NewValue - OldMaxValue);
-			if (TextBlock_MaxHealth)
-			{
-				TextBlock_MaxHealth->SetText(FText::AsNumber(FMath::TruncToInt(MaxHealth)));
-			}
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_MaxHealth, MaxHealth);
 			break; 
 		}
 	}

@@ -10,6 +10,7 @@
 #include "OWGameplayTags.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Components/TextBlock.h"
+#include "UI/OWWidgetLibrary.h"
 
 void UUltimateGauge::NativePreConstruct()
 {
@@ -106,12 +107,6 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 		return;
 	}
 
-	// Early return When the difference between the new value and the current ultimate gauge does not exceed 1%
-	/*if (FMath::Abs(NewValue - CurrentUltimateGauge) < MaxUltimateGauge * 0.01f)
-	{
-		return;
-	}*/
-	
 	if (NewValue >= MaxUltimateGauge)
 	{
 		// Early return if Ultimate is already charged 
@@ -161,11 +156,8 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 		// After Casting Ultimate, Current Ultimate Gauge is greater than New Value 
 		if (CurrentUltimateGauge > NewValue)
 		{
-			if (TextBlock_NumGauge)
-			{
-				TextBlock_NumGauge->SetText(FText::AsNumber(FMath::TruncToInt(NewValue / MaxUltimateGauge * 100.f)));
-				TextBlock_NumGauge->SetVisibility(ESlateVisibility::Visible);
-			}
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_NumGauge, NewValue / MaxUltimateGauge * 100.f);
+			TextBlock_NumGauge->SetVisibility(ESlateVisibility::Visible);
 
 			if (TextBlock_Percent)
 			{
@@ -204,10 +196,7 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 				UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
 			}
 
-			if (TextBlock_NumGauge)
-			{
-				TextBlock_NumGauge->SetText(FText::AsNumber(FMath::TruncToInt(NewValue / MaxUltimateGauge * 100.f)));
-			}
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_NumGauge, NewValue / MaxUltimateGauge * 100.f);
 		}
 	}
 

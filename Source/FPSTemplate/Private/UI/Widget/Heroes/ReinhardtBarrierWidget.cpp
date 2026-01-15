@@ -8,6 +8,7 @@
 #include "AbilitySystem/OWAttributeSet.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
+#include "UI/OWWidgetLibrary.h"
 
 void UReinhardtBarrierWidget::NativeConstruct()
 {
@@ -44,6 +45,18 @@ void UReinhardtBarrierWidget::NativeConstruct()
 				return;
 			}
 
+			// Bind 'Max Health' Gameplay Attribute Value Changed Delegate of Barrier Ability System Component
+			BarrierASC->GetGameplayAttributeValueChangeDelegate(
+				UOWAttributeSet::GetMaxHealthAttribute()).AddWeakLambda(
+					this,
+					[this](const FOnAttributeChangeData& Data)
+					{
+						UpdateBarrierMaxHealth(Data.NewValue);
+					}
+				);
+
+			UpdateBarrierMaxHealth(EnergyBarrier->GetAttributeSet()->GetMaxHealth()); 
+
 			// Bind 'Health' Gameplay Attribute Value Changed Delegate of Barrier Ability System Component
 			BarrierASC->GetGameplayAttributeValueChangeDelegate(
 				UOWAttributeSet::GetHealthAttribute()).AddWeakLambda(
@@ -54,15 +67,9 @@ void UReinhardtBarrierWidget::NativeConstruct()
 					}
 				);
 
-			// Bind 'Max Health' Gameplay Attribute Value Changed Delegate of Barrier Ability System Component
-			BarrierASC->GetGameplayAttributeValueChangeDelegate(
-				UOWAttributeSet::GetMaxHealthAttribute()).AddWeakLambda(
-					this,
-					[this](const FOnAttributeChangeData& Data)
-					{
-						UpdateBarrierMaxHealth(Data.NewValue);
-					}
-				);
+			UpdateBarrierHealth(EnergyBarrier->GetAttributeSet()->GetHealth()); 
+
+			
 
 			// Early Return 
 			return;
@@ -96,10 +103,7 @@ void UReinhardtBarrierWidget::UpdateBarrierHealth(float NewHealthValue)
 	}
 
 	// Show Reamining Barrier Health with Decimal Point Dropped 
-	if (TextBlock_BarrierField)
-	{
-		TextBlock_BarrierField->SetText(FText::AsNumber(FMath::TruncToInt(NewHealthValue)));
-	}
+	UOWWidgetLibrary::UpdatePureNumberText(TextBlock_BarrierField, NewHealthValue);
 	
 	if (MID_BarrierField)
 	{
