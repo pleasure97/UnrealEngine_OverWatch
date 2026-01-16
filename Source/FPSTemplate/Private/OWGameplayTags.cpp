@@ -288,14 +288,23 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.Interact.Activate"),
 		FString("Ability which activates Interaction"));
 
-	/* Hit React */
-	GameplayTags.Abilities_HitReact= UGameplayTagsManager::Get().AddNativeGameplayTag(
+	GameplayTags.Abilities_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.HitReact"),
 		FString("Hit React Ability"));
 
+	/* Status */
+	GameplayTags.Status_Suppressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.Suppressed"),
+		FString("Suppressed Status"));
+
+	/* Effects */
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Effects.HitReact"),
 		FString("Hit React Effects"));
+
+	GameplayTags.Effects_HealthRegenerate = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.HealthRegenerate"),
+		FString("Health Regenerate Effects"));
 
 	/* Ability Status Types */
 	GameplayTags.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -346,6 +355,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Debuff_Suppression_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Suppression.Start"),
 		FString("Start of Debuff Suppression"));
+
+	GameplayTags.Debuff_Suppression_WallHit = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Suppression.WallHit"),
+		FString("Wall Hit of Debuff Suppression"));
 
 	GameplayTags.Debuff_Suppression_End = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Suppression.End"),

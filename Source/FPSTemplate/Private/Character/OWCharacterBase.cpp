@@ -11,6 +11,7 @@
 #include "Components/WidgetComponent.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "Player/OWPlayerState.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 
 AOWCharacterBase::AOWCharacterBase()
@@ -25,6 +26,8 @@ AOWCharacterBase::AOWCharacterBase()
 	StunDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>(TEXT("StunDebuffComponent")); 
 	StunDebuffComponent->SetupAttachment(GetRootComponent()); 
 	StunDebuffComponent->DebuffTag = OWGameplayTags.Debuff_Stun; 
+
+	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &AOWCharacterBase::OnWallHit);
 }
 
 UAbilitySystemComponent* AOWCharacterBase::GetAbilitySystemComponent() const
@@ -78,8 +81,6 @@ FOnDeath& AOWCharacterBase::GetOnDeathDelegate()
 
 void AOWCharacterBase::Die(const FVector& DeathImpulse)
 {
-	// ThirdPersonWeapon->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true)); 
-	MulticastHandleDeath(DeathImpulse); 
 }
 
 bool AOWCharacterBase::IsDead_Implementation() const
@@ -160,26 +161,9 @@ FOnTeamIndexChangedDelegate* AOWCharacterBase::GetOnTeamIndexChangedDelegate()
 	return &OnTeamChangedDelegate; 
 }
 
-void AOWCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
+int32 AOWCharacterBase::GetTeamID() const
 {
-	// Implement the Falling of the Weapon through Death 
-	/*ThirdPersonWeapon->SetSimulatePhysics(true); 
-	ThirdPersonWeapon->SetEnableGravity(true); 
-	ThirdPersonWeapon->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); 
-	ThirdPersonWeapon->AddImpulse(DeathImpulse * 0.1f, NAME_None, true); */
-
-	// Implement the Death Motion 
-	GetMesh()->SetEnableGravity(true); 
-	GetMesh()->SetSimulatePhysics(true); 
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly); 
-	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block); 
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
-	GetMesh()->AddImpulse(DeathImpulse, NAME_None, true); 
-
-	bDead = true; 
-
-	// TODO - May need to delete FOnDeath Delegate of Combat Interface 
-	OnDeath.Broadcast(this); 
+	return GenericTeamIdToInteger(MyTeamID);
 }
 
 void AOWCharacterBase::UnPossessed()
@@ -226,6 +210,32 @@ void AOWCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewC
 {
 	bIsStunned = NewCount > 0; 
 	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
+}
+
+void AOWCharacterBase::OnWallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// Check if Character Has 'Status_Suppressed' GameplayTag
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+	if (!GetAbilitySystemComponent()->HasMatchingGameplayTag(GameplayTags.Status_Suppressed))
+	{
+		return;
+	}
+
+	if (!IsValid(OtherComp))
+	{
+		return;
+	}
+
+	if (OtherComp->GetCollisionObjectType() != ECollisionChannel::ECC_WorldStatic)
+	{
+		return;
+	}
+
+	if (HasAuthority())
+	{
+		FGameplayEventData Payload;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, GameplayTags.Debuff_Suppression_WallHit, Payload);
+	}
 }
 
 void AOWCharacterBase::OnRep_MyTeamID(FGenericTeamId OldTeamID)

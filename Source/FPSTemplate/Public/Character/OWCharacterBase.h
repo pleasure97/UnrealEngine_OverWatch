@@ -60,10 +60,11 @@ public:
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override; 
 	virtual FGenericTeamId GetGenericTeamId() const override; 
 	virtual FOnTeamIndexChangedDelegate* GetOnTeamIndexChangedDelegate() override; 
-	/** Team Interface End **/
 
-	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath(const FVector& DeathImpulse); 
+	UFUNCTION(BlueprintCallable)
+	int32 GetTeamID() const;
+
+	/** Team Interface End **/
 
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsStunned = false;
@@ -76,6 +77,16 @@ protected:
 	/* Attributes */
 	void ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const; 
 
+	/* State - Movement Speed */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float BaseWalkSpeed = 550.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float BaseSwimSpeed = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	float BaseFlySpeed = 600.f;
+
 	/* State - Death */
 	UPROPERTY()
 	bool bDead = false; 
@@ -86,11 +97,12 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UDebuffNiagaraComponent> StunDebuffComponent; 
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-	float BaseWalkSpeed = 550.f; 
-
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsBeingShocked = false;
+
+	/* State - Suppression */
+	UFUNCTION()
+	void OnWallHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/* State - Heal */
 	UPROPERTY(Replicated, BlueprintReadOnly)

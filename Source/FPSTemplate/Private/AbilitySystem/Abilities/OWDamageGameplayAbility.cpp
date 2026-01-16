@@ -105,3 +105,17 @@ float UOWDamageGameplayAbility::GetDamageAtLevel() const
 {
 	return Damage.GetValueAtLevel(GetAbilityLevel()); 
 }
+
+bool UOWDamageGameplayAbility::GetDebuffInfoByTag(FGameplayTag InGameplayTag, FDebuffInfo& OutDebuffInfo) const
+{
+	for (FDebuffInfo DebuffInfo : DebuffInfos)
+	{
+		if (DebuffInfo.DebuffTag.MatchesTagExact(InGameplayTag))
+		{
+			OutDebuffInfo = DebuffInfo;
+			return true;
+		}
+	}
+
+	return false;
+}

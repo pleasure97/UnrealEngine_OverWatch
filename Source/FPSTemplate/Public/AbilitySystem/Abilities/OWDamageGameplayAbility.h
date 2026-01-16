@@ -30,6 +30,7 @@ struct FDebuffInfo
 /**
  * 
  */
+
 UCLASS()
 class FPSTEMPLATE_API UOWDamageGameplayAbility : public UOWGameplayAbility
 {
@@ -53,6 +54,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetDamageAtLevel() const; 
+
+	UFUNCTION(BlueprintCallable)
+	bool GetDebuffInfoByTag(FGameplayTag InGameplayTag, FDebuffInfo& OutDebuffInfo) const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

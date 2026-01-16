@@ -110,10 +110,14 @@ public:
 	FGameplayTag Abilities_Reload; 
 	FGameplayTag Abilities_IgnoreDeath; 
 	FGameplayTag Abilities_Interact_Activate; 
-
-	/* Hit React */
 	FGameplayTag Abilities_HitReact;
+
+	/* Status */
+	FGameplayTag Status_Suppressed;
+
+	/* Effects */
 	FGameplayTag Effects_HitReact; 
+	FGameplayTag Effects_HealthRegenerate;
 
 	/* Ability Status Types */
 	FGameplayTag Abilities_Status_Locked; 
@@ -131,6 +135,7 @@ public:
 	FGameplayTag Debuff_Stun;
 	FGameplayTag Debuff_Knockback;
 	FGameplayTag Debuff_Suppression_Start;
+	FGameplayTag Debuff_Suppression_WallHit;
 	FGameplayTag Debuff_Suppression_End;
 	FGameplayTag Debuff_Laceration; 
 
