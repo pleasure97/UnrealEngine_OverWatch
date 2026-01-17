@@ -134,6 +134,7 @@ public:
 
 	FGameplayTag Debuff_Stun;
 	FGameplayTag Debuff_Knockback;
+	FGameplayTag Debuff_Knockdown;
 	FGameplayTag Debuff_Suppression_Start;
 	FGameplayTag Debuff_Suppression_WallHit;
 	FGameplayTag Debuff_Suppression_End;
@@ -210,6 +211,7 @@ public:
 	FGameplayTag Event_RespawnHero; 
 	FGameplayTag Event_Illiari_PylonDemolished; 
 	FGameplayTag Event_Reinhardt_BarrierDestroyed;
+	FGameplayTag Event_Reinhardt_EarthShatterFinished;
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

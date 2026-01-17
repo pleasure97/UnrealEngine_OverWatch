@@ -352,6 +352,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Knockback"),
 		FString("Debuff Knockback"));
 
+	GameplayTags.Debuff_Knockdown = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.Knockdown"),
+		FString("Debuff Knockdown"));
+
 	GameplayTags.Debuff_Suppression_Start = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Debuff.Suppression.Start"),
 		FString("Start of Debuff Suppression"));
@@ -591,7 +595,11 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 	GameplayTags.Event_Reinhardt_BarrierDestroyed = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Reinhardt.BarrierDestroyed"),
-		FString("Barrier Demolished Event Tag"));
+		FString("Barrier Destroyed Event Tag"));
+
+	GameplayTags.Event_Reinhardt_EarthShatterFinished = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Reinhardt.EarthShatterFinished"),
+		FString("EarthShatter Finished Event Tag"));
 
 	/* Hero GameplayTags - Illiari */
 

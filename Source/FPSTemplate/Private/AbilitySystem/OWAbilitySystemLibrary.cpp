@@ -390,15 +390,15 @@ void UOWAbilitySystemLibrary::SetRadialDamageOrigin(FGameplayEffectContextHandle
 	}
 }
 
-void UOWAbilitySystemLibrary::SendHitReactEventToActors(AActor* Instigator, const TArray<AActor*>& ActorsHit)
+void UOWAbilitySystemLibrary::SendGameplayEventToActors(AActor* Instigator, const FGameplayTag& InGameplayTag, const TArray<AActor*>& ActorsHit)
 {
 	// Iterate Hit Actors 
 	for (AActor* HitActor : ActorsHit)
 	{
-		// Send Gameplay Event 'HitReact' Containing Instigator Information
+		// Send Gameplay Event Containing Instigator Information
 		FGameplayEventData Payload;
 		Payload.Instigator = Instigator;
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, FOWGameplayTags::Get().Effects_HitReact, Payload);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(HitActor, InGameplayTag, Payload);
 	}
 }
 

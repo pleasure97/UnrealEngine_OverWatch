@@ -146,7 +146,7 @@ public:
 	 * Gameplay Mechanics 
 	 */
 	UFUNCTION(BlueprintCallable)
-	static void SendHitReactEventToActors(AActor* Instigator, const TArray<AActor*>& ActorsHit);
+	static void SendGameplayEventToActors(AActor* Instigator, const FGameplayTag& InGameplayTag, const TArray<AActor*>& ActorsHit);
 
 	UFUNCTION(BlueprintCallable)
 	static TArray<AActor*> CheckHitBoxOverlap(AActor* AvatarActor, float HitBoxRadius, float HitBoxForwardOffset = 0.f, float HitBoxElevationOffset = 0.f, bool bDrawDebugs = false);
