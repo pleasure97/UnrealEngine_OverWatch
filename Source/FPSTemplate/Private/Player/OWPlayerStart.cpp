@@ -20,6 +20,11 @@ void AOWPlayerStart::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(AOWPlayerStart, TeamID); 
 }
 
+FGenericTeamId AOWPlayerStart::GetGenericTeamId() const
+{
+	return IntegerToGenericTeamId(TeamID);
+}
+
 bool AOWPlayerStart::IsMatchingTeam(AController* Controller) const
 {
 	if (!Controller || !Controller->PlayerState)
@@ -84,8 +89,7 @@ bool AOWPlayerStart::TryClaim(AController* OccupyingController)
 		ClaimingController = OccupyingController; 
 		if (UWorld* World = GetWorld())
 		{
-			World->GetTimerManager().SetTimer(ExpirationTimerHandle, 
-				FTimerDelegate::CreateUObject(this, &AOWPlayerStart::CheckUnclaimed), ExpirationCheckInterval, true); 
+			CheckUnclaimed();
 		}
 		return true; 
 	}
@@ -99,9 +103,5 @@ void AOWPlayerStart::CheckUnclaimed()
 		&& GetLocationOccupancy(ClaimingController) == EOWPlayerStartOccupancy::Empty)
 	{
 		ClaimingController = nullptr; 
-		if (UWorld* World = GetWorld())
-		{
-			World->GetTimerManager().ClearTimer(ExpirationTimerHandle);
-		}
 	}
 }

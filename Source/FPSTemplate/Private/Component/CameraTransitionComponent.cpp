@@ -43,6 +43,7 @@ void UCameraTransitionComponent::SetThirdPersonCamera(UCameraComponent* InThirdP
     ThirdPersonCamera = InThirdPersonCamera;
 }
 
+
 void UCameraTransitionComponent::SetFirstPersonMesh(USkeletalMeshComponent* InFirstPersonMesh)
 {
     FirstPersonMesh = InFirstPersonMesh;
@@ -51,7 +52,12 @@ void UCameraTransitionComponent::SetFirstPersonMesh(USkeletalMeshComponent* InFi
 
 void UCameraTransitionComponent::OnRep_FirstPersonView()
 {
-    UpdateMeshVisibility(); 
+    UpdatePerspective();
+}
+
+void UCameraTransitionComponent::UpdatePerspective()
+{
+    UpdateMeshVisibility();
 
     bFirstPersonView ? ActiveFirstPersonCamera() : ActiveThirdPersonCamera();
 }
@@ -135,11 +141,7 @@ void UCameraTransitionComponent::UpdateMeshVisibility()
 
 void UCameraTransitionComponent::Server_SetViewMode_Implementation(bool bNewFirstPerson)
 {
-    if (bFirstPersonView != bNewFirstPerson)
-    {
-        bFirstPersonView = bNewFirstPerson;
+    bFirstPersonView = bNewFirstPerson;
 
-        // Call RepNotify 
-        OnRep_FirstPersonView();
-    }
+    UpdatePerspective();
 }

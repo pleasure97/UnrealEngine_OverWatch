@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerStart.h"
 #include "GameplayTagContainer.h"
+#include "Interface/TeamInterface.h"
 #include "OWPlayerStart.generated.h"
 
 enum class EOWPlayerStartOccupancy
@@ -20,7 +21,7 @@ class AController;
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AOWPlayerStart : public APlayerStart
+class FPSTEMPLATE_API AOWPlayerStart : public APlayerStart, public ITeamInterface
 {
 	GENERATED_BODY()
 	
@@ -28,6 +29,8 @@ public:
 	AOWPlayerStart(const FObjectInitializer& ObjectInitializer); 
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const; 
+
+	virtual FGenericTeamId GetGenericTeamId() const override;
 
 	UPROPERTY(Replicated, EditAnywhere, Category = "Team")
 	int32 TeamID = INDEX_NONE; 

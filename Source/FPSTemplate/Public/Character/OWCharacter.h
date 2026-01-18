@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "Character/OWCharacterBase.h"
 #include "Interface/LevelUpInterface.h"
+#include "AbilitySystem/Data/HeroInfo.h"
 #include "OWCharacter.generated.h"
 
 class USpringArmComponent; 
 class UCameraComponent;
 class UCameraTransitionComponent; 
 class UScreenEffectComponent; 
+class UWidgetComponent;
 struct FGameplayEffectSpec; 
 class UOWAttributeSet;
 
@@ -75,6 +77,14 @@ public:
 
 	void Revive(); 
 
+	bool IsPossessed() const;
+
+	EHeroName GetHeroName() const;
+
+	FTransform GetOriginalTransform() const;
+
+	void SetOriginalTransform(FTransform InOriginalTransform);
+
 protected:
 	virtual void InitializeDefaultAttributes() const; 
 
@@ -96,6 +106,12 @@ protected:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraTransitionComponent> CameraTransitionComponent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hero")
+	EHeroName HeroName = EHeroName::None;
+
+	UPROPERTY()
+	FTransform OriginalTransform;
+
 private:
 	void InitAbilityActorInfo(); 
 
@@ -107,16 +123,22 @@ private:
 
 	void EnableMovementAndCollision();
 
+	void UpdateHealthPlateVisibility();
+
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UScreenEffectComponent> ScreenEffectComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWidgetComponent> HealthPlateComponent;
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUp() const; 
 
 	bool bPossessed = false; 
 
-	bool bCleanedUp = false; 
+	FTimerHandle HealthPlateTimerHandle;
 
 	UPROPERTY()
 	FCollisionResponseContainer CollisionResponseContainer;
+	void EnableCameraLag();
 };

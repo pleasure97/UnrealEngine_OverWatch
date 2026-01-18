@@ -35,7 +35,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_SetViewMode(bool bNewFirstPerson);
 
-private:
+protected:
 	/* Camera & First Person Mesh */
 	UPROPERTY()
 	TObjectPtr<UCameraComponent> FirstPersonCamera;
@@ -61,4 +61,6 @@ private:
 	void ActiveThirdPersonCamera();
 
 	void UpdateMeshVisibility();
+
+	void UpdatePerspective();
 };

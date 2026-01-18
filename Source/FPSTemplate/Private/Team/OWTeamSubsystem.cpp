@@ -128,10 +128,6 @@ int32 UOWTeamSubsystem::FindTeamFromObject(const UObject* TestObject) const
 {
     if (const AActor* TestActor = Cast<const AActor>(TestObject))
     {
-        if (const ITeamInterface* InstigatorWithTeamInterface = Cast<ITeamInterface>(TestActor->GetInstigator()))
-        {
-            return GenericTeamIdToInteger(InstigatorWithTeamInterface->GetGenericTeamId()); 
-        }
         if (const AOWTeamInfoBase* TeamInfo = Cast<AOWTeamInfoBase>(TestActor))
         {
             return TeamInfo->GetTeamID(); 
@@ -139,6 +135,10 @@ int32 UOWTeamSubsystem::FindTeamFromObject(const UObject* TestObject) const
         if (const AOWPlayerState* OWPlayerState = FindPlayerStateFromActor(TestActor))
         {
             return OWPlayerState->GetTeamId(); 
+        }
+        if (const ITeamInterface* ActorWithTeamInterface = Cast<ITeamInterface>(TestActor))
+        {
+            return GenericTeamIdToInteger(ActorWithTeamInterface->GetGenericTeamId());
         }
     }
 

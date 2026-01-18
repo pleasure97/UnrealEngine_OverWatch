@@ -21,6 +21,7 @@
 #include "Message/OWMessageTypes.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "UI/HUD/OWHUD.h"
+#include "Team/OWTeamSubsystem.h"
 
 AOWCharacter::AOWCharacter()
 {
@@ -30,7 +31,7 @@ AOWCharacter::AOWCharacter()
 	FirstPersonSpringArm = CreateDefaultSubobject<USpringArmComponent>("FirstPersonSpringArm");
 	FirstPersonSpringArm->SetupAttachment(GetRootComponent());
 	FirstPersonSpringArm->TargetArmLength = 0.f;
-	FirstPersonSpringArm->bEnableCameraLag = true;
+	FirstPersonSpringArm->bEnableCameraLag = false;
 	FirstPersonSpringArm->CameraLagSpeed = 15.f;
 	FirstPersonSpringArm->bUsePawnControlRotation = true;
 
@@ -67,6 +68,11 @@ AOWCharacter::AOWCharacter()
 	// Screen Effect Component
 	ScreenEffectComponent = CreateDefaultSubobject<UScreenEffectComponent>("ScreenEffectComponent");
 
+	// Health Plate Component
+	HealthPlateComponent = CreateDefaultSubobject<UWidgetComponent>("HealthPlateComponent");
+	HealthPlateComponent->SetupAttachment(GetRootComponent());
+	// HealthPlateComponent->SetVisibility(false);
+
 	// Show ThirdPersonMesh visible to other clients, invisible to the user 
 	GetMesh()->bOnlyOwnerSee = false; 
 	GetMesh()->bOwnerNoSee = true; 
@@ -77,27 +83,6 @@ void AOWCharacter::BeginPlay()
 {
 	Super::BeginPlay(); 
 
-	// Show FirstPersonMesh visible to the user, invisible to other clients 
-	if (IsLocallyControlled())
-	{
-		if (ScreenEffectComponent)
-		{
-			ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera);
-			ScreenEffectComponent->ApplyPostProcessMaterials(ThirdPersonCamera);
-			ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
-		}
-	}
-
-	InitializeOverlay();
-
-	// Delay 1 seconds 
-	FTimerHandle TimerHandle;
-	float DelayTime = 1.5f;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
-		{
-			InitializeHealthPlate();
-			GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
-		}), DelayTime, false);
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)
@@ -131,6 +116,8 @@ void AOWCharacter::PossessedBy(AController* NewController)
 			bPossessed = true;
 		}
 	}
+
+	InitializeHealthPlate();
 }
 
 void AOWCharacter::OnRep_PlayerState()
@@ -141,6 +128,26 @@ void AOWCharacter::OnRep_PlayerState()
 	{
 		InitAbilityActorInfo();
 	}
+
+	if (IsLocallyControlled())
+	{
+		if (ScreenEffectComponent)
+		{
+			ScreenEffectComponent->ApplyPostProcessMaterials(FirstPersonCamera);
+			ScreenEffectComponent->ApplyPostProcessMaterials(ThirdPersonCamera);
+			ScreenEffectComponent->SetScalarParameterValue(TEXT("TeamID"), GenericTeamIdToInteger(MyTeamID));
+		}
+
+		InitializeOverlay();
+
+		if (FirstPersonSpringArm)
+		{
+			FTimerHandle CameraLagTimerHandle;
+			GetWorldTimerManager().SetTimer(CameraLagTimerHandle, this, &AOWCharacter::EnableCameraLag, 1.f, false);
+		}
+	}
+
+	InitializeHealthPlate();
 }
 
 void AOWCharacter::PostInitializeComponents()
@@ -184,7 +191,6 @@ void AOWCharacter::InitializeDefaultAttributes() const
 {
 	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState()))
 	{
-		EHeroName HeroName = OWPlayerState->GetHeroName(); 
 		UOWAbilitySystemComponent* ASC = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponent()); 
 
 		if ((HeroName != EHeroName::None) && IsValid(ASC))
@@ -198,7 +204,6 @@ void AOWCharacter::ResetAttributes() const
 {
 	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState()))
 	{
-		EHeroName HeroName = OWPlayerState->GetHeroName();
 		UOWAbilitySystemComponent* ASC = Cast<UOWAbilitySystemComponent>(GetAbilitySystemComponent());
 
 		if ((HeroName != EHeroName::None) && IsValid(ASC))
@@ -231,11 +236,23 @@ void AOWCharacter::InitializeOverlay()
 
 void AOWCharacter::InitializeHealthPlate()
 {
-	// Find Widget Component
-	if (UWidgetComponent* FoundWidgetComponent = FindComponentByClass<UWidgetComponent>())
+	// Get My Player State and Check if it's Valid 
+	AOWPlayerState* MyPlayerState = GetPlayerState<AOWPlayerState>(); 
+	if (!IsValid(MyPlayerState))
 	{
+		return;
+	}
+
+	// Check if Health Plate Component is Valid 
+	if (IsValid(HealthPlateComponent))
+	{
+		if (HealthPlateComponent->GetWidget() == nullptr)
+		{
+			HealthPlateComponent->InitWidget();
+		}
+
 		// Get Health Plate from Widget Component
-		if (UHealthPlate* HealthPlate = Cast<UHealthPlate>(FoundWidgetComponent->GetUserWidgetObject()))
+		if (UHealthPlate* HealthPlate = Cast<UHealthPlate>(HealthPlateComponent->GetUserWidgetObject()))
 		{
 			// Set Player State of Health Plate After Character is Possessed
 			if (AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>())
@@ -359,6 +376,14 @@ void AOWCharacter::OnTeamChanged(UObject* TeamAgent, int32 OldTeam, int32 NewTea
 	}
 }
 
+void AOWCharacter::EnableCameraLag()
+{
+	if (FirstPersonSpringArm)
+	{
+		FirstPersonSpringArm->bEnableCameraLag = true;
+	}
+}
+
 void AOWCharacter::InitAbilityActorInfo()
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>(); 
@@ -421,6 +446,26 @@ void AOWCharacter::Revive()
 	bDead = false; 
 }
 
+bool AOWCharacter::IsPossessed() const
+{
+	return bPossessed;
+}
+
+EHeroName AOWCharacter::GetHeroName() const
+{
+	return HeroName;
+}
+
+FTransform AOWCharacter::GetOriginalTransform() const
+{
+	return OriginalTransform;
+}
+
+void AOWCharacter::SetOriginalTransform(FTransform InOriginalTransform)
+{
+	OriginalTransform = InOriginalTransform;
+}
+
 void AOWCharacter::EnableMovementAndCollision()
 {
 	if (Controller)
@@ -438,6 +483,42 @@ void AOWCharacter::EnableMovementAndCollision()
 	if (MovementComponent)
 	{
 		MovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+	}
+}
+
+void AOWCharacter::UpdateHealthPlateVisibility()
+{
+	// Check if Health Plate Component is Valid 
+	if (!IsValid(HealthPlateComponent))
+	{
+		return;
+	}
+
+	// Get Local Player Controller and Check if it is Valid 
+	APlayerController* LocalPlayerController = GetWorld()->GetFirstPlayerController();
+	if (!IsValid(LocalPlayerController))
+	{
+		return;
+	}
+
+	// Get Team Subsystem and Compare Local Player Controller and Current Character 
+	EOWTeamComparison TeamComparison = EOWTeamComparison::InvalidArgument;
+	if (UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
+	{
+		TeamComparison = TeamSubsystem->CompareTeams(this, LocalPlayerController);
+	}
+
+	switch (TeamComparison)
+	{
+	case EOWTeamComparison::OnSameTeam:
+		HealthPlateComponent->SetVisibility(true);
+		UE_LOG(LogTemp, Log, TEXT("OnSameTeam in AOWCharacter::UpdateHealthPlateVisibility()"));
+		return;
+	case EOWTeamComparison::DifferentTeams:
+		bool bVisibleNow = WasRecentlyRendered(0.2f); 
+		HealthPlateComponent->SetVisibility(bVisibleNow);
+		UE_LOG(LogTemp, Log, TEXT("DifferentTeams in AOWCharacter::UpdateHealthPlateVisibility()"));
+		return;
 	}
 }
 

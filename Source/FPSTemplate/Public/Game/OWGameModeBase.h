@@ -13,6 +13,28 @@ class AOWCharacter;
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModePlayerInitialized, AGameModeBase*,  AController*)
 DECLARE_MULTICAST_DELEGATE(FOnGameplayReady)
 
+USTRUCT(BlueprintType)
+struct FHeroPoolUnit
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	APawn* HeroPawn = nullptr;
+
+	UPROPERTY()
+	FTransform HeroTransform;
+};
+
+USTRUCT(BlueprintType)
+struct FHeroList
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	TArray<FHeroPoolUnit> Heroes;
+};
+
 /**
  * 
  */
@@ -42,8 +64,6 @@ public:
 
 	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName);
 
-	void CleanupOldPawns(); 
-
 	UFUNCTION(BlueprintCallable)
 	void RestartHero(APlayerController* PendingPlayerController, UHeroInfo* HeroInfo);
 
@@ -58,6 +78,13 @@ protected:
 	UPROPERTY()
 	TArray<APlayerController*> PendingPlayers; 
 
+	UPROPERTY()
+	TMap<EHeroName, FHeroList> HeroPool;
+
+	void InitializeHeroPool();
+
+	void DeactivateHero(AOWCharacter* Hero);
+
 private:
 	FOWGamePhaseTagDelegate FirstHeroSelectionStartedDelegate; 
 	FOWGamePhaseTagDelegate SwitchInningStartedDelegate;
@@ -66,7 +93,7 @@ private:
 	FOWGamePhaseTagDelegate SecondHeroSelectionEndedDelegate;
 
 	UFUNCTION()
-	void HandleWhenFirstHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration); 
+	void HandleWhenFirstHeroSelectionEnds(const FGameplayTag& PhaseTag, const float PhaseDuration); 
 
 	UFUNCTION()
 	void HandleWhenSwitchInningStarts(const FGameplayTag& PhaseTag, const float PhaseDuration);
@@ -82,7 +109,11 @@ private:
 
 	void EnableHeroSpawning();
 
-	void RestartHeroWithClass(APlayerController* PC, TSubclassOf<APawn> PawnClass);
+	void ActivateHeroFromPool(APlayerController* PC, EHeroName HeroName);
+
+	void PushHeroesToHeroPool();
+
+	void PushHeroToHeroPool(AOWCharacter* HeroToPush);
 
 	bool bCanSpawnHero = false; 
 };
