@@ -445,6 +445,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Reinhardt.BarrierField"),
 		FString("Reinhardt's Barrier Field GameplayCue"));
 
+	GameplayTags.GameplayCue_Reinhardt_EarthShatter = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Reinhardt.EarthShatter"),
+		FString("Reinhardt's Earth Shatter GameplayCue"));
+
 	/* Gameplay Message */
 
 	GameplayTags.Gameplay_Message_HealthPlate_Add = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -715,6 +719,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Montage_FireStrike = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Montage.FireStrike"),
 		FString("Reinhardt's Fire Strike Montage Event Tag"));
+
+	GameplayTags.Event_Montage_EarthShatter = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Montage.EarthShatter"),
+		FString("Reinhardt's Earth Shatter Montage Event Tag"));
 
 	/* Hero GameplayTags - Tracer */
 	GameplayTags.Abilities_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(

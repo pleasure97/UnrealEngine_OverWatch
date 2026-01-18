@@ -6,6 +6,7 @@
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
+#include "AbilitySystemInterface.h"
 
 AEarthShatterShockwave::AEarthShatterShockwave()
 {
@@ -29,7 +30,10 @@ void AEarthShatterShockwave::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HandleShockwave(DeltaTime, bDebug);
+	if (HasAuthority())
+	{
+		HandleShockwave(DeltaTime, bDebug);
+	}
 }
 
 void AEarthShatterShockwave::HandleShockwave(float DeltaTime, bool bInDebug)
@@ -44,14 +48,11 @@ void AEarthShatterShockwave::HandleShockwave(float DeltaTime, bool bInDebug)
 
 	if (CurrentRadius >= MaxDistance)
 	{
-		if (HasAuthority())
-		{
-			FGameplayEventData Payload;
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
-				GetOwner(), GameplayTags.Event_Reinhardt_EarthShatterFinished, Payload);
+		FGameplayEventData Payload;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			GetOwner(), GameplayTags.Event_Reinhardt_EarthShatterFinished, Payload);
 
-			Destroy();
-		}
+		Destroy();
 	}
 
 	float PreviousRadius = CurrentRadius;
@@ -119,6 +120,11 @@ void AEarthShatterShockwave::HandleShockwave(float DeltaTime, bool bInDebug)
 			// Damage
 			DamageEffectParams.BaseDamage =
 				(CurrentRadius <= ShockwaveDirectHitDistance) ? ShockwaveDirectHitDamage + ShockwaveBaseDamage : ShockwaveDirectHitDamage;
+			// Ability System Component 
+			if (IAbilitySystemInterface* OverlappedActorWithASC = Cast<IAbilitySystemInterface>(OverlappedActor))
+			{
+				DamageEffectParams.TargetAbilitySystemComponent = OverlappedActorWithASC->GetAbilitySystemComponent();
+			}
 			UOWAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);
 
 			// Knockdown

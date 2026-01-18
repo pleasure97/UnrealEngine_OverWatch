@@ -8,6 +8,8 @@
 
 class AEarthShatterShockwave;
 class UAbilityTask_WaitGameplayEvent;
+class UAnimMontage;
+
 /**
  * 
  */
@@ -40,6 +42,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AEarthShatterShockwave> EarthShatterShockwaveClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UAnimMontage> EarthShatterMontage;
 
 	virtual void ActivateAbility(
 		const FGameplayAbilitySpecHandle Handle,

@@ -163,6 +163,7 @@ public:
 
 	FGameplayTag GameplayCue_Reinhardt_RocketHammer; 
 	FGameplayTag GameplayCue_Reinhardt_BarrierField; 
+	FGameplayTag GameplayCue_Reinhardt_EarthShatter; 
 
 	/* Gameplay Message */
 	FGameplayTag Gameplay_Message_HealthPlate_Add; 
@@ -248,6 +249,7 @@ public:
 	FGameplayTag Event_Montage_RocketHammer_ComboDamage;
 	FGameplayTag Event_Montage_Charge;
 	FGameplayTag Event_Montage_FireStrike;
+	FGameplayTag Event_Montage_EarthShatter;
 
 	/* Hero GameplayTags - Tracer */
 	FGameplayTag Abilities_Tracer_PulsePistols; 
