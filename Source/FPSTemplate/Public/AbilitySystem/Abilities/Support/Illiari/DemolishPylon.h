@@ -18,12 +18,15 @@ class FPSTEMPLATE_API UDemolishPylon : public UOWGameplayAbility
 	GENERATED_BODY()
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AHealingSunStone> HealingSunStoneClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UOWUserWidget> PylonDestroyedWidgetClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float TimeToRemoveWidget = 3.f; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float CooldownWhenNotDamaged = 14.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float CooldownWhenDamaged = 14.f;
 };

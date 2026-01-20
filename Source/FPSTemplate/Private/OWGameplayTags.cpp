@@ -593,9 +593,13 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Event.RespawnHero"),
 		FString("Respawn Hero Tag"));
 
-	GameplayTags.Event_Illiari_PylonDemolished = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Event.Illiari.PylonDemolished"),
-		FString("Pylon Demolished Event Tag"));
+	GameplayTags.Event_Illiari_PylonDestroyed_Intentional = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Illiari.PylonDestroyed.Intentional"),
+		FString("Intentionally Pylon Destroyed Event Tag"));
+
+	GameplayTags.Event_Illiari_PylonDestroyed_Unintentional = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Illiari.PylonDestroyed.Unintentional"),
+		FString("Unintentionally Pylon Destroyed Event Tag"));
 
 	GameplayTags.Event_Reinhardt_BarrierDestroyed = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Reinhardt.BarrierDestroyed"),
