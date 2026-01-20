@@ -10,36 +10,65 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/OWAbilitySystemLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "Team/OWTeamSubsystem.h"
 
 AOWProjectile::AOWProjectile()
 {
+	/* Tick & Replication */
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true; 
+	SetReplicateMovement(true);
 
+	/* Collision */
 	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere"); 
 	SetRootComponent(Sphere); 
 	
 	// TODO - Set Collision Object Type, ECC_Projectile 
 	Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly); 
 	Sphere->SetCollisionResponseToAllChannels(ECR_Ignore); 
-	Sphere->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap); 
-	Sphere->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Overlap); 
-	Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); 
 
+	Sphere->SetNotifyRigidBodyCollision(true);
+
+	Sphere->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Block); 
+	Sphere->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block); 
+	Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); 
+	if (GetOwner())
+	{
+		Sphere->IgnoreActorWhenMoving(GetOwner(), true);
+	}
+
+	/* Projectile Movement */
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>("ProjectileMovement"); 
+	ProjectileMovement->SetUpdatedComponent(Sphere);
 	ProjectileMovement->InitialSpeed = 550.f;
 	ProjectileMovement->MaxSpeed = 550.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f; 
+	ProjectileMovement->bShouldBounce = false;
+}
+
+UNiagaraSystem* AOWProjectile::GetImpactEffect() const
+{
+	return ImpactEffect;
+}
+
+UProjectileMovementComponent* AOWProjectile::GetProjectileMovement() const
+{
+	return ProjectileMovement;
 }
 
 void AOWProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+
 	SetLifeSpan(LifeSpan); 
 	SetReplicateMovement(true); 
-	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AOWProjectile::OnSphereOverlap); 
+	if (Sphere)
+	{
+		Sphere->OnComponentBeginOverlap.AddDynamic(this, &AOWProjectile::OnSphereOverlap);
+		Sphere->OnComponentHit.AddDynamic(this, &AOWProjectile::OnSphereComponentHit);
+	}
 
-	if (LoopingSoundComponent)
+	if (LoopingSound)
 	{
 		LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent()); 
 	}
@@ -53,53 +82,96 @@ void AOWProjectile::Destroyed()
 		LoopingSoundComponent->DestroyComponent(); 
 	}
 
-	if (!bHit && !HasAuthority()) OnHit(); 
-
 	Super::Destroyed(); 
 }
 
-void AOWProjectile::OnHit()
+void AOWProjectile::OnHit(AActor* TargetActor)
 {
-	if (ImpactSound)
+	if (HasAuthority() && TargetActor)
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator); 
+		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor))
+		{
+			if (IsValidOverlap(TargetActor, bHealProjectile))
+			{
+				const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude;
+				DamageEffectParams.DeathImpulse = DeathImpulse;
+				DamageEffectParams.TargetAbilitySystemComponent = TargetASC;
+				UOWAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams);
+			}
+		}
+
+		if (!bPenetrable || !TargetActor->IsA(APawn::StaticClass()))
+		{
+			Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			SetLifeSpan(0.1f);
+		}
 	}
-	if (ImpactEffect)
-	{
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation()); 
-	}
-	if (LoopingSoundComponent)
-	{
-		LoopingSoundComponent->Stop(); 
-		LoopingSoundComponent->DestroyComponent(); 
-	}
-	bHit = true; 
 }
 
 void AOWProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult)
 {
-	if (!IsValidOverlap(OtherActor)) return;
-	if (!bHit) OnHit(); 
+	if (!OtherActor || OtherActor == this || OverlappedActors.Contains(OtherActor))
+	{
+		return; 
+	}
 
+	OverlappedActors.Add(OtherActor);
+
+	OnHit(OtherActor);
+}
+
+void AOWProjectile::OnSphereComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
 	if (HasAuthority())
 	{
-		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		OnHit(OtherActor);
+	}
+	else
+	{
+		if (ImpactSound)
 		{
-			const FVector DeathImpulse = GetActorForwardVector() * DamageEffectParams.DeathImpulseMagnitude; 
-			DamageEffectParams.DeathImpulse = DeathImpulse; 
-			DamageEffectParams.TargetAbilitySystemComponent = TargetASC; 
-			UOWAbilitySystemLibrary::ApplyDamageEffect(DamageEffectParams); 
+			UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation(), FRotator::ZeroRotator);
 		}
-
+		if (ImpactEffect)
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
+		}
 	}
 }
 
-bool AOWProjectile::IsValidOverlap(AActor* OtherActor)
+bool AOWProjectile::IsValidOverlap(AActor* OtherActor, bool bHeal)
 {
-	if (!DamageEffectParams.SourceAbilitySystemComponent) return false;
-	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor(); 
-	if (SourceAvatarActor == OtherActor) return false;
-	// TODO - Distinguish between Allies and Enemies 
+	// Check if Source Ability System Component is Valid 
+	if (!DamageEffectParams.SourceAbilitySystemComponent)
+	{
+		return false;
+	}
 
-	return true; 
+	// Check if Source Avatar Actor Has been Hit 
+	AActor* SourceAvatarActor = DamageEffectParams.SourceAbilitySystemComponent->GetAvatarActor(); 
+	if (SourceAvatarActor == OtherActor)
+	{
+		return false; 
+	}
+
+	// Distinguish between Allies and Enemies 
+	if (UOWTeamSubsystem* OWTeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>())
+	{
+		EOWTeamComparison TeamComparison = OWTeamSubsystem->CompareTeams(SourceAvatarActor, OtherActor); 
+		switch (TeamComparison)
+		{
+		case EOWTeamComparison::OnSameTeam:
+			return bHeal;
+		case EOWTeamComparison::InvalidArgument:
+			return false;
+		case EOWTeamComparison::DifferentTeams:
+			return !bHeal;
+		default:
+			return false;
+		}
+	}
+	else
+	{
+		return false; 
+	}
 }

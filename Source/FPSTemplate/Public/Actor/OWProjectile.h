@@ -20,43 +20,60 @@ class FPSTEMPLATE_API AOWProjectile : public AActor
 public:	
 	AOWProjectile();
 
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovement; 
-
-	UPROPERTY(BlueprintReadWrite, meta = (ExposeOnSpawn = true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "OWProjectile", meta = (ExposeOnSpawn = true))
 	FDamageEffectParams DamageEffectParams; 
 
-	UNiagaraSystem* GetImpactEffect() const { return ImpactEffect; }
+	UNiagaraSystem* GetImpactEffect() const;
+
+	UFUNCTION(BlueprintCallable)
+	UProjectileMovementComponent* GetProjectileMovement() const;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Destroyed() override; 
 
+	bool IsValidOverlap(AActor* OtherActor, bool bHeal);
+
 	UFUNCTION(BlueprintCallable)
-	virtual void OnHit(); 
+	virtual void OnHit(AActor* TargetActor); 
 
 	UFUNCTION()
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult); 
 
+	UFUNCTION()
+	virtual void OnSphereComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<USphereComponent> Sphere; 
 
-	bool IsValidOverlap(AActor* OtherActor); 
-
-	bool bHit = false;
-
 	UPROPERTY()
-	TObjectPtr<UAudioComponent> LoopingSoundComponent; 
+	TSet<TWeakObjectPtr<AActor>> OverlappedActors;
 
-private:
-	UPROPERTY(EditDefaultsOnly)
+	bool bFirstHit = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OWProjectile")
+	bool bPenetrable = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OWProjectile")
+	bool bHealProjectile = false; 
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWProjectile")
 	float LifeSpan = 1.5f; 
 
-	UPROPERTY(EditAnywhere)
+	/* Projectile Movement */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
+
+	/* Impact */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OWProjectile")
 	TObjectPtr<UNiagaraSystem> ImpactEffect; 
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> ImpactSound; 
+
+	/* Looping */
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> LoopingSoundComponent;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> LoopingSound; 
