@@ -100,6 +100,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UWaitCooldownChange> WaitCooldownChangeTask; 
 
+	UPROPERTY(BlueprintReadOnly)
+	float UpdateInterval = 0.1f;
+
 	void SetCooldownInfo(const FOWAbilityInfo& Info);
 
 	void SetWidgetInfo(const FOWAbilityInfo& WidgetInfo); 
@@ -120,19 +123,19 @@ private:
 
 	/* Cooldown */
 	UFUNCTION()
-	void HandleCooldownTimer(float TimeRemaining);
+	void HandleCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration);
 
 	UFUNCTION()
-	void UpdateCooldownTimer();
+	void UpdateCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration);
 
 	UFUNCTION()
-	void EndCooldownTimer(float TimeRemaining);
+	void EndCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration);
 
-	FTimerHandle CooldownTimerHandle; 
+	//FTimerHandle CooldownTimerHandle; 
 
-	float CurrentRemainedTime = 0.f;
+	//float CurrentRemainedTime = 0.f;
 
-	float CooldownDuration = 0.f;
+	//float CooldownDuration = 0.f;
 
 	bool bCurrentlyBlocked = false;
 

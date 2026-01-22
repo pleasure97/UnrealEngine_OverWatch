@@ -41,8 +41,9 @@ void UPlayerSkill::NativeDestruct()
 {
 	if (IsValid(WaitCooldownChangeTask))
 	{
-		WaitCooldownChangeTask->CooldownStart.RemoveAll(this); 
-		WaitCooldownChangeTask->CooldownEnd.RemoveAll(this); 
+		WaitCooldownChangeTask->OnDurationBegin.RemoveAll(this);
+		WaitCooldownChangeTask->OnDurationTimeUpdated.RemoveAll(this);
+		WaitCooldownChangeTask->OnDurationEnd.RemoveAll(this);
 	}
 
 	Super::NativeDestruct(); 
@@ -186,9 +187,13 @@ void UPlayerSkill::SetCooldownInfo(const FOWAbilityInfo& Info)
 
 		if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 		{
-			WaitCooldownChangeTask = UWaitCooldownChange::WaitForCooldownChange(OverlayWidgetController->AbilitySystemComponent, CooldownTag);
-			WaitCooldownChangeTask->CooldownStart.AddDynamic(this, &UPlayerSkill::HandleCooldownTimer); 
-			WaitCooldownChangeTask->CooldownEnd.AddDynamic(this, &UPlayerSkill::EndCooldownTimer); 
+			FGameplayTagContainer CooldownTagContainer;
+			CooldownTagContainer.AddTag(CooldownTag);
+			WaitCooldownChangeTask = UWaitCooldownChange::WaitCooldownChange(
+				OverlayWidgetController->AbilitySystemComponent, CooldownTagContainer, UpdateInterval);
+			WaitCooldownChangeTask->OnDurationBegin.AddDynamic(this, &UPlayerSkill::HandleCooldownTimer); 
+			WaitCooldownChangeTask->OnDurationTimeUpdated.AddDynamic(this, &UPlayerSkill::UpdateCooldownTimer);
+			WaitCooldownChangeTask->OnDurationEnd.AddDynamic(this, &UPlayerSkill::EndCooldownTimer); 
 		}
 	}
 }
@@ -211,7 +216,7 @@ void UPlayerSkill::UpdateCurrentStacks(const FGameplayAttribute& Attribute, cons
 	}
 }
 
-void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
+void UPlayerSkill::HandleCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration)
 {
 	// Ability Stacking Early Return
 	if (bAbilityStacking && NumCurrentStacks > 0)
@@ -224,53 +229,33 @@ void UPlayerSkill::HandleCooldownTimer(float TimeRemaining)
 		ProgressBar_Cooltime->SetPercent(1.f);
 	}
 
-	CooldownDuration = CurrentRemainedTime = TimeRemaining; 
+	if (TextBlock_Cooltime)
+	{
+		TextBlock_Cooltime->SetText(FText::AsNumber(FMath::RoundToInt(TimeRemaining)));
+		TextBlock_Cooltime->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UPlayerSkill::UpdateCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration)
+{
+	// Ability Stacking Early Return
+	if (bAbilityStacking && NumCurrentStacks > 0)
+	{
+		return;
+	}
+
+	if (ProgressBar_Cooltime)
+	{
+		ProgressBar_Cooltime->SetPercent(TimeRemaining / Duration);
+	}
 
 	if (TextBlock_Cooltime)
 	{
-		TextBlock_Cooltime->SetText(FText::AsNumber(FMath::RoundToInt(CurrentRemainedTime)));
-		TextBlock_Cooltime->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (UWorld* World = GetWorld())
-	{
-		World->GetTimerManager().SetTimer(
-			CooldownTimerHandle, 
-			this, 
-			&UPlayerSkill::UpdateCooldownTimer, 
-			World->GetDeltaSeconds(), 
-			true);
+		TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(TimeRemaining)));
 	}
 }
 
-void UPlayerSkill::UpdateCooldownTimer()
-{
-	if (UWorld* World = GetWorld())
-	{
-		if (CurrentRemainedTime <= 0.1f && CooldownTimerHandle.IsValid())
-		{
-			World->GetTimerManager().ClearTimer(CooldownTimerHandle);
-			return;
-		}
-
-		CurrentRemainedTime -= World->GetDeltaSeconds();
-
-		if (ProgressBar_Cooltime)
-		{
-			ProgressBar_Cooltime->SetPercent(CurrentRemainedTime / CooldownDuration);
-		}
-
-		if (TextBlock_Cooltime)
-		{
-			if (FMath::FloorToInt(CurrentRemainedTime + World->GetDeltaSeconds()) != FMath::FloorToInt(CurrentRemainedTime))
-			{
-				TextBlock_Cooltime->SetText(FText::AsNumber(FMath::FloorToInt(CurrentRemainedTime)));
-			}
-		}
-	}
-}
-
-void UPlayerSkill::EndCooldownTimer(float TimeRemaining)
+void UPlayerSkill::EndCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration)
 {
 	if (ProgressBar_Cooltime)
 	{

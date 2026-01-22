@@ -4,68 +4,193 @@
 #include "AbilitySystem/AsyncTasks/WaitCooldownChange.h"
 #include "AbilitySystemComponent.h"
 
-UWaitCooldownChange* UWaitCooldownChange::WaitForCooldownChange(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayTag& InCooldownTag)
+void UWaitForDurationEffectChange::EndTask()
 {
-	UWaitCooldownChange* WaitCooldownChange = NewObject<UWaitCooldownChange>(); 
-	WaitCooldownChange->ASC = AbilitySystemComponent; 
-	WaitCooldownChange->CooldownTag = InCooldownTag; 
-
-	if (!IsValid(AbilitySystemComponent) || !InCooldownTag.IsValid())
+	if (IsValid(ASC))
 	{
-		WaitCooldownChange->EndTask(); 
-		return nullptr; 
-	}
+		ASC->OnActiveGameplayEffectAddedDelegateToSelf.RemoveAll(this);
 
-	AbilitySystemComponent->RegisterGameplayTagEvent(InCooldownTag,
-		EGameplayTagEventType::NewOrRemoved).AddUObject(WaitCooldownChange, &UWaitCooldownChange::CooldownTagChanged); 
+		TArray<FGameplayTag> DurationTagArray;
+		DurationTags.GetGameplayTagArray(DurationTagArray);
 
-	AbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(WaitCooldownChange, &UWaitCooldownChange::OnActiveEffectAdded); 
-
-	return WaitCooldownChange;
-}
-
-void UWaitCooldownChange::EndTask()
-{
-	if (!IsValid(ASC)) return; 
-
-	ASC->RegisterGameplayTagEvent(CooldownTag, EGameplayTagEventType::NewOrRemoved).RemoveAll(this); 
-	SetReadyToDestroy(); 
-	MarkAsGarbage(); 
-}
-
-void UWaitCooldownChange::CooldownTagChanged(const FGameplayTag InCooldownTag, int32 NewCount)
-{
-	if (NewCount == 0)
-	{
-		CooldownEnd.Broadcast(0.f); 
-	}
-}
-
-void UWaitCooldownChange::OnActiveEffectAdded(UAbilitySystemComponent* TargetASC, const FGameplayEffectSpec& SpecApplied, FActiveGameplayEffectHandle ActiveEffectHandle)
-{
-	FGameplayTagContainer AssetTags; 
-	SpecApplied.GetAllAssetTags(AssetTags); 
-
-	FGameplayTagContainer GrantedTags; 
-	SpecApplied.GetAllGrantedTags(GrantedTags); 
-
-	if (AssetTags.HasTagExact(CooldownTag) || GrantedTags.HasTagExact(CooldownTag))
-	{
-		FGameplayEffectQuery GameplayEffectQuery = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(CooldownTag.GetSingleTagContainer()); 
-		TArray<float> TimesRemaining = ASC->GetActiveEffectsTimeRemaining(GameplayEffectQuery); 
-		if (TimesRemaining.Num() > 0)
+		for (const FGameplayTag DurationTag : DurationTagArray)
 		{
-			float TimeRemaining = TimesRemaining[0]; 
-			for (int32 i = 0; i < TimesRemaining.Num(); ++i)
-			{
-				if (TimesRemaining[i] > TimeRemaining)
-				{
-					TimeRemaining = TimesRemaining[i]; 
-				}
-			}
-
-			CooldownStart.Broadcast(TimeRemaining); 
+			ASC->RegisterGameplayTagEvent(DurationTag, EGameplayTagEventType::NewOrRemoved).RemoveAll(this);
 		}
 	}
 
+	SetReadyToDestroy();
+	MarkAsGarbage();
+}
+
+void UWaitForDurationEffectChange::OnActiveGameplayEffectAddedCallback(UAbilitySystemComponent* InTargetASC,
+	const FGameplayEffectSpec& InSpecApplied, FActiveGameplayEffectHandle ActiveHandle)
+{
+	FGameplayTagContainer AssetTags;
+	InSpecApplied.GetAllAssetTags(AssetTags);
+
+	FGameplayTagContainer GrantedTags;
+	InSpecApplied.GetAllGrantedTags(GrantedTags);
+
+	TArray<FGameplayTag> DurationTagArray;
+	DurationTags.GetGameplayTagArray(DurationTagArray);
+
+	for (FGameplayTag DurationTag : DurationTagArray)
+	{
+		if (AssetTags.HasTagExact(DurationTag) || GrantedTags.HasTagExact(DurationTag))
+		{
+			float TimeRemaining = 0.0f;
+			float Duration = 0.0f;
+
+			const FGameplayTagContainer DurationTagContainer(GrantedTags.GetByIndex(0));
+			GetCooldownRemainingForTag(DurationTagContainer, TimeRemaining, Duration);
+
+			if (ASC->GetOwnerRole() == ROLE_Authority)
+			{
+				// Player is Server
+				OnDurationBegin.Broadcast(DurationTag, TimeRemaining, Duration);
+			}
+			else if (!bUseServerCooldown && InSpecApplied.GetContext().GetAbilityInstance_NotReplicated())
+			{
+				// Client using predicted cooldown
+				OnDurationBegin.Broadcast(DurationTag, TimeRemaining, Duration);
+			}
+			else if (bUseServerCooldown && InSpecApplied.GetContext().GetAbilityInstance_NotReplicated() == nullptr)
+			{
+				// Client using Server's cooldown. This is Server's corrective cooldown GE.
+				OnDurationBegin.Broadcast(DurationTag, TimeRemaining, Duration);
+			}
+			else if (bUseServerCooldown && InSpecApplied.GetContext().GetAbilityInstance_NotReplicated())
+			{
+				// Client using Server's cooldown but this is predicted cooldown GE.
+				// This can be useful to gray out abilities until Server's cooldown comes in.
+				OnDurationBegin.Broadcast(DurationTag, -1.0f, -1.0f);
+			}
+
+			if (WorldContext)
+			{
+				WorldContext->GetWorld()->GetTimerManager().SetTimer(
+					DurationTimeUpdateTimerHandle, this, &UWaitForDurationEffectChange::OnDurationUpdate, DurationInterval, true);
+			}
+
+		}
+	}
+}
+
+void UWaitForDurationEffectChange::DurationTagChanged(const FGameplayTag InDurationTag, int32 InNewCount)
+{
+	if (InNewCount == 0)
+	{
+		OnDurationEnd.Broadcast(InDurationTag, -1.0f, -1.0f);
+		if (WorldContext)
+		{
+			WorldContext->GetWorld()->GetTimerManager().ClearTimer(DurationTimeUpdateTimerHandle);
+			WorldContext->GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+		}
+	}
+}
+
+bool UWaitForDurationEffectChange::GetCooldownRemainingForTag(const FGameplayTagContainer& InDurationTags,
+	float& TimeRemaining, float& InDuration) const
+{
+	if (IsValid(ASC) && InDurationTags.Num() > 0)
+	{
+		TimeRemaining = 0.0f;
+		InDuration = 0.0f;
+
+		FGameplayEffectQuery const Query = FGameplayEffectQuery::MakeQuery_MatchAnyOwningTags(InDurationTags);
+		TArray< TPair<float, float> > DurationAndTimeRemaining = ASC->GetActiveEffectsTimeRemainingAndDuration(Query);
+		if (DurationAndTimeRemaining.Num() > 0)
+		{
+			int32 BestIndex = 0;
+			float LongestTime = DurationAndTimeRemaining[0].Key;
+			for (int32 Index = 1; Index < DurationAndTimeRemaining.Num(); ++Index)
+			{
+				if (DurationAndTimeRemaining[Index].Key > LongestTime)
+				{
+					LongestTime = DurationAndTimeRemaining[Index].Key;
+					BestIndex = Index;
+				}
+			}
+
+			TimeRemaining = DurationAndTimeRemaining[BestIndex].Key;
+			InDuration = DurationAndTimeRemaining[BestIndex].Value;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void UWaitForDurationEffectChange::OnDurationUpdate()
+{
+	float TimeRemaining = 0.0f;
+	float Duration = 0.0f;
+	GetCooldownRemainingForTag(DurationTags, TimeRemaining, Duration);
+	OnDurationTimeUpdated.Broadcast(DurationTags.GetByIndex(0), TimeRemaining, Duration);
+}
+
+UWaitDurationChange* UWaitDurationChange::WaitDurationChange(UAbilitySystemComponent* InAbilitySystemComponent, FGameplayTagContainer InDurationTags, float InDurationInterval, bool bInUseServerCooldown)
+{
+	UWaitDurationChange* MyObj = NewObject<UWaitDurationChange>();
+	MyObj->WorldContext = GEngine->GetWorldFromContextObjectChecked(InAbilitySystemComponent);
+	MyObj->ASC = InAbilitySystemComponent;
+	MyObj->DurationTags = InDurationTags;
+	MyObj->DurationInterval = InDurationInterval;
+	MyObj->bUseServerCooldown = bInUseServerCooldown;
+
+
+	if (!IsValid(InAbilitySystemComponent) || InDurationTags.Num() < 1)
+	{
+		MyObj->EndTask();
+		return nullptr;
+	}
+
+	InAbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(
+		MyObj, &UWaitDurationChange::OnActiveGameplayEffectAddedCallback);
+
+	TArray<FGameplayTag> DurationTagArray;
+	InDurationTags.GetGameplayTagArray(DurationTagArray);
+
+	for (const FGameplayTag DurationTag : DurationTagArray)
+	{
+		InAbilitySystemComponent->RegisterGameplayTagEvent(DurationTag, EGameplayTagEventType::NewOrRemoved).AddUObject(
+			MyObj, &UWaitDurationChange::DurationTagChanged);
+	}
+
+	return MyObj;
+}
+
+UWaitCooldownChange* UWaitCooldownChange::WaitCooldownChange(
+	UAbilitySystemComponent* InAbilitySystemComponent, FGameplayTagContainer InCooldownTags, float InDurationInterval,
+	bool bInUseServerCooldown)
+{
+	UWaitCooldownChange* MyObj = NewObject<UWaitCooldownChange>();
+	MyObj->WorldContext = GEngine->GetWorldFromContextObjectChecked(InAbilitySystemComponent);
+	MyObj->ASC = InAbilitySystemComponent;
+	MyObj->DurationTags = InCooldownTags;
+	MyObj->DurationInterval = InDurationInterval;
+	MyObj->bUseServerCooldown = bInUseServerCooldown;
+
+
+	if (!IsValid(InAbilitySystemComponent) || InCooldownTags.Num() < 1)
+	{
+		MyObj->EndTask();
+		return nullptr;
+	}
+
+	InAbilitySystemComponent->OnActiveGameplayEffectAddedDelegateToSelf.AddUObject(
+		MyObj, &UWaitCooldownChange::OnActiveGameplayEffectAddedCallback);
+
+	TArray<FGameplayTag> DurationTagArray;
+	InCooldownTags.GetGameplayTagArray(DurationTagArray);
+
+	for (const FGameplayTag DurationTag : DurationTagArray)
+	{
+		InAbilitySystemComponent->RegisterGameplayTagEvent(DurationTag, EGameplayTagEventType::NewOrRemoved).AddUObject(
+			MyObj, &UWaitCooldownChange::DurationTagChanged);
+	}
+
+	return MyObj;
 }
