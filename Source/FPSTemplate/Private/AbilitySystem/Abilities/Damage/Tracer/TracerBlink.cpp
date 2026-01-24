@@ -31,7 +31,7 @@ void UTracerBlink::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, con
 			if (AvatarPlayerController->IsLocalController())
 			{
 				// Create Blink Widget and Add to Viewport in Desired Size
-				UTracerBlinkWidget* TracerBlinkWidget = CreateWidget<UTracerBlinkWidget>(AvatarPlayerController, TracerBlinkWidgetClass); 
+				TracerBlinkWidget = CreateWidget<UTracerBlinkWidget>(AvatarPlayerController, TracerBlinkWidgetClass); 
 				if (TracerBlinkWidget)
 				{
 					int32 ViewWidth, ViewHeight; 
@@ -44,4 +44,15 @@ void UTracerBlink::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, con
 			}
 		}
 	}
+}
+
+void UTracerBlink::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+	if (IsValid(TracerBlinkWidget))
+	{
+		TracerBlinkWidget->RemoveFromParent(); 
+		TracerBlinkWidget = nullptr;
+	}
+
+	Super::OnRemoveAbility(ActorInfo, Spec);
 }

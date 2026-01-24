@@ -13,8 +13,10 @@ void UPlayerSkills::NativePreConstruct()
 {
 	Super::NativePreConstruct(); 
 
+	// Get GameplayTag Singleton Container
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
+	// Match Skill Input GameplayTags and Borders
 	TagsToBorders.Add(GameplayTags.InputTag_Skill_1, Border_LShift); 
 	TagsToBorders.Add(GameplayTags.InputTag_Skill_2, Border_E); 
 	TagsToBorders.Add(GameplayTags.InputTag_Skill_3, Border_F);
@@ -27,6 +29,7 @@ void UPlayerSkills::NativeConstruct()
 
 	check(WidgetController); 
 
+	// Set Overlay Widget Controller and Bind Ability Info Delegate
 	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
 	{
 		SetWidgetController(OverlayWidgetController); 
@@ -36,51 +39,69 @@ void UPlayerSkills::NativeConstruct()
 
 void UPlayerSkills::InitializePlayerSkill(const FOWAbilityInfo& Info)
 {
-	if (!TagsToBorders.Contains(Info.InputTag) || !Info.Icon) return; 
+	if (!TagsToBorders.Contains(Info.InputTag) || !Info.Icon)
+	{
+		return;
+	}
 
 	UBorder* Border = TagsToBorders[Info.InputTag]; 
-	Border->SetVisibility(ESlateVisibility::Visible); 
+	if (IsValid(Border))
+	{
+		Border->SetVisibility(ESlateVisibility::Visible);
+	}
 
 	BlockAbilitiesWithTags.Add(Info.AbilityTag, Info.BlockAbilitiesWithTag); 
 
 	UPlayerSkill* PlayerSkill = CreateWidget<UPlayerSkill>(this, PlayerSkillClass);
-	if (UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController))
+	UOverlayWidgetController* OverlayWidgetController = Cast<UOverlayWidgetController>(WidgetController);
+	if (!IsValid(PlayerSkill) || !IsValid(OverlayWidgetController) || !Info.AbilityTag.IsValid())
 	{
-		PlayerSkill->SetWidgetController(OverlayWidgetController);
-
-		if (Info.AbilityTag.IsValid())
-		{
-			OverlayWidgetController->AbilitySystemComponent->AbilityActivatedCallbacks.AddUObject(this, &UPlayerSkills::OnAbilityActivated); 
-			OverlayWidgetController->AbilitySystemComponent->OnAbilityEnded.AddUObject(this, &UPlayerSkills::OnAbilityEnded); 
-
-			PlayerSkill->SetWidgetInfo(Info);
-			PlayerSkill->SetCooldownInfo(Info);
-
-			Border->AddChild(PlayerSkill);
-			TagsToSkills.Add(Info.AbilityTag, PlayerSkill);
-		}
+		return;
 	}
+
+	PlayerSkill->SetWidgetController(OverlayWidgetController);
+
+	OverlayWidgetController->AbilitySystemComponent->AbilityActivatedCallbacks.AddUObject(this, &UPlayerSkills::OnAbilityActivated);
+	OverlayWidgetController->AbilitySystemComponent->OnAbilityEnded.AddUObject(this, &UPlayerSkills::OnAbilityEnded);
+
+	PlayerSkill->SetWidgetInfo(Info);
+	PlayerSkill->SetCooldownInfo(Info);
+
+	Border->AddChild(PlayerSkill);
+	TagsToSkills.Add(Info.AbilityTag, PlayerSkill);
 }
 
 void UPlayerSkills::OnAbilityActivated(UGameplayAbility* ActivatedAbility)
 {
-	if (!ActivatedAbility) return; 
+	if (!IsValid(ActivatedAbility))
+	{
+		return;
+	}
 
 	const FGameplayTagContainer& ActivatedAbilityTags = ActivatedAbility->AbilityTags;
 
 	for (const FGameplayTag& ActivatedAbilityTag : ActivatedAbilityTags)
 	{
+		if (TagsToSkills.Find(ActivatedAbilityTag))
+		{
+			UPlayerSkill* ActivatedPlayerSkill = TagsToSkills[ActivatedAbilityTag];
+			ActivatedPlayerSkill->UpdateActivatedByTag(true);
+		}
+
 		for (const auto& TagToSkill : TagsToSkills)
 		{
-			if (BlockAbilitiesWithTags.Find(ActivatedAbilityTag) == nullptr)
+			if (!BlockAbilitiesWithTags.Find(ActivatedAbilityTag))
 			{
 				return;
 			}
 			const FGameplayTagContainer& BlockAbilitiesTags = BlockAbilitiesWithTags[ActivatedAbilityTag]; 
 			for (const FGameplayTag& BlockAbilityTag : BlockAbilitiesTags)
 			{
-				UPlayerSkill* PlayerSkill = TagsToSkills[BlockAbilityTag]; 
-				PlayerSkill->UpdateBlockedByTag(true); 
+				UPlayerSkill* BlockedPlayerSkill = TagsToSkills[BlockAbilityTag]; 
+				if (IsValid(BlockedPlayerSkill))
+				{
+					BlockedPlayerSkill->UpdateBlockedByTag(true);
+				}
 			}
 		}
 	}	
@@ -90,6 +111,12 @@ void UPlayerSkills::OnAbilityEnded(const FAbilityEndedData& AbilityEndedData)
 {
 	for (const FGameplayTag& EndedTag : AbilityEndedData.AbilityThatEnded->AbilityTags)
 	{
+		if (TagsToSkills.Find(EndedTag))
+		{
+			UPlayerSkill* ActivatedPlayerSkill = TagsToSkills[EndedTag];
+			ActivatedPlayerSkill->UpdateActivatedByTag(false);
+		}
+		
 		const FGameplayTagContainer* BlockAbilitiesContainer = BlockAbilitiesWithTags.Find(EndedTag);
 		if (!BlockAbilitiesContainer)
 		{
@@ -100,9 +127,9 @@ void UPlayerSkills::OnAbilityEnded(const FAbilityEndedData& AbilityEndedData)
 		{
 			if (TObjectPtr<UPlayerSkill>* PlayerSkillPointer = TagsToSkills.Find(BlockAbilityTag))
 			{
-				if (UPlayerSkill* PlayerSkill = *PlayerSkillPointer)
+				if (UPlayerSkill* BlockedPlayerSkill = *PlayerSkillPointer)
 				{
-					PlayerSkill->UpdateBlockedByTag(false);
+					BlockedPlayerSkill->UpdateBlockedByTag(false);
 				}
 			}
 		}

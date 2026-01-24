@@ -28,6 +28,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UTracerBlinkWidget> TracerBlinkWidgetClass;
 
+	UPROPERTY()
+	TObjectPtr<UTracerBlinkWidget> TracerBlinkWidget; 
+
 protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+
+	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 };

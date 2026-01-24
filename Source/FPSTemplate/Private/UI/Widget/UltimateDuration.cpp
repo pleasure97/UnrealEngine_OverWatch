@@ -66,6 +66,7 @@ void UUltimateDuration::UpdateDuration()
 
 void UUltimateDuration::SetDuration(float InDuration)
 {
+	Duration = InDuration;
 	// Set Duration Tick Timer (e.g., Duration - 10.f / Duration Tick - 0.1f)
 	// UI Updates Smoothly Even at 0.1 Seconds Interval Without Using Tick 
 	if (UWorld* World = GetWorld())

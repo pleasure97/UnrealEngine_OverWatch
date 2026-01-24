@@ -30,9 +30,10 @@ public:
 protected:
 	virtual void NativeConstruct() override; 
 
+	virtual void NativeDestruct() override;
+
 private:
-	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> OwnerAbilitySystemComponent;
+	TWeakObjectPtr<UAbilitySystemComponent> OwnerAbilitySystemComponent;
 
 	void UpdateNumBlinks(const FGameplayAttribute& Attribute, const FOnAttributeChangeData& Data);
 };

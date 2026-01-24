@@ -24,7 +24,7 @@ void UTracerBlinkWidget::NativeConstruct()
 		}
 
 		// Check if Owner Ability System Component is Valid 
-		if (IsValid(OwnerAbilitySystemComponent))
+		if (IsValid(OwnerAbilitySystemComponent.Get()))
 		{
 			// Iterate Activatable Abilities of Owner Ability System Component 
 			for (const FGameplayAbilitySpec& GameplayAbilitySpec : OwnerAbilitySystemComponent->GetActivatableAbilities())
@@ -50,6 +50,17 @@ void UTracerBlinkWidget::NativeConstruct()
 			}
 		}
 	}
+}
+
+void UTracerBlinkWidget::NativeDestruct()
+{
+	if (IsValid(OwnerAbilitySystemComponent.Get()))
+	{
+		OwnerAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+			UOWAttributeSet::GetFirstSkillCurrentStacksAttribute()).RemoveAll(this);
+	}
+
+	Super::NativeDestruct();
 }
 
 void UTracerBlinkWidget::UpdateNumBlinks(const FGameplayAttribute& Attribute, const FOnAttributeChangeData& Data)

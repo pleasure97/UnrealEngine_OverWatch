@@ -63,18 +63,31 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_InputKey;
 
+	/* Widget Animation */
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> PressedAnimation;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> ReleasedAnimation;
+
 	/* Widget Design */
-	UPROPERTY(EditDefaultsOnly)
-	FLinearColor BlackColor = FLinearColor(0.f, 0.f, 0.f, 1.f); 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor BlackColor; 
 
-	UPROPERTY(EditDefaultsOnly)
-	FLinearColor WhiteColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor WhiteColor;
 
-	UPROPERTY(EditDefaultsOnly)
-	FLinearColor BlockedColor = FLinearColor(0.491021f, 0.026241f, 0.076185f, 1.f); 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor BlockedColor; 
 
-	UPROPERTY(EditDefaultsOnly)
-	FLinearColor DeactivatedColor = FLinearColor(0.168269f, 0.025187f, 0.035601f, 1.f);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor ActivatedColor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor DeactivatedColor;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FLinearColor CooldownColor;
 
 	/* Widget GameplayTags */
 	UPROPERTY(BlueprintReadOnly)
@@ -105,12 +118,16 @@ public:
 
 	void SetCooldownInfo(const FOWAbilityInfo& Info);
 
-	void SetWidgetInfo(const FOWAbilityInfo& WidgetInfo); 
+	void SetWidgetInfo(const FOWAbilityInfo& WidgetInfo);
+	void SetIconInfo(const FOWAbilityInfo& WidgetInfo);
+	void SetAbilityStackingInfo(const FOWAbilityInfo& WidgetInfo);
+	void SetInputInfo();
 
+	void UpdateActivatedByTag(bool bActivated);
 	void UpdateBlockedByTag(bool bBlocked); 
 
 protected:
-	virtual void NativePreConstruct() override; 
+	virtual void NativeConstruct() override; 
 	virtual void NativeDestruct() override; 
 
 private:
@@ -131,12 +148,7 @@ private:
 	UFUNCTION()
 	void EndCooldownTimer(FGameplayTag DurationTag, float TimeRemaining, float Duration);
 
-	//FTimerHandle CooldownTimerHandle; 
-
-	//float CurrentRemainedTime = 0.f;
-
-	//float CooldownDuration = 0.f;
-
+	bool bCurrentlyActivated = false;
 	bool bCurrentlyBlocked = false;
-
+	bool bCurrentlyCooldown = false;
 };
