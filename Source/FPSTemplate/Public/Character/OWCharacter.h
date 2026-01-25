@@ -27,7 +27,7 @@ class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase, public ILevelUpInt
 public:
 	AOWCharacter(); 
 
-	virtual void BeginPlay() override; 
+	virtual void Restart() override;
 
 	virtual void PossessedBy(AController* NewController) override;
 

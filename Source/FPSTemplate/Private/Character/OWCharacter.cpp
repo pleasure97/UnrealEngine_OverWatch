@@ -79,10 +79,14 @@ AOWCharacter::AOWCharacter()
 	GetMesh()->bReceivesDecals = false; 
 }
 
-void AOWCharacter::BeginPlay()
+void AOWCharacter::Restart()
 {
-	Super::BeginPlay(); 
+	Super::Restart();
 
+	if (CameraTransitionComponent)
+	{
+		CameraTransitionComponent->UpdatePerspective();
+	}
 }
 
 void AOWCharacter::PossessedBy(AController* NewController)

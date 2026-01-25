@@ -35,6 +35,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void Server_SetViewMode(bool bNewFirstPerson);
 
+	void UpdatePerspective();
 protected:
 	/* Camera & First Person Mesh */
 	UPROPERTY()
@@ -61,6 +62,4 @@ protected:
 	void ActiveThirdPersonCamera();
 
 	void UpdateMeshVisibility();
-
-	void UpdatePerspective();
 };

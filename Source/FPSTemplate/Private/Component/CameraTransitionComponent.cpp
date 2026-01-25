@@ -17,7 +17,7 @@ void UCameraTransitionComponent::BeginPlay()
     // Cache Owning Character
     OwningCharacter = Cast<ACharacter>(GetOwner()); 
 
-    OnRep_FirstPersonView();
+    UpdatePerspective();
 }
 
 void UCameraTransitionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -117,20 +117,20 @@ void UCameraTransitionComponent::UpdateMeshVisibility()
 
     if (bFirstPersonView)
     {
-        OwningCharacterMesh->SetVisibility(false, true);
         // Show ThirdPersonMesh visible to other clients, invisible to the user 
         OwningCharacterMesh->bOnlyOwnerSee = false;
         OwningCharacterMesh->bOwnerNoSee = true;
         OwningCharacterMesh->bReceivesDecals = false;
+        OwningCharacterMesh->SetVisibility(false, true);
         FirstPersonMesh->SetVisibility(true, true);
     }
     else
     {
-        OwningCharacterMesh->SetVisibility(true, true);
         // Show ThirdPersonMesh visible to other clients, invisible to the user 
         OwningCharacterMesh->bOnlyOwnerSee = true;
         OwningCharacterMesh->bOwnerNoSee = false;
         OwningCharacterMesh->bReceivesDecals = true;
+        OwningCharacterMesh->SetVisibility(true, true);
         FirstPersonMesh->SetVisibility(false, true);
     }
 
