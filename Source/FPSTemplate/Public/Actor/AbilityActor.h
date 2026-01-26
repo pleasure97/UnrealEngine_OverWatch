@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetTeamID(const int32 InTeamID);
 
+	UFUNCTION(BlueprintCallable)
+	void InitializeTeamID();
+
 	/* Vital Attributes */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UGameplayEffect> VitalAttributes;

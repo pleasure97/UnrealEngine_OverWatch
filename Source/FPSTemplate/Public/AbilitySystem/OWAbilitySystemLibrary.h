@@ -53,13 +53,19 @@ public:
 	static UHeroInfo* GetHeroInfo(const UObject* WorldContextObject); 
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
-	static EHeroName GetHeroName(const UObject* WorldContextObject);
+	static EHeroName GetHeroName(const UObject* WorldContextObject, UObject* Object);
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static void GetIndividualHeroInfo(const UObject* WorldContextObject, EHeroName HeroName, FOWHeroInfo& OutHeroInfo); 
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static APlayerState* GetPlayerStateFromObject(UObject* Object);
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static UAnimMontage* GetAnimMontageForTag(const UObject* WorldContextObject, EHeroName HeroName, const FGameplayTag& AnimMontageTag);
+
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
+	static UAnimMontage* GetAnimMontageFromAvatarActor(AActor* AvatarActor, const FGameplayTag& AnimMontageTag);
 
 	/*
 	 * Omnic Info Defaults

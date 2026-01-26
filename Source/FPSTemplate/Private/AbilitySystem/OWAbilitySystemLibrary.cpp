@@ -141,12 +141,11 @@ UHeroInfo* UOWAbilitySystemLibrary::GetHeroInfo(const UObject* WorldContextObjec
 	}
 }
 
-EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject)
+EHeroName UOWAbilitySystemLibrary::GetHeroName(const UObject* WorldContextObject, UObject* Object)
 {
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
-	if (!World) return EHeroName::None;
+	APlayerState* ObjectPlayerState = GetPlayerStateFromObject(Object);
 
-	const AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(UGameplayStatics::GetPlayerState(WorldContextObject, 0));
+	const AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(ObjectPlayerState);
 	return OWPlayerState ? OWPlayerState->GetHeroName() : EHeroName::None;
 }
 
@@ -176,6 +175,26 @@ APlayerState* UOWAbilitySystemLibrary::GetPlayerStateFromObject(UObject* Object)
 		}
 	}
 	return nullptr;
+}
+
+UAnimMontage* UOWAbilitySystemLibrary::GetAnimMontageForTag(const UObject* WorldContextObject, EHeroName HeroName, const FGameplayTag& AnimMontageTag)
+{
+	UHeroInfo* HeroInfo = GetHeroInfo(WorldContextObject);
+	if (!IsValid(HeroInfo))
+	{
+		return nullptr;
+	}
+	return HeroInfo->GetAnimMontageForTag(HeroName, AnimMontageTag);
+}
+
+UAnimMontage* UOWAbilitySystemLibrary::GetAnimMontageFromAvatarActor(AActor* AvatarActor, const FGameplayTag& AnimMontageTag)
+{
+	if (!IsValid(AvatarActor))
+	{
+		return nullptr;
+	}
+
+	return GetAnimMontageForTag(AvatarActor, GetHeroName(AvatarActor, AvatarActor), AnimMontageTag);
 }
 
 UOmnicInfo* UOWAbilitySystemLibrary::GetOmnicInfo(const UObject* WorldContextObject)

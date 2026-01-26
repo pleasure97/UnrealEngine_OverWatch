@@ -2,6 +2,7 @@
 
 #include "Actor/AbilityActor.h"
 #include "Net/UnrealNetwork.h"
+#include "Team/OWTeamSubsystem.h"
 
 AAbilityActor::AAbilityActor()
 {
@@ -35,11 +36,30 @@ void AAbilityActor::SetTeamID(const int32 InTeamID)
 	TeamID = InTeamID;
 }
 
+void AAbilityActor::InitializeTeamID()
+{
+	AActor* AbilityOwner = GetOwner(); 
+	if (!IsValid(AbilityOwner))
+	{
+		return;
+	}
+
+	UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>(); 
+	if (!IsValid(TeamSubsystem))
+	{
+		return;
+	}
+
+	SetTeamID(TeamSubsystem->FindTeamFromObject(AbilityOwner));
+}
+
 void AAbilityActor::BeginPlay()
 {
 	Super::BeginPlay();
 
 	InitAbilityActorInfo();
+
+	InitializeTeamID();
 }
 
 void AAbilityActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -54,7 +74,6 @@ void AAbilityActor::InitAbilityActorInfo()
 	if (IsValid(AbilitySystemComponent))
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
-
 	}
 
 	if (HasAuthority())
@@ -65,6 +84,11 @@ void AAbilityActor::InitAbilityActorInfo()
 
 void AAbilityActor::InitializeVitalAttributes()
 {
+	if (!IsValid(VitalAttributes))
+	{
+		return;
+	}
+
 	FGameplayEffectContextHandle VitalAttributesContextHandle = AbilitySystemComponent->MakeEffectContext();
 
 	VitalAttributesContextHandle.AddSourceObject(this);

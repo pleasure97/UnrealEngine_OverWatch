@@ -88,7 +88,6 @@ void UOverlayWidgetController::BroadcastHeroInfo() const
 {
 	if (UWorld* World = GetWorld())
 	{
-		EHeroName HeroName = UOWAbilitySystemLibrary::GetHeroName(GetWorld());
 		if (AOWPlayerState* OwningPlayerState = Cast<AOWPlayerState>(PlayerState))
 		{
 			const FOWHeroInfo& OWHeroInfo = HeroInfo->HeroInformation[OwningPlayerState->GetHeroName()];
