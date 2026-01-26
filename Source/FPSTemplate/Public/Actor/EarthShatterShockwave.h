@@ -52,6 +52,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float ShockwaveBaseDamage = 50.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float KnockDownTime = 3.f;
+
 	UPROPERTY()
 	FDamageEffectParams DamageEffectParams;
 

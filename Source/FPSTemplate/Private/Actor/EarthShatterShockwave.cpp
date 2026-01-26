@@ -7,6 +7,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
 #include "AbilitySystemInterface.h"
+#include "Team/OWTeamSubsystem.h"
 
 AEarthShatterShockwave::AEarthShatterShockwave()
 {
@@ -38,12 +39,14 @@ void AEarthShatterShockwave::Tick(float DeltaTime)
 
 void AEarthShatterShockwave::HandleShockwave(float DeltaTime, bool bInDebug)
 {
+	// Check if World is Valid
 	UWorld* World = GetWorld();
 	if (!IsValid(World))
 	{
 		return;
 	}
 
+	// Get GameplayTag Singleton Container
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
 
 	if (CurrentRadius >= MaxDistance)
@@ -92,6 +95,13 @@ void AEarthShatterShockwave::HandleShockwave(float DeltaTime, bool bInDebug)
 			continue;
 		}
 
+		// Prevent Ally 
+		UOWTeamSubsystem* TeamSubsystem = World->GetSubsystem<UOWTeamSubsystem>();
+		if (!IsValid(TeamSubsystem) || TeamSubsystem->CompareTeams(OverlappedActor, GetOwner()) == EOWTeamComparison::OnSameTeam)
+		{
+			continue;
+		}
+
 		FVector Location = OverlappedActor->GetActorLocation();
 		FVector Direction = (Location - Origin);
 		float DistanceSquared = Direction.SizeSquared2D();
@@ -129,6 +139,8 @@ void AEarthShatterShockwave::HandleShockwave(float DeltaTime, bool bInDebug)
 
 			// Knockdown
 			FGameplayEventData Payload;
+			Payload.EventTag = GameplayTags.Debuff_Knockdown;
+			Payload.EventMagnitude = KnockDownTime;
 			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(OverlappedActor, GameplayTags.Debuff_Knockdown, Payload);
 		}
 	}
