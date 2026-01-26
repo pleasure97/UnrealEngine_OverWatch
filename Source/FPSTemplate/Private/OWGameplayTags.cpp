@@ -593,6 +593,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Event.RespawnHero"),
 		FString("Respawn Hero Tag"));
 
+	GameplayTags.Event_GettingUp = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.GettingUp"),
+		FString("Getting Up Event Tag"));
+
 	GameplayTags.Event_Illiari_PylonDestroyed_Intentional = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Illiari.PylonDestroyed.Intentional"),
 		FString("Intentionally Pylon Destroyed Event Tag"));

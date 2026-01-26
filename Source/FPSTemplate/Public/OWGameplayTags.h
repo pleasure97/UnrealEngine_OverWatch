@@ -210,6 +210,7 @@ public:
 	FGameplayTag Event_Death; 
 	FGameplayTag Event_ResetHero; 
 	FGameplayTag Event_RespawnHero; 
+	FGameplayTag Event_GettingUp; 
 	FGameplayTag Event_Illiari_PylonDestroyed_Intentional; 
 	FGameplayTag Event_Illiari_PylonDestroyed_Unintentional; 
 	FGameplayTag Event_Reinhardt_BarrierDestroyed;

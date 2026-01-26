@@ -9,6 +9,7 @@
 
 class UGameplayAbility;
 class UGameplayEffect; 
+class UAnimMontage;
 
 UENUM(BlueprintType)
 enum class EHeroName : uint8
@@ -85,6 +86,9 @@ struct FOWHeroInfo
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FOWAbilityInfo> Abilities; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TMap<FGameplayTag, UAnimMontage*> AnimationMontages;
 };
 
 USTRUCT(BlueprintType)
@@ -119,6 +123,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Common Class Defaults")
 	TArray<EHeroClass> GetAllHeroClasses() const; 
+
+	UFUNCTION(BlueprintCallable, Category = "Hero Defaults")
+	UAnimMontage* GetAnimMontageForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag) const;
 
 	FOWAbilityInfo FindAbilityInfoForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag, bool bLogNotFound = false) const;
 };

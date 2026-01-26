@@ -10,6 +10,18 @@ TArray<EHeroClass> UHeroInfo::GetAllHeroClasses() const
     return Keys;
 }
 
+UAnimMontage* UHeroInfo::GetAnimMontageForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag) const
+{
+    for (const TPair<FGameplayTag, UAnimMontage*> AnimationMontagePair : HeroInformation[HeroName].AnimationMontages)
+    {
+        if (AnimationMontagePair.Key.MatchesTagExact(AbilityTag))
+        {
+            return AnimationMontagePair.Value;
+        }
+    }
+    return nullptr;
+}
+
 FOWAbilityInfo UHeroInfo::FindAbilityInfoForTag(const EHeroName& HeroName, const FGameplayTag& AbilityTag, bool bLogNotFound) const
 {
     const FOWHeroInfo& OWHeroInfo = HeroInformation[HeroName]; 
