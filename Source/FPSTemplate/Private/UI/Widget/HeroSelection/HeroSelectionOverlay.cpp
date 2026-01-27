@@ -39,6 +39,7 @@ void UHeroSelectionOverlay::NativeConstruct()
 	// Initialize Hero Selection List 
 	if (WBP_HeroSelectionList)
 	{
+		UE_LOG(LogTemp, Log, TEXT("Hero Selection List in UHeroSelectionOverlay::NativeConstruct()"));
 		WBP_HeroSelectionList->InitializeHeroSelectionList(); 
 	}
 
@@ -56,34 +57,15 @@ void UHeroSelectionOverlay::NativeConstruct()
 
 		UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
-		// Register Gameplay Message Listener Handles - First Hero Selection Game Phase
-		FirstHeroSelectionListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, this, &UHeroSelectionOverlay::HandleCountdownTime);
-		// Register Gameplay Message Listener Handles - First Match Preparation Game Phase
-		FirstMatchPreparationListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
-		// Register Gameplay Message Listener Handles - First Team Offense Game Phase 
-		FirstTeamOffenseListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
-		// Register Gameplay Message Listener Handles - Second Hero Selection Game Phase
-		SecondHeroSelectionListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_HeroSelection_SecondHeroSelection, this, &UHeroSelectionOverlay::HandleCountdownTime);
-		// Register Gameplay Message Listener Handles - Second Match Preparation Game Phase
-		SecondMatchPreparationListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
-		// Register Gameplay Message Listener Handles - Second Team Offense Game Phase
-		SecondTeamOffenseListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
-		// Register Gameplay Message Listener Handles - Post Match Game Phase
-		PostMatchListenerHandle =
-			GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-				GameplayTags.GamePhase_PostMatch, this, &UHeroSelectionOverlay::HandleCountdownTime);
+
+		// Register Gameplay Message Listener Handles
+		REGISTER_GAMEPHASE_LISTENER(FirstHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_FirstHeroSelection);
+		REGISTER_GAMEPHASE_LISTENER(FirstMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense);
+		REGISTER_GAMEPHASE_LISTENER(FirstTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense);
+		REGISTER_GAMEPHASE_LISTENER(SecondHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_SecondHeroSelection);
+		REGISTER_GAMEPHASE_LISTENER(SecondMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense);
+		REGISTER_GAMEPHASE_LISTENER(SecondTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense);
+		REGISTER_GAMEPHASE_LISTENER(PostMatchListenerHandle, GameplayTags.GamePhase_PostMatch);
 	}
 }
 
@@ -132,131 +114,94 @@ void UHeroSelectionOverlay::UpdateWidgetForCurrentPhase()
 {
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
 
+	if (OwnerTeamID != 1 && OwnerTeamID != 2)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2"));
+		return;
+	}
+
 	// Game Phase - First Hero Selection 
 	if (CurrentGamePhaseTag == GameplayTags.GamePhase_HeroSelection_FirstHeroSelection)
 	{
-		if (TextBlock_MissionDescription)
-		{
-			TextBlock_MissionDescription->SetText(WaitingForTeamConstructionText);
-		}
-
-		if (OwnerTeamID == 1)
-		{
-			if (TextBlock_MainMission)
-			{
-				TextBlock_MainMission->SetText(AttackMissionText);
-				TextBlock_MainMission->SetColorAndOpacity(FSlateColor(RedColor));
-			}
-
-		}
-		else if (OwnerTeamID == 2)
-		{
-			if (TextBlock_MainMission)
-			{
-				TextBlock_MainMission->SetText(DefendMissionText);
-				TextBlock_MainMission->SetColorAndOpacity(FSlateColor(BlueColor));
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2"));
-		}
+		UpdateWidgetForHeroSelectionPhase(true);
 	}
 	// Game Phase - First Match Preparation 
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense)
 	{
-		if (OwnerTeamID == 1)
-		{
-			if (TextBlock_MissionDescription)
-			{
-				TextBlock_MissionDescription->SetText(AttackPreparationMissionText);
-			}
-		}
-		else if (OwnerTeamID == 2)
-		{
-			if (TextBlock_MissionDescription)
-			{
-				TextBlock_MissionDescription->SetText(DefendPreparationMissionText);
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2"));
-		}
+		UpdateWidgetForMatchPreparationPhase(true);
 	}
 	// Game Phase - First Team Offense
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense)
 	{
-		if (TextBlock_MissionDescription)
-		{
-			TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Collapsed);
-		}
+		UpdateWidgetForMatchPhase();
 	}
 	// Game Phase - Second Hero Selection
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_HeroSelection_SecondHeroSelection)
 	{
-		if (TextBlock_MissionDescription)
-		{
-			TextBlock_MissionDescription->SetText(WaitingForTeamConstructionText);
-			TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Visible);
-		}
-
-		if (OwnerTeamID == 1)
-		{
-			if (TextBlock_MainMission)
-			{
-				TextBlock_MainMission->SetText(DefendMissionText);
-				TextBlock_MainMission->SetColorAndOpacity(FSlateColor(BlueColor));
-			}
-		}
-		else if (OwnerTeamID == 2)
-		{
-			if (TextBlock_MainMission)
-			{
-				TextBlock_MainMission->SetText(AttackMissionText);
-				TextBlock_MainMission->SetColorAndOpacity(FSlateColor(RedColor));
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2"));
-		}
+		UpdateWidgetForHeroSelectionPhase(false);
 	}
 	// Game Phase - Second Match Preparation
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense)
 	{
-		if (OwnerTeamID == 1)
-		{
-			if (TextBlock_MissionDescription)
-			{
-				TextBlock_MissionDescription->SetText(DefendPreparationMissionText);
-			}
-
-		}
-		else if (OwnerTeamID == 2)
-		{
-			if (TextBlock_MissionDescription)
-			{
-				TextBlock_MissionDescription->SetText(AttackPreparationMissionText);
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("Owner Team ID is not 1 or 2"));
-		}
+		UpdateWidgetForMatchPreparationPhase(false);
 	}
 	// Game Phase - Second Team Offense 
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense)
 	{
-		if (TextBlock_MissionDescription)
-		{
-			TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Collapsed);
-		}
+		UpdateWidgetForMatchPhase();
 	}
 	// Game Phase - Post Match 
 	else if (CurrentGamePhaseTag == GameplayTags.GamePhase_PostMatch)
 	{
 		RemoveFromParent();
+	}
+}
+
+void UHeroSelectionOverlay::UpdateWidgetForHeroSelectionPhase(bool bFirstTeamAttack)
+{
+	if (TextBlock_MissionDescription)
+	{
+		TextBlock_MissionDescription->SetText(WaitingForTeamConstructionText);
+		TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (TextBlock_RemainingTime)
+	{
+		TextBlock_RemainingTime->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	bool bIsCurrentlyAttacking = (bFirstTeamAttack && OwnerTeamID == 1) || (!bFirstTeamAttack && OwnerTeamID == 2);
+
+	FText MainMissionText = bIsCurrentlyAttacking ? AttackMissionText : DefendMissionText;
+	FSlateColor MainMissionTextColor = bIsCurrentlyAttacking ? FSlateColor(RedColor) : FSlateColor(BlueColor);
+
+	if (TextBlock_MainMission)
+	{
+		TextBlock_MainMission->SetText(MainMissionText);
+		TextBlock_MainMission->SetColorAndOpacity(MainMissionTextColor);
+	}
+}
+
+void UHeroSelectionOverlay::UpdateWidgetForMatchPreparationPhase(bool bFirstTeamAttack)
+{
+	bool bIsCurrentlyAttacking = (bFirstTeamAttack && OwnerTeamID == 1) || (!bFirstTeamAttack && OwnerTeamID == 2);
+
+	FText MissionPreparationText = bIsCurrentlyAttacking ? AttackPreparationMissionText : DefendPreparationMissionText;
+	if (TextBlock_MissionDescription)
+	{
+		TextBlock_MissionDescription->SetText(MissionPreparationText);
+	}
+}
+
+void UHeroSelectionOverlay::UpdateWidgetForMatchPhase()
+{
+	if (TextBlock_MissionDescription)
+	{
+		TextBlock_MissionDescription->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	if (TextBlock_RemainingTime)
+	{
+		TextBlock_RemainingTime->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 
@@ -274,47 +219,13 @@ void UHeroSelectionOverlay::NativeDestruct()
 		OwnerPlayerState->GetTeamChangedDelegate().RemoveAll(this);
 	}
 
-	// Unregister Gameplay Message Listener Handles - First Hero Selection Game Phase
-	if (FirstHeroSelectionListenerHandle.IsValid())
-	{
-		FirstHeroSelectionListenerHandle.Unregister();
-	}
-
-	// Unregister Gameplay Message Listener Handles - First Match Preparation Game Phase
-	if (FirstMatchPreparationListenerHandle.IsValid())
-	{
-		FirstMatchPreparationListenerHandle.Unregister();
-	}
-
-	// Unregister Gameplay Message Listener Handles - First Team Offense Game Phase
-	if (FirstTeamOffenseListenerHandle.IsValid())
-	{
-		FirstTeamOffenseListenerHandle.Unregister();
-	}
-
-	// Unregister Gameplay Message Listener Handles - Second Hero Selection Game Phase
-	if (SecondHeroSelectionListenerHandle.IsValid())
-	{
-		SecondHeroSelectionListenerHandle.Unregister();
-	}
-
-	// Unregister Gameplay Message Listener Handles - Second Match Preparation Game Phase
-	if (SecondMatchPreparationListenerHandle.IsValid())
-	{
-		SecondMatchPreparationListenerHandle.Unregister();
-	}
-
-	// Unregister Gameplay Message Listener Handles - Second Team Offense Game Phase
-	if (SecondTeamOffenseListenerHandle.IsValid())
-	{
-		SecondTeamOffenseListenerHandle.Unregister();
-	}
-
-	// Unregister Gameplay Message Listener Handles - Post Match Game Phase
-	if (PostMatchListenerHandle.IsValid())
-	{
-		PostMatchListenerHandle.Unregister();
-	}
+	// Unregister Gameplay Message Listener Handles
+	UNREGISTER_GAMEPHASE_LISTENER(FirstHeroSelectionListenerHandle);
+	UNREGISTER_GAMEPHASE_LISTENER(FirstMatchPreparationListenerHandle);
+	UNREGISTER_GAMEPHASE_LISTENER(SecondHeroSelectionListenerHandle);
+	UNREGISTER_GAMEPHASE_LISTENER(SecondMatchPreparationListenerHandle);
+	UNREGISTER_GAMEPHASE_LISTENER(SecondTeamOffenseListenerHandle);
+	UNREGISTER_GAMEPHASE_LISTENER(PostMatchListenerHandle);
 
 	Super::NativeDestruct(); 
 }
@@ -340,6 +251,12 @@ void UHeroSelectionOverlay::OnHeroSelectButtonClicked(EHeroName HeroName, bool b
 	else
 	{
 		UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
+		if (!IsValid(HeroInfo))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Hero Info is Not Valid in UHeroSelectionOverlay::OnHeroSelectButtonClicked()"));
+			return;
+		}
+		
 		if (HeroInfo->HeroInformation.Find(HeroName))
 		{
 			SelectedHeroName = HeroName; 
@@ -356,6 +273,27 @@ void UHeroSelectionOverlay::OnHeroSelectButtonClicked(EHeroName HeroName, bool b
 				TextBlock_WaitingForBattle->SetVisibility(ESlateVisibility::Visible);
 			}
 		}
+
+		UpdateVisibilityBasedOnGamePhase();
+	}
+}
+
+void UHeroSelectionOverlay::UpdateVisibilityBasedOnGamePhase()
+{
+	// Get Game Phase Subsystem
+	UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>();
+	if (!IsValid(GamePhaseSubsystem))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GamePhaseSubsystem is Not Valid in HeroSelectionOverlay::OnHeroSelectButtonClicked()"));
+		return;
+	}
+
+	// Check if GamePhase is 'Match In Progress' or 'Match Preparation'
+	FGameplayTag MatchInProgressTag = FGameplayTag::RequestGameplayTag(FName("GamePhase.MatchInProgress"));
+	FGameplayTag MatchPreparationTag = FGameplayTag::RequestGameplayTag(FName("GamePhase.MatchPreparation"));
+	if (GamePhaseSubsystem->IsPhaseActive(MatchInProgressTag) || GamePhaseSubsystem->IsPhaseActive(MatchPreparationTag))
+	{
+		SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
 

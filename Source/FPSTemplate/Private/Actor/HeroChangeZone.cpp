@@ -2,57 +2,22 @@
 
 
 #include "Actor/HeroChangeZone.h"
-#include "GameFramework/PlayerController.h"
-#include "Character/OWCharacterBase.h"
-#include "AbilitySystemComponent.h"
+#include "Components/BoxComponent.h"
 
-
-void AHeroChangeZone::BeginPlay()
+AHeroChangeZone::AHeroChangeZone()
 {
-	Super::BeginPlay(); 
-
-	OnActorBeginOverlap.AddDynamic(this, &AHeroChangeZone::OnOverlapBegin);
-	OnActorEndOverlap.AddDynamic(this, &AHeroChangeZone::OnOverlapEnd); 
+	Box = CreateDefaultSubobject<UBoxComponent>("Box"); 
+	Box->SetupAttachment(GetRootComponent());
+	Box->OnComponentBeginOverlap.AddDynamic(this, &AHeroChangeZone::OnHeroChangeZoneOverlap);
+	Box->OnComponentEndOverlap.AddDynamic(this, &AHeroChangeZone::OnHeroChangeZoneEndOverlap);
 }
 
-void AHeroChangeZone::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
+void AHeroChangeZone::OnHeroChangeZoneOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!HasAuthority())
-	{
-		return;
-	}
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(Cast<APawn>(OtherActor)->GetController()))
-	{
-		if (AOWCharacterBase* Character = Cast<AOWCharacterBase>(PlayerController->GetPawn()))
-		{
-			if (UAbilitySystemComponent* AbilitySystemComponent = Character->GetAbilitySystemComponent())
-			{
-				FGameplayAbilitySpec GameplayAbilitySpec(GameplayAbility_ChangeHero, 1, INDEX_NONE, this); 
-				FGameplayAbilitySpecHandle GameplayAbilitySpecHandle = AbilitySystemComponent->GiveAbility(GameplayAbilitySpec); 
-				GrantedHandles.Add(PlayerController, GameplayAbilitySpecHandle); 
-			}
-		}
-	}
-
+	OnOverlap(OtherActor);
 }
 
-void AHeroChangeZone::OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActor)
+void AHeroChangeZone::OnHeroChangeZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (!HasAuthority())
-	{
-		return; 
-	}
-
-	if (APlayerController* PlayerController = Cast<APlayerController>(Cast<APawn>(OtherActor)->GetController()))
-	{
-		if (AOWCharacterBase* Character = Cast<AOWCharacterBase>(PlayerController->GetPawn()))
-		{
-			if (FGameplayAbilitySpecHandle* GameplayAbilitySpecHandle = GrantedHandles.Find(PlayerController))
-			{
-				Character->GetAbilitySystemComponent()->ClearAbility(*GameplayAbilitySpecHandle);
-				GrantedHandles.Remove(PlayerController); 
-			}
-		}
-	}
+	OnEndOverlap(OtherActor);
 }

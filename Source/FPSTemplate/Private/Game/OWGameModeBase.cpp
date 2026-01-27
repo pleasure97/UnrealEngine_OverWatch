@@ -119,13 +119,11 @@ void AOWGameModeBase::EnableHeroSpawning()
 	{
 		bCanSpawnHero = true;
 
-		UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
-
 		UE_LOG(LogTemp, Log, TEXT("CALL AOWGameModeBase::EnableHeroSpawning()"));
 
 		for (APlayerController* PendingPlayerController : PendingPlayers)
 		{
-			RestartHero(PendingPlayerController, HeroInfo);
+			RestartHero(PendingPlayerController);
 		}
 		PendingPlayers.Empty();
 	}
@@ -135,29 +133,20 @@ void AOWGameModeBase::EnableHeroSpawning()
 	}
 }
 
-void AOWGameModeBase::RestartHero(APlayerController* PlayerControllerToRestart, UHeroInfo* HeroInfo)
+void AOWGameModeBase::RestartHero(APlayerController* PlayerControllerToRestart)
 {
-	UE_LOG(LogTemp, Log, TEXT("CALL AOWGameModeBase::RestartHero()"));
-
-	if (!HeroInfo)
+	if (!IsValid(PlayerControllerToRestart))
 	{
-		HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
+		UE_LOG(LogTemp, Error, TEXT("PlayerController is Not Valid in AOWGameModeBase::RestartHero()"));
+		return;
 	}
 
-	if (PlayerControllerToRestart && (!PlayerControllerToRestart->GetPawn()))
+	if (AOWPlayerState* OWPlayerState = PlayerControllerToRestart->GetPlayerState<AOWPlayerState>())
 	{
-		UE_LOG(LogTemp, Log, TEXT("PlayerController %s in AOWGameModeBase::RestartHero()"), *GetPathNameSafe(PlayerControllerToRestart));
-
-		if (AOWPlayerState* OWPlayerState = PlayerControllerToRestart->GetPlayerState<AOWPlayerState>())
+		EHeroName HeroName = OWPlayerState->GetHeroName();
+		if (OWPlayerState->GetHeroName() != EHeroName::None)
 		{
-			EHeroName HeroName = OWPlayerState->GetHeroName();
-			if (OWPlayerState->GetHeroName() != EHeroName::None)
-			{
-				UE_LOG(LogTemp, Log, TEXT("Hero Name in AOWGameModeBase::RestartHero()"));
-
-				FOWHeroInfo HeroInfoToSpawn = HeroInfo->HeroInformation[HeroName];
-				ActivateHeroFromPool(PlayerControllerToRestart, HeroName);
-			}
+			ActivateHeroFromPool(PlayerControllerToRestart, HeroName);
 		}
 	}
 }
@@ -193,8 +182,6 @@ AOWPlayerStart* AOWGameModeBase::RestartHeroAtPlayerStart(APlayerController* Pla
 
 void AOWGameModeBase::ActivateHeroFromPool(APlayerController* PlayerController, EHeroName HeroName)
 {
-	UE_LOG(LogTemp, Log, TEXT("CALL AOWGameModeBase::ActivateHeroFromPool()"));
-
 	// Check if Player Controller is Valid 
 	if (!PlayerController)
 	{
@@ -231,18 +218,21 @@ void AOWGameModeBase::ActivateHeroFromPool(APlayerController* PlayerController, 
 
 void AOWGameModeBase::ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName)
 {
-	if (!PlayerController) return; 
+	if (!IsValid(PlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Player Controller is Not Valid in AOWGameModeBase::ChangeHero()"));
+		return;
+	}
 
 	AOWCharacter* CurrentHero = Cast<AOWCharacter>(PlayerController->GetPawn()); 
-
-	if (CurrentHero)
+	if (IsValid(CurrentHero))
 	{
 		PushHeroToHeroPool(CurrentHero);
 	}
 
 	if (AOWPlayerState* OWPlayerState = PlayerController->GetPlayerState<AOWPlayerState>())
 	{
-		OWPlayerState->SetHeroName(NewHeroName);
+		RestartHero(PlayerController);
 	}
 }
 
@@ -275,6 +265,11 @@ void AOWGameModeBase::PushHeroToHeroPool(AOWCharacter* HeroToPush)
 	if (!IsValid(HeroToPush))
 	{
 		return;
+	}
+
+	if (AController* PC = HeroToPush->GetController())
+	{
+		PC->UnPossess();
 	}
 
 	FHeroPoolUnit HeroPoolUnit; 

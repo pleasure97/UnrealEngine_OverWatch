@@ -3,35 +3,38 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/TriggerBox.h"
-#include "Abilities/GameplayAbility.h"
-#include "GameplayAbilitySpec.h"
+#include "Actor/EffectActor.h"
 #include "HeroChangeZone.generated.h"
 
-class APlayerController; 
+class UBoxComponent;
 
 /**
  * 
  */
 UCLASS()
-class FPSTEMPLATE_API AHeroChangeZone : public ATriggerBox
+class FPSTEMPLATE_API AHeroChangeZone : public AEffectActor
 {
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Gameplay Ability")
-	TSubclassOf<UGameplayAbility> GameplayAbility_ChangeHero; 
-	
+	AHeroChangeZone(); 
+
 protected:
-	virtual void BeginPlay() override; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UBoxComponent> Box;
 
-private:
+
 	UFUNCTION()
-	void OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor); 
+	void OnHeroChangeZoneOverlap(
+		UPrimitiveComponent* OverlappedComponent, 
+		AActor* OtherActor, 
+		UPrimitiveComponent* OtherComp, 
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()	
-	void OnOverlapEnd(AActor* OverlappedActor, AActor* OtherActor); 
-
-	UPROPERTY()
-	TMap<APlayerController*, FGameplayAbilitySpecHandle> GrantedHandles; 
+	UFUNCTION()
+	void OnHeroChangeZoneEndOverlap(
+		UPrimitiveComponent* OverlappedComponent, 
+		AActor* OtherActor, 
+		UPrimitiveComponent* OtherComp, 
+		int32 OtherBodyIndex);
 };

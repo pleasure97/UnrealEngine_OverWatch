@@ -72,6 +72,7 @@ public:
 	/* Input Attributes - Interaction */
 	FGameplayTag InputTag_Interact;
 	FGameplayTag InputTag_Escape;
+	FGameplayTag InputTag_ChangeHero;
 
 	/* Player Input Attributes */
 	FGameplayTag Player_Block_InputPressed; 
@@ -114,6 +115,7 @@ public:
 
 	/* Status */
 	FGameplayTag Status_Suppressed;
+	FGameplayTag Status_ChangeHero;
 
 	/* Effects */
 	FGameplayTag Effects_HitReact; 

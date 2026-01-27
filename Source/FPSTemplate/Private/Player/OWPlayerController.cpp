@@ -12,6 +12,8 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/UserWidget.h"
 #include "GameFramework/GameplayMessageSubsystem.h"
+#include "Game/OWGamePhaseSubsystem.h"
+#include "Game/OWGameModeBase.h"
 
 AOWPlayerController::AOWPlayerController()
 {
@@ -72,9 +74,38 @@ void AOWPlayerController::CollapseWidget(TSubclassOf<UUserWidget> InUserWidget)
 
 void AOWPlayerController::ServerChooseHero_Implementation(EHeroName ChosenHero)
 {
-	if (AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState))
+	// Set Hero Name of Player State
+	AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(PlayerState);
+	if (!IsValid(OWPlayerState))
 	{
-		OWPlayerState->HeroName = ChosenHero; 
+		UE_LOG(LogTemp, Error, TEXT("Player State is Not Valid in AOWPlayerController::ServerChooseHero()"));
+		return;
+	}
+	OWPlayerState->HeroName = ChosenHero;
+
+	// Check if Has Authority
+	if (!HasAuthority())
+	{
+		return;
+	}
+
+	// Get Game Phase Subsystem
+	UOWGamePhaseSubsystem* GamePhaseSubsystem = GetWorld()->GetSubsystem<UOWGamePhaseSubsystem>(); 
+	if (!IsValid(GamePhaseSubsystem))
+	{
+		UE_LOG(LogTemp, Error, TEXT("GamePhaseSubsystem is Not Valid in AOWPlayerController::ServerChooseHero()"));
+		return;
+	}
+
+	// Check if GamePhase is 'Match In Progress' or 'Match Preparation'
+	FGameplayTag MatchInProgressTag = FGameplayTag::RequestGameplayTag(FName("GamePhase.MatchInProgress")); 
+	FGameplayTag MatchPreparationTag = FGameplayTag::RequestGameplayTag(FName("GamePhase.MatchPreparation"));
+	if (GamePhaseSubsystem->IsPhaseActive(MatchInProgressTag) || GamePhaseSubsystem->IsPhaseActive(MatchPreparationTag))
+	{
+		if (AOWGameModeBase* OWGameMode = Cast<AOWGameModeBase>(GetWorld()->GetAuthGameMode()))
+		{
+			OWGameMode->ChangeHero(this, OWPlayerState->HeroName);
+		}
 	}
 }
 

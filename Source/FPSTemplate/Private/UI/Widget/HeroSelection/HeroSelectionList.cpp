@@ -49,35 +49,42 @@ void UHeroSelectionList::NativeDestruct()
 
 void UHeroSelectionList::InitializeHeroSelectionList()
 {
+	UE_LOG(LogTemp, Log, TEXT("UHeroSelectionList::InitializeHeroSelectionList()"));
 	// Get Hero Info using Custom Ability System Library
 	UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(GetWorld());
-	if (HeroInfo)
+	if (!IsValid(HeroInfo))
 	{
-		// Iterate All Hero Classes from Hero Info Data Asset 
-		for (EHeroClass HeroClass : HeroInfo->GetAllHeroClasses())
+		UE_LOG(LogTemp, Log, TEXT("Hero Info is Not Valid in UHeroSelectionList::InitializeHeroSelectionList()"));
+		return;
+	}
+
+	// Iterate All Hero Classes from Hero Info Data Asset 
+	for (EHeroClass HeroClass : HeroInfo->GetAllHeroClasses())
+	{
+		// Create New Role Group List Widget 
+		URoleGroupList* NewRoleGroupList = CreateWidget<URoleGroupList>(this, RoleGroupListClass);
+		if (!IsValid(NewRoleGroupList))
 		{
-			// Create New Role Group List Widget 
-			URoleGroupList* NewRoleGroupList = CreateWidget<URoleGroupList>(this, RoleGroupListClass);
-			if (NewRoleGroupList)
+			UE_LOG(LogTemp, Log, TEXT("Cannot Create RoleGroupList Widget in UHerroSelectionList::InitializeHeroSelectionList()"));
+			continue;
+		}
+
+		NewRoleGroupList->OnHeroSelectionInitialized.AddDynamic(this, &UHeroSelectionList::OnHeroSelectionInitialized);
+		// Set Role Group List's Hero Class
+		NewRoleGroupList->SetRoleGroupList(HeroClass);
+		// Bind Role Group List's Delegates 
+		NewRoleGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected);
+		RoleGroupListMap.Add(NewRoleGroupList->GetHeroClass(), NewRoleGroupList);
+		if (HorizontalBox_HeroSelectionList)
+		{
+			// Add New Role Group List to Horizontal Box 
+			if (UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox_HeroSelectionList->AddChildToHorizontalBox(NewRoleGroupList))
 			{
-				NewRoleGroupList->OnHeroSelectionInitialized.AddDynamic(this, &UHeroSelectionList::OnHeroSelectionInitialized);
-				// Set Role Group List's Hero Class
-				NewRoleGroupList->SetRoleGroupList(HeroClass);
-				// Bind Role Group List's Delegates 
-				NewRoleGroupList->HeroSelectedSignature.AddDynamic(this, &UHeroSelectionList::OnHeroSelected);
-				RoleGroupListMap.Add(NewRoleGroupList->GetHeroClass(), NewRoleGroupList); 
-				if (HorizontalBox_HeroSelectionList)
-				{
-					// Add New Role Group List to Horizontal Box 
-					if (UHorizontalBoxSlot* HorizontalBoxSlot = HorizontalBox_HeroSelectionList->AddChildToHorizontalBox(NewRoleGroupList))
-					{
-						// Fill New Role Group List 
-						FSlateChildSize SlateChildSize; 
-						SlateChildSize.SizeRule = ESlateSizeRule::Fill; 
-						SlateChildSize.Value = 1.f; 
-						HorizontalBoxSlot->SetSize(SlateChildSize);
-					}
-				}
+				// Fill New Role Group List 
+				FSlateChildSize SlateChildSize;
+				SlateChildSize.SizeRule = ESlateSizeRule::Fill;
+				SlateChildSize.Value = 1.f;
+				HorizontalBoxSlot->SetSize(SlateChildSize);
 			}
 		}
 	}
@@ -97,7 +104,7 @@ void UHeroSelectionList::OnHeroSelectButtonClicked()
 		{
 			TextBlock_HeroSelect->SetText(HeroSelectText);
 		}
-		HideHeroSelectionButtons(false);
+		HideHeroListButtons(false);
 		bHeroSelectConfirmed = false;
 		HeroSelectButtonDelegate.Broadcast(EHeroName::None, false);
 		return;
@@ -112,7 +119,7 @@ void UHeroSelectionList::OnHeroSelectButtonClicked()
 			{
 				TextBlock_HeroSelect->SetText(HeroChangeText); 
 			}
-			HideHeroSelectionButtons(true); 
+			HideHeroListButtons(true); 
 			bHeroSelectConfirmed = true;
 			HeroSelectButtonDelegate.Broadcast(SelectedHeroName, true); 
 		}
@@ -144,18 +151,12 @@ void UHeroSelectionList::OnHeroSelectionInitialized(EHeroName HeroName, UHeroSel
 	}
 }
 
-void UHeroSelectionList::HideHeroSelectionButtons(bool bHidden)
+void UHeroSelectionList::HideHeroListButtons(bool bHidden)
 {
 	if (HorizontalBox_HeroSelectionList)
 	{
-		if (bHidden)
-		{
-			HorizontalBox_HeroSelectionList->SetVisibility(ESlateVisibility::Hidden); 
-		}
-		else
-		{
-			HorizontalBox_HeroSelectionList->SetVisibility(ESlateVisibility::Visible); 
-		}
+		ESlateVisibility ButtonVisibility = bHidden ? ESlateVisibility::Hidden : ESlateVisibility::Visible;
+		HorizontalBox_HeroSelectionList->SetVisibility(ButtonVisibility);
 	}
 }
 

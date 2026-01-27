@@ -212,6 +212,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("InputTag.Escape"),
 		FString("InputTag of Escape"));
 
+	GameplayTags.InputTag_ChangeHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("InputTag.ChangeHero"),
+		FString("InputTag of Changing Hero"));
+
 	/* Player Input Attributes */
 
 	GameplayTags.Player_Block_InputPressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -296,6 +300,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Status_Suppressed = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Status.Suppressed"),
 		FString("Suppressed Status"));
+
+	GameplayTags.Status_ChangeHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Status.ChangeHero"),
+		FString("Status that Hero Can be Changed"));
 
 	/* Effects */
 	GameplayTags.Effects_HitReact = UGameplayTagsManager::Get().AddNativeGameplayTag(

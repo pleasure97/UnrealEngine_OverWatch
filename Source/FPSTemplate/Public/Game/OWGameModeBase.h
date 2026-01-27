@@ -65,7 +65,7 @@ public:
 	virtual void ChangeHero(APlayerController* PlayerController, EHeroName NewHeroName);
 
 	UFUNCTION(BlueprintCallable)
-	void RestartHero(APlayerController* PendingPlayerController, UHeroInfo* HeroInfo);
+	void RestartHero(APlayerController* PendingPlayerController);
 
 	UFUNCTION(BlueprintCallable)
 	AOWPlayerStart* RestartHeroAtPlayerStart(APlayerController* PlayerController);
