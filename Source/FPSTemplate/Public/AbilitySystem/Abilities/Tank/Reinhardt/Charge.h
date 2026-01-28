@@ -23,4 +23,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float ChargeInterval = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SlopeAngle = 75.f;
 };
