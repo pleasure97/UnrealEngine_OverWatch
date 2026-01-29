@@ -22,9 +22,7 @@ public:
 	ADSPlayerController(); 
 
 	virtual void ReceivedPlayer() override; 
-	virtual void OnRep_PlayerState() override; 
 	virtual void PostSeamlessTravel() override; 
-	virtual void BeginPlay() override; 
 
 	UFUNCTION(Client, Reliable)
 	void Client_TimerUpdated(float CountTime, ECountTimerDirection Direction, ECountTimerType Type) const; 

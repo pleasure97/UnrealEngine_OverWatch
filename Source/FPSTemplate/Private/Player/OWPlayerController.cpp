@@ -133,12 +133,14 @@ void AOWPlayerController::SetupInputComponent()
 
 		if (Subsystem)
 		{
+			Subsystem->ClearAllMappings();
 			Subsystem->AddMappingContext(OWContext, 1);
 		}
 	}
 	
 	if (UOWInputComponent* OWInputComponent = CastChecked<UOWInputComponent>(InputComponent))
 	{
+		OWInputComponent->ClearActionEventBindings();
 		OWInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Move);
 		OWInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AOWPlayerController::Input_Look);
 		OWInputComponent->BindAbilityActions(InputConfig, this,

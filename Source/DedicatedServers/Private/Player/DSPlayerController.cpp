@@ -22,18 +22,6 @@ void ADSPlayerController::ReceivedPlayer()
 	}
 }
 
-void ADSPlayerController::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState(); 
-
-#if !WITH_EDITOR
-	if (IsLocalController())
-	{
-		DisableInput(this); 
-	}
-#endif 
-}
-
 void ADSPlayerController::PostSeamlessTravel()
 {
 	Super::PostSeamlessTravel(); 
@@ -41,19 +29,6 @@ void ADSPlayerController::PostSeamlessTravel()
 	if (IsLocalPlayerController())
 	{
 		Server_Ping(GetWorld()->GetTimeSeconds()); 
-#if !WITH_EDITOR
-		DisableInput(this); 
-#endif
-	}
-}
-
-void ADSPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-
-	if (GetNetMode() == NM_Standalone)
-	{
-		DisableInput(this); 
 	}
 }
 

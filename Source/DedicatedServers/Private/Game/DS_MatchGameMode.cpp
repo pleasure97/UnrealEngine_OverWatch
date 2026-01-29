@@ -111,7 +111,6 @@ void ADS_MatchGameMode::OnCountTimerFinished(ECountTimerType Type)
 		StopCountTimer(SecondMatchTimer);
 		MatchStatus = EMatchStatus::PostMatch;
 		StartCountTimer(PostMatchTimer);
-		SetClientInputEnabled(false);
 		OnMatchEnded();
 		return;
 	}
