@@ -1,0 +1,4 @@
+[Convert PSO Precaching Command]
+C:\UE_5_4\Engine\Binaries\Win64\UnrealEditor-Cmd.exe -run=ShaderPipelineCacheTools expand C:\UnrealProjects\UnrealEngine_Overwatch\PSOPrecache\*.rec.upipelinecache C:\UnrealProjects\UnrealEngine_Overwatch\PSOPrecache\*.shk C:\UnrealProjects\UnrealEngine_Overwatch\PSOPrecache\Stable_FPSTemplate_PCD3D_SM6.spc
+
+[Copy *.spc to C:\UnrealProjects\UnrealEngine_Overwatch\Build\Windows\PipelineCaches]
