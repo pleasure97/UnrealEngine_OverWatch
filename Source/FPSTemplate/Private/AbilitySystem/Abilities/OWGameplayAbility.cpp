@@ -6,6 +6,8 @@
 #include "AbilitySystemGlobals.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/OWAbilitySystemComponent.h"
+#include "GameFramework/Character.h"
+#include "Blueprint/UserWidget.h"
 
 float UOWGameplayAbility::GetSkillCost(float InLevel) const
 {
@@ -50,6 +52,60 @@ void UOWGameplayAbility::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInf
     {
         InitializeAbilityStacking(ActorInfo, Spec);
     }  
+
+    if (IsValid(AbilityWidgetClass))
+    {
+        InitializeAbilityUI(ActorInfo);
+    }
+}
+
+void UOWGameplayAbility::InitializeAbilityUI(const FGameplayAbilityActorInfo* ActorInfo)
+{
+    // Check if Actor Info and Avatar Actor is Valid
+    if (!ActorInfo || !ActorInfo->AvatarActor.IsValid())
+    {
+        return;
+    }
+
+    // Check if Avatar Actor is Locally Controlled
+    if (ACharacter* AvatarCharacter = Cast<ACharacter>(ActorInfo->AvatarActor.Get()))
+    {
+        if (!AvatarCharacter->IsLocallyControlled())
+        {
+            return;
+        }
+
+        // Set Owner of Ability User Widget to Local Player Controller
+        if (APlayerController* AvatarPlayerController = Cast<APlayerController>(AvatarCharacter->GetController()))
+        {
+            if (AvatarPlayerController->IsLocalController())
+            {
+                // Create Ability User Widget and Add to Viewport in Desired Size
+                AbilityWidget = CreateWidget<UUserWidget>(AvatarPlayerController, AbilityWidgetClass);
+                if (IsValid(AbilityWidget))
+                {
+                    int32 ViewWidth, ViewHeight;
+                    AvatarPlayerController->GetViewportSize(ViewWidth, ViewHeight);
+                    AbilityWidget->AddToPlayerScreen();
+                    AbilityWidget->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
+                    AbilityWidget->SetDesiredSizeInViewport(AbilityWidgetSize);
+                    AbilityWidget->SetPositionInViewport(
+                        FVector2D(ViewWidth * 0.5f + AbilityWidgetPosition.X, ViewHeight * 0.5f + AbilityWidgetPosition.Y), true);
+                }
+            }
+        }
+    }
+}
+
+void UOWGameplayAbility::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
+{
+    if (IsValid(AbilityWidget))
+    {
+        AbilityWidget->RemoveFromParent();
+        AbilityWidget = nullptr;
+    }
+
+    Super::OnRemoveAbility(ActorInfo, Spec);
 }
 
 bool UOWGameplayAbility::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const

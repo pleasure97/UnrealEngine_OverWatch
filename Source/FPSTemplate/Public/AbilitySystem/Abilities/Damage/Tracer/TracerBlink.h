@@ -23,16 +23,4 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float CastingTime = 0.1f;
-
-	/* Widget */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UTracerBlinkWidget> TracerBlinkWidgetClass;
-
-	UPROPERTY()
-	TObjectPtr<UTracerBlinkWidget> TracerBlinkWidget; 
-
-protected:
-	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
-
-	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 };

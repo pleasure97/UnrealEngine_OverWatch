@@ -32,12 +32,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName BarrierSocketName;
 
-	/* Barrier Health UI */
+	/* Barrier Health Regeneration */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<UReinhardtBarrierWidget> BarrierWidgetClass;
+	TSubclassOf<UGameplayEffect> BarrierHealthRegnerateEffect;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UReinhardtBarrierWidget> BarrierWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float BarrierHealthRegenTimeAfterAbilityEnds = 2.f;
 
 	/* Character Movement */
 	UPROPERTY()
@@ -55,6 +55,4 @@ public:
 
 protected:
 	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
-
-	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 };

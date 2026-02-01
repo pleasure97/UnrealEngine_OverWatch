@@ -3,7 +3,6 @@
 
 #include "AbilitySystem/Abilities/Tank/Reinhardt/BarrierField.h"
 #include "GameFramework/Character.h"
-#include "UI/Widget/Heroes/ReinhardtBarrierWidget.h"
 #include "Actor/EnergyBarrier.h"
 #include "Components/BoxComponent.h"
 
@@ -42,45 +41,5 @@ void UBarrierField::OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, co
 			EnergyBarrier->Box->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 			EnergyBarrier->SetActorHiddenInGame(true);
 		}
-		
-		// Set Owner of Blink Widget to Local Player Controller
-		if (APlayerController* AvatarPlayerController = Cast<APlayerController>(AvatarCharacter->GetController()))
-		{
-			if (AvatarPlayerController->IsLocalController())
-			{
-				// Create Blink Widget and Add to Viewport in Desired Size
-				BarrierWidget = CreateWidget<UReinhardtBarrierWidget>(AvatarPlayerController, BarrierWidgetClass);
-				if (BarrierWidget)
-				{
-					int32 ViewWidth, ViewHeight;
-					AvatarPlayerController->GetViewportSize(ViewWidth, ViewHeight);
-					BarrierWidget->AddToPlayerScreen();
-					BarrierWidget->SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
-					BarrierWidget->SetPositionInViewport(FVector2D(ViewWidth * 0.5f, ViewHeight * 0.35f), true);
-					BarrierWidget->SetVisibility(ESlateVisibility::Collapsed);
-				}
-			}
-		}
 	}
-}
-
-void UBarrierField::OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec)
-{
-	if (ActorInfo->IsNetAuthority())
-	{
-		if (IsValid(EnergyBarrier))
-		{
-			EnergyBarrier->Destroy();
-		}
-	}
-	else
-	{
-		if (IsValid(BarrierWidget))
-		{
-			BarrierWidget->RemoveFromParent();
-			BarrierWidget = nullptr;
-		}
-	}
-
-	Super::OnRemoveAbility(ActorInfo, Spec);
 }

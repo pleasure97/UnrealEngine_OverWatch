@@ -23,22 +23,22 @@ class FPSTEMPLATE_API UOWGameplayAbility : public UGameplayAbility
 	
 public:
 	/* Ability Stacking */
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "OWGameplayAbility|Input")
 	FGameplayTag DefaultInputTag; 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability Stacking")
 	int32 MaxStacks = 1;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability Stacking")
 	EAbilityStackingSlot AbilityStackingSlot = EAbilityStackingSlot::None;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability Stacking")
 	float StackRechargeDuration = -1.f; 
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability Stacking")
 	FGameplayAttribute MaxStackAttribute;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability Stacking")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability Stacking")
 	FGameplayAttribute CurrentStackAttribute;
 
 	virtual void OnHeroSet();
@@ -49,6 +49,19 @@ public:
 
 	virtual void ExternalEndAbility(); 
 
+	/* Ability User Widget */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability UI")
+	TSubclassOf<UUserWidget> AbilityWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability UI")
+	FVector2D AbilityWidgetSize;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWGameplayAbility|Ability UI")
+	FVector2D AbilityWidgetPosition;
+
+	UPROPERTY(BlueprintReadWrite)
+	TObjectPtr<UUserWidget> AbilityWidget;
+
 protected:
 	float GetSkillCost(float InLevel = 1.f) const; 
 
@@ -57,7 +70,9 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPawnAvatarSet")
 	void K2_OnHeroSet();
 
-	void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec); 
+	virtual void OnGiveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
+
+	virtual void OnRemoveAbility(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec) override;
 
 	virtual bool CanActivateAbility(
 		const FGameplayAbilitySpecHandle Handle, 
@@ -67,4 +82,6 @@ protected:
 		OUT FGameplayTagContainer* OptionalRelevantTags) const override;
 
 	void InitializeAbilityStacking(const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilitySpec& Spec);
+
+	void InitializeAbilityUI(const FGameplayAbilityActorInfo* ActorInfo);
 };

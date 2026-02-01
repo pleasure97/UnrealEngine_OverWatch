@@ -14,6 +14,8 @@ void UReinhardtBarrierWidget::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
+	SetVisibility(ESlateVisibility::Collapsed);
+
 	// Save Material Instance Dynamic of Barrier Field Image Widget 
 	if (Image_BarrierField)
 	{
@@ -68,8 +70,6 @@ void UReinhardtBarrierWidget::NativeConstruct()
 				);
 
 			UpdateBarrierHealth(EnergyBarrier->GetAttributeSet()->GetHealth()); 
-
-			
 
 			// Early Return 
 			return;
