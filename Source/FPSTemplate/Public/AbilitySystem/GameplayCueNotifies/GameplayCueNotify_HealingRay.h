@@ -6,8 +6,6 @@
 #include "GameplayCueNotify_Actor.h"
 #include "GameplayCueNotify_HealingRay.generated.h"
 
-class UNiagaraSystem;
-
 /**
  * 
  */

@@ -325,41 +325,42 @@ TArray<FHitResult> AOWGATargetActor_Trace::PerformTrace(AActor* InSourceActor)
 					}
 				}
 			}
-
-			if (!bUsePersistentHitResults)
+		}
+		
+		if (!bUsePersistentHitResults)
+		{
+			if (TraceHitResults.Num() < ReticleActors.Num())
 			{
-				if (TraceHitResults.Num() < ReticleActors.Num())
+				// We have Less Hit Results than ReticleActors, Hide the Extra Ones
+				for (int32 k = TraceHitResults.Num(); k < ReticleActors.Num(); ++k)
 				{
-					// We have Less Hit Results than ReticleActors, Hide the Extra Ones
-					for (int32 k = TraceHitResults.Num(); k < ReticleActors.Num(); ++k)
+					if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActors[k].Get())
 					{
-						if (AGameplayAbilityWorldReticle* LocalReticleActor = ReticleActors[j].Get())
-						{
-							LocalReticleActor->SetIsTargetAnActor(false); 
-							LocalReticleActor->SetActorHiddenInGame(true); 
-						}
+						LocalReticleActor->SetIsTargetAnActor(false);
+						LocalReticleActor->SetActorHiddenInGame(true);
 					}
 				}
 			}
+		}
 
-			if (TraceHitResults.Num() < 1)
+		if (TraceHitResults.Num() < 1)
+		{
+			// If there were No Hits, Add a Default HitResult at the End of the Trace
+			FHitResult DefaultHitResult; 
+			// Start Parameter could be Player Viewport. 
+			// We want HitResult to Always Display the StartLocation 
+			DefaultHitResult.TraceStart = StartLocation.GetTargetingTransform().GetLocation();
+			DefaultHitResult.TraceEnd = TraceEnd;
+			DefaultHitResult.Location = TraceEnd;
+			DefaultHitResult.ImpactPoint = TraceEnd;
+			TraceHitResults.Add(DefaultHitResult);
+
+			if (bUsePersistentHitResults && PersistentHitResults.Num() < 1)
 			{
-				// If there were No Hits, Add a Default HitResult at the End of the Trace
-				FHitResult DefaultHitResult; 
-				// Start Parameter could be Player Viewport. 
-				// We want HitResult to Always Display the StartLocation 
-				DefaultHitResult.TraceStart = StartLocation.GetTargetingTransform().GetLocation();
-				DefaultHitResult.TraceEnd = TraceEnd;
-				DefaultHitResult.Location = TraceEnd;
-				DefaultHitResult.ImpactPoint = TraceEnd;
-				TraceHitResults.Add(DefaultHitResult);
-
-				if (bUsePersistentHitResults && PersistentHitResults.Num() < 1)
-				{
-					PersistentHitResults.Add(DefaultHitResult);
-				}
+				PersistentHitResults.Add(DefaultHitResult);
 			}
 		}
+
 		ReturnHitResults.Append(TraceHitResults); 
 	}
 

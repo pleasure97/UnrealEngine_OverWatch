@@ -29,9 +29,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UNiagaraComponent* GetHealingRayNiagaraComponent() const;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UNiagaraSystem> HealingRayNiagaraSystem;
-
 	UFUNCTION(BlueprintCallable)
 	void RegenerateSolarRifle();
 
@@ -63,8 +60,11 @@ private:
 	UPROPERTY()
 	TObjectPtr<AOWGATargetActor_LineTrace> LineTraceTargetActor;
 
-	UPROPERTY()
-	TObjectPtr<UNiagaraComponent> HealingRayNiagaraComponent;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UNiagaraComponent> FirstPersonHealingRay;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UNiagaraComponent> ThirdPersonHealingRay;
 
 	FTimerHandle HealingRayRegenTimerHandle; 
 };

@@ -3,33 +3,45 @@
 
 #include "Character/IlliariCharacter.h"
 #include "AbilitySystem/GameplayAbilityTargetActor/OWGATargetActor_LineTrace.h"
-#include "NiagaraFunctionLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/Abilities/Support/Illiari/HealingRay.h"
+#include "NiagaraComponent.h"
 
 AIlliariCharacter::AIlliariCharacter()
 {
 	// Healing Pylon 
-	HealingPylon = CreateDefaultSubobject<UChildActorComponent>("HealingPylon"); 
+	HealingPylon = CreateDefaultSubobject<UChildActorComponent>("HealingPylon");
 	HealingPylon->SetupAttachment(GetRootComponent());
 
 	// First Person Weapon
 	FirstPersonWeapon = CreateDefaultSubobject<UStaticMeshComponent>("FirstPersonWeapon");
 	FirstPersonWeapon->SetupAttachment(FirstPersonMesh);
-	FTransform FirstPersonWeaponTransform; 
+	FTransform FirstPersonWeaponTransform;
 	FirstPersonWeaponTransform.SetLocation(FVector(-12.6f, 3.9f, 120.9f));
-	FirstPersonWeaponTransform.SetRotation(FQuat::MakeFromRotator(FRotator(0.f, 90.f, 0.f))); 
+	FirstPersonWeaponTransform.SetRotation(FQuat::MakeFromRotator(FRotator(0.f, 90.f, 0.f)));
 	FirstPersonWeaponTransform.SetScale3D(FVector(0.09f, 0.09f, 0.09f));
-	FirstPersonWeapon->SetRelativeTransform(FirstPersonWeaponTransform); 
+	FirstPersonWeapon->SetRelativeTransform(FirstPersonWeaponTransform);
 
 	// Third Person Weapon 
-	ThirdPersonWeapon = CreateDefaultSubobject<UStaticMeshComponent>("ThirdPersonWeapon"); 
+	ThirdPersonWeapon = CreateDefaultSubobject<UStaticMeshComponent>("ThirdPersonWeapon");
 	ThirdPersonWeapon->SetupAttachment(GetMesh());
 	FTransform ThirdPersonWeaponTransform;
 	ThirdPersonWeaponTransform.SetLocation(FVector(-24.f, 38.f, 139.f));
 	ThirdPersonWeaponTransform.SetRotation(FQuat::MakeFromRotator(FRotator(0.f, 90.f, 0.f)));
 	ThirdPersonWeaponTransform.SetScale3D(FVector(0.09f, 0.09f, 0.09f));
 	ThirdPersonWeapon->SetRelativeTransform(ThirdPersonWeaponTransform);
+
+	// First Person Healing Ray Niagara Component
+	FirstPersonHealingRay = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FirstPersonHealingRay"));
+	FirstPersonHealingRay->SetupAttachment(FirstPersonWeapon, FName("BeamSocket"));
+	FirstPersonHealingRay->bAutoActivate = false;
+	FirstPersonHealingRay->SetOnlyOwnerSee(true);
+
+	// Third Person Healing Ray Niagara Component
+	ThirdPersonHealingRay = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ThirdPersonHealingRay"));
+	ThirdPersonHealingRay->SetupAttachment(ThirdPersonWeapon, FName("BeamSocket"));
+	ThirdPersonHealingRay->bAutoActivate = false;
+	ThirdPersonHealingRay->SetOwnerNoSee(true);
 }
 
 AOWGATargetActor_LineTrace* AIlliariCharacter::GetLineTraceTargetActor_Implementation()
@@ -52,17 +64,17 @@ FVector AIlliariCharacter::GetProjectileStartLocation_Implementation() const
 
 FTransform AIlliariCharacter::GetFirstPersonWeaponSocketTransform_Implementation()
 {
-	return FTransform();
+	return FirstPersonWeapon->GetSocketTransform(FName("BeamSocket"));
 }
 
 FTransform AIlliariCharacter::GetThirdPersonWeaponSocketTransform_Implementation()
 {
-	return FTransform();
+	return ThirdPersonWeapon->GetSocketTransform(FName("BeamSocket"));
 }
 
 UNiagaraComponent* AIlliariCharacter::GetHealingRayNiagaraComponent() const
 {
-	return HealingRayNiagaraComponent;
+	return IsLocallyControlled() ? FirstPersonHealingRay : ThirdPersonHealingRay;
 }
 
 void AIlliariCharacter::RegenerateSolarRifle()
@@ -120,16 +132,13 @@ void AIlliariCharacter::BeginPlay()
 {
 	Super::BeginPlay(); 
 
-	// Spawn System Attached - Healing Ray 
-	HealingRayNiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
-		HealingRayNiagaraSystem, FirstPersonWeapon, FName("BeamSocket"),
-		FVector::ZeroVector, FRotator::ZeroRotator,
-		EAttachLocation::KeepRelativeOffset, false, false);
-
-	/*HealingRayNiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
-		HealingRayNiagaraSystem, ThirdPersonWeapon, FName("BeamSocket"),
-		FVector::ZeroVector, FRotator::ZeroRotator,
-		EAttachLocation::KeepRelativeOffset, false, false);*/
+	if (IsValid(FirstPersonHealingRay))
+	{
+		FirstPersonHealingRay->SetVectorParameter(FName("BeamStart"), FirstPersonWeapon->GetSocketLocation(FName("BeamSocket")));
+	}
+	if (IsValid(ThirdPersonHealingRay))
+	{
+		ThirdPersonHealingRay->SetVectorParameter(FName("BeamStart"), ThirdPersonWeapon->GetSocketLocation(FName("BeamSocket")));
+	}
 }
-
 
