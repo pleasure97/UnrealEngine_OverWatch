@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "LoadingScreenWidget.generated.h"
 
+class UPanelWidget; 
+
 /**
  * 
  */
@@ -20,6 +22,9 @@ public:
 
 protected:
 	virtual void NativeConstruct() override; 
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UPanelWidget> PanelWidget_Content;
 	
 private:
 	UFUNCTION()

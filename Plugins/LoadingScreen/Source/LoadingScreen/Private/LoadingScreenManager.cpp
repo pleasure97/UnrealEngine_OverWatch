@@ -12,6 +12,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Widgets/Images/SThrobber.h"
 #include "ShaderPipelineCache.h"
+#include "LoadingScreenSubsystem.h"
 
 /** Loading Interface **/
 bool ILoadingInterface::ShouldShowLoadingScreen(UObject* TestObject, FString& OutReason)
@@ -160,6 +161,28 @@ void ULoadingScreenManager::HandlePreLoadMap(const FWorldContext& WorldContext, 
 	if (WorldContext.OwningGameInstance == GetGameInstance())
 	{
 		bCurrentlyInLoadMap = true; 
+
+		// Find Widget Class  Fit to Destination Map from Loading Screen Settings
+		const ULoadingScreenSettings* Settings = GetDefault<ULoadingScreenSettings>();
+		TSubclassOf<UUserWidget> SelectedWidget = nullptr;
+
+		for (const auto& MapConfig : Settings->MapSpecificLoadingScreens)
+		{
+			// Compare Map Name
+			if (MapName.Contains(MapConfig.MapPath.GetAssetName()))
+			{
+				// Load Widget Class Synchronously
+				SelectedWidget = MapConfig.LoadingWidgetClass.LoadSynchronous();
+				break;
+			}
+		}
+
+		// Update Found Widget Information to Subsystem
+		ULoadingScreenSubsystem* LoadingScreenSubsystem = GetGameInstance()->GetSubsystem<ULoadingScreenSubsystem>();
+		if (IsValid(LoadingScreenSubsystem))
+		{
+			LoadingScreenSubsystem->SetLoadingScreenWidget(SelectedWidget); 
+		}
 
 		// Update the Loading Screen Immediately if the Engine is Initialized
 		if (GEngine->IsInitialized())
@@ -317,6 +340,17 @@ bool ULoadingScreenManager::CheckForAnyNeedToShowLoadingScreen()
 	if (!bIsInSplitscreen && !bFoundAnyLocalPlayerController)
 	{
 		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("Need at least 1 local player controller.")); 
+	}
+
+	// Check Precompiling PSOs is Completed
+	int32 RemainingPSOs = FShaderPipelineCache::NumPrecompilesRemaining();
+	if (RemainingPSOs > 0)
+	{
+		DebugReasonForShowingOrHidingLoadingScreen = FString::Printf(
+			TEXT("Waiting for PSO Precaching... (%d remaining)"),
+			RemainingPSOs
+		);
+		return true;
 	}
 
 	DebugReasonForShowingOrHidingLoadingScreen = TEXT("Nothing wans to show loading screen anymore."); 

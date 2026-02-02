@@ -6,6 +6,18 @@
 #include "Engine/DeveloperSettingsBackedByCVars.h"
 #include "LoadingScreenSettings.generated.h"
 
+USTRUCT(BlueprintType)
+struct FMapLoadingConfig
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, config, meta = (AllowedClasses = "/Script/Engine.World"))
+	FSoftObjectPath MapPath;
+
+	UPROPERTY(EditAnywhere, config)
+	TSoftClassPtr<UUserWidget> LoadingWidgetClass; 
+};
+
 /**
  * 
  */
@@ -38,4 +50,7 @@ public:
 
 	UPROPERTY(config, EditAnywhere)
 	bool ForceTickLoadingScreenEvenInEditor = true; 
+
+	UPROPERTY(config, EditAnywhere)
+	TArray<FMapLoadingConfig> MapSpecificLoadingScreens;
 };

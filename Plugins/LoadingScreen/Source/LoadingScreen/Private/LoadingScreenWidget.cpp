@@ -3,43 +3,49 @@
 
 #include "LoadingScreenWidget.h"
 #include "LoadingScreenSubsystem.h"
+#include "Components/PanelWidget.h"
 
 void ULoadingScreenWidget::NativeConstruct()
 {
 	Super::NativeConstruct(); 
 
 	// Get Loading Screen Subsystem which is type of Game Instance Subsystem
-	if (UWorld* World = GetWorld())
+	ULoadingScreenSubsystem* LoadingScreenSubsystem = GetGameInstance()->GetSubsystem<ULoadingScreenSubsystem>();
+	if (!IsValid(LoadingScreenSubsystem))
 	{
-		if (UGameInstance* GameInstance = World->GetGameInstance())
-		{
-			ULoadingScreenSubsystem* LoadingScreenSubsystem = GameInstance->GetSubsystem<ULoadingScreenSubsystem>(); 
-			if (LoadingScreenSubsystem)
-			{
-				// Bind Loading Screen Subsystem's Loading Screen Widget Changed
-				LoadingScreenSubsystem->OnLoadingScreenWidgetChanged.AddDynamic(this, &ULoadingScreenWidget::OnLoadingScreenWidgetChanged); 
-
-				// Call Once
-				OnLoadingScreenWidgetChanged(LoadingScreenSubsystem->GetLoadingScreenWidget()); 
-			}
-		}
+		UE_LOG(LogTemp, Error, TEXT("Loading Screen Subsystem is Not Valid in ULoadingScreenWidget::NativeConstruct()"));
+		return;
 	}
+
+	// Bind Loading Screen Subsystem's Loading Screen Widget Changed
+	LoadingScreenSubsystem->OnLoadingScreenWidgetChanged.AddDynamic(this, &ULoadingScreenWidget::OnLoadingScreenWidgetChanged);
+
+	// Call Once
+	OnLoadingScreenWidgetChanged(LoadingScreenSubsystem->GetLoadingScreenWidget());
 }
 
 void ULoadingScreenWidget::OnLoadingScreenWidgetChanged(TSubclassOf<UUserWidget> NewWidgetClass)
 {
 	// Save Broadcasted New Widget Class
-	ContentWidgetClass = NewWidgetClass; 
+	ContentWidgetClass = IsValid(NewWidgetClass) ? NewWidgetClass : DefaultLoadingScreenWidgetClass;
 
-	// Check New Widget Class is Valid 
+	// Check if Content Panel Widget is Valid 
+	if (!IsValid(PanelWidget_Content))
+	{
+		return;
+	}
+
+	// Remove All Previously Added Child Widgets
+	PanelWidget_Content->ClearChildren();
+
 	if (IsValid(ContentWidgetClass))
 	{
-		UUserWidget* CreatedWidget = CreateWidget(GetOwningPlayer(), ContentWidgetClass); 
-	}
-	// If not, Create Default Loading Screen Widget 
-	else
-	{
-		UUserWidget* CreatedWidget = CreateWidget(GetOwningPlayer(), DefaultLoadingScreenWidgetClass); 
+		// Create New Content Widget and Add it to Panel Widget
+		UUserWidget* NewContentWidget = CreateWidget<UUserWidget>(this, ContentWidgetClass); 
+		if (IsValid(NewContentWidget))
+		{
+			PanelWidget_Content->AddChild(NewContentWidget);
+		}
 	}
 }
 
