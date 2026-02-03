@@ -30,15 +30,6 @@ public:
 	UNiagaraComponent* GetHealingRayNiagaraComponent() const;
 
 	UFUNCTION(BlueprintCallable)
-	void RegenerateSolarRifle();
-
-	UFUNCTION(BlueprintCallable)
-	void RegenerateHealingRay(); 
-
-	UFUNCTION(BlueprintCallable)
-	void SetHealingRayRegenTimerHandle(FTimerHandle InHealingRayRegenTimerHandle); 
-
-	UFUNCTION(BlueprintCallable)
 	UStaticMeshComponent* GetFirstPersonWeapon() const; 
 
 	UFUNCTION(BlueprintCallable)

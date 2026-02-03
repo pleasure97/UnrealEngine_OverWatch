@@ -43,8 +43,6 @@ UOWAttributeSet::UOWAttributeSet()
 	TagsToAttributes.Add(GameplayTags.Attributes_Resistance_Laser, GetLaserResistanceAttribute); 
 
 	/* Skill Attributes */
-	TagsToAttributes.Add(GameplayTags.Attributes_Skill_SkillGauge, GetSkillGaugeAttribute); 
-	TagsToAttributes.Add(GameplayTags.Attributes_Skill_MaxSkillGauge, GetMaxSkillGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_UltimateGauge, GetUltimateGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_MaxUltimateGauge, GetMaxUltimateGaugeAttribute); 
 	TagsToAttributes.Add(GameplayTags.Attributes_Skill_NumCurrentBullets, GetNumCurrentBulletsAttribute); 
@@ -84,14 +82,16 @@ void UOWAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, LaserResistance, COND_None, REPNOTIFY_Always); 
 
 	/* Skill Attributes */
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SkillGauge, COND_None, REPNOTIFY_Always); 
-	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxSkillGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, UltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, MaxUltimateGauge, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumCurrentBullets, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumMaxBullets, COND_None, REPNOTIFY_Always); 
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillMaxStacks, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, COND_None, REPNOTIFY_Always); 
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillGauge, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, FirstSkillMaxGauge, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SecondSkillGauge, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, SecondSkillMaxGauge, COND_None, REPNOTIFY_Always);
 
 	/* Match Attributes */
 	DOREPLIFETIME_CONDITION_NOTIFY(UOWAttributeSet, NumKills, COND_None, REPNOTIFY_Always);
@@ -111,7 +111,8 @@ void UOWAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	CLAMP_BY_MAX_ATTRIBUTE(Attribute, NumCurrentBullets, NumMaxBullets);
 	CLAMP_BY_MAX_ATTRIBUTE(Attribute, UltimateGauge, MaxUltimateGauge);
 	CLAMP_BY_MAX_ATTRIBUTE(Attribute, FirstSkillCurrentStacks, FirstSkillMaxStacks);
-	CLAMP_BY_MAX_ATTRIBUTE(Attribute, SkillGauge, MaxSkillGauge);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, FirstSkillGauge, FirstSkillMaxGauge);
+	CLAMP_BY_MAX_ATTRIBUTE(Attribute, SecondSkillGauge, SecondSkillMaxGauge);
 }
 
 bool UOWAttributeSet::PreGameplayEffectExecute(FGameplayEffectModCallbackData& Data)
@@ -144,8 +145,11 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	SetEffectProperties(Data, EffectProperties);
 
 	if (EffectProperties.TargetCharacter &&
-		EffectProperties.TargetCharacter->Implements<UCombatInterface>() 
-		&& ICombatInterface::Execute_IsDead(EffectProperties.TargetCharacter)) return;
+		EffectProperties.TargetCharacter->Implements<UCombatInterface>()
+		&& ICombatInterface::Execute_IsDead(EffectProperties.TargetCharacter))
+	{
+		return;
+	}
 
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
@@ -178,6 +182,14 @@ void UOWAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetUltimateGaugeAttribute())
 	{
 		SetUltimateGauge(FMath::Clamp(GetUltimateGauge(), 0.f, GetMaxUltimateGauge())); 
+	}
+	if (Data.EvaluatedData.Attribute == GetFirstSkillGaugeAttribute())
+	{
+		SetFirstSkillGauge(FMath::Clamp(GetFirstSkillGauge(), 0.f, GetFirstSkillMaxGauge()));
+	}
+	if (Data.EvaluatedData.Attribute == GetSecondSkillGaugeAttribute())
+	{
+		SetSecondSkillGauge(FMath::Clamp(GetSecondSkillGauge(), 0.f, GetSecondSkillMaxGauge()));
 	}
 }
 
@@ -271,16 +283,6 @@ void UOWAttributeSet::OnRep_LaserResistance(const FGameplayAttributeData& OldLas
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, LaserResistance, OldLaserResistance);
 }
 
-void UOWAttributeSet::OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SkillGauge, OldSkillGauge); 
-}
-
-void UOWAttributeSet::OnRep_MaxSkillGauge(const FGameplayAttributeData& OldMaxSkillGauge) const
-{
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, MaxSkillGauge, OldMaxSkillGauge);
-}
-
 void UOWAttributeSet::OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, UltimateGauge, OldUltimateGauge);
@@ -309,6 +311,26 @@ void UOWAttributeSet::OnRep_FirstSkillMaxStacks(const FGameplayAttributeData& Ol
 void UOWAttributeSet::OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillCurrentStacks, OldFirstSkillCurrentStacks);
+}
+
+void UOWAttributeSet::OnRep_FirstSkillGauge(const FGameplayAttributeData& OldFirstSkillGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillGauge, OldFirstSkillGauge);
+}
+
+void UOWAttributeSet::OnRep_FirstSkillMaxGauge(const FGameplayAttributeData& OldFirstSkillMaxGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, FirstSkillMaxGauge, OldFirstSkillMaxGauge);
+}
+
+void UOWAttributeSet::OnRep_SecondSkillGauge(const FGameplayAttributeData& OldSecondSkillGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SecondSkillGauge, OldSecondSkillGauge);
+}
+
+void UOWAttributeSet::OnRep_SecondSkillMaxGauge(const FGameplayAttributeData& OldSecondSkillMaxGauge) const
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UOWAttributeSet, SecondSkillMaxGauge, OldSecondSkillMaxGauge);
 }
 
 void UOWAttributeSet::OnRep_NumKills(const FGameplayAttributeData& OldNumKills) const
@@ -516,6 +538,11 @@ void UOWAttributeSet::HandleDamage(const float LocalIncomingDamage)
 
 void UOWAttributeSet::SendDamageInfo(const FEffectProperties& EffectProperties)
 {
+	if (!IsValid(EffectProperties.TargetPlayerState))
+	{
+		return;
+	}
+
 	const bool bCriticalHit = UOWAbilitySystemLibrary::IsCriticalHit(EffectProperties.EffectContextHandle);
 
 	// Initialize Hero Damaged Info 
@@ -526,11 +553,10 @@ void UOWAttributeSet::SendDamageInfo(const FEffectProperties& EffectProperties)
 	HeroDamagedInfo.Damage = GetIncomingDamage();
 	HeroDamagedInfo.DamageTimeSeconds = GetWorld()->GetTimeSeconds();
 
-	// Broadcast Hero Debuffed Message Using Gameplay Message Subsystem 
-	AOWPlayerController* SourcePlayerControler = Cast<AOWPlayerController>(EffectProperties.SourcePlayerState->GetPlayerController());
-	if (IsValid(SourcePlayerControler))
+	AOWPlayerController* TargetPlayerController = Cast<AOWPlayerController>(EffectProperties.TargetPlayerState->GetPlayerController());
+	if (IsValid(TargetPlayerController))
 	{
-		SourcePlayerControler->ClientHeroDamaged(HeroDamagedInfo);
+		TargetPlayerController->ClientHeroDamaged(HeroDamagedInfo);
 	}
 }
 

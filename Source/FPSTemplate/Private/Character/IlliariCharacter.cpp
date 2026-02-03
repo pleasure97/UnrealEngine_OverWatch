@@ -77,47 +77,6 @@ UNiagaraComponent* AIlliariCharacter::GetHealingRayNiagaraComponent() const
 	return IsLocallyControlled() ? FirstPersonHealingRay : ThirdPersonHealingRay;
 }
 
-void AIlliariCharacter::RegenerateSolarRifle()
-{
-}
-
-void AIlliariCharacter::RegenerateHealingRay()
-{
-	if (HasAuthority())
-	{
-		if (UWorld* World = GetWorld())
-		{
-			if (UAbilitySystemComponent* ASC = GetAbilitySystemComponent())
-			{
-				TSubclassOf<UGameplayAbility> HealingRayAbilityClass = UHealingRay::StaticClass();
-				if (FGameplayAbilitySpec* GameplayAbilitySpec = ASC->FindAbilitySpecFromClass(HealingRayAbilityClass))
-				{
-					if (UGameplayAbility* PrimaryGameplayAbility = GameplayAbilitySpec->GetPrimaryInstance())
-					{
-						if (UHealingRay* HealingRayAbility = Cast<UHealingRay>(PrimaryGameplayAbility))
-						{
-							if (HealingRayAbility->IsActive())
-							{
-								World->GetTimerManager().ClearTimer(HealingRayRegenTimerHandle); 
-							}
-							bool bFullCharged = HealingRayAbility->RegenerateHealGaugeByTick();
-							if (bFullCharged)
-							{
-								World->GetTimerManager().ClearTimer(HealingRayRegenTimerHandle);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-void AIlliariCharacter::SetHealingRayRegenTimerHandle(FTimerHandle InHealingRayRegenTimerHandle)
-{
-	HealingRayRegenTimerHandle = InHealingRayRegenTimerHandle; 
-}
-
 UStaticMeshComponent* AIlliariCharacter::GetFirstPersonWeapon() const
 {
 	return FirstPersonWeapon; 

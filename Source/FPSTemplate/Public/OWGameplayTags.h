@@ -120,6 +120,10 @@ public:
 	/* Effects */
 	FGameplayTag Effects_HitReact; 
 	FGameplayTag Effects_HealthRegenerate;
+	FGameplayTag Effects_Regenerate_SolarRifle;
+	FGameplayTag Effects_Regenerate_HealingRay;
+	FGameplayTag Effects_DelayRegenerate_SolarRifle;
+	FGameplayTag Effects_DelayRegenerate_HealingRay;
 
 	/* Ability Status Types */
 	FGameplayTag Abilities_Status_Locked; 
@@ -157,6 +161,7 @@ public:
 	FGameplayTag GameplayCue_Illiari_Outburst;
 	FGameplayTag GameplayCue_Illiari_Laceration; 
 	FGameplayTag GameplayCue_Illiari_HealingPylon;
+	FGameplayTag GameplayCue_Illiari_CaptiveSun;
 
 	FGameplayTag GameplayCue_Tracer_PulsePistols; 
 	FGameplayTag GameplayCue_Tracer_Blink; 
@@ -199,6 +204,8 @@ public:
 	FGameplayTag Data_CriticalHitDamage; 
 	FGameplayTag Data_Recall_Health; 
 	FGameplayTag Data_Recall_NumCurrentBullets; 
+	FGameplayTag Data_RegenWaitingTime_SolarRifle; 
+	FGameplayTag Data_RegenWaitingTime_HealingRay; 
 	FGameplayTag Data_SpeedMultiplier; 
 
 	/* Animation */

@@ -163,14 +163,6 @@ public:
 	/*
 	 * Skill Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_SkillGauge, Category="Skill Attributes")
-	FGameplayAttributeData SkillGauge;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SkillGauge);
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxSkillGauge, Category = "Skill Attributes")
-	FGameplayAttributeData MaxSkillGauge;
-	ATTRIBUTE_ACCESSORS(UOWAttributeSet, MaxSkillGauge);
-
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_UltimateGauge, Category="Skill Attributes")
 	FGameplayAttributeData UltimateGauge;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, UltimateGauge);
@@ -194,6 +186,22 @@ public:
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillCurrentStacks, Category = "Skill Attributes")
 	FGameplayAttributeData FirstSkillCurrentStacks;
 	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillCurrentStacks);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillGauge, Category = "Skill Attributes")
+	FGameplayAttributeData FirstSkillGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillGauge);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FirstSkillMaxGauge, Category = "Skill Attributes")
+	FGameplayAttributeData FirstSkillMaxGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, FirstSkillMaxGauge);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SecondSkillGauge, Category = "Skill Attributes")
+	FGameplayAttributeData SecondSkillGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SecondSkillGauge);
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_SecondSkillMaxGauge, Category = "Skill Attributes")
+	FGameplayAttributeData SecondSkillMaxGauge;
+	ATTRIBUTE_ACCESSORS(UOWAttributeSet, SecondSkillMaxGauge);
 
 	/* 
 	 * Meta Attributes 
@@ -290,12 +298,6 @@ public:
 	 * Skill Attributes
 	 */
 	UFUNCTION()
-	void OnRep_SkillGauge(const FGameplayAttributeData& OldSkillGauge) const;
-
-	UFUNCTION()
-	void OnRep_MaxSkillGauge(const FGameplayAttributeData& OldMaxSkillGauge) const;
-
-	UFUNCTION()
 	void OnRep_UltimateGauge(const FGameplayAttributeData& OldUltimateGauge) const;
 
 	UFUNCTION()
@@ -312,6 +314,18 @@ public:
 
 	UFUNCTION()
 	void OnRep_FirstSkillCurrentStacks(const FGameplayAttributeData& OldFirstSkillCurrentStacks) const;
+
+	UFUNCTION()
+	void OnRep_FirstSkillGauge(const FGameplayAttributeData& OldFirstSkillGauge) const;
+
+	UFUNCTION()
+	void OnRep_FirstSkillMaxGauge(const FGameplayAttributeData& OldFirstSkillMaxGauge) const;
+
+	UFUNCTION()
+	void OnRep_SecondSkillGauge(const FGameplayAttributeData& OldSecondSkillGauge) const;
+
+	UFUNCTION()
+	void OnRep_SecondSkillMaxGauge(const FGameplayAttributeData& OldSecondSkillMaxGauge) const;
 
 	/*
 	 * Match Attributes

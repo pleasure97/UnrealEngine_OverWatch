@@ -16,21 +16,23 @@ class FPSTEMPLATE_API UHealingRay : public UOWDamageGameplayAbility
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayEffect> RechargeGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayEffect> DelayRechargeGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float TimeBetweenHeal = 0.1f; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HealGauge = 34.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float MaxHealGauge = 34.f;
+	float HealPerUnitTime = 11.5f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxDistance = 2000.f;
 
-	/* Heal Regeneration */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float HealRegeneration = 0.8f;
+	float GeneralRechargeWaitingTime = 0.6f;
 
-	UFUNCTION(BlueprintCallable)
-	bool RegenerateHealGaugeByTick(); 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float RechargeWaitingTimeWhenCompletelyConsumed = 1.f;
 };

@@ -2,17 +2,3 @@
 
 
 #include "AbilitySystem/Abilities/Support/Illiari/HealingRay.h"
-
-bool UHealingRay::RegenerateHealGaugeByTick()
-{
-    if (HealGauge >= MaxHealGauge)
-    {
-        // bFullCharged 
-        return true; 
-    }
-    else
-    {
-        HealGauge += HealRegeneration; 
-        return false; 
-    }
-}

@@ -314,6 +314,22 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Effects.HealthRegenerate"),
 		FString("Health Regenerate Effects"));
 
+	GameplayTags.Effects_Regenerate_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.Regenerate.SolarRifle"),
+		FString("Solar Rifle Regenerate Effect"));
+
+	GameplayTags.Effects_Regenerate_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.Regenerate.HealingRay"),
+		FString("Healing Ray Regenerate Effect"));
+
+	GameplayTags.Effects_DelayRegenerate_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.DelayRegenerate.SolarRifle"),
+		FString("Solar Rifle Regenerate Delay Effect"));
+
+	GameplayTags.Effects_DelayRegenerate_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.DelayRegenerate.HealingRay"),
+		FString("Healing Ray Regenerate Delay Effect"));
+
 	/* Ability Status Types */
 	GameplayTags.Abilities_Status_Eligible = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Status.Eligible"),
@@ -428,6 +444,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.GameplayCue_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Illiari.HealingPylon"),
 		FString("Illiari's Healing Pylon GameplayCue"));
+
+	GameplayTags.GameplayCue_Illiari_CaptiveSun = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.CaptiveSun"),
+		FString("Illiari's Captive Sun GameplayCue"));
 
 	GameplayTags.GameplayCue_Tracer_PulsePistols = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Tracer.PulsePistols"),
@@ -562,6 +582,14 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Data_Recall_NumCurrentBullets = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.Recall.NumCurrentBullets"),
 		FString("NumCurrentBullets Gameplay Tag When Recall is Set By Caller"));
+
+	GameplayTags.Data_RegenWaitingTime_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.RegenWaitingTime.SolarRifle"),
+		FString("Waiting Time for Regenerating Solar Rifle Gauge"));
+
+	GameplayTags.Data_RegenWaitingTime_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.RegenWaitingTime.Heailng Ray"),
+		FString("Waiting Time for Regenerating Healing Ray Gauge"));
 
 	GameplayTags.Data_SpeedMultiplier = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.SpeedMultiplier"),
