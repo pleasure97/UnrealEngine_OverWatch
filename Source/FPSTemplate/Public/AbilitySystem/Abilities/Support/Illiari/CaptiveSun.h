@@ -6,9 +6,10 @@
 #include "AbilitySystem/Abilities/OWDamageGameplayAbility.h"
 #include "CaptiveSun.generated.h"
 
-class UTimelineComponent; 
+//class UTimelineComponent; 
 class ACaptiveSunProjectile; 
 class UUltimateDuration; 
+//class UAbilityTask_WaitInputPress; 
 
 /**
  * 
@@ -17,61 +18,22 @@ UCLASS()
 class FPSTEMPLATE_API UCaptiveSun : public UOWDamageGameplayAbility
 {
 	GENERATED_BODY()
-	
-protected:
-	virtual void ActivateAbility(
-		const FGameplayAbilitySpecHandle Handle,
-		const FGameplayAbilityActorInfo* ActorInfo,
-		const FGameplayAbilityActivationInfo ActivationInfo,
-		const FGameplayEventData* TriggerEventData) override; 
-	
-	UPROPERTY()
-	TObjectPtr<ACharacter> OwnerCharacter; 
 
-	/* Soaring */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Soaring")
-	TObjectPtr<UCurveFloat> VelocityCurve; 
-
-	UPROPERTY(VisibleAnywhere, Category="Soaring")
-	TObjectPtr<UTimelineComponent> SoaringVelocity; 
-
-	UFUNCTION()
-	void UpdateSoaringVelocity(float Output); 
-
-	UFUNCTION()
-	void FinishSoaring(); 
-	
-	/* Spawn Projectile*/
-	UFUNCTION(BlueprintCallable)
-	void SpawnCaptiveSun(); 
-
+public:
+	/* Projectile */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<ACaptiveSunProjectile> CaptiveSunProjectileClass;
 
-	UPROPERTY()
-	TObjectPtr<ACaptiveSunProjectile> CaptiveSunProjectile;
-
 	/* Ultimate Duration */
-	UPROPERTY()
-	float Duration = 5.2f; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SoaringDuration = 1.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<UUltimateDuration> UltimateDurationClass; 
+	float ShootDuration = 4.f;
 
-	UPROPERTY()
-	TObjectPtr<UUltimateDuration> UltimateDuration; 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float FlyingDuration = 10.f;
 
-	FTimerHandle DurationTickTimerHandle; 
-
-	FTimerHandle DurationEndTimerHandle; 
-
-	UFUNCTION()
-	void UpdateDurationUI();
-
-	UFUNCTION()
-	void EndDurationUI(); 
-
-	/* Shoot */
-	UFUNCTION()
-	void Shoot(float TimeWaited);
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UUltimateDuration> UltimateDurationClass;
 };

@@ -15,21 +15,11 @@ AIlliariCharacter::AIlliariCharacter()
 
 	// First Person Weapon
 	FirstPersonWeapon = CreateDefaultSubobject<UStaticMeshComponent>("FirstPersonWeapon");
-	FirstPersonWeapon->SetupAttachment(FirstPersonMesh);
-	FTransform FirstPersonWeaponTransform;
-	FirstPersonWeaponTransform.SetLocation(FVector(-12.6f, 3.9f, 120.9f));
-	FirstPersonWeaponTransform.SetRotation(FQuat::MakeFromRotator(FRotator(0.f, 90.f, 0.f)));
-	FirstPersonWeaponTransform.SetScale3D(FVector(0.09f, 0.09f, 0.09f));
-	FirstPersonWeapon->SetRelativeTransform(FirstPersonWeaponTransform);
+	FirstPersonWeapon->SetupAttachment(FirstPersonMesh, FName("RifleGripPoint"));
 
 	// Third Person Weapon 
 	ThirdPersonWeapon = CreateDefaultSubobject<UStaticMeshComponent>("ThirdPersonWeapon");
-	ThirdPersonWeapon->SetupAttachment(GetMesh());
-	FTransform ThirdPersonWeaponTransform;
-	ThirdPersonWeaponTransform.SetLocation(FVector(-24.f, 38.f, 139.f));
-	ThirdPersonWeaponTransform.SetRotation(FQuat::MakeFromRotator(FRotator(0.f, 90.f, 0.f)));
-	ThirdPersonWeaponTransform.SetScale3D(FVector(0.09f, 0.09f, 0.09f));
-	ThirdPersonWeapon->SetRelativeTransform(ThirdPersonWeaponTransform);
+	ThirdPersonWeapon->SetupAttachment(GetMesh(), FName("RifleGripPoint"));
 
 	// First Person Healing Ray Niagara Component
 	FirstPersonHealingRay = CreateDefaultSubobject<UNiagaraComponent>(TEXT("FirstPersonHealingRay"));
