@@ -120,8 +120,10 @@ public:
 	/* Effects */
 	FGameplayTag Effects_HitReact; 
 	FGameplayTag Effects_HealthRegenerate;
+	FGameplayTag Effects_Regenerate_BarrierField;
 	FGameplayTag Effects_Regenerate_SolarRifle;
 	FGameplayTag Effects_Regenerate_HealingRay;
+	FGameplayTag Effects_DelayRegenerate_BarrierField;
 	FGameplayTag Effects_DelayRegenerate_SolarRifle;
 	FGameplayTag Effects_DelayRegenerate_HealingRay;
 
@@ -204,6 +206,7 @@ public:
 	FGameplayTag Data_CriticalHitDamage; 
 	FGameplayTag Data_Recall_Health; 
 	FGameplayTag Data_Recall_NumCurrentBullets; 
+	FGameplayTag Data_RegenWaitingTime_BarrierField; 
 	FGameplayTag Data_RegenWaitingTime_SolarRifle; 
 	FGameplayTag Data_RegenWaitingTime_HealingRay; 
 	FGameplayTag Data_SpeedMultiplier; 
@@ -224,6 +227,8 @@ public:
 	FGameplayTag Event_Illiari_PylonDestroyed_Unintentional; 
 	FGameplayTag Event_Reinhardt_BarrierDestroyed;
 	FGameplayTag Event_Reinhardt_EarthShatterFinished;
+	FGameplayTag Event_Reinhardt_RegenerateBarrierField;
+	FGameplayTag Event_Reinhardt_CancelRegenBarrierField;
 
 	/* Hero GameplayTags - Illiari */
 	FGameplayTag Abilities_Illiari_Outburst; 

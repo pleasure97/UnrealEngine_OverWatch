@@ -107,7 +107,7 @@ void UReinhardtBarrierWidget::UpdateBarrierHealth(float NewHealthValue)
 	
 	if (MID_BarrierField)
 	{
-		float NumUnits = FMath::FloorToInt(HealthUnit - (SavedMaxHealth - NewHealthValue) / HealthUnit); 
+		float NumUnits = FMath::FloorToInt(HealthUnit - NewHealthValue / SavedMaxHealth * HealthUnit);
 		NumUnits = FMath::Clamp(NumUnits, 0, HealthUnit);
 		MID_BarrierField->SetScalarParameterValue(FName("Rounds_Current"), NumUnits); 
 	}

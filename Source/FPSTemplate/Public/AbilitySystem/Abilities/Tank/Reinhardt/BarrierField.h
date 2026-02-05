@@ -26,18 +26,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AEnergyBarrier> EnergyBarrierClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr<AEnergyBarrier> EnergyBarrier;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName BarrierSocketName;
-
-	/* Barrier Health Regeneration */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> BarrierHealthRegnerateEffect;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BarrierHealthRegenTimeAfterAbilityEnds = 2.f;
 
 	/* Character Movement */
 	UPROPERTY()

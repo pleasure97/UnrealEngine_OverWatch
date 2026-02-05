@@ -18,6 +18,22 @@ AEnergyBarrier::AEnergyBarrier()
 	BarrierField->SetupAttachment(GetRootComponent());
 }
 
+void AEnergyBarrier::BeginPlay()
+{
+	Super::BeginPlay(); 
+
+	if (HasAuthority())
+	{
+		FGameplayAbilitySpec RegenBarrierFieldAbilitySpec = FGameplayAbilitySpec(RegenerateBarrierFieldAbilityClass, 1 /*int32 InLevel*/);
+		GetAbilitySystemComponent()->GiveAbility(RegenBarrierFieldAbilitySpec);
+
+		for (const FGameplayAbilitySpec& Spec : AbilitySystemComponent->GetActivatableAbilities())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Energy Barrier Ability: %s"), *Spec.Ability->GetName());
+		}
+	}
+}
+
 void AEnergyBarrier::InitAbilityActorInfo()
 {
 	Super::InitAbilityActorInfo();

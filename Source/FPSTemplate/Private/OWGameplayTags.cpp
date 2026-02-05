@@ -314,6 +314,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Effects.HealthRegenerate"),
 		FString("Health Regenerate Effects"));
 
+	GameplayTags.Effects_Regenerate_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.Regenerate.BarrierField"),
+		FString("Barrier Field Regenerate Effect"));
+
 	GameplayTags.Effects_Regenerate_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Effects.Regenerate.SolarRifle"),
 		FString("Solar Rifle Regenerate Effect"));
@@ -321,6 +325,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Effects_Regenerate_HealingRay = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Effects.Regenerate.HealingRay"),
 		FString("Healing Ray Regenerate Effect"));
+
+	GameplayTags.Effects_DelayRegenerate_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Effects.DelayRegenerate.BarrierField"),
+		FString("Barrier Field Regenerate Delay Effect"));
 
 	GameplayTags.Effects_DelayRegenerate_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Effects.DelayRegenerate.SolarRifle"),
@@ -583,6 +591,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Data.Recall.NumCurrentBullets"),
 		FString("NumCurrentBullets Gameplay Tag When Recall is Set By Caller"));
 
+	GameplayTags.Data_RegenWaitingTime_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Data.RegenWaitingTime.BarrierField"),
+		FString("Waiting Time for Regenerating Barrier Field"));
+
 	GameplayTags.Data_RegenWaitingTime_SolarRifle = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Data.RegenWaitingTime.SolarRifle"),
 		FString("Waiting Time for Regenerating Solar Rifle Gauge"));
@@ -648,6 +660,14 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Event_Reinhardt_EarthShatterFinished = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.Reinhardt.EarthShatterFinished"),
 		FString("EarthShatter Finished Event Tag"));
+
+	GameplayTags.Event_Reinhardt_RegenerateBarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Reinhardt.RegenerateBarrierField"),
+		FString("Regenerate Barrier Field Event Tag"));
+
+	GameplayTags.Event_Reinhardt_CancelRegenBarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Reinhardt.CancelRegenBarrierField"),
+		FString("Cancel Regenerate BarrierField Event Tag"));
 
 	/* Hero GameplayTags - Illiari */
 

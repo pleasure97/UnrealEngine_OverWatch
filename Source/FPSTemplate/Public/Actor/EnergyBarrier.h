@@ -10,6 +10,7 @@ class UBoxComponent;
 class UStaticMeshComponent; 
 class UAttributeSet; 
 class UGameplayEffect; 
+class UGameplayAbility;
 
 
 UCLASS()
@@ -26,8 +27,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UStaticMeshComponent> BarrierField; 
+
+	/* Gameplay Ability */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UGameplayAbility> RegenerateBarrierFieldAbilityClass;
 	
 protected:
+	virtual void BeginPlay() override;
+
 	virtual void InitAbilityActorInfo() override;
 
 private:
