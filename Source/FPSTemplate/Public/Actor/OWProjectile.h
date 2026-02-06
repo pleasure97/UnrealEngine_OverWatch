@@ -56,9 +56,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "OWProjectile")
 	bool bHealProjectile = false; 
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWProjectile")
+	bool bShouldAttach = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "OWProjectile")
-	float LifeSpan = 1.5f; 
+	float ProjectileLifeSpan = 1.5f; 
 
 	/* Projectile Movement */
 	UPROPERTY(VisibleAnywhere)

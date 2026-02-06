@@ -60,8 +60,10 @@ void AOWProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetLifeSpan(LifeSpan); 
-	SetReplicateMovement(true); 
+	SetLifeSpan(ProjectileLifeSpan); 
+
+	bShouldAttach ? SetReplicateMovement(false) : SetReplicateMovement(true);
+
 	if (Sphere)
 	{
 		Sphere->OnComponentBeginOverlap.AddDynamic(this, &AOWProjectile::OnSphereOverlap);
