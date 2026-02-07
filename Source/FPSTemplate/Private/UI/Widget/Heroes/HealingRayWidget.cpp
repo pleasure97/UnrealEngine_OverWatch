@@ -3,6 +3,7 @@
 
 #include "UI/Widget/Heroes/HealingRayWidget.h"
 
-
-
-
+void UHealingRayWidget::NativeConstruct()
+{
+	SetVisibility(ESlateVisibility::Collapsed);
+}
