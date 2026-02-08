@@ -449,6 +449,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("GameplayCue.Illiari.Laceration"),
 		FString("Illiari's Laceration GameplayCue"));
 
+	GameplayTags.GameplayCue_Illiari_LacerationExplosion = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.Illiari.LacerationExplosion"),
+		FString("Illiari's Laceration Explosion GameplayCue"));
+
 	GameplayTags.GameplayCue_Illiari_HealingPylon = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.Illiari.HealingPylon"),
 		FString("Illiari's Healing Pylon GameplayCue"));

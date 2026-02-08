@@ -511,24 +511,55 @@ void UOWAbilitySystemLibrary::DrawHitBoxOverlap(const UObject* WorldContextObjec
 
 void UOWAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
 {
+	// Clear Overlapping Actors Array
+	OutOverlappingActors.Empty(); 
+
+	// Get World and Check if World is Valid
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (!IsValid(World))
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is Not Valid in UOWAbilitySystemLibrary::GetLivePlayersWithinRadius()"));
+		return;
+	}
+
+	// Initialize by Adding 'Actors to be Ignored' to 'Collision Query Params'
 	FCollisionQueryParams SphereParams; 
 	SphereParams.AddIgnoredActors(ActorsToIgnore); 
 
-	TArray<FOverlapResult> Overlaps; 
-	if (const UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	// Initialize OverlapResult and Collision Object Query Params (Dynamic Objects)
+	TArray<FOverlapResult> Overlaps;
+	FCollisionObjectQueryParams CollisionObjectQueryParams;
+	CollisionObjectQueryParams.AddObjectTypesToQuery(ECC_Pawn);
+
+	// Overlap Multi Dynamic Objects
+	bool bHasOverlap = World->OverlapMultiByObjectType(
+		Overlaps,
+		SphereOrigin,
+		FQuat::Identity,
+		CollisionObjectQueryParams,
+		FCollisionShape::MakeSphere(Radius),
+		SphereParams);
+
+	DrawDebugSphere(World, SphereOrigin, Radius, 32, FColor::Red, false, 10.f);
+
+	// If Overlapped, 
+	if (bHasOverlap)
 	{
-		World->OverlapMultiByObjectType(Overlaps, 
-			SphereOrigin, 
-			FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), 
-			FCollisionShape::MakeSphere(Radius), 
-			SphereParams); 
+		TSet<AActor*> UniqueOverlappingActors;
 		for (FOverlapResult& Overlap : Overlaps)
 		{
-			if (Overlap.GetActor()->Implements<UCombatInterface>() && !ICombatInterface::Execute_IsDead(Overlap.GetActor()))
+			AActor* OverlappedActor = Overlap.GetActor();
+			if (!IsValid(OverlappedActor) || !OverlappedActor->Implements<UCombatInterface>())
 			{
-				OutOverlappingActors.AddUnique(ICombatInterface::Execute_GetAvatar(Overlap.GetActor())); 
+				continue;
 			}
+			if (!ICombatInterface::Execute_IsDead(OverlappedActor))
+			{
+				UniqueOverlappingActors.Add(ICombatInterface::Execute_GetAvatar(OverlappedActor));
+			}
+			UniqueOverlappingActors.Add(OverlappedActor);
 		}
+		OutOverlappingActors = UniqueOverlappingActors.Array();
 	}
 }
 

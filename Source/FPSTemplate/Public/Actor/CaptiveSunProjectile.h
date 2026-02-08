@@ -6,6 +6,8 @@
 #include "Actor/OWProjectile.h"
 #include "CaptiveSunProjectile.generated.h"
 
+class UGameplayEffect; 
+
 /**
  * 
  */
@@ -19,14 +21,25 @@ public:
 	void Shoot(); 
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<UGameplayEffect> LacerationGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float ProjectileVelocity = 3250.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Radius = 1000.f;
+
 	UFUNCTION()
-	void Burst(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void BurstWhenHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepHitResult) override;
-private:
-	UPROPERTY()
-	float ProjectileVelocity = 3000.f; 
 
-	UPROPERTY()
-	float Radius = 800.f;
+	virtual void LifeSpanExpired() override;
+
+	FDamageEffectParams MakeDamageEffectParams();
+private:
+	bool bHasExploded = false;
+
+	void Burst(const FVector& ProjectileLocation, AActor* DirectHitActor = nullptr);
 };

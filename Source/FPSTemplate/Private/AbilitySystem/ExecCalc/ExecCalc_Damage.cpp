@@ -87,28 +87,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	for (const FGameplayTag& DamageTypeTag : FOWGameplayTags::Get().DamageTypes)
 	{
 		float DamageTypeValue = GameplayEffectSpec.GetSetByCallerMagnitude(DamageTypeTag, false); 
-
-		if (UOWAbilitySystemLibrary::bIsRadialDamage(GameplayEffectContextHandle))
-		{
-			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatarActor))
-			{
-				CombatInterface->GetOnDamageSignature().AddLambda(
-					[&](float DamageAmount)
-					{
-						DamageTypeValue = DamageAmount;
-					}
-				); 
-			}
-			UGameplayStatics::ApplyRadialDamage(
-				TargetAvatarActor,
-				DamageTypeValue,
-				UOWAbilitySystemLibrary::GetRadialDamageOrigin(GameplayEffectContextHandle),
-				UOWAbilitySystemLibrary::GetRadialDamageRadius(GameplayEffectContextHandle),
-				UDamageType::StaticClass(),
-				TArray<AActor*>(),
-				SourceAvatarActor); 
-		}
-
 		Damage += DamageTypeValue; 
 	}
 

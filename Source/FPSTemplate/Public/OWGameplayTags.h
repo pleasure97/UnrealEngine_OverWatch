@@ -162,6 +162,7 @@ public:
 	FGameplayTag GameplayCue_Illiari_HealingRay;
 	FGameplayTag GameplayCue_Illiari_Outburst;
 	FGameplayTag GameplayCue_Illiari_Laceration; 
+	FGameplayTag GameplayCue_Illiari_LacerationExplosion; 
 	FGameplayTag GameplayCue_Illiari_HealingPylon;
 	FGameplayTag GameplayCue_Illiari_CaptiveSun;
 

@@ -6,10 +6,9 @@
 #include "AbilitySystem/Abilities/OWDamageGameplayAbility.h"
 #include "CaptiveSun.generated.h"
 
-//class UTimelineComponent; 
 class ACaptiveSunProjectile; 
 class UUltimateDuration; 
-//class UAbilityTask_WaitInputPress; 
+class AIlliariCharacter;
 
 /**
  * 
@@ -36,4 +35,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<UUltimateDuration> UltimateDurationClass;
+
+protected:
+	UFUNCTION(BlueprintCallable, Category = "Captive Sun")
+	ACaptiveSunProjectile* SpawnCaptiveSun(AIlliariCharacter* Illiari);
 };
