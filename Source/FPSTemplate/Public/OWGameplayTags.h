@@ -147,6 +147,7 @@ public:
 	FGameplayTag Debuff_Suppression_WallHit;
 	FGameplayTag Debuff_Suppression_End;
 	FGameplayTag Debuff_Laceration; 
+	FGameplayTag Debuff_PulseBombAttached;
 
 	/* Gameplay Cue */
 	FGameplayTag GameplayCue_HeroSelection;

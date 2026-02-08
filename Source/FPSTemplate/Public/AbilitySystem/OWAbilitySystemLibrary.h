@@ -6,6 +6,8 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/Data/OmnicInfo.h"
+#include "AbilitySystem/Data/HeroDebuffInfo.h"
+#include "GameFramework/PlayerState.h"
 #include "OWAbilitySystemLibrary.generated.h"
 
 class UOWGameplayAbility; 
@@ -72,6 +74,12 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|HeroInfoDefaults")
 	static UOmnicInfo* GetOmnicInfo(const UObject* WorldContextObject); 
+
+	/*
+	 * Debuff Info Defaults
+	 */
+	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|DebuffInfoDefaults")
+	static UHeroDebuffInfo* GetDebuffInfo(const UObject* WorldContextObject);
 
 	/*
 	 * Effect Context Getter
@@ -162,7 +170,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="OWAbilitySystemLibrary|GameplayMechanics")
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject,
 		TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore,
-		float Radius, const FVector& SphereOrigin); 
+		float Radius, const FVector& SphereOrigin, 
+		bool bDebug = false); 
 
 	UFUNCTION(BlueprintCallable, Category = "OWAbilitySystemLibrary|GameplayMechanics")
 	static FGameplayEffectContextHandle ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams); 

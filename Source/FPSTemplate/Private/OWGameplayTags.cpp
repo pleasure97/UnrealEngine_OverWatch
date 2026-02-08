@@ -404,6 +404,10 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Debuff.Laceration"),
 		FString("Debuff Laceration"));
 
+	GameplayTags.Debuff_PulseBombAttached = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Debuff.PulseBombAttached"),
+		FString("Debuff Pulse Bomb Attached"));
+
 	/* Gameplay Cues */
 	GameplayTags.GameplayCue_HeroSelection = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("GameplayCue.HeroSelection"),

@@ -79,4 +79,6 @@ private:
 	void AddListenerHandle(FGameplayMessageListenerHandle&& Handle);
 
 	TArray<FGameplayMessageListenerHandle> ListenerHandles;
+
+	FTimerHandle DebuffMessageTimerHandle;
 };

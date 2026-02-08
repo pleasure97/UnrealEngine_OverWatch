@@ -6,6 +6,7 @@
 #include "GameFramework/GameState.h"
 #include "AbilitySystem/Data/HeroInfo.h"
 #include "AbilitySystem/Data/OmnicInfo.h"
+#include "AbilitySystem/Data/HeroDebuffInfo.h"
 #include "OWGameState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStateAdded, APlayerState*, NewPlayerState); 
@@ -54,6 +55,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
 	TObjectPtr<UOmnicInfo> OmnicInfo;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hero Information")
+	TObjectPtr<UHeroDebuffInfo> HeroDebuffInfo;
 
 	/* Components - Team Creation */
 	UPROPERTY()

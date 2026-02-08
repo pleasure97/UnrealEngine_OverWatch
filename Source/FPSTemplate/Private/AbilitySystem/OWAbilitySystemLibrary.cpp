@@ -208,6 +208,15 @@ UOmnicInfo* UOWAbilitySystemLibrary::GetOmnicInfo(const UObject* WorldContextObj
 	return OWGameState->OmnicInfo;
 }
 
+UHeroDebuffInfo* UOWAbilitySystemLibrary::GetDebuffInfo(const UObject* WorldContextObject)
+{
+	if (const AOWGameState* OWGameState = Cast<AOWGameState>(UGameplayStatics::GetGameState(WorldContextObject)))
+	{
+		return OWGameState->HeroDebuffInfo;
+	}
+	return nullptr;
+}
+
 /* Effect Context Getter */
 bool UOWAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
@@ -509,7 +518,7 @@ void UOWAbilitySystemLibrary::DrawHitBoxOverlap(const UObject* WorldContextObjec
 	}
 }
 
-void UOWAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
+void UOWAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin, bool bDebug)
 {
 	// Clear Overlapping Actors Array
 	OutOverlappingActors.Empty(); 
@@ -540,7 +549,10 @@ void UOWAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldCon
 		FCollisionShape::MakeSphere(Radius),
 		SphereParams);
 
-	DrawDebugSphere(World, SphereOrigin, Radius, 32, FColor::Red, false, 10.f);
+	if (bDebug)
+	{
+		DrawDebugSphere(World, SphereOrigin, Radius, 32, FColor::Red, false, 10.f);
+	}
 
 	// If Overlapped, 
 	if (bHasOverlap)
