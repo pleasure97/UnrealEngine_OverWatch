@@ -88,8 +88,12 @@ private:
 	// The time until the next log for why the loading screen is still up 
 	double TimeUntilNextLogHeartbeatSeconds = 0.0; 
 
+	double TimeLoadingMapFinished = 0.0;
+
 	// The reason why the loading screen is up or not 
 	FString DebugReasonForShowingOrHidingLoadingScreen; 
+
+	FString LastDebugReason; 
 
 	// External Loading Processors 
 	TArray<TWeakInterfacePtr<ILoadingInterface>> ExternalLoadingProcessors; 

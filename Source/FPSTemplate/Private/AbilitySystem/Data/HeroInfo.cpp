@@ -3,6 +3,15 @@
 
 #include "AbilitySystem/Data/HeroInfo.h"
 
+TArray<EHeroName> UHeroInfo::GetAllHeroNames() const
+{
+    TArray<EHeroName> HeroNames;
+
+    HeroInformation.GetKeys(HeroNames);
+
+    return HeroNames;
+}
+
 TArray<EHeroClass> UHeroInfo::GetAllHeroClasses() const
 {
     TArray<EHeroClass> Keys;

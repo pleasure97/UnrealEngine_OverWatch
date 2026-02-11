@@ -25,9 +25,12 @@ void AOWGameModeBase::BeginPlay()
 		{
 			const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
 
-			FirstHeroSelectionStartedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenFirstHeroSelectionEnds);
-			GamePhaseSubsystem->WhenPhaseEnds(GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, EPhaseTagMatchType::ExactMatch, FirstHeroSelectionStartedDelegate);
-		
+			FirstHeroSelectionStartedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenFirstHeroSelectionStarts);
+			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, EPhaseTagMatchType::ExactMatch, FirstHeroSelectionStartedDelegate);
+			
+			FirstHeroSelectionEndedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenFirstHeroSelectionEnds);
+			GamePhaseSubsystem->WhenPhaseEnds(GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, EPhaseTagMatchType::ExactMatch, FirstHeroSelectionEndedDelegate);
+
 			SwitchInningStartedDelegate = FOWGamePhaseTagDelegate::CreateUObject(this, &AOWGameModeBase::HandleWhenSwitchInningStarts);
 			GamePhaseSubsystem->WhenPhaseStartsOrIsActive(GameplayTags.GamePhase_SwitchInning, EPhaseTagMatchType::ExactMatch, SwitchInningStartedDelegate);
 
@@ -42,40 +45,7 @@ void AOWGameModeBase::BeginPlay()
 		
 			UE_LOG(LogTemp, Log, TEXT("CALL AOWGameModeBase::BeginPlay()")); 
 		}
-
-		InitializeHeroPool();
 	}
-}
-
-void AOWGameModeBase::InitializeHeroPool()
-{
-	TArray<AActor*> FoundActors; 
-
-	// Find 'OWCharacter' Actors that has been Pre-Spawned in Level 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AOWCharacter::StaticClass(), FoundActors); 
-
-	// Iterate Found Actors Array and Register them to Hero Pool
-	for (AActor* FoundActor : FoundActors)
-	{
-		// Cast Found Actor to 'OWCharacter'
-		if (AOWCharacter* Hero = Cast<AOWCharacter>(FoundActor))
-		{
-			// Add Related Hero to Hero Pool 
-			EHeroName HeroName = Hero->GetHeroName();
-			if (HeroName != EHeroName::None)
-			{
-				// Setup Hero Pool Unit 
-				FHeroPoolUnit NewUnit;
-				NewUnit.HeroPawn = Hero;
-				NewUnit.HeroTransform = Hero->GetActorTransform();
-
-				HeroPool.FindOrAdd(HeroName).Heroes.Add(NewUnit);
-			}
-
-			DeactivateHero(Hero);
-		}
-	}
-
 }
 
 void AOWGameModeBase::DeactivateHero(AOWCharacter* Hero)
@@ -84,6 +54,60 @@ void AOWGameModeBase::DeactivateHero(AOWCharacter* Hero)
 	Hero->SetActorHiddenInGame(true);
 	Hero->SetActorEnableCollision(false);
 	Hero->SetActorTickEnabled(false);
+}
+
+void AOWGameModeBase::HandleWhenFirstHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration)
+{
+	// Get World and Check if it's Valid
+	UWorld* World = GetWorld(); 
+	if (!IsValid(World))
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is Not Valid in AOWGameModeBase::HandleWhenFirstHeroSelectionStarts()"));
+		return;
+	}
+
+	// Get Game State and Check if it's Valid
+	AOWGameState* OWGameState = GetGameState<AOWGameState>();
+	if (!IsValid(OWGameState))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Game State is Not Valid in AOWGameModeBase::HandleWhenFirstHeroSelectionStarts()"));
+		return;
+	}
+	
+	// Get Hero Information Data Asset and Check if it's Valid
+	UHeroInfo* HeroInfo = OWGameState->HeroInfo; 
+	if (!IsValid(HeroInfo))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Hero Info is Not Valid in AOWGameModeBase::HandleWhenFirstHeroSelectionStarts()"));
+		return;
+	}
+
+	// Get All Hero Classes
+	const TArray<EHeroName>& AllHeroNamees = HeroInfo->GetAllHeroNames(); 
+
+	// Iterate All Hero Classes
+	for (EHeroName HeroName : AllHeroNamees)
+	{
+		// Except 'None' Hero Name
+		if (HeroName == EHeroName::None)
+		{
+			continue;
+		}
+
+		// For 2 Teams
+		for (int i = 0; i < 2; ++i)
+		{
+			FHeroSpawnRequest HeroSpawnRequest; 
+			HeroSpawnRequest.HeroCharacter = HeroInfo->HeroInformation[HeroName].HeroPawnClass;
+
+			HeroSpawnRequests.Add(HeroSpawnRequest);
+		}
+	}
+
+	if (HeroSpawnRequests.Num() > 0)
+	{
+		GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &AOWGameModeBase::ProcessSpawnQueue, 0.1f, true);
+	}
 }
 
 void AOWGameModeBase::HandleWhenFirstHeroSelectionEnds(const FGameplayTag& PhaseTag, const float PhaseDuration)
@@ -111,6 +135,51 @@ void AOWGameModeBase::HandleWhenSecondHeroSelectionEnds(const FGameplayTag& Phas
 {
 	PushHeroesToHeroPool(); 
 	EnableHeroSpawning();
+}
+
+void AOWGameModeBase::ProcessSpawnQueue()
+{
+	// Get World and Check if it's Valid
+	UWorld* World = GetWorld();
+	if (!IsValid(World))
+	{
+		UE_LOG(LogTemp, Error, TEXT("World is Not Valid in AOWGameModeBase::ProcessSpawnQueue()"));
+		return;
+	}
+
+	for (int32 i = 0; i < 2; ++i)
+	{
+		// No More Heroes to Spawn
+		if (HeroSpawnRequests.Num() == 0)
+		{
+			GetWorldTimerManager().ClearTimer(SpawnTimerHandle);
+			return;
+		}
+
+		// Get Hero Spawn Request from Array
+		FHeroSpawnRequest HeroSpawnRequest = HeroSpawnRequests[0]; 
+		HeroSpawnRequests.RemoveAt(0);
+
+		// Spawn Hero Deferred
+		AOWCharacter* HeroToBeSpawned = World->SpawnActorDeferred<AOWCharacter>(
+			HeroSpawnRequest.HeroCharacter,
+			HeroPoolTransform, /*Transform*/
+			nullptr, /*Owner*/
+			nullptr, /*Instigator*/
+			ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn);
+
+		// Check if Hero to be Spawned is Valid
+		if (!IsValid(HeroToBeSpawned))
+		{
+			UE_LOG(LogTemp, Error, TEXT("Hero to be Spawned is Not Valid in AOWGameModeBase::HandleWhenFirstHeroSelectionStarts()"));
+			continue;
+		}
+
+		HeroToBeSpawned->SetOriginalTransform(HeroPoolTransform);
+		HeroToBeSpawned->FinishSpawning(HeroPoolTransform);
+
+		PushHeroToHeroPool(HeroToBeSpawned);
+	}
 }
 
 void AOWGameModeBase::EnableHeroSpawning()
@@ -193,22 +262,20 @@ void AOWGameModeBase::ActivateHeroFromPool(APlayerController* PlayerController, 
 	if (HeroPool.Contains(HeroName) && HeroPool[HeroName].Heroes.Num() > 0)
 	{
 		// Pop Hero from Hero Pool 
-		FHeroPoolUnit HeroPoolUnit = HeroPool[HeroName].Heroes.Pop();
-		AOWCharacter* HeroToUse = Cast<AOWCharacter>(HeroPoolUnit.HeroPawn);
+		AOWCharacter* HeroToUse = HeroPool[HeroName].Heroes.Pop();
 
 		// Start Hero at Player Start 
 		AOWPlayerStart* OWPlayerStart = RestartHeroAtPlayerStart(PlayerController);
 		FTransform SpawnTransform = OWPlayerStart->GetActorTransform(); 
-	
+
 		HeroToUse->SetActorTransform(SpawnTransform);
-		HeroToUse->SetActorHiddenInGame(false);
 		HeroToUse->SetActorEnableCollision(true); 
 		HeroToUse->SetActorTickEnabled(true);
-		HeroToUse->SetOriginalTransform(HeroPoolUnit.HeroTransform);
-
+		HeroToUse->SetOriginalTransform(HeroPoolTransform);
+		// Rendering Optimization - bTickAnimationOnSkeletalMeshInit
+		HeroToUse->SetActorHiddenInGame(false);
 		PlayerController->Possess(HeroToUse);
-
-		FinishRestartPlayer(PlayerController, SpawnTransform.GetRotation().Rotator()); 
+		FinishRestartPlayer(PlayerController, SpawnTransform.GetRotation().Rotator());
 	}
 	else
 	{
@@ -272,12 +339,18 @@ void AOWGameModeBase::PushHeroToHeroPool(AOWCharacter* HeroToPush)
 		PC->UnPossess();
 	}
 
-	FHeroPoolUnit HeroPoolUnit; 
-	HeroPoolUnit.HeroPawn = HeroToPush;
-	HeroPoolUnit.HeroTransform = HeroToPush->GetOriginalTransform();
-
-	HeroPool[HeroToPush->GetHeroName()].Heroes.Add(HeroPoolUnit);
-
+	if (HeroPool.Contains(HeroToPush->GetHeroName()))
+	{
+		FHeroList& HeroList = HeroPool[HeroToPush->GetHeroName()];
+		HeroList.Heroes.Add(HeroToPush);
+	}
+	else
+	{
+		FHeroList HeroList;
+		HeroList.Heroes.Add(HeroToPush);
+		HeroPool.Add(TTuple<EHeroName, FHeroList>(HeroToPush->GetHeroName(), HeroList));
+	}
+	
 	DeactivateHero(HeroToPush);
 }
 

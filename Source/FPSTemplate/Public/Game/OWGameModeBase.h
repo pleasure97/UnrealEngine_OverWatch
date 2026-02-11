@@ -13,16 +13,13 @@ class AOWCharacter;
 DECLARE_MULTICAST_DELEGATE_TwoParams(FOnGameModePlayerInitialized, AGameModeBase*,  AController*)
 DECLARE_MULTICAST_DELEGATE(FOnGameplayReady)
 
-USTRUCT(BlueprintType)
-struct FHeroPoolUnit
+USTRUCT()
+struct FHeroSpawnRequest
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
-	APawn* HeroPawn = nullptr;
-
-	UPROPERTY()
-	FTransform HeroTransform;
+	TSubclassOf<AOWCharacter> HeroCharacter;
 };
 
 USTRUCT(BlueprintType)
@@ -32,8 +29,9 @@ struct FHeroList
 
 public:
 	UPROPERTY()
-	TArray<FHeroPoolUnit> Heroes;
+	TArray<AOWCharacter*> Heroes;
 };
+
 
 /**
  * 
@@ -75,22 +73,35 @@ public:
 	FOnGameplayReady OnGameplayReady; 
 
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 TotalNumPlayers = 10;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FTransform HeroPoolTransform;
+
 	UPROPERTY()
 	TArray<APlayerController*> PendingPlayers; 
 
 	UPROPERTY()
 	TMap<EHeroName, FHeroList> HeroPool;
 
-	void InitializeHeroPool();
-
 	void DeactivateHero(AOWCharacter* Hero);
 
 private:
 	FOWGamePhaseTagDelegate FirstHeroSelectionStartedDelegate; 
+	FOWGamePhaseTagDelegate FirstHeroSelectionEndedDelegate; 
 	FOWGamePhaseTagDelegate SwitchInningStartedDelegate;
 	FOWGamePhaseTagDelegate SwitchInningEndedDelegate; 
 	FOWGamePhaseTagDelegate SecondHeroSelectionStartedDelegate; 
 	FOWGamePhaseTagDelegate SecondHeroSelectionEndedDelegate;
+
+	FTimerHandle SpawnTimerHandle;
+
+	UPROPERTY()
+	TArray<FHeroSpawnRequest> HeroSpawnRequests;
+
+	UFUNCTION()
+	void HandleWhenFirstHeroSelectionStarts(const FGameplayTag& PhaseTag, const float PhaseDuration);
 
 	UFUNCTION()
 	void HandleWhenFirstHeroSelectionEnds(const FGameplayTag& PhaseTag, const float PhaseDuration); 
@@ -106,6 +117,8 @@ private:
 
 	UFUNCTION()
 	void HandleWhenSecondHeroSelectionEnds(const FGameplayTag& PhaseTag, const float PhaseDuration);
+
+	void ProcessSpawnQueue();
 
 	void EnableHeroSpawning();
 

@@ -108,7 +108,7 @@ void ULoadingScreenManager::Deinitialize()
 
 	RemoveWidgetFromViewport(); 
 
-	FCoreUObjectDelegates::PreLoadMap.RemoveAll(this); 
+	FCoreUObjectDelegates::PreLoadMapWithContext.RemoveAll(this); 
 	FCoreUObjectDelegates::PostLoadMapWithWorld.RemoveAll(this); 
 }
 
@@ -162,28 +162,6 @@ void ULoadingScreenManager::HandlePreLoadMap(const FWorldContext& WorldContext, 
 	{
 		bCurrentlyInLoadMap = true; 
 
-		// Find Widget Class  Fit to Destination Map from Loading Screen Settings
-		const ULoadingScreenSettings* Settings = GetDefault<ULoadingScreenSettings>();
-		TSubclassOf<UUserWidget> SelectedWidget = nullptr;
-
-		for (const auto& MapConfig : Settings->MapSpecificLoadingScreens)
-		{
-			// Compare Map Name
-			if (MapName.Contains(MapConfig.MapPath.GetAssetName()))
-			{
-				// Load Widget Class Synchronously
-				SelectedWidget = MapConfig.LoadingWidgetClass.LoadSynchronous();
-				break;
-			}
-		}
-
-		// Update Found Widget Information to Subsystem
-		ULoadingScreenSubsystem* LoadingScreenSubsystem = GetGameInstance()->GetSubsystem<ULoadingScreenSubsystem>();
-		if (IsValid(LoadingScreenSubsystem))
-		{
-			LoadingScreenSubsystem->SetLoadingScreenWidget(SelectedWidget); 
-		}
-
 		// Update the Loading Screen Immediately if the Engine is Initialized
 		if (GEngine->IsInitialized())
 		{
@@ -197,6 +175,35 @@ void ULoadingScreenManager::HandlePostLoadMap(UWorld* World)
 	if ((World != nullptr) && (World->GetGameInstance() == GetGameInstance()))
 	{
 		bCurrentlyInLoadMap = false;
+		TimeLoadingMapFinished = FPlatformTime::Seconds();
+
+		// Find Widget Class  Fit to Destination Map from Loading Screen Settings
+		const ULoadingScreenSettings* Settings = GetDefault<ULoadingScreenSettings>();
+		TSubclassOf<UUserWidget> SelectedWidget = nullptr;
+
+		for (const auto& MapConfig : Settings->MapSpecificLoadingScreens)
+		{
+			// Compare Map Name
+			if (World->GetMapName().Contains(MapConfig.MapPath.GetAssetName()))
+			{
+				// Load Widget Class Synchronously
+				SelectedWidget = MapConfig.LoadingWidgetClass.LoadSynchronous();
+				break;
+			}
+		}
+
+		// Update Found Widget Information to Subsystem
+		ULoadingScreenSubsystem* LoadingScreenSubsystem = GetGameInstance()->GetSubsystem<ULoadingScreenSubsystem>();
+		if (IsValid(LoadingScreenSubsystem))
+		{
+			LoadingScreenSubsystem->SetLoadingScreenWidget(SelectedWidget);
+		}
+
+		// Update the Loading Screen Immediately if the Engine is Initialized
+		if (GEngine->IsInitialized())
+		{
+			UpdateLoadingScreen();
+		}
 	}
 }
 
@@ -342,6 +349,18 @@ bool ULoadingScreenManager::CheckForAnyNeedToShowLoadingScreen()
 		DebugReasonForShowingOrHidingLoadingScreen = FString(TEXT("Need at least 1 local player controller.")); 
 	}
 
+	if (!bCurrentlyInLoadMap)
+	{
+		double CurrentTime = FPlatformTime::Seconds();
+		double TimeSinceLoad = CurrentTime - TimeLoadingMapFinished;
+
+		if (TimeSinceLoad < 5.f)
+		{
+			DebugReasonForShowingOrHidingLoadingScreen = TEXT("Post-Load Period for Displaying Team Information");
+			return true;
+		}
+	}
+
 	// Check Precompiling PSOs is Completed
 	int32 RemainingPSOs = FShaderPipelineCache::NumPrecompilesRemaining();
 	if (RemainingPSOs > 0)
@@ -353,7 +372,7 @@ bool ULoadingScreenManager::CheckForAnyNeedToShowLoadingScreen()
 		return true;
 	}
 
-	DebugReasonForShowingOrHidingLoadingScreen = TEXT("Nothing wans to show loading screen anymore."); 
+	DebugReasonForShowingOrHidingLoadingScreen = TEXT("Nothing wants to show loading screen anymore."); 
 	return false; 
 }
 
@@ -403,6 +422,12 @@ bool ULoadingScreenManager::ShouldShowLoadingScreen()
 void ULoadingScreenManager::UpdateLoadingScreen()
 {
 	bool bLogLoadingScreenStatus = LoadingScreenCVars::LogLoadingScreenReasonEveryFrame; 
+
+	if (LastDebugReason != DebugReasonForShowingOrHidingLoadingScreen)
+	{
+		UE_LOG(LogTemp, Log, TEXT("LoadingScreen Status Changed: %ls"), *DebugReasonForShowingOrHidingLoadingScreen);
+		LastDebugReason = DebugReasonForShowingOrHidingLoadingScreen;
+	}
 
 	if (ShouldShowLoadingScreen())
 	{

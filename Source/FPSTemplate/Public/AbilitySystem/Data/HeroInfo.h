@@ -122,6 +122,9 @@ public:
 	TArray<TSubclassOf<UGameplayEffect>> CommonAttributes; 
 
 	UFUNCTION(BlueprintCallable, Category = "Common Class Defaults")
+	TArray<EHeroName> GetAllHeroNames() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Common Class Defaults")
 	TArray<EHeroClass> GetAllHeroClasses() const; 
 
 	UFUNCTION(BlueprintCallable, Category = "Hero Defaults")

@@ -121,6 +121,19 @@ void UOWGamePhaseSubsystem::K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMat
 	WhenPhaseEnds(PhaseTag, MatchType, EndedDelegate);
 }
 
+void UOWGamePhaseSubsystem::CollectGarbageInPhase(const FGameplayTag& PhaseTag)
+{
+	if (PhaseTag.MatchesTag(FGameplayTag::RequestGameplayTag("GamePhase.HeroSelection")) ||
+		PhaseTag.MatchesTag(FGameplayTag::RequestGameplayTag("GamePhase.SwitchInning")))
+	{
+		if (GEngine)
+		{
+			GEngine->ForceGarbageCollection( /*bForcePurge*/ false);
+			UE_LOG(LogTemp, Log, TEXT("Garbage Collecting in Game Phase"));
+		}
+	}
+}
+
 void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle)
 {
 	const FGameplayTag& IncomingGamePhaseTag = GamePhaseAbility->GetGamePhaseTag(); 
@@ -174,6 +187,8 @@ void UOWGamePhaseSubsystem::OnBeginPhase(const UOWGamePhaseAbility* GamePhaseAbi
 			}
 		}
 	}
+
+	CollectGarbageInPhase(IncomingGamePhaseTag);
 }
 
 void UOWGamePhaseSubsystem::OnEndPhase(const UOWGamePhaseAbility* GamePhaseAbility, const FGameplayAbilitySpecHandle GamePhaseAbilitySpecHandle)

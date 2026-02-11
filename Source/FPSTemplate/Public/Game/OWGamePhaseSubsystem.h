@@ -52,6 +52,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Game Phase", meta = (DisplayName = "When Phase Ends", AutoCreateRefTerm = "WhenPhaseEnd"))
 	void K2_WhenPhaseEnds(FGameplayTag PhaseTag, EPhaseTagMatchType MatchType, FOWGamePhaseTagDynamicDelegate WhenPhaseEnd);
 
+	void CollectGarbageInPhase(const FGameplayTag& PhaseTag);
 private:
 	struct FOWGamePhaseEntry
 	{
