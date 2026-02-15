@@ -37,6 +37,7 @@ AHealingSunStone::AHealingSunStone()
 	// Sun Ray (Niagara Component)
 	SunRay = CreateDefaultSubobject<UNiagaraComponent>("SunRay");
 	SunRay->SetupAttachment(SunStone);
+	SunRay->Deactivate();
 	
 	// Healing Ray (Niagara Component)
 	HealingRay = CreateDefaultSubobject<UNiagaraComponent>("HealingRay"); 
@@ -120,21 +121,37 @@ void AHealingSunStone::OnAttached(
 	FVector NormalImpulse,
 	const FHitResult& Hit)
 {
-	if (Hit.GetActor() == nullptr || Hit.GetActor() == this) return;
+	if (Hit.GetActor() == nullptr || Hit.GetActor() == this || !Hit.bBlockingHit)
+	{
+		return;
+	}
 
+	// Collision Object Type
 	ECollisionChannel CollisionChannel = Hit.GetComponent()->GetCollisionObjectType(); 
 	
+	// WorldStatic, WorldDynamic, Vehicle Only
 	if (CollisionChannel == ECollisionChannel::ECC_WorldStatic ||
 		CollisionChannel == ECollisionChannel::ECC_WorldDynamic ||
 		CollisionChannel == ECollisionChannel::ECC_Vehicle)
 	{
-		Box->SetPhysicsLinearVelocity(FVector::ZeroVector);
-		Box->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+		// Disable Physics
 		Box->SetSimulatePhysics(false);
+		Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		Box->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 
-		const FRotator NewRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
-		SetActorRotation(NewRotation); 
-		AttachToComponent(Hit.GetComponent(), FAttachmentTransformRules::KeepWorldTransform); 
+		// Setup Attachment Location
+		const FVector AttachmentLocation = Hit.ImpactPoint + Box->GetScaledBoxExtent() * Hit.ImpactNormal;
+		const FRotator AttachmentRotation = UKismetMathLibrary::MakeRotFromZ(Hit.ImpactNormal);
+
+		SetActorLocationAndRotation(AttachmentLocation, AttachmentRotation, false, nullptr, ETeleportType::TeleportPhysics);
+
+		// Attach
+		AttachToComponent(Hit.GetComponent(), FAttachmentTransformRules::KeepWorldTransform);
+
+		if (SunRay)
+		{
+			SunRay->Activate();
+		}
 	}
 }
 
@@ -143,6 +160,8 @@ void AHealingSunStone::OnDestroyed(AActor* DamageInstigator, AActor* DamageCause
 	if (HasAuthority())
 	{
 		FGameplayEventData Payload;
+		FGameplayEffectContextHandle GameplayEffectContextHandle = AbilitySystemComponent->MakeEffectContext();
+		GameplayEffectContextHandle.AddOrigin(GetActorLocation());
 		if ((AttributeSet->GetShield() < AttributeSet->GetMaxShield()) || (AttributeSet->GetHealth() < AttributeSet->GetMaxHealth()))
 		{
 			Payload.EventMagnitude = CooldownWhenDamaged;
@@ -151,7 +170,8 @@ void AHealingSunStone::OnDestroyed(AActor* DamageInstigator, AActor* DamageCause
 		{
 			Payload.EventMagnitude = CooldownWhenNotDamaged;
 		}
-		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), FOWGameplayTags::Get().Event_Illiari_PylonDemolished, Payload);
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+			GetOwner(), FOWGameplayTags::Get().Event_Illiari_PylonDestroyed_Unintentional, Payload);
 
 		Destroy(); 
 	}

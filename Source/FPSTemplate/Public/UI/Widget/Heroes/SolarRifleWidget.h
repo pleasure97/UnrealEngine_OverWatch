@@ -14,7 +14,6 @@ class FPSTEMPLATE_API USolarRifleWidget : public UOWUserWidget
 {
 	GENERATED_BODY()
 	
-	
-	
-	
+protected:
+	virtual void NativeConstruct() override;
 };
