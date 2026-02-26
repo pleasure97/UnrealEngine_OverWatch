@@ -628,6 +628,14 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 		FName("Event.Movement.Reload"),
 		FString("Reload Event Tag"));
 
+	GameplayTags.Event_Movement_Charge = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Movement.Charge"),
+		FString("Charge Movement Event Tag"));
+
+	GameplayTags.Event_Movement_BarrierField = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Event.Movement.BarrierField"),
+		FString("BarrierField Movement Event Tag"));
+
 	/* Event */
 	GameplayTags.Event_ChangeHero = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Event.ChangeHero"),

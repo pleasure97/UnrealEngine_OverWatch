@@ -23,6 +23,7 @@ public:
 
 protected:
 	virtual void NativeInitializeAnimation() override; 
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override; 
 
 protected:
 	// Gameplay tags that can be mapped to blueprint variables. 

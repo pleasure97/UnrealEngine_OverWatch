@@ -6,6 +6,7 @@
 #include "Team/OWTeamSubsystem.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "OWGameplayTags.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
 
 AEnergyBarrier::AEnergyBarrier()
 {
@@ -13,9 +14,6 @@ AEnergyBarrier::AEnergyBarrier()
 	Box->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 	Box->SetCollisionProfileName(UCollisionProfile::BlockAll_ProfileName);
 	SetRootComponent(Box);
-
-	BarrierField = CreateDefaultSubobject<UStaticMeshComponent>("BarrierField");
-	BarrierField->SetupAttachment(GetRootComponent());
 }
 
 void AEnergyBarrier::BeginPlay()

@@ -217,6 +217,8 @@ public:
 	FGameplayTag Event_Movement_AimDownSight; 
 	FGameplayTag Event_Movement_WeaponFire; 
 	FGameplayTag Event_Movement_Reload; 
+	FGameplayTag Event_Movement_Charge; 
+	FGameplayTag Event_Movement_BarrierField; 
 
 	/* Event */
 	FGameplayTag Event_ChangeHero; 

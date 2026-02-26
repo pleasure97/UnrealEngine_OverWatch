@@ -7,7 +7,7 @@
 #include "EnergyBarrier.generated.h"
 
 class UBoxComponent; 
-class UStaticMeshComponent; 
+class UGeometryCollectionComponent; 
 class UAttributeSet; 
 class UGameplayEffect; 
 class UGameplayAbility;
@@ -24,9 +24,6 @@ public:
 	/* Component */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UBoxComponent> Box;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UStaticMeshComponent> BarrierField; 
 
 	/* Gameplay Ability */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

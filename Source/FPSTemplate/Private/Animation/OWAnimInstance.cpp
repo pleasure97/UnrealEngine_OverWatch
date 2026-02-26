@@ -30,3 +30,14 @@ void UOWAnimInstance::NativeInitializeAnimation()
 		}
 	}
 }
+
+void UOWAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	const AOWCharacter* Character = Cast<AOWCharacter>(GetOwningActor());
+	if (!Character)
+	{
+		return;
+	}
+}
