@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "GameplayTagContainer.h"
-#include "Message/OWMessageTypes.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
 #include "AssaultOverlay.generated.h"
 
 class UMatchScoringComponent;

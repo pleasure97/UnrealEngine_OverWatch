@@ -59,13 +59,12 @@ void UHeroSelectionOverlay::NativeConstruct()
 		const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
 
 		// Register Gameplay Message Listener Handles
-		REGISTER_GAMEPHASE_LISTENER(FirstHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_FirstHeroSelection);
-		REGISTER_GAMEPHASE_LISTENER(FirstMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense);
-		REGISTER_GAMEPHASE_LISTENER(FirstTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense);
-		REGISTER_GAMEPHASE_LISTENER(SecondHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_SecondHeroSelection);
-		REGISTER_GAMEPHASE_LISTENER(SecondMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense);
-		REGISTER_GAMEPHASE_LISTENER(SecondTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense);
-		REGISTER_GAMEPHASE_LISTENER(PostMatchListenerHandle, GameplayTags.GamePhase_PostMatch);
+		RegisterGamePhaseListener(FirstHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, this, &UHeroSelectionOverlay::HandleCountdownTime);
+		RegisterGamePhaseListener(FirstMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
+		RegisterGamePhaseListener(FirstTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
+		RegisterGamePhaseListener(SecondHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_SecondHeroSelection, this, &UHeroSelectionOverlay::HandleCountdownTime);
+		RegisterGamePhaseListener(SecondTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense, this, &UHeroSelectionOverlay::HandleCountdownTime);
+		RegisterGamePhaseListener(PostMatchListenerHandle, GameplayTags.GamePhase_PostMatch, this, &UHeroSelectionOverlay::HandleCountdownTime);
 	}
 }
 
@@ -220,12 +219,12 @@ void UHeroSelectionOverlay::NativeDestruct()
 	}
 
 	// Unregister Gameplay Message Listener Handles
-	UNREGISTER_GAMEPHASE_LISTENER(FirstHeroSelectionListenerHandle);
-	UNREGISTER_GAMEPHASE_LISTENER(FirstMatchPreparationListenerHandle);
-	UNREGISTER_GAMEPHASE_LISTENER(SecondHeroSelectionListenerHandle);
-	UNREGISTER_GAMEPHASE_LISTENER(SecondMatchPreparationListenerHandle);
-	UNREGISTER_GAMEPHASE_LISTENER(SecondTeamOffenseListenerHandle);
-	UNREGISTER_GAMEPHASE_LISTENER(PostMatchListenerHandle);
+	UnregisterGamePhaseListener(FirstHeroSelectionListenerHandle);
+	UnregisterGamePhaseListener(FirstMatchPreparationListenerHandle);
+	UnregisterGamePhaseListener(SecondHeroSelectionListenerHandle);
+	UnregisterGamePhaseListener(SecondMatchPreparationListenerHandle);
+	UnregisterGamePhaseListener(SecondTeamOffenseListenerHandle);
+	UnregisterGamePhaseListener(PostMatchListenerHandle);
 
 	Super::NativeDestruct(); 
 }

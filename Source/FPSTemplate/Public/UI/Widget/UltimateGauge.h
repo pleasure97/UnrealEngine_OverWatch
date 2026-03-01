@@ -29,9 +29,6 @@ public:
 	TObjectPtr<UTextBlock> TextBlock_NumGauge;
 
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UTextBlock> TextBlock_Percent;
-
-	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UBorder> Border_UltimateIcon; 
 
 	UPROPERTY(meta = (BindWidget))
@@ -57,7 +54,10 @@ public:
 	void SetMaxUltimateGauge(float NewValue); 
 
 	UFUNCTION()
-	void UpdateUltimateGauge(float NewValue); 
+	void UpdateUltimateGauge(float NewValue);
+	void UpdateWhileUltimateStillCharged(float NewValue);
+	void UpdateWithUltimateCharged();
+
 
 	float Percent = 0.f; 
 

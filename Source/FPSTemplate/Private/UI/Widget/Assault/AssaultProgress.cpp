@@ -46,34 +46,18 @@ void UAssaultProgress::HideAssaultWidgets()
 	}
 }
 
-void UAssaultProgress::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
-{
-	// Interpolate Occupation Progress 
-}
-
 void UAssaultProgress::UpdateNumAttackers(int32 NumAttackers)
 {
-	if (NumAttackers == 0)
+	ESlateVisibility BorderVisibility = (NumAttackers == 0) ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
+
+	if (Border_NumOccupiedAttackers)
 	{
-		if (Border_NumOccupiedAttackers)
-		{
-			Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Collapsed); 
-		}
+		Border_NumOccupiedAttackers->SetVisibility(BorderVisibility);
 	}
-	else
+
+	if (TextBlock_NumOccupiedAttackers)
 	{
-		if (Border_NumOccupiedAttackers)
-		{
-			if (Border_NumOccupiedAttackers->GetVisibility() != ESlateVisibility::Visible)
-			{
-				Border_NumOccupiedAttackers->SetVisibility(ESlateVisibility::Visible);
-			}
-		}
-		
-		if (TextBlock_NumOccupiedAttackers)
-		{
-			TextBlock_NumOccupiedAttackers->SetText(FText::AsNumber(NumAttackers)); 
-		}
+		TextBlock_NumOccupiedAttackers->SetText(FText::AsNumber(NumAttackers));
 	}
 
 	CurrentNumAttackers = NumAttackers; 
@@ -85,7 +69,7 @@ void UAssaultProgress::UpdateNumDefenders(int32 NumDefenders)
 	{
 		if (Border_NumOccupiedDefenders)
 		{
-			Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Collapsed); 
+			Border_NumOccupiedDefenders->SetVisibility(ESlateVisibility::Collapsed);
 		}
 	}
 	else
@@ -220,47 +204,29 @@ void UAssaultProgress::UpdateProgressDesign(int32 OffenseTeamID)
 		return; 
 	}
 
-	if (OwnerTeamID == OffenseTeamID)
+	FLinearColor OffenseColor = (OwnerTeamID == OffenseTeamID) ? BlueTeamColor : RedTeamColor;
+	FLinearColor DefenseColor = (OwnerTeamID == OffenseTeamID) ? RedTeamColor : BlueTeamColor;
+	
+	if (Border_NumOccupiedAttackers)
 	{
-		if (Border_NumOccupiedAttackers)
-		{
-			FSlateBrush SlateBrush; 
-			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
-			Border_NumOccupiedAttackers->SetBrush(SlateBrush);
-			Border_NumOccupiedAttackers->SetBrushColor(BlueTeamColor); 
-		}
-		if (Border_NumOccupiedDefenders)
-		{
-			FSlateBrush SlateBrush;
-			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox; 
-			Border_NumOccupiedDefenders->SetBrush(SlateBrush);
-			Border_NumOccupiedDefenders->SetBrushColor(RedTeamColor); 
-		}
-		if (Image_AssaultRhombus)
-		{
-			Image_AssaultRhombus->SetBrushFromTexture(RedAssaultRhombus, true); 
-		}
+		FSlateBrush SlateBrush;
+		SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
+		Border_NumOccupiedAttackers->SetBrush(SlateBrush);
+		Border_NumOccupiedAttackers->SetBrushColor(OffenseColor);
 	}
-	else
+
+	if (Border_NumOccupiedDefenders)
 	{
-		if (Border_NumOccupiedAttackers)
-		{
-			FSlateBrush SlateBrush;
-			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
-			Border_NumOccupiedAttackers->SetBrush(SlateBrush);
-			Border_NumOccupiedAttackers->SetBrushColor(RedTeamColor);
-		}
-		if (Border_NumOccupiedDefenders)
-		{
-			FSlateBrush SlateBrush;
-			SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
-			Border_NumOccupiedDefenders->SetBrush(SlateBrush);
-			Border_NumOccupiedDefenders->SetBrushColor(BlueTeamColor);
-		}
-		if (Image_AssaultRhombus)
-		{
-			Image_AssaultRhombus->SetBrushFromTexture(BlueAssaultRhombus, true);
-		}
+		FSlateBrush SlateBrush;
+		SlateBrush.DrawAs = ESlateBrushDrawType::RoundedBox;
+		Border_NumOccupiedDefenders->SetBrush(SlateBrush);
+		Border_NumOccupiedDefenders->SetBrushColor(DefenseColor);
+	}
+
+	if (IsValid(AssaultProgressMID))
+	{
+		AssaultProgressMID->SetVectorParameterValue(FName("FillColor1"), DefenseColor);
+		AssaultProgressMID->SetVectorParameterValue(FName("FillColor2"), DefenseColor);
 	}
 }
 

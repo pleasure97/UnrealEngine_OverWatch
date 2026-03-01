@@ -12,3 +12,11 @@ void UOWUserWidget::SetWidgetController(UObject* InWidgetController)
 void UOWUserWidget::SetChildWidgetControllers()
 {
 }
+
+void UOWUserWidget::UnregisterGamePhaseListener(FGameplayMessageListenerHandle& Handle)
+{
+	if (Handle.IsValid())
+	{
+		Handle.Unregister();
+	}
+}

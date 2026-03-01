@@ -24,9 +24,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> TextBlock_AssaultScore; 
 
-	void UpdateOffenseDesign(FLinearColor TeamColor);
-
-	void UpdateDefenseDesign(FLinearColor TeamColor);
+	void UpdateMatchDesign(bool bOffense, FLinearColor TeamColor);
 
 	void UpdateScore(); 
 

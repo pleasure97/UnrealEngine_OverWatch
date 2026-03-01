@@ -46,35 +46,18 @@ void UAssaultOverlay::NativeOnInitialized()
 		}
 	}
 
-	// Get Gameplay Message Subsystem 
-	UGameplayMessageSubsystem& GameplayMessageSubsystem = UGameplayMessageSubsystem::Get(this);
 	// Get GameplayTag Singleton Class 
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+
 	// Register Game Phase Listeners to Gameplay Message Subsystem 
-	FirstHeroSelectionListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, this, &UAssaultOverlay::HandleCountdownTime);
-	FirstMatchPreparationListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
-	FirstTeamOffenseListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
-	SwitchInningListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_SwitchInning, this, &UAssaultOverlay::HandleCountdownTime);
-	SecondHeroSelectionListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_HeroSelection_SecondHeroSelection, this, &UAssaultOverlay::HandleCountdownTime);
-	SecondMatchPreparationListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
-	SecondTeamOffenseListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
-	PostMatchListenerHandle =
-		GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>(
-			GameplayTags.GamePhase_PostMatch, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(FirstHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_FirstHeroSelection, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(FirstMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_FirstTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(FirstTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_FirstTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(SwitchInningListenerHandle, GameplayTags.GamePhase_SwitchInning, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(SecondHeroSelectionListenerHandle, GameplayTags.GamePhase_HeroSelection_SecondHeroSelection, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(SecondMatchPreparationListenerHandle, GameplayTags.GamePhase_MatchPreparation_SecondTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(SecondTeamOffenseListenerHandle, GameplayTags.GamePhase_MatchInProgress_SecondTeamOffense, this, &UAssaultOverlay::HandleCountdownTime);
+	RegisterGamePhaseListener(PostMatchListenerHandle, GameplayTags.GamePhase_PostMatch, this, &UAssaultOverlay::HandleCountdownTime);
 }
 
 void UAssaultOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -87,7 +70,7 @@ void UAssaultOverlay::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	}
 
 	// Interpolate from Displayed Progress to Target Progress So that it goes up gradually rather than all at once
-	DisplayedProgress = FMath::FInterpTo(DisplayedProgress, TargetProgress, InDeltaTime, 1.f); 
+	DisplayedProgress = FMath::FInterpTo(DisplayedProgress, TargetProgress, InDeltaTime, 3.f); 
 
 	// Get Current Game Phase Tag and Update Assault Progress to Match Current Game Phase 
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
@@ -163,45 +146,14 @@ void UAssaultOverlay::NativeDestruct()
 	}
 
 	// Unregister All Game Phase Listener Handles 
-	if (FirstHeroSelectionListenerHandle.IsValid())
-	{
-		FirstHeroSelectionListenerHandle.Unregister();
-	}
-
-	if (FirstMatchPreparationListenerHandle.IsValid())
-	{
-		FirstMatchPreparationListenerHandle.Unregister();
-	}
-
-	if (FirstTeamOffenseListenerHandle.IsValid())
-	{
-		FirstTeamOffenseListenerHandle.Unregister();
-	}
-
-	if (SwitchInningListenerHandle.IsValid())
-	{
-		SwitchInningListenerHandle.Unregister();
-	}
-
-	if (SecondHeroSelectionListenerHandle.IsValid())
-	{
-		SecondHeroSelectionListenerHandle.Unregister();
-	}
-
-	if (SecondMatchPreparationListenerHandle.IsValid())
-	{
-		SecondMatchPreparationListenerHandle.Unregister();
-	}
-
-	if (SecondTeamOffenseListenerHandle.IsValid())
-	{
-		SecondTeamOffenseListenerHandle.Unregister();
-	}
-
-	if (PostMatchListenerHandle.IsValid())
-	{
-		PostMatchListenerHandle.Unregister();
-	}
+	UnregisterGamePhaseListener(FirstHeroSelectionListenerHandle);
+	UnregisterGamePhaseListener(FirstMatchPreparationListenerHandle);
+	UnregisterGamePhaseListener(FirstTeamOffenseListenerHandle);
+	UnregisterGamePhaseListener(SwitchInningListenerHandle);
+	UnregisterGamePhaseListener(SecondHeroSelectionListenerHandle);
+	UnregisterGamePhaseListener(SecondMatchPreparationListenerHandle);
+	UnregisterGamePhaseListener(SecondTeamOffenseListenerHandle);
+	UnregisterGamePhaseListener(PostMatchListenerHandle);
 
 	Super::NativeDestruct(); 
 }
@@ -465,7 +417,7 @@ void UAssaultOverlay::UpdateOffensePreparation()
 	}
 	if (Ally_AssaultScore)
 	{
-		Ally_AssaultScore->UpdateOffenseDesign(BlueTeamColor);
+		Ally_AssaultScore->UpdateMatchDesign(true, BlueTeamColor);
 	}
 	if (Enemy_AssaultScoreDetails)
 	{
@@ -473,7 +425,7 @@ void UAssaultOverlay::UpdateOffensePreparation()
 	}
 	if (Enemy_AssaultScore)
 	{
-		Enemy_AssaultScore->UpdateDefenseDesign(RedTeamColor);
+		Enemy_AssaultScore->UpdateMatchDesign(false, RedTeamColor);
 	}
 }
 
@@ -490,7 +442,7 @@ void UAssaultOverlay::UpdateDefensePreparation()
 	}
 	if (Ally_AssaultScore)
 	{
-		Ally_AssaultScore->UpdateDefenseDesign(BlueTeamColor);
+		Ally_AssaultScore->UpdateMatchDesign(false, BlueTeamColor);
 	}
 	if (Enemy_AssaultScoreDetails)
 	{
@@ -498,7 +450,7 @@ void UAssaultOverlay::UpdateDefensePreparation()
 	}
 	if (Enemy_AssaultScore)
 	{
-		Enemy_AssaultScore->UpdateOffenseDesign(RedTeamColor);
+		Enemy_AssaultScore->UpdateMatchDesign(true, RedTeamColor);
 	}
 }
 

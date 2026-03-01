@@ -5,19 +5,7 @@
 #include "CoreMinimal.h"
 #include "UI/Widget/OWUserWidget.h"
 #include "AbilitySystem/Data/HeroInfo.h"
-#include "Message/OWMessageTypes.h"
-#include "GameFramework/GameplayMessageSubsystem.h"
 #include "HeroSelectionOverlay.generated.h"
-
-#define REGISTER_GAMEPHASE_LISTENER(GameplayMessageListenerHandle, GameplayTag) \
-    GameplayMessageListenerHandle = GameplayMessageSubsystem.RegisterListener<FOWVerbMessage>( \
-        GameplayTag, this, &UHeroSelectionOverlay::HandleCountdownTime);
-
-#define UNREGISTER_GAMEPHASE_LISTENER(GameplayMessageListenerHandle) \
-    if (GameplayMessageListenerHandle.IsValid()) \
-    { \
-        GameplayMessageListenerHandle.Unregister(); \
-    }
 
 class UImage; 
 class UTextBlock; 

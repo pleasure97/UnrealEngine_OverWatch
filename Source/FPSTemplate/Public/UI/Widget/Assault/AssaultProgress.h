@@ -36,15 +36,6 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> Image_AssaultProgress;
 
-	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UImage> Image_AssaultRhombus;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UTexture2D> BlueAssaultRhombus;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TObjectPtr<UTexture2D> RedAssaultRhombus;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FLinearColor BlueTeamColor = FLinearColor(0.041667f, 0.6407f, 1.f, 1.f);
 
@@ -77,10 +68,9 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
+	
 	void HideAssaultWidgets();
 
-
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override; 
 private:
 	UPROPERTY()
 	TObjectPtr<UMaterialInstanceDynamic> AssaultProgressMID;

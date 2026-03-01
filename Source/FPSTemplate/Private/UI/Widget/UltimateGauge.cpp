@@ -59,8 +59,8 @@ void UUltimateGauge::NativeConstruct()
 		if (UltimateGaugeMID)
 		{
 			UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
-			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), OrangeColor);
-			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 100.f);
+			UltimateGaugeMID->SetVectorParameterValue(TEXT("SegmentColor"), OrangeColor);
+			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSegments"), 100.f);
 
 			Image_UltimateGauge->SetBrushFromMaterial(UltimateGaugeMID);
 		}
@@ -109,96 +109,99 @@ void UUltimateGauge::UpdateUltimateGauge(float NewValue)
 
 	if (NewValue >= MaxUltimateGauge)
 	{
-		// Early return if Ultimate is already charged 
-		if (bAlreadyUpdated)
-		{
-			return;
-		}
+		UpdateWithUltimateCharged();
+	}
+	else
+	{
+		UpdateWhileUltimateStillCharged(NewValue);
+	}
+}
 
-		// TODO - Widget Animation?
+void UUltimateGauge::UpdateWhileUltimateStillCharged(float NewValue)
+{
+	Percent = NewValue / MaxUltimateGauge;
+	// After Casting Ultimate, Current Ultimate Gauge is greater than New Value 
+	if (CurrentUltimateGauge > NewValue)
+	{
+		if (TextBlock_NumGauge)
+		{
+			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_NumGauge, NewValue / MaxUltimateGauge * 100.f);
+			TextBlock_NumGauge->SetVisibility(ESlateVisibility::Visible);
+		}
 		
 		if (UltimateGaugeMID)
 		{
-			UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), SkyColor);
-			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 0.f);
+			UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
+			UltimateGaugeMID->SetVectorParameterValue(TEXT("SegmentColor"), OrangeColor);
+			UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSegments"), 100.f);
 		}
 
 		if (Border_UltimateIcon)
 		{
-			Border_UltimateIcon->SetVisibility(ESlateVisibility::Visible); 
-		}
-		
-		if (Image_UltimateIcon)
-		{
-			Image_UltimateIcon->SetVisibility(ESlateVisibility::Visible);
+			Border_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
-		if (TextBlock_NumGauge)
+		if (Image_UltimateIcon)
 		{
-			TextBlock_NumGauge->SetVisibility(ESlateVisibility::Collapsed);
-		}
-		
-		if (TextBlock_Percent)
-		{
-			TextBlock_Percent->SetVisibility(ESlateVisibility::Collapsed);
+			Image_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
 		if (Image_UltimateRay)
 		{
-			Image_UltimateRay->SetVisibility(ESlateVisibility::Visible); 
+			Image_UltimateRay->SetVisibility(ESlateVisibility::Collapsed);
 		}
 
-		bAlreadyUpdated = true;
+		// Reset Ultimate Update Status
+		bAlreadyUpdated = false;
 	}
 	else
 	{
-		Percent = NewValue / MaxUltimateGauge;
-		// After Casting Ultimate, Current Ultimate Gauge is greater than New Value 
-		if (CurrentUltimateGauge > NewValue)
+		if (UltimateGaugeMID)
 		{
-			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_NumGauge, NewValue / MaxUltimateGauge * 100.f);
-			TextBlock_NumGauge->SetVisibility(ESlateVisibility::Visible);
-
-			if (TextBlock_Percent)
-			{
-				TextBlock_Percent->SetVisibility(ESlateVisibility::Visible);
-			}
-
-			if (UltimateGaugeMID)
-			{
-				UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
-				UltimateGaugeMID->SetVectorParameterValue(TEXT("BaseColor"), OrangeColor);
-				UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSections"), 100.f);
-			}
-
-			if (Border_UltimateIcon)
-			{
-				Border_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed); 
-			}
-
-			if (Image_UltimateIcon)
-			{
-				Image_UltimateIcon->SetVisibility(ESlateVisibility::Collapsed);
-			}
-
-			if (Image_UltimateRay)
-			{
-				Image_UltimateRay->SetVisibility(ESlateVisibility::Collapsed);
-			}
-			
-			// Reset Ultimate Update Status
-			bAlreadyUpdated = false; 
+			UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
 		}
-		else
-		{
-			if (UltimateGaugeMID)
-			{
-				UltimateGaugeMID->SetScalarParameterValue(TEXT("Percent"), Percent);
-			}
 
-			UOWWidgetLibrary::UpdatePureNumberText(TextBlock_NumGauge, NewValue / MaxUltimateGauge * 100.f);
-		}
+		UOWWidgetLibrary::UpdatePureNumberText(TextBlock_NumGauge, NewValue / MaxUltimateGauge * 100.f);
+	}
+	
+	CurrentUltimateGauge = NewValue;
+}
+
+void UUltimateGauge::UpdateWithUltimateCharged()
+{
+	// Early return if Ultimate is already charged 
+	if (bAlreadyUpdated)
+	{
+		return;
 	}
 
-	CurrentUltimateGauge = NewValue;
+	// TODO - Widget Animation?
+
+	if (UltimateGaugeMID)
+	{
+		UltimateGaugeMID->SetVectorParameterValue(TEXT("SegmentColor"), SkyColor);
+		UltimateGaugeMID->SetScalarParameterValue(TEXT("NumSegments"), 0.f);
+	}
+
+	if (Border_UltimateIcon)
+	{
+		Border_UltimateIcon->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (Image_UltimateIcon)
+	{
+		Image_UltimateIcon->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (TextBlock_NumGauge)
+	{
+		TextBlock_NumGauge->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (Image_UltimateRay)
+	{
+		Image_UltimateRay->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	bAlreadyUpdated = true;
 }

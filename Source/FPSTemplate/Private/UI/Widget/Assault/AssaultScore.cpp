@@ -5,21 +5,14 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 
-void UAssaultScore::UpdateOffenseDesign(FLinearColor TeamColor)
+void UAssaultScore::UpdateMatchDesign(bool bOffense, FLinearColor TeamColor)
 {
-	if (ProgressBar_AssaultScore)
-	{
-		ProgressBar_AssaultScore->SetFillColorAndOpacity(TeamColor); 
-		ProgressBar_AssaultScore->SetPercent(1.f); 
-	}
-}
+	float Percent = bOffense ? 1.f : 0.1f;
 
-void UAssaultScore::UpdateDefenseDesign(FLinearColor TeamColor)
-{
 	if (ProgressBar_AssaultScore)
 	{
 		ProgressBar_AssaultScore->SetFillColorAndOpacity(TeamColor);
-		ProgressBar_AssaultScore->SetPercent(0.1f);
+		ProgressBar_AssaultScore->SetPercent(Percent);
 	}
 }
 
