@@ -515,7 +515,7 @@ void ULoadingScreenManager::HideLoadingScreen()
 
 	if (!IsShowingInitialLoadingScreen())
 	{
-		GEngine->ForceGarbageCollection(true); 
+		GEngine->ForceGarbageCollection(false);
 
 		RemoveWidgetFromViewport(); 
 
