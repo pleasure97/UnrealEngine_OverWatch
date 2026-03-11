@@ -102,13 +102,6 @@ void UOWAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwnerActor, AActo
     }
 }
 
-void UOWAbilitySystemComponent::AbilityActorInfoSet()
-{
-    OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &UOWAbilitySystemComponent::ClientEffectApplied);
-
-    const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get(); 
-}
-
 void UOWAbilitySystemComponent::AddHeroAbilities()
 {
     UHeroInfo* HeroInfo = UOWAbilitySystemLibrary::GetHeroInfo(this); 
@@ -321,14 +314,6 @@ void UOWAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamepla
 void UOWAbilitySystemComponent::ClientEquipAbility_Implementation(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
 {
     AbilityEquipped.Broadcast(AbilityTag, StatusTag); 
-}
-
-void UOWAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent, const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
-{
-    FGameplayTagContainer GameplayTagContainer; 
-    EffectSpec.GetAllAssetTags(GameplayTagContainer); 
-
-    EffectAssetTags.Broadcast(GameplayTagContainer); 
 }
 
 void UOWAbilitySystemComponent::CancelAbilitiesByFunc(TShouldCancelAbilityFunc ShouldCancelFunc, bool bReplicateCancelAbility)

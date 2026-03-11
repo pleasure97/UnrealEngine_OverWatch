@@ -265,6 +265,8 @@ void AOWCharacter::InitializeHealthPlate()
 			}
 		}
 	}
+
+	//GetWorldTimerManager().SetTimer(HealthPlateTimerHandle, this, &AOWCharacter::CheckHealthPlateShouldBeUpdated, 0.2f, true);
 }
 
 int32 AOWCharacter::FindLevelForXP_Implementation(int32 InXP) const
@@ -388,6 +390,68 @@ void AOWCharacter::EnableCameraLag()
 	}
 }
 
+void AOWCharacter::CheckHealthPlateShouldBeUpdated()
+{
+	if (bDead)
+	{
+		return;
+	}
+
+	UOWTeamSubsystem* TeamSubsystem = GetWorld()->GetSubsystem<UOWTeamSubsystem>();
+	if (!IsValid(TeamSubsystem))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Team Subsystem is Not Valid in AOWCharacter::InitializeHealthPlate()"));
+		return;
+	}
+
+	ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+	if (!IsValid(LocalPlayer) || !IsValid(LocalPlayer->PlayerController))
+	{
+		UE_LOG(LogTemp, Error, TEXT("Local Player or LocalPlayerController is Not Valid in AOWCharacter::InitializeHealthPlate()"));
+		return;
+	}
+
+	EOWTeamComparison TeamComparison = TeamSubsystem->CompareTeams(LocalPlayer->PlayerController, this);
+
+	switch (TeamComparison)
+	{
+	case EOWTeamComparison::InvalidArgument:
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invalid Argument in AOWCharacter::InitializeHealthPlate()"));
+		return;
+	}
+	case EOWTeamComparison::DifferentTeams:
+	{
+		bEnemy = true;
+		break;
+	}
+	case EOWTeamComparison::OnSameTeam:
+	{
+		bEnemy = false;
+		break;
+	}
+	}
+
+	if (IsLocallyControlled())
+	{
+		HealthPlateComponent->SetHiddenInGame(true);
+		return;
+	}
+
+	if (IsValid(HealthPlateComponent))
+	{
+		UUserWidget* HealthPlateWidget = HealthPlateComponent->GetUserWidgetObject();
+		if (IsValid(HealthPlateWidget))
+		{
+			bool bShouldHideHealthPlate = !WasRecentlyRendered() && bEnemy;
+			ESlateVisibility HealthPlateVisibility = bShouldHideHealthPlate ? ESlateVisibility::Collapsed : ESlateVisibility::Visible;
+
+			HealthPlateComponent->SetHiddenInGame(bShouldHideHealthPlate);
+			HealthPlateWidget->SetVisibility(HealthPlateVisibility);
+		}
+	}
+}
+
 void AOWCharacter::InitAbilityActorInfo()
 {
 	AOWPlayerState* OWPlayerState = GetPlayerState<AOWPlayerState>(); 
@@ -404,7 +468,6 @@ void AOWCharacter::InitAbilityActorInfo()
 	}
 
 	OWPlayerStateASC->InitAbilityActorInfo(OWPlayerState, this); 
-	OWPlayerStateASC->AbilityActorInfoSet(); 
 
 	UOWAttributeSet* AttributeSet = GetAttributeSet();
 	if (AttributeSet)
