@@ -15,7 +15,9 @@
 				"GameplayAbilities",
 				"CoreUObject",
 				"EnhancedInput",
-				"Niagara"
+				"Niagara",
+				"CommonUI",
+				"DeveloperSettings"
 			]
 		},
 		{

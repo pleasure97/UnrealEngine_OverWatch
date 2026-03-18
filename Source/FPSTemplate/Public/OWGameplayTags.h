@@ -280,6 +280,16 @@ public:
 	FGameplayTag Cooldown_Tracer_Blink;
 	FGameplayTag Cooldown_Tracer_Recall;
 
+	/* Common UI - Widget Stack */
+	FGameplayTag CommonUI_WidgetStack_Modal;
+	FGameplayTag CommonUI_WidgetStack_GameMenu;
+	FGameplayTag CommonUI_WidgetStack_GameHUD;
+	FGameplayTag CommonUI_WidgetStack_FrontEnd;
+
+	/* Common UI - Widgets */
+	FGameplayTag CommonUI_Widget_MainMenuScreen;
+	FGameplayTag CommonUI_Widget_LoginScreen;
+
 private:
 	static FOWGameplayTags GameplayTags; 
 };
