@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/CommonUI/OWCommonButtonBase.h"
+#include "UI/CommonUI/Components/OWCommonButtonBase.h"
 #include "CommonTextBlock.h"
-#include "UI/CommonUI/CommonUISubsystem.h"
+#include "UI/CommonUI/Util/CommonUISubsystem.h"
 
-void UOWCommonButtonBase::SetButtonText(FText InText)
+void UOWCommonButtonBase::SetButtonDisplayText(FText InText)
 {
 	if (CommonTextBlock_ButtonText && !InText.IsEmpty())
 	{
@@ -13,11 +13,21 @@ void UOWCommonButtonBase::SetButtonText(FText InText)
 	}
 }
 
+void UOWCommonButtonBase::SetButtonDescriptionText(FText InText)
+{
+	if (CommonTextBlock_ButtonDescriptionText && !InText.IsEmpty())
+	{
+		CommonTextBlock_ButtonDescriptionText->SetText(bUseUpperCaseForButtonText ? InText.ToUpper() : InText);
+	}
+}
+
 void UOWCommonButtonBase::NativePreConstruct()
 {
 	Super::NativePreConstruct(); 
 
-	SetButtonText(ButtonDisplayText); 
+	SetButtonDisplayText(ButtonDisplayText); 
+
+	SetButtonDescriptionText(ButtonDescriptionText);
 }
 
 void UOWCommonButtonBase::NativeOnCurrentTextStyleChanged()
@@ -34,9 +44,9 @@ void UOWCommonButtonBase::NativeOnHovered()
 {
 	Super::NativeOnHovered();
 
-	if (!ButtonDescriptionText.IsEmpty())
+	if (!ButtonDescriptionTextWhenHovered.IsEmpty())
 	{
-		UCommonUISubsystem::Get(this)->OnButtonDescriptionTextUpdated.Broadcast(this, ButtonDescriptionText);
+		UCommonUISubsystem::Get(this)->OnButtonDescriptionTextUpdated.Broadcast(this, ButtonDescriptionTextWhenHovered);
 	}
 }
 
@@ -44,7 +54,7 @@ void UOWCommonButtonBase::NativeOnUnhovered()
 {
 	Super::NativeOnUnhovered();
 
-	if (!ButtonDescriptionText.IsEmpty())
+	if (!ButtonDescriptionTextWhenHovered.IsEmpty())
 	{
 		UCommonUISubsystem::Get(this)->OnButtonDescriptionTextUpdated.Broadcast(this, FText::GetEmpty());
 	}

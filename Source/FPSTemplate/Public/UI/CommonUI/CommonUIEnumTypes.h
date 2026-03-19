@@ -2,14 +2,21 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-
-/**
- * 
- */
-class FPSTEMPLATE_API CommonUIEnumTypes
+UENUM(BlueprintType)
+enum class EConfirmScreenType : uint8
 {
-public:
-	CommonUIEnumTypes();
-	~CommonUIEnumTypes();
+	OK, 
+	YesNo, 
+	CancelYes,
+	OKCancel,
+	Unknown UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
+enum class EConfirmScreenButtonType : uint8
+{
+	Confirmed,
+	Cancelled,
+	Closed,
+	Unknown UMETA(Hidden)
 };

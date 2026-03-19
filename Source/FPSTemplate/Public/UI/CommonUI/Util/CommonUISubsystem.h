@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "UI/CommonUI/CommonUIEnumTypes.h"
 #include "CommonUISubsystem.generated.h"
 
 class UPrimaryLayoutWidget; 
@@ -36,10 +37,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RegisterCreatedPrimaryLayoutWidget(UPrimaryLayoutWidget* InCreatedWidget);
 
-	void PushSofWidgetToStackAsync(
+	void PushSoftWidgetToStackAsync(
 		const FGameplayTag& InWidgetStackTag, 
 		TSoftClassPtr<UActivatableBaseWidget> InSoftWidgetClass, 
 		TFunction<void(EAsyncPushWidgetState, UActivatableBaseWidget*)> AsyncPushStateCallback);
+
+	void PushConfirmScreenToModalStackAsync(
+		EConfirmScreenType InScreenType, 
+		const FText& InScreenTitle, const FText& InScreenMessage,
+		const FText& Option1Text, const FText& Option2Text, const FText& Option3Text,
+		TFunction<void(EConfirmScreenButtonType)> ButtonClickedCallback);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnButtonDescriptionTextUpdatedDelegate OnButtonDescriptionTextUpdated;

@@ -1,12 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/CommonUI/CommonUISubsystem.h"
-#include "UI/CommonUI/CommonUIDebugHelper.h"
+#include "UI/CommonUI/Util/CommonUISubsystem.h"
+#include "UI/CommonUI/Util/CommonUIDebugHelper.h"
 #include "Engine/AssetManager.h"
 #include "UI/CommonUI/PrimaryLayoutWidget.h"
 #include "UI/CommonUI/ActivatableBaseWidget.h"
 #include "Widgets/CommonActivatableWidgetContainer.h"
+#include "UI/CommonUI/ConfirmScreenWidget.h"
+#include "OWGameplayTags.h"
+#include "UI/CommonUI/Util/CommonUIFunctionLibrary.h"
 
 UCommonUISubsystem* UCommonUISubsystem::Get(const UObject* WorldContextObject)
 {
@@ -42,7 +45,7 @@ void UCommonUISubsystem::RegisterCreatedPrimaryLayoutWidget(UPrimaryLayoutWidget
 	CommonUIDebug::Print(TEXT("Primary Layout Widget Stored in Common UI Subsystem"));
 }
 
-void UCommonUISubsystem::PushSofWidgetToStackAsync(const FGameplayTag& InWidgetStackTag, TSoftClassPtr<UActivatableBaseWidget> InSoftWidgetClass, TFunction<void(EAsyncPushWidgetState, UActivatableBaseWidget*)> AsyncPushStateCallback)
+void UCommonUISubsystem::PushSoftWidgetToStackAsync(const FGameplayTag& InWidgetStackTag, TSoftClassPtr<UActivatableBaseWidget> InSoftWidgetClass, TFunction<void(EAsyncPushWidgetState, UActivatableBaseWidget*)> AsyncPushStateCallback)
 {
 	check(!InSoftWidgetClass.IsNull()); 
 
@@ -72,6 +75,58 @@ void UCommonUISubsystem::PushSofWidgetToStackAsync(const FGameplayTag& InWidgetS
 				AsyncPushStateCallback(EAsyncPushWidgetState::AfterPush, CreatedWidget);
 			}
 		)
+	);
+}
+
+void UCommonUISubsystem::PushConfirmScreenToModalStackAsync(EConfirmScreenType InScreenType, const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text, const FText& Option3Text, TFunction<void(EConfirmScreenButtonType)> ButtonClickedCallback)
+{
+	UConfirmScreenInfoObject* CreatedInfoObject = nullptr; 
+
+	switch (InScreenType)
+	{
+	case EConfirmScreenType::OK:
+	{
+		CreatedInfoObject = UConfirmScreenInfoObject::CreateOKScreen(InScreenTitle, InScreenMessage, Option1Text);
+		break;
+	}
+	case EConfirmScreenType::YesNo:
+	{
+		CreatedInfoObject = UConfirmScreenInfoObject::CreateYesNoScreen(InScreenTitle, InScreenMessage, Option1Text, Option2Text);
+		break;
+	}
+	case EConfirmScreenType::CancelYes:
+	{
+		CreatedInfoObject = UConfirmScreenInfoObject::CreateCancelYesScreen(InScreenTitle, InScreenMessage, Option1Text, Option2Text);
+		break;
+	}
+	case EConfirmScreenType::OKCancel:
+	{
+		CreatedInfoObject = UConfirmScreenInfoObject::CreateOKCancelScreen(InScreenTitle, InScreenMessage, Option1Text, Option2Text);
+		break;
+	}
+	case EConfirmScreenType::Unknown:
+	{
+		break;
+	}
+	default:
+		break;
+	}
+
+	check(CreatedInfoObject);
+
+	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
+
+	PushSoftWidgetToStackAsync(
+		GameplayTags.CommonUI_WidgetStack_Modal,
+		UCommonUIFunctionLibrary::GetCommonUISoftWidgetClassByTag(GameplayTags.CommonUI_Widget_ConfirmScreen),
+		[CreatedInfoObject, ButtonClickedCallback](EAsyncPushWidgetState InPushWidgetState, UActivatableBaseWidget* PushedWidget)
+		{
+			if (InPushWidgetState == EAsyncPushWidgetState::OnCreatedBeforePush)
+			{
+				UConfirmScreenWidget* CreatedConfirmScreen = CastChecked<UConfirmScreenWidget>(PushedWidget);
+				CreatedConfirmScreen->InitConfirmScreen(CreatedInfoObject, ButtonClickedCallback);
+			}
+		}
 	);
 }
 

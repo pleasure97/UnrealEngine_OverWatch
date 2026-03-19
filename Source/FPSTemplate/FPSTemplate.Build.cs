@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
+using UnrealBuildTool.Rules;
 
 public class FPSTemplate : ModuleRules
 {
@@ -10,8 +11,9 @@ public class FPSTemplate : ModuleRules
 	
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", 
-			"DedicatedServers", "GameplayAbilities", "AIModule", "NetCore", "UMG", "RenderCore"
-		});
+			"DedicatedServers", "GameplayAbilities", "AIModule", "NetCore", "UMG", "RenderCore", 
+			"CommonInput", "GeometryCollectionEngine"
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { 
 			"GameplayTags", "Slate", "SlateCore", "GameplayTasks", "GameplayMessageRuntime"

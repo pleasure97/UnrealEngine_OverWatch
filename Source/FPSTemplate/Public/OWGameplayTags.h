@@ -289,6 +289,9 @@ public:
 	/* Common UI - Widgets */
 	FGameplayTag CommonUI_Widget_MainMenuScreen;
 	FGameplayTag CommonUI_Widget_LoginScreen;
+	FGameplayTag CommonUI_Widget_ConfirmScreen;
+	FGameplayTag CommonUI_Widget_GameMenuScreen;
+	FGameplayTag CommonUI_Widget_OptionScreen;
 
 private:
 	static FOWGameplayTags GameplayTags; 

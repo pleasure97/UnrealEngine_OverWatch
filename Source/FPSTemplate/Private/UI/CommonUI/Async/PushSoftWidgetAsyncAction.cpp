@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/CommonUI/PushSoftWidgetAsyncAction.h"
-#include "UI/CommonUI/CommonUISubsystem.h"
+#include "UI/CommonUI/Async/PushSoftWidgetAsyncAction.h"
+#include "UI/CommonUI/Util/CommonUISubsystem.h"
 #include "UI/CommonUI/ActivatableBaseWidget.h"
 
 UPushSoftWidgetAsyncAction* UPushSoftWidgetAsyncAction::PushSoftWidget(const UObject* WorldContextObject, APlayerController* OwningPlayerController, TSoftClassPtr<UActivatableBaseWidget> InSoftWidgetClass, UPARAM(meta = (Categories = "CommonUI.WidgetStack")) FGameplayTag InWidgetStackTag, bool bFocusOnNewlyPushedWidget)
@@ -36,7 +36,7 @@ void UPushSoftWidgetAsyncAction::Activate()
 
     if (IsValid(CommonUISubsystem))
     {
-        CommonUISubsystem->PushSofWidgetToStackAsync(
+        CommonUISubsystem->PushSoftWidgetToStackAsync(
             CachedWidgetStackTag,
             CachedSoftWidgetClass,
             [this](EAsyncPushWidgetState InPushState, UActivatableBaseWidget* PushedWidget)

@@ -854,4 +854,16 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.CommonUI_Widget_LoginScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("CommonUI.Widget.LoginScreen"),
 		FString("Login Screen Widget in Common UI"));
+
+	GameplayTags.CommonUI_Widget_ConfirmScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("CommonUI.Widget.ConfirmScreen"),
+		FString("Confirm Screen Widget in Common UI"));
+
+	GameplayTags.CommonUI_Widget_GameMenuScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("CommonUI.Widget.GameMenuScreen"),
+		FString("Game Menu Screen Widget in Common UI"));
+
+	GameplayTags.CommonUI_Widget_OptionScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("CommonUI.Widget.OptionScreen"),
+		FString("Option Screen Widget in Common UI"));
 }

@@ -2,7 +2,7 @@
 
 
 #include "UI/CommonUI/PrimaryLayoutWidget.h"
-#include "UI/CommonUI/CommonUIDebugHelper.h"
+#include "UI/CommonUI/Util/CommonUIDebugHelper.h"
 
 UCommonActivatableWidgetContainerBase* UPrimaryLayoutWidget::FindWidgetStackByTag(const FGameplayTag& InTag) const
 {
