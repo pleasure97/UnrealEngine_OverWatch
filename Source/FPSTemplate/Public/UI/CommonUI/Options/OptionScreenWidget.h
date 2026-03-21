@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UI/CommonUI/ActivatableBaseWidget.h"
+#include "UI/CommonUI/CommonUIEnumTypes.h"
 #include "OptionScreenWidget.generated.h"
 
 class UOptionDataRegistry;
 class UOWCommonTabListWidgetBase;
+class UOWCommonListView;
+class UListDataObjectBase;
 
 /**
  * 
@@ -17,9 +20,6 @@ class FPSTEMPLATE_API UOptionScreenWidget : public UActivatableBaseWidget
 {
 	GENERATED_BODY()
 	
-public:
-	void RequestRegisterTab(const FName&); 
-
 protected:
 	/* User Widget */
 	virtual void NativeOnInitialized() override;
@@ -27,6 +27,7 @@ protected:
 
 	/* UCommonActivatableWidget */
 	virtual void NativeOnActivated() override;
+	virtual void NativeOnDeactivated() override;
 	/* UCommonActivatableWidget Ends */
 
 private:
@@ -35,9 +36,20 @@ private:
 	void OnResetBoundActionTriggered();
 	void OnBackBoundActionTriggered();
 
+	UFUNCTION()
+	void OnOptionTabSelected(FName TabId);
+
+	void OnListViewItemHovered(UObject* InHoveredItem, bool bWasHovered);
+	void OnListViewItemSelected(UObject* InSelectedItem);
+
+	void OnListViewListDataModified(UListDataObjectBase* ModifiedData, EOptionsListDataModifyReason ModifyReason);
+
 	/* Bound Widgets */
 	UPROPERTY(meta = (BindWidget))
 	UOWCommonTabListWidgetBase* TabListWidget_OptionsTab;
+
+	UPROPERTY(meta = (BindWidget))
+	UOWCommonListView* CommonListView_OptionsList;
 	/* Bound Widgets End */
 
 	// Handle Creation of Data in Option Screen. Direct Access to This Variable is Forbidden
@@ -48,4 +60,9 @@ private:
 	FDataTableRowHandle ResetAction;
 
 	FUIActionBindingHandle ResetActionHandle;
+
+	UPROPERTY(Transient)
+	TArray<UListDataObjectBase*> ResettableDataArray;
+
+	bool bIsResettingData = false;
 };

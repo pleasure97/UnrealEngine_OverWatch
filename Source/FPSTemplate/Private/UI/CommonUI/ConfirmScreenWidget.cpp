@@ -44,6 +44,27 @@ UConfirmScreenInfoObject* UConfirmScreenInfoObject::CreateYesNoScreen(const FTex
     return ConfirmScreenInfoObject;
 }
 
+UConfirmScreenInfoObject* UConfirmScreenInfoObject::CreateNoYesScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text)
+{
+    UConfirmScreenInfoObject* ConfirmScreenInfoObject = NewObject<UConfirmScreenInfoObject>();
+
+    ConfirmScreenInfoObject->ScreenTitle = InScreenTitle;
+    ConfirmScreenInfoObject->ScreenMessage = InScreenMessage;
+
+    FConfirmScreenButtonInfo NoButtonInfo;
+    NoButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Cancelled;
+    NoButtonInfo.ButtonTextToDisplay = Option1Text;
+
+    FConfirmScreenButtonInfo YesButtonInfo;
+    YesButtonInfo.ConfirmScreenButtonType = EConfirmScreenButtonType::Confirmed;
+    YesButtonInfo.ButtonTextToDisplay = Option2Text;
+
+    ConfirmScreenInfoObject->AvailableScreenButtons.Add(NoButtonInfo);
+    ConfirmScreenInfoObject->AvailableScreenButtons.Add(YesButtonInfo);
+
+    return ConfirmScreenInfoObject;
+}
+
 UConfirmScreenInfoObject* UConfirmScreenInfoObject::CreateOKCancelScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text)
 {
     UConfirmScreenInfoObject* ConfirmScreenInfoObject = NewObject<UConfirmScreenInfoObject>();

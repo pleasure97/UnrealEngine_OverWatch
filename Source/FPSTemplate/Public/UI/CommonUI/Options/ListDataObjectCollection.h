@@ -18,8 +18,8 @@ public:
 	void AddChildListData(UListDataObjectBase* InChildListData);
 
 	/* UListDataObjectBase */
-	virtual TArray<UListDataObjectBase*> GetChildListData() const override;
-	virtual bool HasChildListData() const override;
+	virtual TArray<UListDataObjectBase*> GetAllChildListData() const override;
+	virtual bool HasAnyChildListData() const override;
 	/* UListDataObjectBase Ends */
 
 private:

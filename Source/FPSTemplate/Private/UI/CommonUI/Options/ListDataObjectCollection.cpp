@@ -14,12 +14,12 @@ void UListDataObjectCollection::AddChildListData(UListDataObjectBase* InChildLis
 	ChildListDataArray.Add(InChildListData);
 }
 
-TArray<UListDataObjectBase*> UListDataObjectCollection::GetChildListData() const
+TArray<UListDataObjectBase*> UListDataObjectCollection::GetAllChildListData() const
 {
 	return ChildListDataArray;
 }
 
-bool UListDataObjectCollection::HasChildListData() const
+bool UListDataObjectCollection::HasAnyChildListData() const
 {
 	return !ChildListDataArray.IsEmpty();
 }

@@ -30,6 +30,7 @@ class FPSTEMPLATE_API UConfirmScreenInfoObject : public UObject
 public:
 	static UConfirmScreenInfoObject* CreateOKScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text); 
 	static UConfirmScreenInfoObject* CreateYesNoScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text);
+	static UConfirmScreenInfoObject* CreateNoYesScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text);
 	static UConfirmScreenInfoObject* CreateOKCancelScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text);
 	static UConfirmScreenInfoObject* CreateCancelYesScreen(const FText& InScreenTitle, const FText& InScreenMessage, const FText& Option1Text, const FText& Option2Text);
 

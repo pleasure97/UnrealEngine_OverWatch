@@ -12,7 +12,7 @@ public class FPSTemplate : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { 
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "PhysicsCore", 
 			"DedicatedServers", "GameplayAbilities", "AIModule", "NetCore", "UMG", "RenderCore", 
-			"CommonInput", "GeometryCollectionEngine"
+			"CommonInput", "PropertyPath", "GeometryCollectionEngine"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { 

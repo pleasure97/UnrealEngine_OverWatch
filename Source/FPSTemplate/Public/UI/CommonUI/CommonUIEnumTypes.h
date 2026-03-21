@@ -7,6 +7,7 @@ enum class EConfirmScreenType : uint8
 {
 	OK, 
 	YesNo, 
+	NoYes,
 	CancelYes,
 	OKCancel,
 	Unknown UMETA(Hidden)
@@ -19,4 +20,12 @@ enum class EConfirmScreenButtonType : uint8
 	Cancelled,
 	Closed,
 	Unknown UMETA(Hidden)
+};
+
+UENUM(BlueprintType)
+enum class EOptionsListDataModifyReason : uint8
+{
+	DirectlyModified, 
+	DependencyModified,
+	ResetToDefault,
 };

@@ -94,6 +94,11 @@ void UCommonUISubsystem::PushConfirmScreenToModalStackAsync(EConfirmScreenType I
 		CreatedInfoObject = UConfirmScreenInfoObject::CreateYesNoScreen(InScreenTitle, InScreenMessage, Option1Text, Option2Text);
 		break;
 	}
+	case EConfirmScreenType::NoYes:
+	{
+		CreatedInfoObject = UConfirmScreenInfoObject::CreateNoYesScreen(InScreenTitle, InScreenMessage, Option1Text, Option2Text);
+		break;
+	}
 	case EConfirmScreenType::CancelYes:
 	{
 		CreatedInfoObject = UConfirmScreenInfoObject::CreateCancelYesScreen(InScreenTitle, InScreenMessage, Option1Text, Option2Text);

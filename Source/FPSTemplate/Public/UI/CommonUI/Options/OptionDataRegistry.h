@@ -7,6 +7,7 @@
 #include "OptionDataRegistry.generated.h"
 
 class UListDataObjectCollection;
+class UListDataObjectBase;
 
 /**
  * 
@@ -22,7 +23,11 @@ public:
 
 	const TArray<UListDataObjectCollection*>& GetRegisteredOptionTabCollections() const { return RegisteredOptionTabCollections; };
 
+	TArray<UListDataObjectBase*> GetListSourceItemsBySelectedTabID(const FName& InSelectedTabID) const;
+
 private:
+	void FindChildListDataRecursively(UListDataObjectBase* InParentData, TArray<UListDataObjectBase*>& OutFoundChildListData) const;
+
 	void InitGraphicCollectionTab();
 	void InitAudioCollectionTab();
 	void InitGameplayCollectionTab();

@@ -20,6 +20,9 @@ public:
 	void SetButtonDisplayText(FText InText); 
 
 	UFUNCTION(BlueprintCallable)
+	FText GetButtonDisplayText() const;
+
+	UFUNCTION(BlueprintCallable)
 	void SetButtonDescriptionText(FText InText);
 
 private:
@@ -34,7 +37,7 @@ private:
 	/* UCommonButtonBase Interface Ends */
 
 	/* Bound Widgets */
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UCommonTextBlock> CommonTextBlock_ButtonText; 
 
 	UPROPERTY(meta = (BindWidgetOptional))

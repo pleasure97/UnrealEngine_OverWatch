@@ -13,6 +13,15 @@ void UOWCommonButtonBase::SetButtonDisplayText(FText InText)
 	}
 }
 
+FText UOWCommonButtonBase::GetButtonDisplayText() const
+{
+	if (CommonTextBlock_ButtonText)
+	{
+		return CommonTextBlock_ButtonText->GetText();
+	}
+	return FText();
+}
+
 void UOWCommonButtonBase::SetButtonDescriptionText(FText InText)
 {
 	if (CommonTextBlock_ButtonDescriptionText && !InText.IsEmpty())
