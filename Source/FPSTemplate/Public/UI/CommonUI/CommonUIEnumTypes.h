@@ -29,3 +29,26 @@ enum class EOptionsListDataModifyReason : uint8
 	DependencyModified,
 	ResetToDefault,
 };
+
+UENUM(BlueprintType)
+enum class EPlaybackDeviceType : uint8
+{
+	Default,
+};
+
+UENUM(BlueprintType)
+enum class ESpatialAudioType : uint8
+{
+	SystemSettings,
+	DolbyAtmosForHeadphones,
+};
+
+UENUM(BlueprintType)
+enum class EAudioMixType : uint8
+{
+	Default,
+	Speakers,
+	Headphones,
+	NightMode,
+	StudioReference
+};

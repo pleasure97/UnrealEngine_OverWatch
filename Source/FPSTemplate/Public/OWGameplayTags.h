@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-
+#include "NativeGameplayTags.h"
 
 /**
  * OW Gameplay Tags
@@ -280,19 +280,22 @@ public:
 	FGameplayTag Cooldown_Tracer_Blink;
 	FGameplayTag Cooldown_Tracer_Recall;
 
-	/* Common UI - Widget Stack */
-	FGameplayTag CommonUI_WidgetStack_Modal;
-	FGameplayTag CommonUI_WidgetStack_GameMenu;
-	FGameplayTag CommonUI_WidgetStack_GameHUD;
-	FGameplayTag CommonUI_WidgetStack_FrontEnd;
-
-	/* Common UI - Widgets */
-	FGameplayTag CommonUI_Widget_MainMenuScreen;
-	FGameplayTag CommonUI_Widget_LoginScreen;
-	FGameplayTag CommonUI_Widget_ConfirmScreen;
-	FGameplayTag CommonUI_Widget_GameMenuScreen;
-	FGameplayTag CommonUI_Widget_OptionScreen;
-
 private:
 	static FOWGameplayTags GameplayTags; 
 };
+
+namespace CommonUIGameplayTags
+{
+	/* Common UI - Widgets */
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_Widget_MainMenuScreen);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_Widget_LoginScreen);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_Widget_ConfirmScreen);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_Widget_GameMenuScreen);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_Widget_OptionScreen);
+
+	/* Common UI - Widget Stack */
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_WidgetStack_Modal);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_WidgetStack_GameMenu);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_WidgetStack_GameHUD);
+	FPSTEMPLATE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(CommonUI_WidgetStack_FrontEnd);
+}

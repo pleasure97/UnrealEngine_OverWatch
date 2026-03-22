@@ -14,6 +14,8 @@
 #include "UI/CommonUI/Util/CommonUISubsystem.h"
 #include "UI/CommonUI/Components/OWCommonButtonBase.h"
 
+#define LOCTEXT_NAMESPACE "OptionsUI"
+
 void UOptionScreenWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized(); 
@@ -100,10 +102,10 @@ void UOptionScreenWidget::OnResetBoundActionTriggered()
 
 	UCommonUISubsystem::Get(this)->PushConfirmScreenToModalStackAsync(
 		EConfirmScreenType::NoYes,
-		FText::FromString(TEXT("Are you sure you want to reset all the setting under the ") + SelectedTabButtonName + TEXT(" tab.")),
+		FText::Format(LOCTEXT("SettingsResetWarning", "Are you sure you want to reset all the settings under the {0}?"), FText::FromString(SelectedTabButtonName)),
 		FText::GetEmpty(),
-		FText::FromString(TEXT("No")), 
-		FText::FromString(TEXT("Yes")),
+		LOCTEXT("No", "No"),
+		LOCTEXT("Yes", "Yes"),
 		FText::GetEmpty(),
 		[this](EConfirmScreenButtonType ClickedButtonType)
 		{
@@ -245,3 +247,4 @@ void UOptionScreenWidget::OnListViewListDataModified(UListDataObjectBase* Modifi
 		RemoveActionBinding(ResetActionHandle);
 	}
 }
+#undef LOCTEXT_NAMESPACE

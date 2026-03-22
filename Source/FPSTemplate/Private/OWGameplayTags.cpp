@@ -828,42 +828,18 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 	GameplayTags.Cooldown_Tracer_Recall = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Cooldown.Tracer.Recall"),
 		FString("Cooldown of Recall"));
+}
 
-	/* Common UI - Widget Stack */
-	GameplayTags.CommonUI_WidgetStack_Modal = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.WidgetStack.Modal"),
-		FString("Modal Widget Stack in Common UI"));
+namespace CommonUIGameplayTags
+{
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_MainMenuScreen, "CommonUI.Widget.MainMenuScreen");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_LoginScreen, "CommonUI.Widget.LoginScreen");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_ConfirmScreen, "CommonUI.Widget.ConfirmScreen");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_GameMenuScreen, "CommonUI.Widget.GameMenuScreen");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_OptionScreen, "CommonUI.Widget.OptionScreen");
 
-	GameplayTags.CommonUI_WidgetStack_GameMenu = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.WidgetStack.GameMenu"),
-		FString("GameMenu Widget Stack in Common UI"));
-
-	GameplayTags.CommonUI_WidgetStack_GameHUD = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.WidgetStack.GameHUD"),
-		FString("Game HUD Stack in Common UI"));
-
-	GameplayTags.CommonUI_WidgetStack_FrontEnd = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.WidgetStack.FrontEnd"),
-		FString("Frontend Widget Stack in Common UI"));
-
-	/* Common UI - Widgets */
-	GameplayTags.CommonUI_Widget_MainMenuScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.Widget.MainMenuScreen"),
-		FString("Main Menu Screen Widget in Common UI"));
-
-	GameplayTags.CommonUI_Widget_LoginScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.Widget.LoginScreen"),
-		FString("Login Screen Widget in Common UI"));
-
-	GameplayTags.CommonUI_Widget_ConfirmScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.Widget.ConfirmScreen"),
-		FString("Confirm Screen Widget in Common UI"));
-
-	GameplayTags.CommonUI_Widget_GameMenuScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.Widget.GameMenuScreen"),
-		FString("Game Menu Screen Widget in Common UI"));
-
-	GameplayTags.CommonUI_Widget_OptionScreen = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("CommonUI.Widget.OptionScreen"),
-		FString("Option Screen Widget in Common UI"));
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_Modal, "CommonUI.WidgetStack.Modal");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_GameMenu, "CommonUI.WidgetStack.GameMenu");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_GameHUD, "CommonUI.WidgetStack.GameHUD");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_FrontEnd, "CommonUI.WidgetStack.FrontEnd");
 }

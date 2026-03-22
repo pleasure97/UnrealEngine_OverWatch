@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameUserSettings.h"
+#include "UI/CommonUI/CommonUIEnumTypes.h"
 #include "OWGameUserSettings.generated.h"
 
 /**
@@ -34,6 +35,7 @@ public:
 	/* Gameplay Collection Tab Ends */
 
 	/* Audio Collection Tab */
+	// Volume
 	UFUNCTION()
 	float GetOverallVolume() const { return OverallVolume; }
 
@@ -52,6 +54,26 @@ public:
 	UFUNCTION()
 	void SetMusicVolume(float InMusicVolume);
 
+	// Device 
+	UFUNCTION()
+	EPlaybackDeviceType GetPlaybackDeviceType() const { return PlaybackDeviceType; }
+
+	UFUNCTION()
+	void SetPlaybackDeviceType(EPlaybackDeviceType InPlaybackDeviceType);
+
+	UFUNCTION()
+	ESpatialAudioType GetSpatialAudioType() const { return SpatialAudioType; }
+
+	UFUNCTION()
+	void SetSpatialAudioType(ESpatialAudioType InSpatialAudioType);
+
+	UFUNCTION()
+	EAudioMixType GetAudioMixType() const { return AudioMixType; }
+
+	UFUNCTION()
+	void SetAudioMixType(EAudioMixType InAudioMixType);
+
+	// Audio
 	UFUNCTION()
 	bool GetAllowBackgroundAudio() const { return bAllowBackgroundAudio; }
 
@@ -80,6 +102,7 @@ private:
 	/* Gameplay Collection Tab Ends */
 
 	/* Audio Collection Tab */
+	// Volume 
 	UPROPERTY(Config)
 	float OverallVolume;
 
@@ -89,6 +112,17 @@ private:
 	UPROPERTY(Config)
 	float MusicVolume;
 
+	// Device
+	UPROPERTY(Config)
+	EPlaybackDeviceType PlaybackDeviceType;
+
+	UPROPERTY(Config)
+	ESpatialAudioType SpatialAudioType;
+
+	UPROPERTY(Config)
+	EAudioMixType AudioMixType;
+
+	// Sound
 	UPROPERTY(Config)
 	bool bAllowBackgroundAudio;
 

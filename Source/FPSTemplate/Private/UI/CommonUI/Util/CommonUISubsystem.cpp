@@ -122,8 +122,8 @@ void UCommonUISubsystem::PushConfirmScreenToModalStackAsync(EConfirmScreenType I
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
 
 	PushSoftWidgetToStackAsync(
-		GameplayTags.CommonUI_WidgetStack_Modal,
-		UCommonUIFunctionLibrary::GetCommonUISoftWidgetClassByTag(GameplayTags.CommonUI_Widget_ConfirmScreen),
+		CommonUIGameplayTags::CommonUI_WidgetStack_Modal,
+		UCommonUIFunctionLibrary::GetCommonUISoftWidgetClassByTag(CommonUIGameplayTags::CommonUI_Widget_ConfirmScreen),
 		[CreatedInfoObject, ButtonClickedCallback](EAsyncPushWidgetState InPushWidgetState, UActivatableBaseWidget* PushedWidget)
 		{
 			if (InPushWidgetState == EAsyncPushWidgetState::OnCreatedBeforePush)

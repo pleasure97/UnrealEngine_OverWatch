@@ -83,6 +83,34 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 	GraphicTabCollection->SetDataID(FName("GraphicTabCollection")); 
 	GraphicTabCollection->SetDataDisplayName(LOCTEXT("Graphic", "Graphic"));
 
+	// Display Category
+	{
+		UListDataObjectCollection* DisplayCategoryCollection = NewObject<UListDataObjectCollection>(); 
+		DisplayCategoryCollection->SetDataID(FName("DisplayTabCollection")); 
+		DisplayCategoryCollection->SetDataDisplayName(LOCTEXT("Display", "Display"));
+
+		GraphicTabCollection->AddChildListData(DisplayCategoryCollection); 
+
+		// Display Mode
+		{
+			UListDataObjectStringEnum* DisplayMode = NewObject<UListDataObjectStringEnum>(); 
+			DisplayMode->SetDataID(FName("DisplayMode")); 
+			DisplayMode->SetDataDisplayName(LOCTEXT("DisplayMode", "Display Mode")); 
+			DisplayMode->AddEnumOption(EWindowMode::Fullscreen, LOCTEXT("FullScreen", "Full Screen"));
+			DisplayMode->AddEnumOption(EWindowMode::WindowedFullscreen, LOCTEXT("BorderlessWindow", "Borderless Window"));
+			DisplayMode->AddEnumOption(EWindowMode::Windowed, LOCTEXT("Windowed", "Windowed"));
+			
+			DisplayMode->SetDefaultValueFromEnumOption(EWindowMode::Fullscreen);
+
+			DisplayMode->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetFullscreenMode));
+			DisplayMode->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetFullscreenMode));
+
+			DisplayMode->SetShouldApplySettingsImmediately(true);
+
+			DisplayCategoryCollection->AddChildListData(DisplayMode);
+		}
+	}
+
 	RegisteredOptionTabCollections.Add(GraphicTabCollection);
 }
 
@@ -155,13 +183,57 @@ void UOptionDataRegistry::InitAudioCollectionTab()
 		}
 	}
 
-	// Volume Category
+	// Device Category
 	{
 		UListDataObjectCollection* DeviceCategoryCollection = NewObject<UListDataObjectCollection>();
 		DeviceCategoryCollection->SetDataID(FName("DeviceCategoryCollection"));
 		DeviceCategoryCollection->SetDataDisplayName(LOCTEXT("Device", "Device"));
 
 		AudioTabCollection->AddChildListData(DeviceCategoryCollection);
+
+		// Playback Device
+		{
+			UListDataObjectStringEnum* PlaybackDevice = NewObject<UListDataObjectStringEnum>();
+			PlaybackDevice->SetDataID(FName("PlaybackDevice"));
+			PlaybackDevice->SetDataDisplayName(LOCTEXT("PlaybackDevice", "Playback Device"));
+			// TODO - Enum 
+			PlaybackDevice->AddEnumOption(EPlaybackDeviceType::Default, LOCTEXT("Playback Device Default", "Default"));
+			PlaybackDevice->SetDefaultValueFromEnumOption(EPlaybackDeviceType::Default);
+			PlaybackDevice->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetPlaybackDeviceType));
+			PlaybackDevice->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetPlaybackDeviceType));
+			PlaybackDevice->SetShouldApplySettingsImmediately(true);
+			DeviceCategoryCollection->AddChildListData(PlaybackDevice);
+		}
+		// Spatial Audio
+		{
+			UListDataObjectStringEnum* SpatialAudio = NewObject<UListDataObjectStringEnum>();
+			SpatialAudio->SetDataID(FName("SpatialAudio"));
+			SpatialAudio->SetDataDisplayName(LOCTEXT("SpatialAudio", "Spatial Audio"));
+			// TODO - Enum 
+			SpatialAudio->AddEnumOption(ESpatialAudioType::SystemSettings, LOCTEXT("SystemSettings", "System Settings"));
+			SpatialAudio->AddEnumOption(ESpatialAudioType::DolbyAtmosForHeadphones, LOCTEXT("DolbyAtmosForHeadphones", "Dolby Atmos for Headphones"));
+			SpatialAudio->SetDefaultValueFromEnumOption(ESpatialAudioType::SystemSettings);
+			SpatialAudio->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetSpatialAudioType));
+			SpatialAudio->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetSpatialAudioType));
+			SpatialAudio->SetShouldApplySettingsImmediately(true);
+			DeviceCategoryCollection->AddChildListData(SpatialAudio);
+		}
+		// Audio Mix
+		{
+			UListDataObjectStringEnum* AudioMix = NewObject<UListDataObjectStringEnum>();
+			AudioMix->SetDataID(FName("AudioMix"));
+			AudioMix->SetDataDisplayName(LOCTEXT("AudioMix", "Audio Mix"));
+			AudioMix->AddEnumOption(EAudioMixType::Default, LOCTEXT("Audio Mix Default", "Default"));
+			AudioMix->AddEnumOption(EAudioMixType::Speakers, LOCTEXT("Speakers", "Speakers"));
+			AudioMix->AddEnumOption(EAudioMixType::Headphones, LOCTEXT("Headphones", "Headphones"));
+			AudioMix->AddEnumOption(EAudioMixType::NightMode, LOCTEXT("NightMode", "Night Mode"));
+			AudioMix->AddEnumOption(EAudioMixType::StudioReference, LOCTEXT("StudioReference", "Studio Reference"));
+			AudioMix->SetDefaultValueFromEnumOption(EAudioMixType::Default);
+			AudioMix->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetAudioMixType));
+			AudioMix->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetAudioMixType));
+			AudioMix->SetShouldApplySettingsImmediately(true);
+			DeviceCategoryCollection->AddChildListData(AudioMix);
+		}
 	}
 
 	// Sound Category

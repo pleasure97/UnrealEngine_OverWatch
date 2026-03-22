@@ -40,6 +40,25 @@ void UOWGameUserSettings::SetMusicVolume(float InMusicVolume)
 	// Actual Logic for Controlling Volume Goes Here
 }
 
+void UOWGameUserSettings::SetPlaybackDeviceType(EPlaybackDeviceType InPlaybackDeviceType)
+{
+	PlaybackDeviceType = InPlaybackDeviceType;
+
+	// Actual Logic for Controlling Device Goes Here
+}
+
+void UOWGameUserSettings::SetSpatialAudioType(ESpatialAudioType InSpatialAudioType)
+{
+	SpatialAudioType = InSpatialAudioType;
+	// Actual Logic for Controlling Device Goes Here
+}
+
+void UOWGameUserSettings::SetAudioMixType(EAudioMixType InAudioMixType)
+{
+	AudioMixType = InAudioMixType;
+	// Actual Logic for Controlling Device Goes Here
+}
+
 void UOWGameUserSettings::SetAllowBackgroundAudio(bool bInAllowBackgroundAudio)
 {
 	bAllowBackgroundAudio = bInAllowBackgroundAudio;

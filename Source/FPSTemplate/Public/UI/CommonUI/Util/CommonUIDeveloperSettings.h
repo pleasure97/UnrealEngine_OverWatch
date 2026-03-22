@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Engine/DeveloperSettingsBackedByCVars.h"
+#include "Engine/DeveloperSettings.h"
 #include "GameplayTagContainer.h"
 #include "CommonUIDeveloperSettings.generated.h"
 
@@ -12,7 +12,7 @@ class UActivatableBaseWidget;
  * 
  */
 UCLASS(config=Game, defaultconfig, meta = (DisplayName = "Common UI Settings"))
-class FPSTEMPLATE_API UCommonUIDeveloperSettings : public UDeveloperSettingsBackedByCVars
+class FPSTEMPLATE_API UCommonUIDeveloperSettings : public UDeveloperSettings
 {
 	GENERATED_BODY()
 	
