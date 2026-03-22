@@ -39,3 +39,26 @@ protected:
 	TArray<FString> AvailableOptionsStringArray;
 	TArray<FText> AvailableOptionsTextArray;
 };
+
+UCLASS()
+class FPSTEMPLATE_API UListDataObjectStringBool : public UListDataObjectString
+{
+	GENERATED_BODY()
+
+public:
+	void OverrideTrueDisplayText(const FText& InNewTrueDisplayText);
+	void OverrideFalseDisplayText(const FText& InNewFalseDisplayText);
+
+	void SetTrueAsDefaultValue();
+	void SetFalseAsDefaultValue();
+
+protected:
+	/* UListDataObjectString */
+	virtual void OnDataObjectInitialized() override;
+
+private:
+	void TryInitBoolValues(); 
+
+	const FString TrueString = TEXT("true");
+	const FString FalseString = TEXT("false");
+};

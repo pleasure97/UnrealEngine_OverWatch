@@ -5,6 +5,7 @@
 #include "UI/CommonUI/Options/OptionsDataInteractionHelper.h"
 #include "UI/CommonUI/Util/CommonUIDebugHelper.h"
 
+#define LOCTEXT_NAMESPACE "OptionsUI"
 void UListDataObjectString::AddDynamicOption(const FString& InStringValue, const FText& InDisplayText)
 {
 	AvailableOptionsStringArray.Add(InStringValue);
@@ -126,7 +127,7 @@ void UListDataObjectString::OnDataObjectInitialized()
 
 	if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
 	{
-		CurrentDisplayText = FText::FromString(TEXT("Invalid Option"));
+		CurrentDisplayText = LOCTEXT("Invalid Option", "Invalid Option");
 	}
 }
 
@@ -142,3 +143,54 @@ bool UListDataObjectString::TrySetDisplayTextFromStringValue(const FString& InSt
 	}
 	return false;
 }
+
+/*
+ *  ListDataObject - String Bool
+ */
+
+void UListDataObjectStringBool::OverrideTrueDisplayText(const FText& InNewTrueDisplayText)
+{
+	if (!AvailableOptionsStringArray.Contains(TrueString))
+	{
+		AddDynamicOption(TrueString, InNewTrueDisplayText);
+	}
+}
+
+void UListDataObjectStringBool::OverrideFalseDisplayText(const FText& InNewFalseDisplayText)
+{
+	if (!AvailableOptionsStringArray.Contains(FalseString))
+	{
+		AddDynamicOption(FalseString, InNewFalseDisplayText);
+	}
+}
+
+void UListDataObjectStringBool::SetTrueAsDefaultValue()
+{
+	SetDefaultValueFromString(TrueString);
+}
+
+void UListDataObjectStringBool::SetFalseAsDefaultValue()
+{
+	SetDefaultValueFromString(FalseString);
+}
+
+void UListDataObjectStringBool::OnDataObjectInitialized()
+{
+	TryInitBoolValues();
+
+	Super::OnDataObjectInitialized();
+}
+
+void UListDataObjectStringBool::TryInitBoolValues()
+{
+	if (!AvailableOptionsStringArray.Contains(TrueString))
+	{
+		AddDynamicOption(TrueString, LOCTEXT("ON", "ON"));
+	}
+
+	if (!AvailableOptionsStringArray.Contains(FalseString))
+	{
+		AddDynamicOption(FalseString, LOCTEXT("OFF", "OFF"));
+	}
+}
+#undef LOCTEXT_NAMESPACE
