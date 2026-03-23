@@ -18,6 +18,25 @@ UOWGameUserSettings* UOWGameUserSettings::Get()
 	return nullptr;
 }
 
+/* Graphic */
+float UOWGameUserSettings::GetCurrentGammaCorrection() const
+{
+	if (GEngine)
+	{
+		return GEngine->GetDisplayGamma();
+	}
+	return 0.0f;
+}
+
+void UOWGameUserSettings::SetCurrentGammaCorrection(float InNewGammaCorrection)
+{
+	if (GEngine)
+	{
+		GEngine->DisplayGamma = InNewGammaCorrection;
+	}
+}
+
+/* Audio */
 void UOWGameUserSettings::SetOverallVolume(float InOverallVolume)
 {
 	OverallVolume = InOverallVolume;
@@ -66,6 +85,7 @@ void UOWGameUserSettings::SetAllowBackgroundAudio(bool bInAllowBackgroundAudio)
 	// Actual Logic for Controlling Audio Goes Here
 }
 
+/* Gameplay */
 void UOWGameUserSettings::SetPlayNotificationWhenAllyFalls(bool bInPlayNotificationWhenAllyFalls)
 {
 	bPlayNotificationWhenAllyFalls = bInPlayNotificationWhenAllyFalls;

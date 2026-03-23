@@ -78,6 +78,25 @@ void UListDataObjectString::BackToPreviousOption()
 	}
 }
 
+void UListDataObjectString::SetSelectedOption(const FString& InSelectedOption)
+{
+	if(AvailableOptionsStringArray.IsEmpty() || AvailableOptionsTextArray.IsEmpty())
+	{
+		return;
+	}
+
+	TrySetStringValueFromDisplayString(InSelectedOption);
+
+	if (DataDynamicSetter)
+	{
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
+
+		CommonUIDebug::Print(TEXT("DataDynamicSetter is used. The latest value from Getter : ") + DataDynamicGetter->GetValueAsString());
+
+		NotifyListDataModified(this);
+	}
+}
+
 bool UListDataObjectString::CanResetBackToDefaultValue() const
 {
 	return HasDefaultValue() && (CurrentStringValue != GetDefaultValueAsString());
@@ -162,6 +181,22 @@ bool UListDataObjectString::TrySetDisplayTextFromStringValue(const FString& InSt
 	return false;
 }
 
+bool UListDataObjectString::TrySetStringValueFromDisplayString(const FString& InStringValue)
+{
+	CurrentDisplayText = FText::FromString(InStringValue);
+	int32 FoundIndex = AvailableOptionsTextArray.IndexOfByPredicate(
+		[this](const FText& Item) 
+		{
+			return Item.EqualTo(CurrentDisplayText);
+		});
+	if (AvailableOptionsStringArray.IsValidIndex(FoundIndex))
+	{
+		CurrentStringValue = AvailableOptionsStringArray[FoundIndex];
+		return true;
+	}
+	return false;
+}
+
 /*
  *  ListDataObject - String Bool
  */
@@ -211,4 +246,46 @@ void UListDataObjectStringBool::TryInitBoolValues()
 		AddDynamicOption(FalseString, LOCTEXT("OFF", "OFF"));
 	}
 }
+
+/*
+ *  ListDataObject - String Integer
+ */
+void UListDataObjectStringInteger::AddIntegerOption(int32 InIntegerValue, const FText& InDisplayText)
+{
+	AddDynamicOption(LexToString(InIntegerValue), InDisplayText);
+}
+
+void UListDataObjectStringInteger::OnDataObjectInitialized()
+{
+	Super::OnDataObjectInitialized();
+
+	if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
+	{
+		CurrentDisplayText = LOCTEXT("Custom", "Custom");
+	}
+}
+
+void UListDataObjectStringInteger::OnEditDependencyDataModified(UListDataObjectBase* ModifiedDependencyData, EOptionsListDataModifyReason ModifyReason)
+{
+	if (DataDynamicGetter)
+	{
+		if (CurrentStringValue == DataDynamicGetter->GetValueAsString())
+		{
+			return;
+		}
+
+		CurrentStringValue = DataDynamicGetter->GetValueAsString();
+
+		if (!TrySetDisplayTextFromStringValue(CurrentStringValue))
+		{
+			CurrentDisplayText = LOCTEXT("Custom", "Custom");
+		}
+
+		NotifyListDataModified(this, EOptionsListDataModifyReason::DependencyModified);
+	}
+
+	Super::OnEditDependencyDataModified(ModifiedDependencyData, ModifyReason);
+}
+
 #undef LOCTEXT_NAMESPACE
+

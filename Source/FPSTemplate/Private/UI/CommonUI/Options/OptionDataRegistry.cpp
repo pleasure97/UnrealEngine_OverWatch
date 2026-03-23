@@ -8,11 +8,14 @@
 #include "UI/CommonUI/Options/ListDataObjectStringResolution.h"
 #include "UI/CommonUI/Options/OptionsDataInteractionHelper.h"
 #include "UI/CommonUI/Util/OWGameUserSettings.h"
+#include "Internationalization/StringTableRegistry.h"
 
 #define LOCTEXT_NAMESPACE "OptionsUI"
 
 #define MAKE_OPTIONS_DATA_CONTROL(SetterOrGetterFuncName) \
 	MakeShared<FOptionsDataInteractionHelper>(GET_FUNCTION_NAME_STRING_CHECKED(UOWGameUserSettings, SetterOrGetterFuncName))
+
+#define GET_DESCRIPTION(InKey) LOCTABLE("/Content/Blueprints/UI/OW/CommonUI/StringTables/ST_OptionsScreenDescription", InKey)
 
 void UOptionDataRegistry::InitOptionDataRegistry(ULocalPlayer* InOwningLocalPlayer)
 {
@@ -85,6 +88,7 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 	GraphicTabCollection->SetDataDisplayName(LOCTEXT("Graphic", "Graphic"));
 
 	UListDataObjectStringEnum* CreatedDisplayMode = nullptr;
+	UListDataObjectStringInteger* CreatedGraphicQuality = nullptr;
 
 	// Display Category
 	{
@@ -112,6 +116,7 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 			UListDataObjectStringEnum* DisplayMode = NewObject<UListDataObjectStringEnum>(); 
 			DisplayMode->SetDataID(FName("DisplayMode")); 
 			DisplayMode->SetDataDisplayName(LOCTEXT("DisplayMode", "Display Mode")); 
+			// TODO - DisplayMode->SetDescriptionRichText(GET_DESCRIPTION("DisplayModeKey"));
 			DisplayMode->AddEnumOption(EWindowMode::Fullscreen, LOCTEXT("FullScreen", "Full Screen"));
 			DisplayMode->AddEnumOption(EWindowMode::WindowedFullscreen, LOCTEXT("BorderlessWindow", "Borderless Window"));
 			DisplayMode->AddEnumOption(EWindowMode::Windowed, LOCTEXT("Windowed", "Windowed"));
@@ -161,6 +166,275 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 			ScreenResolution->AddEditDependencyData(CreatedDisplayMode);
 			
 			DisplayCategoryCollection->AddChildListData(ScreenResolution);
+		}
+	}
+
+	// Graphic Category
+	{
+		UListDataObjectCollection* GraphicCategoryCollection = NewObject<UListDataObjectCollection>();
+		GraphicCategoryCollection->SetDataID(FName("GraphicCategoryCollection"));
+		GraphicCategoryCollection->SetDataDisplayName(LOCTEXT("GraphicCategoryCollection", "Graphic"));
+
+		GraphicTabCollection->AddChildListData(GraphicCategoryCollection);
+
+		// View Distance
+		{
+			UListDataObjectStringInteger* ViewDistance = NewObject<UListDataObjectStringInteger>();
+
+			ViewDistance->SetDataID(FName("AntiAliasing"));
+			ViewDistance->SetDataDisplayName(LOCTEXT("ViewDistance", "View Distance"));
+			ViewDistance->AddIntegerOption(0, LOCTEXT("View Distance Low", "Low"));
+			ViewDistance->AddIntegerOption(1, LOCTEXT("View Distance Medium", "Medium"));
+			ViewDistance->AddIntegerOption(2, LOCTEXT("View Distance High", "High"));
+			ViewDistance->AddIntegerOption(3, LOCTEXT("View Distance Very High", "Very High"));
+			ViewDistance->AddIntegerOption(4, LOCTEXT("View Distance Epic", "Epic"));
+			ViewDistance->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetViewDistanceQuality));
+			ViewDistance->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetViewDistanceQuality));
+			ViewDistance->SetShouldApplySettingsImmediately(true);
+
+			GraphicCategoryCollection->AddChildListData(ViewDistance);
+		}
+
+		// Frame Rate Limit
+		{
+			//UListDataObjectScalar* FrameRateLimit = NewObject<UListDataObjectScalar>();
+			//FrameRateLimit->SetDataID(FName("FrameRateLimit"));
+			//FrameRateLimit->SetDataDisplayName(LOCTEXT("FrameRateLimit", "Frame Rate Limit"));
+			//FrameRateLimit->SetDisplayValueRange(TRange<float>(60.f, 540.f));
+			//FrameRateLimit->SetOutputValueRange(TRange<float>(60.f, 540.f)); // Default Value for Unreal Has is 2.2f
+			//FrameRateLimit->SetSliderStepSize(1.f);
+			//FrameRateLimit->SetDisplayNumericType(ECommonNumericType::Number);
+			//FrameRateLimit->SetNumberFormattingOptions(UListDataObjectScalar::NoDecimal());
+			//FrameRateLimit->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetFrameRateLimit));
+			//FrameRateLimit->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetFrameRateLimit));
+
+			//FrameRateLimit->SetDefaultValueFromString(LexToString(0.f));
+			//FrameRateLimit->SetShouldApplySettingsImmediately(true);
+
+			//GraphicCategoryCollection->AddChildListData(FrameRateLimit);
+		}
+
+		// Vertical Sync
+		{
+			UListDataObjectStringBool* VerticalSync = NewObject<UListDataObjectStringBool>();
+			VerticalSync->SetDataID(FName("VerticalSync"));
+			VerticalSync->SetDataDisplayName(LOCTEXT("VerticalSync", "Vertical Sync"));
+			VerticalSync->OverrideTrueDisplayText(LOCTEXT("Enabled", "Enabled"));
+			VerticalSync->OverrideFalseDisplayText(LOCTEXT("Disabled", "Disabled"));
+			VerticalSync->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(IsVSyncEnabled));
+			VerticalSync->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetVSyncEnabled));
+			VerticalSync->SetFalseAsDefaultValue();
+			VerticalSync->SetShouldApplySettingsImmediately(true);
+
+			// Full Screen Only Condition 
+			FOptionDataEditConditionDescriptor FullScreenOnlyCondition;
+			FullScreenOnlyCondition.SetEditConditionFunc(
+				[CreatedDisplayMode]() -> bool
+				{
+					return CreatedDisplayMode->GetCurrentValueAsEnum<EWindowMode::Type>() == EWindowMode::Fullscreen;
+				}
+			);
+			FullScreenOnlyCondition.SetDisabledRichReason(TEXT("\n\n<Disabled>This feature only works if the 'Window Mode' is set to 'Fullscreen'.</>"));
+			FullScreenOnlyCondition.SetDisabledForcedStringValue(TEXT("false"));
+
+			VerticalSync->AddEditCondition(FullScreenOnlyCondition);
+			GraphicCategoryCollection->AddChildListData(VerticalSync);
+		}
+
+		// Gamma Correction
+		{
+			UListDataObjectScalar* GammaCorrection = NewObject<UListDataObjectScalar>();
+			GammaCorrection->SetDataID(FName("GammaCorrection"));
+			GammaCorrection->SetDataDisplayName(LOCTEXT("GammaCorrection", "Gamma Correction")); 
+			GammaCorrection->SetDisplayValueRange(TRange<float>(1.7f, 2.7f)); 
+			GammaCorrection->SetOutputValueRange(TRange<float>(1.7f, 2.7f)); // Default Value for Unreal Has is 2.2f
+			GammaCorrection->SetSliderStepSize(0.01f);
+			GammaCorrection->SetDisplayNumericType(ECommonNumericType::Number);
+			GammaCorrection->SetNumberFormattingOptions(UListDataObjectScalar::WithDecimal(2));
+			GammaCorrection->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentGammaCorrection));
+			GammaCorrection->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentGammaCorrection));
+
+			GammaCorrection->SetDefaultValueFromString(LexToString(2.2f));
+			GammaCorrection->SetShouldApplySettingsImmediately(true);
+
+			GraphicCategoryCollection->AddChildListData(GammaCorrection);
+		}
+	}
+
+	// Graphic Quality Category 
+	{
+		UListDataObjectCollection* GraphicQualityCategoryCollection = NewObject<UListDataObjectCollection>();
+		GraphicQualityCategoryCollection->SetDataID(FName("GraphicQualityCategoryCollection"));
+		GraphicQualityCategoryCollection->SetDataDisplayName(LOCTEXT("GraphicQualityCategory", "Graphic Quality"));
+
+		GraphicTabCollection->AddChildListData(GraphicQualityCategoryCollection);
+
+
+		// Graphic Quality 
+		{
+			UListDataObjectStringInteger* GraphicQuality = NewObject<UListDataObjectStringInteger>();
+
+			GraphicQuality->SetDataID(FName("GraphicQuality"));
+			GraphicQuality->SetDataDisplayName(LOCTEXT("GraphicQuality", "Graphic Quality"));
+			GraphicQuality->AddIntegerOption(0, LOCTEXT("Graphic Quality Low", "Low"));
+			GraphicQuality->AddIntegerOption(1, LOCTEXT("Graphic Quality Medium", "Medium"));
+			GraphicQuality->AddIntegerOption(2, LOCTEXT("Graphic Quality High", "High"));
+			GraphicQuality->AddIntegerOption(3, LOCTEXT("Graphic Quality Very High", "Very High"));
+			GraphicQuality->AddIntegerOption(4, LOCTEXT("Graphic Quality Epic", "Epic"));
+			GraphicQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetOverallScalabilityLevel));
+			GraphicQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetOverallScalabilityLevel));
+			GraphicQuality->SetShouldApplySettingsImmediately(true);
+
+			GraphicQualityCategoryCollection->AddChildListData(GraphicQuality);
+
+			CreatedGraphicQuality = GraphicQuality;
+		}
+
+		// Anti Aliasing
+		{
+			UListDataObjectStringInteger* AntiAliasing = NewObject<UListDataObjectStringInteger>();
+
+			AntiAliasing->SetDataID(FName("AntiAliasing"));
+			AntiAliasing->SetDataDisplayName(LOCTEXT("AntiAliasing", "Anti Aliasing"));
+			AntiAliasing->AddIntegerOption(0, LOCTEXT("Anti Aliasing Low", "Low"));
+			AntiAliasing->AddIntegerOption(1, LOCTEXT("Anti Aliasing Medium", "Medium"));
+			AntiAliasing->AddIntegerOption(2, LOCTEXT("Anti Aliasing High", "High"));
+			AntiAliasing->AddIntegerOption(3, LOCTEXT("Anti Aliasing Very High", "Very High"));
+			AntiAliasing->AddIntegerOption(4, LOCTEXT("Anti Aliasing Epic", "Epic"));
+			AntiAliasing->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetAntiAliasingQuality));
+			AntiAliasing->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetAntiAliasingQuality));
+			AntiAliasing->SetShouldApplySettingsImmediately(true);
+
+			AntiAliasing->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(AntiAliasing);
+
+			GraphicQualityCategoryCollection->AddChildListData(AntiAliasing);
+		}
+
+		// Texture Quality
+		{
+			UListDataObjectStringInteger* TextureQuality = NewObject<UListDataObjectStringInteger>();
+
+			TextureQuality->SetDataID(FName("TextureQuality"));
+			TextureQuality->SetDataDisplayName(LOCTEXT("TextureQuality", "Texture Quality"));
+			TextureQuality->AddIntegerOption(0, LOCTEXT("Texture Quality Low", "Low"));
+			TextureQuality->AddIntegerOption(1, LOCTEXT("Texture Quality Medium", "Medium"));
+			TextureQuality->AddIntegerOption(2, LOCTEXT("Texture Quality High", "High"));
+			TextureQuality->AddIntegerOption(3, LOCTEXT("Texture Quality Very High", "Very High"));
+			TextureQuality->AddIntegerOption(4, LOCTEXT("Texture Quality Epic", "Epic"));
+			TextureQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetTextureQuality));
+			TextureQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetTextureQuality));
+			TextureQuality->SetShouldApplySettingsImmediately(true);
+
+			TextureQuality->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(TextureQuality);
+
+			GraphicQualityCategoryCollection->AddChildListData(TextureQuality);
+		}
+
+		// Shadow Quality
+		{
+			UListDataObjectStringInteger* ShadowQuality = NewObject<UListDataObjectStringInteger>();
+
+			ShadowQuality->SetDataID(FName("ShadowQuality"));
+			ShadowQuality->SetDataDisplayName(LOCTEXT("ShadowQuality", "Shadow Quality"));
+			ShadowQuality->AddIntegerOption(0, LOCTEXT("Shadow Quality Low", "Low"));
+			ShadowQuality->AddIntegerOption(1, LOCTEXT("Shadow Quality Medium", "Medium"));
+			ShadowQuality->AddIntegerOption(2, LOCTEXT("Shadow Quality High", "High"));
+			ShadowQuality->AddIntegerOption(3, LOCTEXT("Shadow Quality Very High", "Very High"));
+			ShadowQuality->AddIntegerOption(4, LOCTEXT("Shadow Quality Epic", "Epic"));
+			ShadowQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetShadowQuality));
+			ShadowQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetShadowQuality));
+			ShadowQuality->SetShouldApplySettingsImmediately(true);
+
+			ShadowQuality->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(ShadowQuality);
+
+			GraphicQualityCategoryCollection->AddChildListData(ShadowQuality);
+		}
+
+		// Visual Effect Quality
+		{
+			UListDataObjectStringInteger* VisualEffectQuality = NewObject<UListDataObjectStringInteger>();
+
+			VisualEffectQuality->SetDataID(FName("VisualEffectQuality"));
+			VisualEffectQuality->SetDataDisplayName(LOCTEXT("VisualEffectQuality", "Visual Effect Quality"));
+			VisualEffectQuality->AddIntegerOption(0, LOCTEXT("Visual Effect Quality Low", "Low"));
+			VisualEffectQuality->AddIntegerOption(1, LOCTEXT("Visual Effect Quality Medium", "Medium"));
+			VisualEffectQuality->AddIntegerOption(2, LOCTEXT("Visual Effect Quality High", "High"));
+			VisualEffectQuality->AddIntegerOption(3, LOCTEXT("Visual Effect Quality Very High", "Very High"));
+			VisualEffectQuality->AddIntegerOption(4, LOCTEXT("Visual Effect Quality Epic", "Epic"));
+			VisualEffectQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetVisualEffectQuality));
+			VisualEffectQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetVisualEffectQuality));
+			VisualEffectQuality->SetShouldApplySettingsImmediately(true);
+
+			VisualEffectQuality->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(VisualEffectQuality);
+
+			GraphicQualityCategoryCollection->AddChildListData(VisualEffectQuality);
+		}
+
+		// Global Illumination Quality
+		{
+			UListDataObjectStringInteger* GlobalIlluminationQuality = NewObject<UListDataObjectStringInteger>();
+
+			GlobalIlluminationQuality->SetDataID(FName("GlobalIlluminationQuality"));
+			GlobalIlluminationQuality->SetDataDisplayName(LOCTEXT("GlobalIlluminationQuality", "Global Illumination Quality"));
+			GlobalIlluminationQuality->AddIntegerOption(0, LOCTEXT("Global Illumination Quality Low", "Low"));
+			GlobalIlluminationQuality->AddIntegerOption(1, LOCTEXT("Global Illumination Quality Medium", "Medium"));
+			GlobalIlluminationQuality->AddIntegerOption(2, LOCTEXT("Global Illumination Quality High", "High"));
+			GlobalIlluminationQuality->AddIntegerOption(3, LOCTEXT("Global Illumination Quality Very High", "Very High"));
+			GlobalIlluminationQuality->AddIntegerOption(4, LOCTEXT("Global Illumination Quality Epic", "Epic"));
+			GlobalIlluminationQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetGlobalIlluminationQuality));
+			GlobalIlluminationQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetGlobalIlluminationQuality));
+			GlobalIlluminationQuality->SetShouldApplySettingsImmediately(true);
+
+			GlobalIlluminationQuality->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(GlobalIlluminationQuality);
+
+			GraphicQualityCategoryCollection->AddChildListData(GlobalIlluminationQuality);
+		}
+
+		// Reflection Quality
+		{
+			UListDataObjectStringInteger* ReflectionQuality = NewObject<UListDataObjectStringInteger>();
+
+			ReflectionQuality->SetDataID(FName("ReflectionQuality"));
+			ReflectionQuality->SetDataDisplayName(LOCTEXT("ReflectionQuality", "Reflection Quality"));
+			ReflectionQuality->AddIntegerOption(0, LOCTEXT("Reflection Quality Low", "Low"));
+			ReflectionQuality->AddIntegerOption(1, LOCTEXT("Reflection Quality Medium", "Medium"));
+			ReflectionQuality->AddIntegerOption(2, LOCTEXT("Reflection Quality High", "High"));
+			ReflectionQuality->AddIntegerOption(3, LOCTEXT("Reflection Quality Very High", "Very High"));
+			ReflectionQuality->AddIntegerOption(4, LOCTEXT("Reflection Quality Epic", "Epic"));
+			ReflectionQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetReflectionQuality));
+			ReflectionQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetReflectionQuality));
+			ReflectionQuality->SetShouldApplySettingsImmediately(true);
+
+			ReflectionQuality->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(ReflectionQuality);
+
+			GraphicQualityCategoryCollection->AddChildListData(ReflectionQuality);
+		}
+
+		// Post Processing Quality
+		{
+			UListDataObjectStringInteger* PostProcessingQuality = NewObject<UListDataObjectStringInteger>();
+
+			PostProcessingQuality->SetDataID(FName("PostProcessingQuality"));
+			PostProcessingQuality->SetDataDisplayName(LOCTEXT("PostProcessingQuality", "PostProcessing Quality"));
+			PostProcessingQuality->AddIntegerOption(0, LOCTEXT("PostProcessing Quality Low", "Low"));
+			PostProcessingQuality->AddIntegerOption(1, LOCTEXT("PostProcessing Quality Medium", "Medium"));
+			PostProcessingQuality->AddIntegerOption(2, LOCTEXT("PostProcessing Quality High", "High"));
+			PostProcessingQuality->AddIntegerOption(3, LOCTEXT("PostProcessing Quality Very High", "Very High"));
+			PostProcessingQuality->AddIntegerOption(4, LOCTEXT("PostProcessing Quality Epic", "Epic"));
+			PostProcessingQuality->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetPostProcessingQuality));
+			PostProcessingQuality->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetPostProcessingQuality));
+			PostProcessingQuality->SetShouldApplySettingsImmediately(true);
+
+			PostProcessingQuality->AddEditDependencyData(CreatedGraphicQuality);
+			CreatedGraphicQuality->AddEditDependencyData(PostProcessingQuality);
+
+			GraphicQualityCategoryCollection->AddChildListData(PostProcessingQuality);
 		}
 	}
 
@@ -349,31 +623,48 @@ void UOptionDataRegistry::InitGameplayCollectionTab()
 	GameplayTabCollection->SetDataID(FName("GameplayTabCollection"));
 	GameplayTabCollection->SetDataDisplayName(LOCTEXT("Gameplay", "Gameplay"));
 
-	// Enable Automatic Queue Registration
+	// Find Match Category
 	{
-		UListDataObjectString* EnableAutomaticQueueRegistration = NewObject<UListDataObjectString>();
-		EnableAutomaticQueueRegistration->SetDataID(FName("EnableAutomaticQueueRegistration"));
-		EnableAutomaticQueueRegistration->SetDataDisplayName(LOCTEXT("EnableAutomaticQueueRegistration", "Enable Automatic Queue Registration"));
-		EnableAutomaticQueueRegistration->AddDynamicOption(TEXT("Enable"), LOCTEXT("Enable", "Enable"));
-		EnableAutomaticQueueRegistration->AddDynamicOption(TEXT("Disable"), LOCTEXT("Disable", "Disable"));
-		EnableAutomaticQueueRegistration->SetDefaultValueFromString(TEXT("Enable"));
-		EnableAutomaticQueueRegistration->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentEnableAutomaticQueueRegistration));
-		EnableAutomaticQueueRegistration->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentEnableAutomaticQueueRegistration));
-		GameplayTabCollection->AddChildListData(EnableAutomaticQueueRegistration);
+		UListDataObjectCollection* FindMatchCategoryCollection = NewObject<UListDataObjectCollection>();
+		FindMatchCategoryCollection->SetDataID(FName("FindMatchCategoryCollection"));
+		FindMatchCategoryCollection->SetDataDisplayName(LOCTEXT("Find Match Category", "Find Match"));
+
+		GameplayTabCollection->AddChildListData(FindMatchCategoryCollection);
+		// Enable Automatic Queue Registration
+		{
+			UListDataObjectString* EnableAutomaticQueueRegistration = NewObject<UListDataObjectString>();
+			EnableAutomaticQueueRegistration->SetDataID(FName("EnableAutomaticQueueRegistration"));
+			EnableAutomaticQueueRegistration->SetDataDisplayName(LOCTEXT("EnableAutomaticQueueRegistration", "Enable Automatic Queue Registration"));
+			EnableAutomaticQueueRegistration->AddDynamicOption(TEXT("Enable"), LOCTEXT("Enable", "Enable"));
+			EnableAutomaticQueueRegistration->AddDynamicOption(TEXT("Disable"), LOCTEXT("Disable", "Disable"));
+			EnableAutomaticQueueRegistration->SetDefaultValueFromString(TEXT("Enable"));
+			EnableAutomaticQueueRegistration->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentEnableAutomaticQueueRegistration));
+			EnableAutomaticQueueRegistration->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentEnableAutomaticQueueRegistration));
+			FindMatchCategoryCollection->AddChildListData(EnableAutomaticQueueRegistration);
+		}
 	}
 
-	// Limit Client Transmission Rate
+	// Network Category
 	{
-		UListDataObjectString* LimitClientTransmissionRate = NewObject<UListDataObjectString>();
-		LimitClientTransmissionRate->SetDataID(FName("LimitClientTransmissionRate"));
-		LimitClientTransmissionRate->SetDataDisplayName(LOCTEXT("LimitClientTransmissionRate", "Limit Client Transmission Rate"));
-		LimitClientTransmissionRate->AddDynamicOption(TEXT("Disable"), LOCTEXT("Enable", "Enable"));
-		LimitClientTransmissionRate->AddDynamicOption(TEXT("Enable"), LOCTEXT("Enable", "Enable"));
-		LimitClientTransmissionRate->SetDefaultValueFromString(TEXT("Disable"));
-		LimitClientTransmissionRate->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentLimitClientTransmissionRate));
-		LimitClientTransmissionRate->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentLimitClientTransmissionRate));
-		LimitClientTransmissionRate->SetShouldApplySettingsImmediately(true);
-		GameplayTabCollection->AddChildListData(LimitClientTransmissionRate);
+		UListDataObjectCollection* NetworkCategoryCollection = NewObject<UListDataObjectCollection>();
+		NetworkCategoryCollection->SetDataID(FName("NetworkCategoryCollection"));
+		NetworkCategoryCollection->SetDataDisplayName(LOCTEXT("Network Category", "Network"));
+
+		GameplayTabCollection->AddChildListData(NetworkCategoryCollection);
+
+		// Limit Client Transmission Rate
+		{
+			UListDataObjectString* LimitClientTransmissionRate = NewObject<UListDataObjectString>();
+			LimitClientTransmissionRate->SetDataID(FName("LimitClientTransmissionRate"));
+			LimitClientTransmissionRate->SetDataDisplayName(LOCTEXT("LimitClientTransmissionRate", "Limit Client Transmission Rate"));
+			LimitClientTransmissionRate->AddDynamicOption(TEXT("Disable"), LOCTEXT("Enable", "Enable"));
+			LimitClientTransmissionRate->AddDynamicOption(TEXT("Enable"), LOCTEXT("Enable", "Enable"));
+			LimitClientTransmissionRate->SetDefaultValueFromString(TEXT("Disable"));
+			LimitClientTransmissionRate->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetCurrentLimitClientTransmissionRate));
+			LimitClientTransmissionRate->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetCurrentLimitClientTransmissionRate));
+			LimitClientTransmissionRate->SetShouldApplySettingsImmediately(true);
+			NetworkCategoryCollection->AddChildListData(LimitClientTransmissionRate);
+		}
 	}
 
 	RegisteredOptionTabCollections.Add(GameplayTabCollection);

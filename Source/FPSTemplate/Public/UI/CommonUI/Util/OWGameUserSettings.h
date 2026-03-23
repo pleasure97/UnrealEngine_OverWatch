@@ -20,6 +20,16 @@ public:
 
 	static UOWGameUserSettings* Get();
 
+	/* Graphic Collection Tab */
+	// Gamma Correction
+	UFUNCTION()
+	float GetCurrentGammaCorrection() const;
+
+	UFUNCTION()
+	void SetCurrentGammaCorrection(float InNewGammaCorrection);
+
+	/* Graphic Collection Tab Ends*/
+
 	/* Gameplay Collection Tab */
 	UFUNCTION()
 	FString GetCurrentEnableAutomaticQueueRegistration() const { return CurrentEnableAutomaticQueueRegistration; }

@@ -7,7 +7,7 @@
 #include "ListEntryDropdownWidget.generated.h"
 
 class UComboBoxString;
-class UListDataObjectStringEnum;
+class UListDataObjectString;
 
 /**
  * 
@@ -37,5 +37,5 @@ private:
 	/* Bound Widgets End */
 
 	UPROPERTY(Transient)
-	UListDataObjectStringEnum* CachedOwningStringEnumDataObject;
+	UListDataObjectString* CachedOwningStringDataObject;
 };

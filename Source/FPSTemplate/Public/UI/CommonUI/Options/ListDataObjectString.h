@@ -19,6 +19,7 @@ public:
 	
 	void AdvanceToNextOption();
 	void BackToPreviousOption();
+	void SetSelectedOption(const FString& InSelectedOption);
 
 	const TArray<FText>& GetAvailableOptionsTextArray() const { return AvailableOptionsTextArray; }
 	FText GetCurrentDisplayText() const { return CurrentDisplayText; }
@@ -35,6 +36,7 @@ protected:
 	/* UListDataObjectBase Ends */ 
 
 	bool TrySetDisplayTextFromStringValue(const FString& InStringValue);
+	bool TrySetStringValueFromDisplayString(const FString& InStringValue);
 
 	FString CurrentStringValue;
 	FText CurrentDisplayText;
@@ -95,4 +97,20 @@ public:
 
 		SetDefaultValueFromString(ConvertedEnumString);
 	}
+};
+
+UCLASS()
+class FPSTEMPLATE_API UListDataObjectStringInteger : public UListDataObjectString
+{
+	GENERATED_BODY()
+
+public:
+	void AddIntegerOption(int32 InIntegerValue, const FText& InDisplayText);
+
+protected:
+	/* UListDataObjectString */
+	virtual void OnDataObjectInitialized() override;
+
+	/* UListDataObjectBase */
+	virtual void OnEditDependencyDataModified(UListDataObjectBase* ModifiedDependencyData, EOptionsListDataModifyReason ModifyReason) override;
 };

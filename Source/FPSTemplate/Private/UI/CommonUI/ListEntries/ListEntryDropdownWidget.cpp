@@ -19,31 +19,31 @@ void UListEntryDropdownWidget::OnOwningListDataObjectSet(UListDataObjectBase* In
 {
 	Super::OnOwningListDataObjectSet(InOwningListDataObject);
 
-	CachedOwningStringEnumDataObject = CastChecked<UListDataObjectStringEnum>(InOwningListDataObject);
-
+	CachedOwningStringDataObject = CastChecked<UListDataObjectString>(InOwningListDataObject);
+	
 	ComboBoxString_Options->ClearOptions();
 
-	for (const FText& Option : CachedOwningStringEnumDataObject->GetAvailableOptionsTextArray())
+	for (const FText& Option : CachedOwningStringDataObject->GetAvailableOptionsTextArray())
 	{
 		ComboBoxString_Options->AddOption(Option.ToString());
 	}
 
-	ComboBoxString_Options->SetSelectedOption(CachedOwningStringEnumDataObject->GetCurrentDisplayText().ToString());
+	ComboBoxString_Options->SetSelectedOption(CachedOwningStringDataObject->GetCurrentDisplayText().ToString());
 }
 
 void UListEntryDropdownWidget::OnOwningListDataObjectModified(UListDataObjectBase* OwningModifiedData, EOptionsListDataModifyReason ModifyReason)
 {
-	if (CachedOwningStringEnumDataObject)
+	if (CachedOwningStringDataObject)
 	{
-		ComboBoxString_Options->SetSelectedOption(CachedOwningStringEnumDataObject->GetCurrentDisplayText().ToString());
+		ComboBoxString_Options->SetSelectedOption(CachedOwningStringDataObject->GetCurrentDisplayText().ToString());
 	}
 }
 
 void UListEntryDropdownWidget::HandleSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
 {
-	if (SelectionType != ESelectInfo::Direct && CachedOwningStringEnumDataObject)
+	if (SelectionType != ESelectInfo::Direct && CachedOwningStringDataObject)
 	{
-		// TODO 
+		CachedOwningStringDataObject->SetSelectedOption(SelectedItem); 
 
 		SelectThisEntryWidget();
 	}
