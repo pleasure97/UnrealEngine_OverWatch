@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/CommonUI/ListEntries/ListEntryBaseWidget.h"
-#include "ListEntryEnumWidget.generated.h"
+#include "ListEntryDropdownWidget.generated.h"
 
 class UComboBoxString;
 class UListDataObjectStringEnum;
@@ -13,7 +13,7 @@ class UListDataObjectStringEnum;
  * 
  */
 UCLASS(Abstract, BlueprintType, meta = (DisableNaiveTick))
-class FPSTEMPLATE_API UListEntryEnumWidget : public UListEntryBaseWidget
+class FPSTEMPLATE_API UListEntryDropdownWidget : public UListEntryBaseWidget
 {
 	GENERATED_BODY()
 	

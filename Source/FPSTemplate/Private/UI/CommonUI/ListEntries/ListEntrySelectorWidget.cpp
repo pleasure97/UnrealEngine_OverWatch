@@ -1,23 +1,23 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "UI/CommonUI/ListEntries/ListEntryStringWidget.h"
+#include "UI/CommonUI/ListEntries/ListEntrySelectorWidget.h"
 #include "UI/CommonUI/Options/ListDataObjectString.h"
 #include "UI/CommonUI/Components/OWCommonRotator.h"
 #include "UI/CommonUI/Components/OWCommonButtonBase.h"
 #include "UI/CommonUI/Util/CommonUIDebugHelper.h"
 
-void UListEntryStringWidget::NativeOnInitialized()
+void UListEntrySelectorWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	CommonButton_PreviousOption->OnClicked().AddUObject(this, &UListEntryStringWidget::OnPreviousOptionClicked);
-	CommonButton_NextOption->OnClicked().AddUObject(this, &UListEntryStringWidget::OnNextOptionClicked);
+	CommonButton_PreviousOption->OnClicked().AddUObject(this, &UListEntrySelectorWidget::OnPreviousOptionClicked);
+	CommonButton_NextOption->OnClicked().AddUObject(this, &UListEntrySelectorWidget::OnNextOptionClicked);
 
 	CommonRotator_AvailableOptions->OnClicked().AddLambda([this](){ SelectThisEntryWidget(); });
 }
 
-void UListEntryStringWidget::OnOwningListDataObjectSet(UListDataObjectBase* InOwningListDataObject)
+void UListEntrySelectorWidget::OnOwningListDataObjectSet(UListDataObjectBase* InOwningListDataObject)
 {
 	Super::OnOwningListDataObjectSet(InOwningListDataObject);
 
@@ -27,7 +27,7 @@ void UListEntryStringWidget::OnOwningListDataObjectSet(UListDataObjectBase* InOw
 	CommonRotator_AvailableOptions->SetSelectedOptionByText(CachedOwningStringDataObject->GetCurrentDisplayText()); 
 }
 
-void UListEntryStringWidget::OnOwningListDataObjectModified(UListDataObjectBase* OwningModifiedData, EOptionsListDataModifyReason ModifyReason)
+void UListEntrySelectorWidget::OnOwningListDataObjectModified(UListDataObjectBase* OwningModifiedData, EOptionsListDataModifyReason ModifyReason)
 {
 	if (CachedOwningStringDataObject)
 	{
@@ -35,7 +35,16 @@ void UListEntryStringWidget::OnOwningListDataObjectModified(UListDataObjectBase*
 	}
 }
 
-void UListEntryStringWidget::OnPreviousOptionClicked()
+void UListEntrySelectorWidget::OnToggleEditableState(bool bIsEditable)
+{
+	Super::OnToggleEditableState(bIsEditable);
+
+	CommonButton_PreviousOption->SetIsEnabled(bIsEditable);
+	CommonRotator_AvailableOptions->SetIsEnabled(bIsEditable);
+	CommonButton_NextOption->SetIsEnabled(bIsEditable);
+}
+
+void UListEntrySelectorWidget::OnPreviousOptionClicked()
 {
 	if (CachedOwningStringDataObject)
 	{
@@ -45,7 +54,7 @@ void UListEntryStringWidget::OnPreviousOptionClicked()
 	SelectThisEntryWidget();
 }
 
-void UListEntryStringWidget::OnNextOptionClicked()
+void UListEntrySelectorWidget::OnNextOptionClicked()
 {
 	if (CachedOwningStringDataObject)
 	{

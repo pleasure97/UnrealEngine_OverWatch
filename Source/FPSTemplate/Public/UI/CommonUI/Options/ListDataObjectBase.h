@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "UI/CommonUI/CommonUIEnumTypes.h"
+#include "UI/CommonUI/CommonUIStructTypes.h"
 #include "ListDataObjectBase.generated.h"
 
 #define LIST_DATA_ACCESORS(DataType, PropertyName) \
@@ -22,6 +23,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FOnListDataModifiedDelegate, UListDataObjectBase*, EOptionsListDataModifyReason);
 
 	FOnListDataModifiedDelegate OnListDataModified;
+	FOnListDataModifiedDelegate OnDependencyDataModified;
 
 	LIST_DATA_ACCESORS(FName, DataID);
 	LIST_DATA_ACCESORS(FText, DataDisplayName);
@@ -45,11 +47,26 @@ public:
 	virtual bool CanResetBackToDefaultValue() const { return false; }
 	virtual bool TryResetBackToDefaultValue() { return false; }
 
+	// Gets Called from OptionDataRegistry for Adding in Edit Conditions for Constructed List Data Objects
+	void AddEditCondition(const FOptionDataEditConditionDescriptor& InEditCondition);
+
+	void AddEditDependencyData(UListDataObjectBase* InDependencyData);
+
+	bool IsDataCurrentlyEditable();
+
 protected:
 	// Child Classes Should Override it to Handle Initialized Needed Accordingly
 	virtual void OnDataObjectInitialized(); 
 
 	virtual void NotifyListDataModified(UListDataObjectBase* ModifiedData, EOptionsListDataModifyReason ModifyReason = EOptionsListDataModifyReason::DirectlyModified);
+
+	// Child Classes Should Override it to Allow the Value to be Set to the Forced String Value
+	virtual bool CanSetToForcedStringValue(const FString& InForcedStringValue) const { return false; }
+
+	// Child Classes Should Override it to Specify How to Set Current Value to Forced Value
+	virtual void OnSetToForcedStringValue(const FString& InForcedStringValue) {}
+
+	virtual void OnEditDependencyDataModified(UListDataObjectBase* ModifiedDependencyData, EOptionsListDataModifyReason ModifyReason);
 
 private:
 	FName DataID;
@@ -63,4 +80,7 @@ private:
 	UListDataObjectBase* ParentData;
 
 	bool bShouldApplyChangeImmediately = false;
+
+	UPROPERTY(Transient)
+	TArray<FOptionDataEditConditionDescriptor> EditConditionDescriptorArray;
 };

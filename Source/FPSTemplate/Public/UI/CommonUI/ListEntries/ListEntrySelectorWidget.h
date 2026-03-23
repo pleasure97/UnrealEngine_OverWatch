@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UI/CommonUI/ListEntries/ListEntryBaseWidget.h"
-#include "ListEntryStringWidget.generated.h"
+#include "ListEntrySelectorWidget.generated.h"
 
 class UOWCommonButtonBase;
 class UOWCommonRotator;
@@ -14,7 +14,7 @@ class UListDataObjectString;
  * 
  */
 UCLASS(Abstract, BlueprintType, meta = (DisableNaiveTick))
-class FPSTEMPLATE_API UListEntryStringWidget : public UListEntryBaseWidget
+class FPSTEMPLATE_API UListEntrySelectorWidget : public UListEntryBaseWidget
 {
 	GENERATED_BODY()
 
@@ -26,6 +26,8 @@ protected:
 	virtual void OnOwningListDataObjectSet(UListDataObjectBase* InOwningListDataObject) override;
 
 	virtual void OnOwningListDataObjectModified(UListDataObjectBase* OwningModifiedData, EOptionsListDataModifyReason ModifyReason) override;
+
+	virtual void OnToggleEditableState(bool bIsEditable) override;
 
 private:
 	void OnPreviousOptionClicked(); 

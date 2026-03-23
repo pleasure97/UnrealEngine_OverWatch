@@ -26,6 +26,8 @@ public:
 	/* UListDataObjectBase */
 	virtual bool CanResetBackToDefaultValue() const override;
 	virtual bool TryResetBackToDefaultValue() override;
+	virtual bool CanSetToForcedStringValue(const FString& InForcedStringValue) const override;
+	virtual void OnSetToForcedStringValue(const FString& InForcedStringValue) override;
 
 protected:
 	/* UListDataObjectBase Begins */

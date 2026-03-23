@@ -9,6 +9,58 @@ void UListDataObjectBase::InitDataObject()
 	OnDataObjectInitialized();
 }
 
+void UListDataObjectBase::AddEditCondition(const FOptionDataEditConditionDescriptor& InEditCondition)
+{
+	EditConditionDescriptorArray.Add(InEditCondition);
+}
+
+void UListDataObjectBase::AddEditDependencyData(UListDataObjectBase* InDependencyData)
+{
+	if (!InDependencyData->OnListDataModified.IsBoundToObject(this))
+	{
+		InDependencyData->OnListDataModified.AddUObject(this, &UListDataObjectBase::OnEditDependencyDataModified);
+	}
+}
+
+bool UListDataObjectBase::IsDataCurrentlyEditable()
+{
+	bool bIsEditable = true; 
+
+	if (EditConditionDescriptorArray.IsEmpty())
+	{
+		return bIsEditable;
+	}
+
+	FString CachedDisabledRichReason;
+
+	for (const FOptionDataEditConditionDescriptor& EditConditionDescriptor : EditConditionDescriptorArray)
+	{
+		if (!EditConditionDescriptor.IsValid() || EditConditionDescriptor.IsEditConditionMet())
+		{
+			continue;
+		}
+
+		bIsEditable = false;
+
+		CachedDisabledRichReason.Append(EditConditionDescriptor.GetDisabledRichReason());
+
+		SetDisabledText(FText::FromString(CachedDisabledRichReason));
+
+		if (EditConditionDescriptor.HasForcedStringValue())
+		{
+			const FString ForcedStringValue =  EditConditionDescriptor.GetDisabledForcedStringValue();
+
+			// If the current value this object data has can be set to forced value
+			if (CanSetToForcedStringValue(ForcedStringValue))
+			{
+				OnSetToForcedStringValue(ForcedStringValue);
+			}
+		}
+	}
+
+	return bIsEditable;
+}
+
 void UListDataObjectBase::OnDataObjectInitialized()
 {
 
@@ -22,4 +74,9 @@ void UListDataObjectBase::NotifyListDataModified(UListDataObjectBase* ModifiedDa
 	{
 		UOWGameUserSettings::Get()->ApplySettings(true);
 	}
+}
+
+void UListDataObjectBase::OnEditDependencyDataModified(UListDataObjectBase* ModifiedDependencyData, EOptionsListDataModifyReason ModifyReason)
+{
+	OnDependencyDataModified.Broadcast(ModifiedDependencyData, ModifyReason);
 }

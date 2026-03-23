@@ -5,6 +5,7 @@
 #include "UI/CommonUI/Options/ListDataObjectCollection.h"
 #include "UI/CommonUI/Options/ListDataObjectString.h"
 #include "UI/CommonUI/Options/ListDataObjectScalar.h"
+#include "UI/CommonUI/Options/ListDataObjectStringResolution.h"
 #include "UI/CommonUI/Options/OptionsDataInteractionHelper.h"
 #include "UI/CommonUI/Util/OWGameUserSettings.h"
 
@@ -83,6 +84,8 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 	GraphicTabCollection->SetDataID(FName("GraphicTabCollection")); 
 	GraphicTabCollection->SetDataDisplayName(LOCTEXT("Graphic", "Graphic"));
 
+	UListDataObjectStringEnum* CreatedDisplayMode = nullptr;
+
 	// Display Category
 	{
 		UListDataObjectCollection* DisplayCategoryCollection = NewObject<UListDataObjectCollection>(); 
@@ -90,6 +93,19 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 		DisplayCategoryCollection->SetDataDisplayName(LOCTEXT("Display", "Display"));
 
 		GraphicTabCollection->AddChildListData(DisplayCategoryCollection); 
+
+		// Edit Condition - Packaged Build
+		FOptionDataEditConditionDescriptor PackagedBuildOnlyCondition;
+		PackagedBuildOnlyCondition.SetEditConditionFunc(
+			[]() -> bool
+			{
+				const bool bIsInEditor = GIsEditor || GIsPlayInEditorWorld;
+
+				return !bIsInEditor;
+			}
+		);
+
+		PackagedBuildOnlyCondition.SetDisabledRichReason(TEXT("\n\n<Disabled>This setting can only be adjusted in packaged build.</>"));
 
 		// Display Mode
 		{
@@ -107,7 +123,44 @@ void UOptionDataRegistry::InitGraphicCollectionTab()
 
 			DisplayMode->SetShouldApplySettingsImmediately(true);
 
+			DisplayMode->AddEditCondition(PackagedBuildOnlyCondition);
+
+			CreatedDisplayMode = DisplayMode;
+
 			DisplayCategoryCollection->AddChildListData(DisplayMode);
+		}
+
+		// Resolution
+		{
+			UListDataObjectStringResolution* ScreenResolution = NewObject<UListDataObjectStringResolution>();
+			ScreenResolution->SetDataID(FName("ScreenResolution"));
+			ScreenResolution->SetDataDisplayName(LOCTEXT("ScreenResolution", "Screen Resolution"));
+			ScreenResolution->InitResolutionValues();
+			ScreenResolution->SetDataDynamicGetter(MAKE_OPTIONS_DATA_CONTROL(GetScreenResolution));
+			ScreenResolution->SetDataDynamicSetter(MAKE_OPTIONS_DATA_CONTROL(SetScreenResolution));
+			ScreenResolution->SetShouldApplySettingsImmediately(true);
+
+			ScreenResolution->AddEditCondition(PackagedBuildOnlyCondition);
+
+			FOptionDataEditConditionDescriptor DisplayModeEditCondition;
+			DisplayModeEditCondition.SetEditConditionFunc(
+				[CreatedDisplayMode]() -> bool
+				{
+					const bool bIsBorderlessWindow = 
+						CreatedDisplayMode->GetCurrentValueAsEnum<EWindowMode::Type>() == EWindowMode::WindowedFullscreen;
+
+					return !bIsBorderlessWindow;
+				}
+			);
+
+			DisplayModeEditCondition.SetDisabledRichReason(
+				TEXT("\n\n<Disabled>Screen resolution is not adjustable when the 'Window Mode' is set borderless window. The value must match with maximum allowed resolution.</>"));
+			DisplayModeEditCondition.SetDisabledForcedStringValue(ScreenResolution->GetMaximumAllowedResolution());
+
+			ScreenResolution->AddEditCondition(DisplayModeEditCondition);
+			ScreenResolution->AddEditDependencyData(CreatedDisplayMode);
+			
+			DisplayCategoryCollection->AddChildListData(ScreenResolution);
 		}
 	}
 

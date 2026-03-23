@@ -104,6 +104,24 @@ bool UListDataObjectString::TryResetBackToDefaultValue()
 	return false;
 }
 
+bool UListDataObjectString::CanSetToForcedStringValue(const FString& InForcedStringValue) const
+{
+	return CurrentStringValue != InForcedStringValue;
+}
+
+void UListDataObjectString::OnSetToForcedStringValue(const FString& InForcedStringValue)
+{
+	CurrentStringValue = InForcedStringValue;
+	TrySetDisplayTextFromStringValue(CurrentStringValue);
+
+	if (DataDynamicSetter)
+	{
+		DataDynamicSetter->SetValueFromString(CurrentStringValue);
+
+		NotifyListDataModified(this, EOptionsListDataModifyReason::DependencyModified);
+	}
+}
+
 void UListDataObjectString::OnDataObjectInitialized()
 {
 	if (!AvailableOptionsStringArray.IsEmpty())
