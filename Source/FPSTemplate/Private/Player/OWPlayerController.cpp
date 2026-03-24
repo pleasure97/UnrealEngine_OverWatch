@@ -14,6 +14,8 @@
 #include "GameFramework/GameplayMessageSubsystem.h"
 #include "Game/OWGamePhaseSubsystem.h"
 #include "Game/OWGameModeBase.h"
+#include "UI/CommonUI/Util/OWGameUserSettings.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 
 AOWPlayerController::AOWPlayerController()
 {
@@ -114,6 +116,14 @@ void AOWPlayerController::OnPossess(APawn* InPawn)
 	Super::OnPossess(InPawn); 
 
 	bPlayerAlive = true; 
+
+	UOWGameUserSettings* OWGameUserSettings = UOWGameUserSettings::Get(); 
+
+	if (OWGameUserSettings->GetLastCPUBenchmarkResult() == -1.f || OWGameUserSettings->GetLastGPUBenchmarkResult() == -1.f)
+	{
+		OWGameUserSettings->RunHardwareBenchmark(); 
+		OWGameUserSettings->ApplyHardwareBenchmarkResults();
+	}
 }
 
 void AOWPlayerController::BeginPlay()
@@ -129,11 +139,17 @@ void AOWPlayerController::SetupInputComponent()
 	{
 		check(OWContext);
 
-		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-
-		if (Subsystem)
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 		{
-			Subsystem->ClearAllMappings();
+			Subsystem->ClearAllMappings(); 
+
+			UEnhancedInputUserSettings* UserSettings = Subsystem->GetUserSettings(); 
+			if (UserSettings)
+			{
+				UserSettings->RegisterInputMappingContext(OWContext);
+				UserSettings->ApplySettings();
+			}
+
 			Subsystem->AddMappingContext(OWContext, 1);
 		}
 	}

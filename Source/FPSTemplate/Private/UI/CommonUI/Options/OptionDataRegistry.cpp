@@ -9,6 +9,10 @@
 #include "UI/CommonUI/Options/OptionsDataInteractionHelper.h"
 #include "UI/CommonUI/Util/OWGameUserSettings.h"
 #include "Internationalization/StringTableRegistry.h"
+#include "EnhancedInputSubsystems.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
+#include "UI/CommonUI/Util/CommonUIDebugHelper.h"
+#include "UI/CommonUI/Options/ListDataObjectKeyRemap.h"
 
 #define LOCTEXT_NAMESPACE "OptionsUI"
 
@@ -22,7 +26,7 @@ void UOptionDataRegistry::InitOptionDataRegistry(ULocalPlayer* InOwningLocalPlay
 	InitGraphicCollectionTab();
 	InitAudioCollectionTab();
 	InitGameplayCollectionTab();
-	InitControlCollectionTab();
+	InitControlCollectionTab(InOwningLocalPlayer);
 }
 
 TArray<UListDataObjectBase*> UOptionDataRegistry::GetListSourceItemsBySelectedTabID(const FName& InSelectedTabID) const
@@ -670,12 +674,114 @@ void UOptionDataRegistry::InitGameplayCollectionTab()
 	RegisteredOptionTabCollections.Add(GameplayTabCollection);
 }
 
-void UOptionDataRegistry::InitControlCollectionTab()
+void UOptionDataRegistry::InitControlCollectionTab(ULocalPlayer* InOwningLocalPlayer)
 {
+	// Initialize Control Tab Collection
 	UListDataObjectCollection* ControlTabCollection = NewObject<UListDataObjectCollection>();
 	ControlTabCollection->SetDataID(FName("ControlTabCollection"));
 	ControlTabCollection->SetDataDisplayName(LOCTEXT("Control", "Control"));
 
+	if (!IsValid(InOwningLocalPlayer))
+	{
+		return;
+	}
+
+	// Get Enhanced Input Local Player Input Subsystem
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = InOwningLocalPlayer->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(InputSubsystem);
+
+	// Get Enhanced Input User Settings 
+	UEnhancedInputUserSettings* InputUserSettings = InputSubsystem->GetUserSettings();
+	check(InputUserSettings);
+
+	// Mouse & Keyboard Key Only
+	FPlayerMappableKeyQueryOptions KeyboardMouseOnly;
+	KeyboardMouseOnly.KeyToMatch = EKeys::S;
+	KeyboardMouseOnly.bMatchBasicKeyTypes = true;
+
+	// Iterate All Saved Key Profiles in Input User Settings 
+	for (const TPair<FGameplayTag, UEnhancedPlayerMappableKeyProfile*>& ProfilePair : InputUserSettings->GetAllSavedKeyProfiles())
+	{
+		UEnhancedPlayerMappableKeyProfile* MappableKeyProfile = ProfilePair.Value;
+		check(MappableKeyProfile);
+
+		// Iterate Player Mapping Rows in All Saved Key Profiles
+		for (const TPair<FName, FKeyMappingRow>& MappingRowPair : MappableKeyProfile->GetPlayerMappingRows())
+		{
+			// Iterate Player Key Mapping in Player Mapping Row
+			for (const FPlayerKeyMapping& KeyMapping : MappingRowPair.Value.Mappings)
+			{
+				if (MappableKeyProfile->DoesMappingPassQueryOptions(KeyMapping, KeyboardMouseOnly))
+				{
+					UListDataObjectKeyRemap* KeyRemapDataObject = NewObject<UListDataObjectKeyRemap>();
+					KeyRemapDataObject->SetDataID(KeyMapping.GetMappingName());
+					KeyRemapDataObject->SetDataDisplayName(KeyMapping.GetDisplayName());
+					KeyRemapDataObject->InitKeyRemapData(InputUserSettings, MappableKeyProfile, ECommonInputType::MouseAndKeyboard, KeyMapping);
+					KeyRemapListDataObjectMap.Add(KeyRemapDataObject, KeyMapping.GetDisplayCategory());
+				}
+			}
+		}
+	}
+
+	// Mouse Category
+	{
+		UListDataObjectCollection* MouseCategoryCollection = NewObject<UListDataObjectCollection>();
+		MouseCategoryCollection->SetDataID(FName("MouseCategoryCollection"));
+		MouseCategoryCollection->SetDataDisplayName(LOCTEXT("MouseCategory", "Mouse"));
+
+		ControlTabCollection->AddChildListData(MouseCategoryCollection);
+
+		// Mouse Sensitivity
+		{
+			
+		}
+
+	}
+
+	// Movement
+	{
+		UListDataObjectCollection* MovementCategoryCollection = NewObject<UListDataObjectCollection>();
+		MovementCategoryCollection->SetDataID(FName("MovementCategoryCollection"));
+		MovementCategoryCollection->SetDataDisplayName(LOCTEXT("Movement", "Movement"));
+
+		AddKeyRemapDataToCategory(MovementCategoryCollection);
+
+		ControlTabCollection->AddChildListData(MovementCategoryCollection);
+	}
+
+	// Weapons & Skills
+	{
+		UListDataObjectCollection* WeaponsSkillsCategoryCollection = NewObject<UListDataObjectCollection>();
+		WeaponsSkillsCategoryCollection->SetDataID(FName("WeaponsSkillsCategoryCollection"));
+		WeaponsSkillsCategoryCollection->SetDataDisplayName(LOCTEXT("Weapons and Skills", "Weapons and Skills"));
+
+		AddKeyRemapDataToCategory(WeaponsSkillsCategoryCollection);
+
+		ControlTabCollection->AddChildListData(WeaponsSkillsCategoryCollection);
+	}
+
+	// Misc
+	{
+		UListDataObjectCollection* MiscCategoryCollection = NewObject<UListDataObjectCollection>();
+		MiscCategoryCollection->SetDataID(FName("MiscCategoryCollection"));
+		MiscCategoryCollection->SetDataDisplayName(LOCTEXT("Misc", "Misc"));
+
+		AddKeyRemapDataToCategory(MiscCategoryCollection);
+
+		ControlTabCollection->AddChildListData(MiscCategoryCollection);
+	}
+
 	RegisteredOptionTabCollections.Add(ControlTabCollection);
+}
+
+void UOptionDataRegistry::AddKeyRemapDataToCategory(UListDataObjectCollection* InCategoryCollection)
+{
+	for (const TPair<UListDataObjectKeyRemap*, FText>& KeyRemapListDataObjectPair : KeyRemapListDataObjectMap)
+	{
+		if (KeyRemapListDataObjectPair.Value.EqualTo(InCategoryCollection->GetDataDisplayName()))
+		{
+			InCategoryCollection->AddChildListData(KeyRemapListDataObjectPair.Key);
+		}
+	}
 }
 #undef LOCTEXT_NAMESPACE

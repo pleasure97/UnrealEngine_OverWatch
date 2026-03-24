@@ -8,6 +8,7 @@
 
 class UListDataObjectCollection;
 class UListDataObjectBase;
+class UListDataObjectKeyRemap;
 
 /**
  * 
@@ -31,8 +32,13 @@ private:
 	void InitGraphicCollectionTab();
 	void InitAudioCollectionTab();
 	void InitGameplayCollectionTab();
-	void InitControlCollectionTab();
+	void InitControlCollectionTab(ULocalPlayer* InOwningLocalPlayer);
+
+	void AddKeyRemapDataToCategory(UListDataObjectCollection* InCategoryCollection);
 
 	UPROPERTY(Transient)
 	TArray<UListDataObjectCollection*> RegisteredOptionTabCollections;
+
+	UPROPERTY(Transient)
+	TMap<UListDataObjectKeyRemap*, FText> KeyRemapListDataObjectMap;
 };

@@ -7,6 +7,8 @@
 #include "OWCommonButtonBase.generated.h"
 
 class UCommonTextBlock;
+class UCommonLazyImage;
+
 /**
  * 
  */
@@ -25,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetButtonDescriptionText(FText InText);
 
+	UFUNCTION(BlueprintCallable)
+	void SetButtonDisplayImage(const FSlateBrush& InBrush);
+
 private:
 	/* UUserWidget Interface */
 	virtual void NativePreConstruct() override; 
@@ -42,6 +47,9 @@ private:
 
 	UPROPERTY(meta = (BindWidgetOptional))
 	TObjectPtr<UCommonTextBlock> CommonTextBlock_ButtonDescriptionText;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional, AllowPrivateAccess="true"))
+	TObjectPtr<UCommonLazyImage> CommonLazyImage_ButtonImage;
 	/* Bound Widgets End */
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Frontend Button", meta = (AllowPrivateAccess="true"))

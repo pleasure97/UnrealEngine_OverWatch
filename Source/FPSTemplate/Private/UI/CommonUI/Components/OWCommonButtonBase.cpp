@@ -3,6 +3,7 @@
 
 #include "UI/CommonUI/Components/OWCommonButtonBase.h"
 #include "CommonTextBlock.h"
+#include "CommonLazyImage.h"
 #include "UI/CommonUI/Util/CommonUISubsystem.h"
 
 void UOWCommonButtonBase::SetButtonDisplayText(FText InText)
@@ -27,6 +28,14 @@ void UOWCommonButtonBase::SetButtonDescriptionText(FText InText)
 	if (CommonTextBlock_ButtonDescriptionText && !InText.IsEmpty())
 	{
 		CommonTextBlock_ButtonDescriptionText->SetText(bUseUpperCaseForButtonText ? InText.ToUpper() : InText);
+	}
+}
+
+void UOWCommonButtonBase::SetButtonDisplayImage(const FSlateBrush& InBrush)
+{
+	if (CommonLazyImage_ButtonImage)
+	{
+		CommonLazyImage_ButtonImage->SetBrush(InBrush);
 	}
 }
 
