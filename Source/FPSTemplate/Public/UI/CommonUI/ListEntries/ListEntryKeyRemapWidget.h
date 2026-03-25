@@ -7,6 +7,7 @@
 #include "ListEntryKeyRemapWidget.generated.h"
 
 class UOWCommonButtonBase;
+class UListDataObjectKeyRemap;
 
 /**
  * 
@@ -16,7 +17,24 @@ class FPSTEMPLATE_API UListEntryKeyRemapWidget : public UListEntryBaseWidget
 {
 	GENERATED_BODY()
 	
+protected:
+	/* UUserWidget */
+	virtual void NativeOnInitialized() override;
+
+	/* UListEntryBaseWidget */
+	virtual void OnOwningListDataObjectSet(UListDataObjectBase* InOwningListDataObject) override;
+
+	virtual void OnOwningListDataObjectModified(UListDataObjectBase* OwningModifiedData, EOptionsListDataModifyReason ModifyReason) override;
+
 private:
+	void OnRemapKeyButtonClicked();
+
+	void OnKeyToRemapPressed(const FKey& PressedKey);
+	void OnKeyRemapCanceled(const FString& CanceldReason);
+
+	void UpdateMappingKeyDisplay(); 
+
+	/* Bound Widgets */
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess="true"))
 	UOWCommonButtonBase* CommonButton_KeyboardRemapKey;
 	
@@ -25,4 +43,7 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	UOWCommonButtonBase* CommonButton_GamepadRemapKey;
+
+	UPROPERTY(Transient)
+	UListDataObjectKeyRemap* CachedOwningKeyRemapDataObject;
 };

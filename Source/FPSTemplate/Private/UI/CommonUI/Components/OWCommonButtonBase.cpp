@@ -39,6 +39,25 @@ void UOWCommonButtonBase::SetButtonDisplayImage(const FSlateBrush& InBrush)
 	}
 }
 
+void UOWCommonButtonBase::SetButtonDisplayMode(bool bShowImage)
+{
+	if (!CommonLazyImage_ButtonImage || !CommonTextBlock_ButtonText)
+	{
+		return;
+	}
+
+	if (bShowImage)
+	{
+		CommonLazyImage_ButtonImage->SetVisibility(ESlateVisibility::Visible);
+		CommonTextBlock_ButtonText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		CommonLazyImage_ButtonImage->SetVisibility(ESlateVisibility::Collapsed);
+		CommonTextBlock_ButtonText->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
 void UOWCommonButtonBase::NativePreConstruct()
 {
 	Super::NativePreConstruct(); 

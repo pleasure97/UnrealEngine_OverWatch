@@ -832,12 +832,15 @@ void FOWGameplayTags::InitializeNativeGameplayTags()
 
 namespace CommonUIGameplayTags
 {
+	/* Common UI - Widgets */
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_MainMenuScreen, "CommonUI.Widget.MainMenuScreen");
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_LoginScreen, "CommonUI.Widget.LoginScreen");
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_ConfirmScreen, "CommonUI.Widget.ConfirmScreen");
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_GameMenuScreen, "CommonUI.Widget.GameMenuScreen");
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_OptionScreen, "CommonUI.Widget.OptionScreen");
+	UE_DEFINE_GAMEPLAY_TAG(CommonUI_Widget_KeyRemapScreen, "CommonUI.Widget.KeyRemapScreen");
 
+	/* Common UI - Widget Stack */
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_Modal, "CommonUI.WidgetStack.Modal");
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_GameMenu, "CommonUI.WidgetStack.GameMenu");
 	UE_DEFINE_GAMEPLAY_TAG(CommonUI_WidgetStack_GameHUD, "CommonUI.WidgetStack.GameHUD");

@@ -25,11 +25,21 @@ public:
 		ECommonInputType InDesiredInputKeyType, 
 		const FPlayerKeyMapping& InOwningPlayerKeyMapping);
 
-	FText GetCategoryName() const { return CategoryName; }
+	FText GetDisplayTextFromCurrentKey() const;
+	FSlateBrush GetIconFromCurrentKey() const;
 
-	void SetCategoryName(FText InCategoryName);
+	ECommonInputType GetDesiredInputType() const { return CachedDesiredInputKeyType; }
+
+	void BindNewInputKey(const FKey& InNewKey);
 
 private:
+	/* UListDataObjectBase */
+	virtual bool HasDefaultValue() const override;
+	virtual bool CanResetBackToDefaultValue() const override;
+	virtual bool TryResetBackToDefaultValue() override;
+
+	FPlayerKeyMapping* GetOwningKeyMapping() const;
+
 	UPROPERTY(Transient)
 	UEnhancedInputUserSettings* CachedOwningInputUserSettings;
 
@@ -41,6 +51,4 @@ private:
 	FName CachedOwningMappingName;
 
 	EPlayerMappableKeySlot CachedOwningMappableKeySlot;
-
-	FText CategoryName;
 };

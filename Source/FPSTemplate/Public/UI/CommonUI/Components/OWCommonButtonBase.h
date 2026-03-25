@@ -30,6 +30,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetButtonDisplayImage(const FSlateBrush& InBrush);
 
+	UFUNCTION(BlueprintCallable)
+	void SetButtonDisplayMode(bool bShowImage);
+
 private:
 	/* UUserWidget Interface */
 	virtual void NativePreConstruct() override; 

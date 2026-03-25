@@ -25,9 +25,15 @@ public:
 	void NativeOnListEntryWidgetHovered(bool bWasHovered);
 	
 protected:
+	// Child Widget Blueprint Should Override it to Handle Highlight State when This Entry Widget is Hovered or Selected
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Toggle Entry Widget Highlight State"))
+	void BP_OnToggleEntryWidgetHighlightState(bool bShouldHighlight) const; 
+
 	/* IUserObjectListEntry*/
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
-	
+
+	virtual void NativeOnItemSelectionChanged(bool bIsSelected) override;
+
 	// Child Class Should Override This Function to Handle Initialization Needed
 	virtual void OnOwningListDataObjectSet(UListDataObjectBase* InOwningListDataObject); 
 

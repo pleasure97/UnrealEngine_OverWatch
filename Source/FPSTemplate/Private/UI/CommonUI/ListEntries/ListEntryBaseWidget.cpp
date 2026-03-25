@@ -8,7 +8,16 @@
 
 void UListEntryBaseWidget::NativeOnListEntryWidgetHovered(bool bWasHovered)
 {
-	BP_OnListEntryWidgetHovered(bWasHovered, IsListItemSelected());
+	BP_OnListEntryWidgetHovered(bWasHovered, GetListItem() ? IsListItemSelected() : false);
+
+	if (bWasHovered)
+	{
+		BP_OnToggleEntryWidgetHighlightState(true);
+	}
+	else
+	{
+		BP_OnToggleEntryWidgetHighlightState(GetListItem() && IsListItemExpanded() ? true : false);
+	}
 }
 
 void UListEntryBaseWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -16,6 +25,13 @@ void UListEntryBaseWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
 	OnOwningListDataObjectSet(CastChecked<UListDataObjectBase>(ListItemObject));
+}
+
+void UListEntryBaseWidget::NativeOnItemSelectionChanged(bool bIsSelected)
+{
+	IUserObjectListEntry::NativeOnItemSelectionChanged(bIsSelected);
+
+	BP_OnToggleEntryWidgetHighlightState(bIsSelected);
 }
 
 void UListEntryBaseWidget::OnOwningListDataObjectSet(UListDataObjectBase* InOwningListDataObject)
