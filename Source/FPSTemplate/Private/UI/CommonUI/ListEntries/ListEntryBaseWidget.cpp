@@ -5,6 +5,7 @@
 #include "UI/CommonUI/Options/ListDataObjectBase.h"
 #include "CommonTextBlock.h"
 #include "Components/ListView.h"
+#include "CommonInputSubsystem.h"
 
 void UListEntryBaseWidget::NativeOnListEntryWidgetHovered(bool bWasHovered)
 {
@@ -20,11 +21,36 @@ void UListEntryBaseWidget::NativeOnListEntryWidgetHovered(bool bWasHovered)
 	}
 }
 
+FReply UListEntryBaseWidget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+{
+	UCommonInputSubsystem* CommonInputSubsystem = GetInputSubsystem();
+
+	if (CommonInputSubsystem && CommonInputSubsystem->GetCurrentInputType() == ECommonInputType::Gamepad)
+	{
+		if (UWidget* WidgetToFocus = BP_GetWidgetToFocusForGamepad())
+		{
+			if (TSharedPtr<SWidget> SlateWidgetToFocus = WidgetToFocus->GetCachedWidget())
+			{
+				return FReply::Handled().SetUserFocus(SlateWidgetToFocus.ToSharedRef());
+			}
+		}
+	}
+
+	return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
+}
+
 void UListEntryBaseWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
 
 	OnOwningListDataObjectSet(CastChecked<UListDataObjectBase>(ListItemObject));
+}
+
+void UListEntryBaseWidget::NativeOnEntryReleased()
+{
+	IUserObjectListEntry::NativeOnEntryReleased(); 
+
+	NativeOnListEntryWidgetHovered(false);
 }
 
 void UListEntryBaseWidget::NativeOnItemSelectionChanged(bool bIsSelected)

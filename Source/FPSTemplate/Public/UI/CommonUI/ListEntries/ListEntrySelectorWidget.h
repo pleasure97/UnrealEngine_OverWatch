@@ -33,6 +33,8 @@ private:
 	void OnPreviousOptionClicked(); 
 	void OnNextOptionClicked(); 
 
+	void OnRotatorValueChanged(int32 Value, bool bUserInitiated);
+
 	/* Bound Widgets */
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget, AllowPrivateAccess = "true"))
 	UOWCommonButtonBase* CommonButton_PreviousOption;

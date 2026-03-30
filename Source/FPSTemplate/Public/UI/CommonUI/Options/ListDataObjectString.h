@@ -19,6 +19,7 @@ public:
 	
 	void AdvanceToNextOption();
 	void BackToPreviousOption();
+	void OnRotatorInitialValueChanged(const FText& InNewSelectedText);
 	void SetSelectedOption(const FString& InSelectedOption);
 
 	const TArray<FText>& GetAvailableOptionsTextArray() const { return AvailableOptionsTextArray; }

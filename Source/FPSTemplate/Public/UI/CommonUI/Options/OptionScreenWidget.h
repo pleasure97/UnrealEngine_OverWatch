@@ -28,6 +28,8 @@ protected:
 	/* UCommonActivatableWidget */
 	virtual void NativeOnActivated() override;
 	virtual void NativeOnDeactivated() override;
+	// Override to provide the desired widget that should receive focus when this becomes the primary active widget.
+	virtual UWidget* NativeGetDesiredFocusTarget() const override;
 	/* UCommonActivatableWidget Ends */
 
 private:
