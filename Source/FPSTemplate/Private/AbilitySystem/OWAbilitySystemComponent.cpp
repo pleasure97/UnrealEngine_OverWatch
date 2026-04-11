@@ -210,8 +210,16 @@ void UOWAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& Inpu
     {
         if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag) && AbilitySpec.IsActive())
         {
+            // Always set InputPressed = false
             AbilitySpecInputReleased(AbilitySpec); 
-            InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilitySpec.ActivationInfo.GetActivationPredictionKey()); 
+
+            if (AbilitySpec.IsActive())
+            {
+                // Replicated Event if active
+                TArray<UGameplayAbility*> AbilityInstances = AbilitySpec.GetAbilityInstances();
+                const FGameplayAbilityActivationInfo& ActivationInfo = AbilityInstances.Last()->GetCurrentActivationInfoRef();
+                InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, ActivationInfo.GetActivationPredictionKey());
+            }
         }
     }
 }
