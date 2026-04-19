@@ -16,6 +16,46 @@ class UWidgetComponent;
 struct FGameplayEffectSpec; 
 class UOWAttributeSet;
 
+/** The type we use to send FastShared movement updates. */
+USTRUCT()
+struct FSharedRepMovement
+{
+	GENERATED_BODY()
+
+	FSharedRepMovement();
+
+	UPROPERTY(Transient)
+	FRepMovement RepMovement;
+
+	UPROPERTY(Transient)
+	float RepTimeStamp = 0.f;
+
+	UPROPERTY(Transient)
+	uint32 RepMovementMode = 0;
+
+	UPROPERTY(Transient)
+	bool bProxyIsJumpForceApplied = false;
+
+	UPROPERTY(Transient)
+	bool bIsCrouched = false;
+
+	bool FillForCharacter(ACharacter* Character);
+
+	bool Equals(const FSharedRepMovement& Other, ACharacter* Character) const;
+
+	bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
+};
+
+template<>
+struct TStructOpsTypeTraits<FSharedRepMovement> : public TStructOpsTypeTraitsBase2<FSharedRepMovement>
+{
+	enum
+	{
+		WithNetSerializer = true,
+		WithNetSharedSerialization = true,
+	};
+};
+
 /**
  * 
  */
@@ -63,6 +103,17 @@ public:
 
 	virtual UAnimInstance* GetFirstPersonMeshAnimInstance_Implementation() const override;
 	/* End Combat Interface */
+
+	/* Replication Graph */
+	virtual bool UpdateSharedReplication();
+
+	// RPCs that is called on frames when default property replication is skipped. 
+	// This replicates a single movement update to everyone
+	UFUNCTION(NetMulticast, unreliable)
+	void FastSharedReplication(const FSharedRepMovement& SharedRepMovement);
+
+	FSharedRepMovement LastSharedRepMovement;
+	/* End Replication Graph */
 
 	/* Getter for Component */
 	UCameraComponent* GetFirstPersonCamera() const; 
@@ -136,9 +187,14 @@ private:
 
 	bool bPossessed = false; 
 
+	bool bEnemy = true;
+
 	FTimerHandle HealthPlateTimerHandle;
 
 	UPROPERTY()
 	FCollisionResponseContainer CollisionResponseContainer;
+
 	void EnableCameraLag();
+
+	void CheckHealthPlateShouldBeUpdated();
 };

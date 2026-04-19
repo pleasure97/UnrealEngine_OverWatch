@@ -23,6 +23,110 @@
 #include "UI/HUD/OWHUD.h"
 #include "Team/OWTeamSubsystem.h"
 
+FSharedRepMovement::FSharedRepMovement()
+{
+	RepMovement.LocationQuantizationLevel = EVectorQuantization::RoundTwoDecimals;
+}
+
+bool FSharedRepMovement::FillForCharacter(ACharacter* Character)
+{
+	// Get Charcter Root Component and Check if it's Valid
+	USceneComponent* CharacterRootComponent = Character->GetRootComponent();
+	if (!IsValid(CharacterRootComponent))
+	{
+		return false;
+	}
+
+	// Get Character Movement Component
+	UCharacterMovementComponent* CharacterMovement = Character->GetCharacterMovement();
+
+	// Setup Location, Rotation, Linear Velocity, Movement Mode and State (Jump, Crouch) of SharedRepMovement
+	RepMovement.Location = FRepMovement::RebaseOntoZeroOrigin(CharacterRootComponent->GetComponentLocation(), Character);
+	RepMovement.Rotation = CharacterRootComponent->GetComponentRotation();
+	RepMovement.LinearVelocity = CharacterMovement->Velocity;
+	RepMovementMode = CharacterMovement->PackNetworkMovementMode();
+	bProxyIsJumpForceApplied = Character->GetProxyIsJumpForceApplied() || (Character->JumpForceTimeRemaining > 0.f);
+	bIsCrouched = Character->IsCrouched();
+
+	// Timestamp is sent as 0 if unused
+	// 'Network Smoothing Mode' is 'Linear' or 'Always Replicate Transform Update'
+	if ((CharacterMovement->NetworkSmoothingMode == ENetworkSmoothingMode::Linear)
+		|| CharacterMovement->bNetworkAlwaysReplicateTransformUpdateTimestamp)
+	{
+		RepTimeStamp = CharacterMovement->GetServerLastTransformUpdateTimeStamp();
+	}
+	else
+	{
+		RepTimeStamp = 0.f;
+	}
+
+	return true;
+}
+
+bool FSharedRepMovement::Equals(const FSharedRepMovement& Other, ACharacter* Character) const
+{
+	// Location
+	if (RepMovement.Location != Other.RepMovement.Location)
+	{
+		return false;
+	}
+
+	// Rotation
+	if (RepMovement.Rotation != Other.RepMovement.Rotation)
+	{
+		return false;
+	}
+
+	// LinearVelocity
+	if (RepMovement.LinearVelocity != Other.RepMovement.LinearVelocity)
+	{
+		return false;
+	}
+
+	// RepMovementMode
+	if (RepMovementMode != Other.RepMovementMode)
+	{
+		return false;
+	}
+
+	// bProxyIsJumpForceApplied
+	if (bProxyIsJumpForceApplied != Other.bProxyIsJumpForceApplied)
+	{
+		return false;
+	}
+
+	// bIsCrouched
+	if (bIsCrouched != Other.bIsCrouched)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool FSharedRepMovement::NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess)
+{
+	bOutSuccess = true;
+	// NetSerialize RepMovement, bProxyIsJumpForceApplied, bIsCrouched in order
+	RepMovement.NetSerialize(Ar, Map, bOutSuccess); 
+	Ar << RepMovementMode; 
+	Ar << bProxyIsJumpForceApplied; 
+	Ar << bIsCrouched;
+
+	uint8 bHasTimeStamp = (RepTimeStamp != 0.f);
+	Ar.SerializeBits(&bHasTimeStamp, 1);
+	if (bHasTimeStamp)
+	{
+		Ar << RepTimeStamp;
+	}
+	else
+	{
+		RepTimeStamp = 0.f;
+	}
+
+	return true;
+}
+
 AOWCharacter::AOWCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true; 
@@ -365,6 +469,70 @@ void AOWCharacter::TransitionCamera_Implementation(bool bFirstPersonView, bool b
 UAnimInstance* AOWCharacter::GetFirstPersonMeshAnimInstance_Implementation() const
 {
 	return FirstPersonMesh->GetAnimInstance(); 
+}
+
+bool AOWCharacter::UpdateSharedReplication()
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FSharedRepMovement SharedRepMovement; 
+		if (SharedRepMovement.FillForCharacter(this))
+		{
+			// Only call FastSharedReplication if data has changed since the last frame.
+			// Skipping this call will cause replication to reuse the same bunch that we previously produced,
+			// but not send it to clients that already received. 
+			// (But a new client who has not received, it will get it this frame)
+			if (!SharedRepMovement.Equals(LastSharedRepMovement, this))
+			{
+				LastSharedRepMovement = SharedRepMovement;
+				SetReplicatedMovementMode(SharedRepMovement.RepMovementMode); 
+				FastSharedReplication(SharedRepMovement);
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+void AOWCharacter::FastSharedReplication_Implementation(const FSharedRepMovement& SharedRepMovement)
+{
+	// Early Return when Playing Replay
+	if (GetWorld()->IsPlayingReplay())
+	{
+		return;
+	}
+
+	// Simulated Proxy - Timestamp is checked to reject old moves
+	if (GetLocalRole() == ROLE_SimulatedProxy)
+	{
+		// Timestamp
+		SetReplicatedServerLastTransformUpdateTimeStamp(SharedRepMovement.RepTimeStamp); 
+
+		// Movement Mode 
+		if (GetReplicatedMovementMode() != SharedRepMovement.RepMovementMode)
+		{
+			SetReplicatedMovementMode(SharedRepMovement.RepMovementMode); 
+			GetCharacterMovement()->bNetworkMovementModeChanged = true; 
+			GetCharacterMovement()->bNetworkUpdateReceived = true;
+		}
+
+		// Location, Rotation, and Velocity
+		FRepMovement& MutableRepMovement = GetReplicatedMovement_Mutable(); 
+		MutableRepMovement = SharedRepMovement.RepMovement;
+
+		// RepNotify Replicated Movement
+		OnRep_ReplicatedMovement(); 
+
+		// Jump Force
+		SetProxyIsJumpForceApplied(SharedRepMovement.bProxyIsJumpForceApplied); 
+
+		// Crouch
+		if (IsCrouched() != SharedRepMovement.bIsCrouched)
+		{
+			SetIsCrouched(SharedRepMovement.bIsCrouched); 
+			OnRep_IsCrouched();
+		}
+	}
 }
 
 UCameraComponent* AOWCharacter::GetFirstPersonCamera() const

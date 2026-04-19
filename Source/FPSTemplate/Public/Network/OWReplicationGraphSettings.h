@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettingsBackedByCVars.h"
+#include "OWReplicationGraphTypes.h"
 #include "OWReplicationGraphSettings.generated.h"
 
 /**
@@ -53,7 +54,7 @@ public:
 	float SpatialBiasY = -200000.0f;
 
 	UPROPERTY(EditAnywhere, Category = SpatialGrid, meta = (ConsoleVariable = "OW.ReplicationGraph.EnableSpatialRebuilds"))
-	bool bEnableSpatialRebuilds = false;
+	bool bDisableSpatialRebuilds = true;
 
 	/* Dynamic Spatial Frequency */
 	// How many buckets to spread dynamic, spatialized actors across.
@@ -61,4 +62,8 @@ public:
 	// This happens before individual actors do their own NetUpdateFrequency check.
 	UPROPERTY(EditAnywhere, Category = DynamicSpatialFrequency, meta = (ConsoleVariable = "OW.ReplicationGraph.DynamicActorFrequencyBuckets"))
 	int32 DynamicActorFrequencyBuckets = 3;
+
+	// Array of Custom Settings for Specific Classes 
+	UPROPERTY(config, EditAnywhere, Category = ReplicationGraph)
+	TArray<FRepGraphActorClassSettings> ClassSettings;
 };
