@@ -216,7 +216,7 @@ void AOWCharacterBase::OnWallHit(UPrimitiveComponent* HitComponent, AActor* Othe
 {
 	// Check if Character Has 'Status_Suppressed' GameplayTag
 	const FOWGameplayTags& GameplayTags = FOWGameplayTags::Get();
-	if (!GetAbilitySystemComponent()->HasMatchingGameplayTag(GameplayTags.Status_Suppressed))
+	if (!GetAbilitySystemComponent() || !GetAbilitySystemComponent()->HasMatchingGameplayTag(GameplayTags.Status_Suppressed))
 	{
 		return;
 	}

@@ -266,6 +266,12 @@ void AOWGameModeBase::ActivateHeroFromPool(APlayerController* PlayerController, 
 
 		// Start Hero at Player Start 
 		AOWPlayerStart* OWPlayerStart = RestartHeroAtPlayerStart(PlayerController);
+
+		if (!IsValid(OWPlayerStart))
+		{
+			UE_LOG(LogTemp, Log, TEXT("OWPlayerStart is Not Valid in AOWGameModeBase::ActivateHeroFromPool()"));
+			return;
+		}
 		FTransform SpawnTransform = OWPlayerStart->GetActorTransform(); 
 
 		HeroToUse->SetActorTransform(SpawnTransform);

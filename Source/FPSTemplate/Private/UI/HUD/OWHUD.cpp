@@ -29,14 +29,17 @@ void AOWHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystem
 	const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS); 
 	UOverlayWidgetController* WidgetController = GetOverlayWidgetController(WidgetControllerParams); 
 
-	PlayerOverlay->SetWidgetController(WidgetController); 
-
-	if (!bInitialized)
+	if (PlayerOverlay)
 	{
-		bInitialized = true; 
+		PlayerOverlay->SetWidgetController(WidgetController);
 		PlayerOverlay->AddToViewport();
 		WidgetController->BroadcastInitialValues();
 	}
+
+	/*if (!bInitialized)
+	{
+		bInitialized = true; 
+	}*/
 }
 
 void AOWHUD::ShowOverlay()

@@ -63,8 +63,6 @@ public:
 	TObjectPtr<UUserWidget> AbilityWidget;
 
 protected:
-	float GetSkillCost(float InLevel = 1.f) const; 
-
 	float GetCooldown(float InLevel = 1.f); 
 
 	UFUNCTION(BlueprintImplementableEvent, DisplayName = "OnPawnAvatarSet")

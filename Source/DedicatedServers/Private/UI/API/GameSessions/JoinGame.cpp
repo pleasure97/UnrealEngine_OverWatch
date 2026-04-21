@@ -26,6 +26,21 @@ void UJoinGame::NativeConstruct()
 	RollbackOriginalWidget();
 }
 
+void UJoinGame::NativeDestruct()
+{
+	if (MID_LoadingThrobber)
+	{
+		MID_LoadingThrobber = nullptr; 
+	}
+
+	if (Button_CancelJoinGame)
+	{
+		Button_CancelJoinGame->OnClicked.RemoveAll(this); 
+	}
+
+	Super::NativeDestruct();
+}
+
 void UJoinGame::OnJoiningGameCanceled()
 {
 	// TODO - Click Cancel Join Game Button even with Finding Active Game Session

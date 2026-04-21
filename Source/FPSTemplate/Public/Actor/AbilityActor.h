@@ -49,7 +49,7 @@ protected:
 	virtual void InitializeVitalAttributes(); 
 
 	/* Ability System */
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<UOWAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
