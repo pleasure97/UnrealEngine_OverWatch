@@ -35,7 +35,7 @@ public:
 
 	/* Hero Info */
 	UPROPERTY(ReplicatedUsing = OnRep_HeroName, BlueprintReadOnly)
-	EHeroName HeroName;
+	EHeroName HeroName = EHeroName::TRACER;
 
 	EHeroName GetHeroName() const { return HeroName; }
 	UFUNCTION(BlueprintCallable)
@@ -79,6 +79,13 @@ public:
 	UFUNCTION()
 	int32 GetTeamId() const { return GenericTeamIdToInteger(MyTeamID);  }
 
+	/* Replicated View Rotation */
+	// Gets the replicated view rotation of this player, used for spectating
+	FRotator GetReplicatedViewRotation() const;
+
+	// Sets the replicated view rotation, only valid on the server
+	void SetReplicatedViewRotation(const FRotator& NewRotation);
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override; 
 protected:
@@ -106,6 +113,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_MyTeamID)
 	FGenericTeamId MyTeamID;
+
+	UPROPERTY(Replicated)
+	FRotator ReplicatedViewRotation;
 
 	UFUNCTION()
 	void OnRep_Level(int32 OldLevel); 

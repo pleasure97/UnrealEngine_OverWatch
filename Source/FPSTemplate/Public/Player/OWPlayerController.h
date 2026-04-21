@@ -30,6 +30,14 @@ class FPSTEMPLATE_API AOWPlayerController : public ADSPlayerController, public I
 public:
 	AOWPlayerController(); 
 
+	/** AActor Interface **/
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	/** AActor Interface End **/
+
+	/** AController Interface **/
+	virtual void PlayerTick(float DeltaTime) override;
+	/** AController Interface End **/
+
 	/** Team Interface **/
 	virtual void SetGenericTeamId(const FGenericTeamId& NewTeamID) override; 
 	virtual FGenericTeamId GetGenericTeamId() const override; 

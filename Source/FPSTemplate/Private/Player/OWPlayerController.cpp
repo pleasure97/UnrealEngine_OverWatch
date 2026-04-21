@@ -23,6 +23,50 @@ AOWPlayerController::AOWPlayerController()
 	bPlayerAlive = true; 
 }
 
+void AOWPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Disable replicating the PC target view as it doesn't work well for replays or client-side spectating.
+	// The engine TargetViewRotation is only set in APlayerController::TickActor if the server knows ahead of time that 
+	// a specific pawn is being spectated and it only replicates down for COND_OwnerOnly.
+	// In client-saved replays, COND_OwnerOnly is never true and the target pawn is not always known at the time of recording.
+	// To support client-saved replays, the replication of this was moved to ReplicatedViewRotation and updated in PlayerTick.
+	DISABLE_REPLICATED_PROPERTY(APlayerController, TargetViewRotation);
+}
+
+void AOWPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+
+	AOWPlayerState* OWPlayerState = CastChecked<AOWPlayerState>(PlayerState, ECastCheckedType::NullAllowed);
+
+	if (PlayerCameraManager && OWPlayerState)
+	{
+		APawn* TargetPawn = PlayerCameraManager->GetViewTargetPawn();
+
+		if (TargetPawn)
+		{
+			// Update view rotation on the server so it replicates
+			if (HasAuthority() || TargetPawn->IsLocallyControlled())
+			{
+				OWPlayerState->SetReplicatedViewRotation(TargetPawn->GetViewRotation());
+			}
+
+			// Update the target view rotation if the pawn isn't locally controlled
+			if (!TargetPawn->IsLocallyControlled())
+			{
+				OWPlayerState = TargetPawn->GetPlayerState<AOWPlayerState>();
+				if (OWPlayerState)
+				{
+					// Get it from the spectated pawn's player state, which may not be the same as the PC's playerstate
+					TargetViewRotation = OWPlayerState->GetReplicatedViewRotation();
+				}
+			}
+		}
+	}
+}
+
 void AOWPlayerController::SetGenericTeamId(const FGenericTeamId& NewTeamID)
 {
 	UE_LOG(LogTemp, Error, TEXT("You can't set the team ID on a player controller (%s); it's driven by the associated player state"), *GetPathNameSafe(this));

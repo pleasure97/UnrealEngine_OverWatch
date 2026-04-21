@@ -46,12 +46,22 @@ void AOWPlayerState::OnRep_HeroName()
 void AOWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
-	DOREPLIFETIME(AOWPlayerState, MyTeamID); 
-	DOREPLIFETIME(AOWPlayerState, HeroName);
-	DOREPLIFETIME(AOWPlayerState, Level); 
-	DOREPLIFETIME(AOWPlayerState, XP); 
-	DOREPLIFETIME(AOWPlayerState, AttributePoints); 
-	DOREPLIFETIME(AOWPlayerState, SpellPoints); 
+
+	// Apply Pushed Model to Player State 
+	FDoRepLifetimeParams SharedParams;
+	SharedParams.bIsPushBased = true;
+
+	// Use Property ID Internally to Find Properties Faster
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, MyTeamID, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, HeroName, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, Level, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, XP, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, AttributePoints, SharedParams);
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, SpellPoints, SharedParams);
+
+	// Skip Owner - Replicated View Rotation
+	SharedParams.Condition = ELifetimeCondition::COND_SkipOwner;
+	DOREPLIFETIME_WITH_PARAMS_FAST(AOWPlayerState, ReplicatedViewRotation, SharedParams);
 }
 
 void AOWPlayerState::PostInitializeComponents()
@@ -138,6 +148,20 @@ FGenericTeamId AOWPlayerState::GetGenericTeamId() const
 FOnTeamIndexChangedDelegate* AOWPlayerState::GetOnTeamIndexChangedDelegate()
 {
 	return &OnTeamChangedDelegate; 
+}
+
+FRotator AOWPlayerState::GetReplicatedViewRotation() const
+{
+	return ReplicatedViewRotation;
+}
+
+void AOWPlayerState::SetReplicatedViewRotation(const FRotator& NewRotation)
+{
+	if (NewRotation != ReplicatedViewRotation)
+	{
+		MARK_PROPERTY_DIRTY_FROM_NAME(AOWPlayerState, ReplicatedViewRotation, this);
+		ReplicatedViewRotation = NewRotation;
+	}
 }
 
 

@@ -16,6 +16,23 @@ class UWidgetComponent;
 struct FGameplayEffectSpec; 
 class UOWAttributeSet;
 
+/** Compressed representation of acceleration **/
+USTRUCT()
+struct FOWReplicatedAcceleration
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	uint8 AccelerationXYRadians = 0;	// Direction of XY acceleration component, quantized to represent [0, 2*pi]
+
+	UPROPERTY()
+	uint8 AccelerationXYMagnitude = 0;	// Acceleration rate of XY component, quantized to represent [0, MaxAcceleration]
+
+	UPROPERTY()
+	int8 AccelerationZ = 0;	// Raw Z acceleration rate component, quantized to represent [-MaxAcceleration, MaxAcceleration]
+};
+
+
 /** The type we use to send FastShared movement updates. */
 USTRUCT()
 struct FSharedRepMovement
@@ -67,6 +84,7 @@ class FPSTEMPLATE_API AOWCharacter : public AOWCharacterBase, public ILevelUpInt
 public:
 	AOWCharacter(); 
 
+	/* AActor */
 	virtual void Restart() override;
 
 	virtual void PossessedBy(AController* NewController) override;
@@ -74,6 +92,10 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	virtual void PostInitializeComponents() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 
 	/* Ability System Component & Attribute Set */
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -176,11 +198,19 @@ private:
 
 	void UpdateHealthPlateVisibility();
 
+	/* Components */
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UScreenEffectComponent> ScreenEffectComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWidgetComponent> HealthPlateComponent;
+
+	/* Acceleration */
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_ReplicatedAcceleration)
+	FOWReplicatedAcceleration ReplicatedAcceleration;
+
+	UFUNCTION()
+	void OnRep_ReplicatedAcceleration();
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUp() const; 

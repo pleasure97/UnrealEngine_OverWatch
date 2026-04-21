@@ -272,6 +272,35 @@ void AOWCharacter::PostInitializeComponents()
 	}
 }
 
+void AOWCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps); 
+
+	DOREPLIFETIME_CONDITION(AOWCharacter, ReplicatedAcceleration, COND_SimulatedOnly);
+}
+
+void AOWCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	// Get Character Movement Component
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		// Compress Acceleration: XY components as direction + magnitude, Z component as direct value
+		const double MaxAcceleration = MovementComponent->MaxAcceleration;
+		const FVector CurrentAcceleration = MovementComponent->GetCurrentAcceleration();
+		double AccelXYRadians, AccelXYMagnitude;
+		FMath::CartesianToPolar(CurrentAcceleration.X, CurrentAcceleration.Y, AccelXYMagnitude, AccelXYRadians);
+
+		// [0, 2PI] -> [0, 255]
+		ReplicatedAcceleration.AccelerationXYRadians = FMath::FloorToInt((AccelXYRadians / TWO_PI) * 255.0);    
+		// [0, MaxAccel] -> [0, 255]
+		ReplicatedAcceleration.AccelerationXYMagnitude = FMath::FloorToInt((AccelXYMagnitude / MaxAcceleration) * 255.0);	
+		// [-MaxAccel, MaxAccel] -> [-127, 127]
+		ReplicatedAcceleration.AccelerationZ = FMath::FloorToInt((CurrentAcceleration.Z / MaxAcceleration) * 127.0); 
+	}
+}
+
 UAbilitySystemComponent* AOWCharacter::GetAbilitySystemComponent() const
 {
 	AOWPlayerState* OWPlayerState = Cast<AOWPlayerState>(GetPlayerState());
@@ -754,6 +783,24 @@ void AOWCharacter::UpdateHealthPlateVisibility()
 		HealthPlateComponent->SetVisibility(bVisibleNow);
 		UE_LOG(LogTemp, Log, TEXT("DifferentTeams in AOWCharacter::UpdateHealthPlateVisibility()"));
 		return;
+	}
+}
+
+void AOWCharacter::OnRep_ReplicatedAcceleration()
+{
+	if (UCharacterMovementComponent* CharMovementComponent = GetCharacterMovement())
+	{
+		// Decompress Acceleration
+		const double MaxAccel = CharMovementComponent->MaxAcceleration;
+		// [0, 255] -> [0, MaxAccel]
+		const double AccelerationXYMagnitude = double(ReplicatedAcceleration.AccelerationXYMagnitude) * MaxAccel / 255.0; 
+		// [0, 255] -> [0, 2PI]
+		const double AccelerationXYRadians = double(ReplicatedAcceleration.AccelerationXYRadians) * TWO_PI / 255.0;     
+
+		FVector UnpackedAcceleration(FVector::ZeroVector);
+		FMath::PolarToCartesian(AccelerationXYMagnitude, AccelerationXYRadians, UnpackedAcceleration.X, UnpackedAcceleration.Y);
+		// [-127, 127] -> [-MaxAccel, MaxAccel]
+		UnpackedAcceleration.Z = double(ReplicatedAcceleration.AccelerationZ) * MaxAccel / 127.0; 
 	}
 }
 
