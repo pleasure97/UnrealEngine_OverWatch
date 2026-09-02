@@ -4,8 +4,7 @@ Intermediate
 Saved
 Build
 Plugins/Developer/RiderLink/
-Content/Assets/Effects/Textures/Flipbooks/SmokeSwirl_3_Flipbook_CHANNELPACK.uasset
-Content/Maps/Egypt/Maps/Stylized_Egypt_Demo_BuiltData.uasset
+Content
 RAG/overwatch-knowledge/
 
 .idea/
@@ -14,6 +13,7 @@ RAG/overwatch-knowledge/
 *.sln.docstates
 .vscode
 .vs
+.vsconfig
 *.VC.db
 *.opensdf
 *.opendb
